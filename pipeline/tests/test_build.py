@@ -65,6 +65,22 @@ class Selection(unittest.TestCase):
         self.assertAlmostEqual(b.select([r])[(826, "X", 458)]["t"], 2.5)
 
 
+class Mixed(unittest.TestCase):
+    def test_codes_summed_and_views_kept_apart(self):
+        rows = []
+        for code, kg in (("854931", 1000), ("854939", 3000)):
+            r = row(826, "X", 458, kg, 10)
+            r["cmdCode"] = code
+            rows.append(r)
+        r = row(458, "M", 826, 5000, 30)
+        r["cmdCode"] = "854931"
+        rows.append(r)
+        out, _ = b.mixed_streams(rows)
+        self.assertIn([0, 826, 458, 4.0, 20, 0], out["weee"])
+        self.assertIn([1, 826, 458, 5.0, 30, 0], out["weee"])
+        self.assertEqual(out["paper"], [])
+
+
 def sel(t, usd, est=False):
     return {"t": t, "usd": usd, "est": est, "basis": "partner2 World"}
 
@@ -99,6 +115,14 @@ class Cleaning(unittest.TestCase):
         self.assertEqual(s[(1, "X", 2)]["usd"], 50000)
         self.assertEqual(s[(3, "X", 4)]["t"], 10000)
         self.assertEqual({c["key"]: c["rule"] for c in changes}, {(1, "X", 2): "B", (3, "X", 4): "C"})
+
+    def test_gross_error_reestimated_from_value(self):
+        s = self.base()
+        s[(5, "M", 6)] = sel(2_000_000, 2_000_000)   # 1 US$/t, no partner report
+        changes, _ = b.clean(s)
+        self.assertAlmostEqual(s[(5, "M", 6)]["t"], 4000)
+        self.assertEqual(s[(5, "M", 6)]["est"], 2)
+        self.assertEqual([c["rule"] for c in changes], ["D"])
 
     def test_in_range_records_untouched(self):
         s = self.base()

@@ -95,7 +95,8 @@ def fetch(key, year, cmd):
 def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--year", type=int, required=True)
-    ap.add_argument("--cmd", default="3915", help="HS code (default 3915, plastic waste)")
+    ap.add_argument("--cmd", default="3915", help="HS code, or several separated by commas (default 3915, plastic waste)")
+    ap.add_argument("--name", help="file name part instead of hs<cmd>, e.g. mixed")
     ap.add_argument("--key-from-proxy", action="store_true",
                     help="send no key; a network proxy adds the subscription header")
     a = ap.parse_args()
@@ -106,7 +107,7 @@ def main():
     if not rows:
         raise SystemExit("Comtrade returned no records.")
     RAW.mkdir(exist_ok=True)
-    path = RAW / f"comtrade_hs{a.cmd}_{a.year}.json"
+    path = RAW / f"comtrade_{a.name or 'hs' + a.cmd}_{a.year}.json"
     meta = {"downloaded": dt.date.today().isoformat(), "year": a.year, "cmd": a.cmd,
             "endpoint": API, "breakdownMode": "plus", "records": len(rows)}
     with open(path, "w", encoding="utf-8") as f:

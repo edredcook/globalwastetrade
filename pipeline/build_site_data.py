@@ -87,7 +87,7 @@ def view_medians(selected):
     return med
 
 
-def clean(selected, factor=10.0):
+def clean(selected, factor=10.0, gross=100.0):
     """Repair weights in place. Returns a list of changes for the check report.
 
     A. No weight but a value: take the partner's weight if its mirror report is in
@@ -95,6 +95,9 @@ def clean(selected, factor=10.0):
     B. US$ per tonne more than `factor` times away from the flow's median, and the
        partner's mirror report of the same route is within range: take the
        partner's weight. The value stays as reported.
+    D. No usable partner report and US$ per tonne more than `gross` times away from
+       the median (a units error, such as 2.4 Mt of clothing at US$1 a tonne):
+       weight = value / that flow's median US$ per tonne.
     C. Other out-of-range records are left as reported and listed.
     Re-estimated weights are marked est = 2 (1 means the reporter estimated it).
     """
@@ -124,6 +127,10 @@ def clean(selected, factor=10.0):
         if mirror and in_range(mirror, mflow):
             changes.append({"rule": "B", "key": (rep, flow, par), "old_t": v["t"], "new_t": mirror["t"], "usd": v["usd"]})
             v.update(t=mirror["t"], est=2, cleaned="weight from partner's report")
+        elif gross and not m / gross <= v["usd"] / v["t"] <= m * gross:
+            new = v["usd"] / m
+            changes.append({"rule": "D", "key": (rep, flow, par), "old_t": v["t"], "new_t": new, "usd": v["usd"]})
+            v.update(t=new, est=2, cleaned="weight estimated from value")
         else:
             changes.append({"rule": "C", "key": (rep, flow, par), "old_t": v["t"], "new_t": v["t"], "usd": v["usd"]})
     return changes, med
@@ -155,6 +162,49 @@ def countries_for(routes, rows, ref, map_ids):
         out[c] = [iso or "", NAMES.get(c, name or f"Code {c}"), "NS", mid if mid in map_ids else None]
         new.append(c)
     return out, new
+
+
+# Municipal waste often moves at a gate fee, so a near-zero US$ per tonne can be
+# genuine: rule D is not applied to it.
+NO_RULE_D = {"382510"}
+
+# Wastes that carry plastic amongst other materials. Each is selected and cleaned
+# code by code with the same rules as HS 3915, then the codes are summed.
+STREAMS = {
+    "fibre": ["550510"],
+    "clothing": ["6309"],
+    "rags": ["6310"],
+    "weee": ["854931", "854939"],   # HS 8549 exists from HS 2022
+    "weeeo": ["854991", "854999"],
+    "rdf": ["382510"],
+    "paper": ["4707"],
+}
+
+
+def mixed_streams(rows, factor=10.0):
+    """Comtrade routes for each mixed stream, in the site's route format.
+
+    Returns ({stream: routes}, {stream: {"A": n, "B": n, "C": n}}).
+    """
+    by_code = defaultdict(list)
+    for r in rows:
+        by_code[s(r.get("cmdCode"))].append(r)
+    out, rules = {}, {}
+    for k, codes in STREAMS.items():
+        merged = {}
+        rules[k] = {"A": 0, "B": 0, "C": 0, "D": 0}
+        for code in codes:
+            sel = select(by_code.get(code, []))
+            changes, _ = clean(sel, factor, None if code in NO_RULE_D else 100.0)
+            for c in changes:
+                rules[k][c["rule"]] += 1
+            for v, ex, rc, t, usd, est in routes_from(sel):
+                m = merged.setdefault((v, ex, rc), [v, ex, rc, 0.0, 0, 0])
+                m[3] = round(m[3] + t, 2)
+                m[4] += usd
+                m[5] = max(m[5], est)
+        out[k] = sorted(merged.values(), key=lambda r: (r[0], -r[3]))
+    return out, rules
 
 
 WB_ISO = {"S19": "TWN"}  # Comtrade's code for Taiwan
@@ -193,6 +243,7 @@ def cleaning_section(changes, med, factor, names):
     flows = {"X": "exporters' reports", "M": "importers' reports"}
     rules = {"A": "No weight given: partner's weight, or value at the median US$ per tonne",
              "B": "US$ per tonne out of range: weight taken from the partner's report",
+             "D": "US$ per tonne 100 times out, no usable partner report: value at the median US$ per tonne",
              "C": "US$ per tonne out of range, no usable partner report: left as reported"}
     lines = ["## Cleaning", "",
              "Median US$ per tonne: " + ", ".join(f"{flows[f]} {m:,.0f}" for f, m in med.items() if m) +
@@ -202,7 +253,7 @@ def cleaning_section(changes, med, factor, names):
         cs = [c for c in changes if c["rule"] == k]
         lines.append(f"| {label} | {len(cs):,} | {sum(c['old_t'] for c in cs):,.0f} | {sum(c['new_t'] for c in cs):,.0f} |")
     lines.append("")
-    for k in ("B", "C"):
+    for k in ("B", "D", "C"):
         cs = sorted((c for c in changes if c["rule"] == k), key=lambda c: -max(c["old_t"], c["new_t"], c["usd"] / 1e4))[:25]
         if not cs:
             continue
@@ -214,6 +265,32 @@ def cleaning_section(changes, med, factor, names):
             lines.append(f"| {names.get(str(rep), rep)} | {flow} | {names.get(str(par), par)} | {c['old_t']:,.1f} | {c['new_t']:,.1f} | {c['usd']:,.0f} | {uv:,.0f} |")
         lines.append("")
     return lines
+
+
+def mixed_report(year, mixed, rules):
+    """Mixed-stream totals per view, checked against BACI where we hold BACI figures."""
+    if not mixed:
+        return ""
+    baci_path = REF / f"baci_mixed_streams_{year}.json"
+    baci = load(baci_path)["streams"] if baci_path.exists() else {}
+    lines = ["", "## Wastes carrying plastic amongst other materials", "",
+             "Whole stream tonnes, before any plastic share is applied."
+             + (" BACI is shown as a check only; the site uses Comtrade." if baci else ""), "",
+             "| Stream | HS | Exporters' reports, t | Importers' reports, t | "
+             + ("BACI, t | Exporters ÷ BACI | " if baci else "") + "Cleaned A / B / D / C |",
+             "|---|---|---:|---:|" + ("---:|---:|" if baci else "") + "---|"]
+    for k, codes in STREAMS.items():
+        rs = mixed.get(k, [])
+        x = sum(r[3] for r in rs if r[0] == 0)
+        m = sum(r[3] for r in rs if r[0] == 1)
+        row = f"| {k} | {', '.join(codes)} | {x:,.0f} | {m:,.0f} | "
+        if baci:
+            b = sum(r[2] for r in baci.get(k, []))
+            row += f"{b:,.0f} | {x / b:.2f} | " if b else "0 | – | "
+        r = rules.get(k, {})
+        row += f"{r.get('A', 0)} / {r.get('B', 0)} / {r.get('D', 0)} / {r.get('C', 0)} |"
+        lines.append(row)
+    return "\n".join(lines) + "\n"
 
 
 def report(year, raw_meta, rows, selected, routes, countries, new, prev, warn, changes=(), med=None, factor=10.0):
@@ -275,7 +352,17 @@ def main():
     selected = select(rows)
     changes, med = clean(selected, a.outlier_factor)
     routes = routes_from(selected)
-    countries, new = countries_for(routes, rows, ref, map_ids)
+    mixed_path = RAW / f"comtrade_mixed_{a.year}.json"
+    mixed, mixed_rules, mixed_meta = {}, {}, None
+    if mixed_path.exists():
+        m = load(mixed_path)
+        mixed_meta = m["meta"]
+        mixed, mixed_rules = mixed_streams(m["data"], a.outlier_factor)
+        rows_for_names = rows + m["data"]
+    else:
+        rows_for_names = rows
+    all_routes = routes + [r for rs in mixed.values() for r in rs]
+    countries, new = countries_for(all_routes, rows_for_names, ref, map_ids)
     income = load(REF / "income_history.json")
     apply_income(countries, income, a.year)
 
@@ -309,14 +396,16 @@ def main():
         "aliases": aliases,
         "hidden": {},
     }
-    baci = REF / f"baci_mixed_streams_{a.year}.json"
-    if baci.exists():
-        b = load(baci)
-        data["meta"]["hidden_source"] = b["source"]
-        data["hidden"] = b["streams"]
+    if mixed_meta:
+        data["meta"]["hidden_source"] = (f"UN Comtrade API, downloaded {mixed_meta.get('downloaded')}; "
+                                         "same selection and cleaning as HS 3915")
+        data["hidden"] = {k: v for k, v in mixed.items() if v}
+    elif a.year >= 2019:
+        warn.append("No mixed-stream download (comtrade_mixed_<year>.json); run fetch_comtrade.py --name mixed.")
 
     REPORTS.mkdir(exist_ok=True)
     rep = report(a.year, raw["meta"], rows, selected, routes, countries, new, prev, warn, changes, med, a.outlier_factor)
+    rep += mixed_report(a.year, mixed, mixed_rules)
     (REPORTS / f"hs{a.cmd}_{a.year}.md").write_text(rep, encoding="utf-8")
     if warn:
         print("\n".join(warn), file=sys.stderr)

@@ -535,13 +535,12 @@ $("#year").onchange=e=>goYear(e.target.value);
 VERSION=`UN Comtrade ${YEAR}, ${CODE}`+(data.meta.built?` · built ${data.meta.built}`:"");
 $("#srcline").textContent=`UN Comtrade ${YEAR} · ${CODE} · ${data.meta.desc}`;
 const BASE=data.routes.map(r=>({v:r[0],ex:String(r[1]),rc:String(r[2]),t:r[3],usd:r[4],est:r[5],basis:r[0]===0?"exporter report":"importer report"}));
-const HTOT={};for(const k in HS)HTOT[k]=d3.sum(data.hidden[k]||[],x=>x[2]);
+const HROWS={};for(const k in HS)HROWS[k]=(data.hidden[k]||[]).map(r=>({v:r[0],ex:String(r[1]),rc:String(r[2]),t:r[3],usd:r[4],est:r[5]})).filter(r=>C[r.ex]&&C[r.rc]);
 const ALIAS=data.aliases||{};
 let R=[];
-const HAS_HID=Object.keys(data.hidden||{}).length>0;if(!HAS_HID)$("#hp").hidden=true;
+const HAS_HID=Object.values(HROWS).some(x=>x.length);if(!HAS_HID)$("#hp").hidden=true;
 const hidOn=()=>!HAS_HID?[]:Object.keys(HS).filter(k=>{const h=HON[k];return h.on&&h.w>0&&(h.byInc?Object.values(h.inc).some(v=>v>0):h.f>0)});
-function resolve(){
-  const RAW=S.scrap?BASE:[];
+function pairUp(RAW){
   const m=new Map();for(const r of RAW){const k=r.ex+">"+r.rc;if(!m.has(k))m.set(k,[null,null]);m.get(k)[r.v]=r}
   const out=[];
   for(const [k,[x,i]] of m){
@@ -553,22 +552,27 @@ function resolve(){
     else{t=i.t;usd=i.usd;est=i.est;basis="importer only"}
     const s=x||i;out.push({v:2,ex:s.ex,rc:s.rc,t:Math.round(t*100)/100,usd:Math.round(usd),est,basis});
   }
+  return out;
+}
+const hViews=k=>{const rs=HROWS[k];return rs.concat(pairUp(rs))};
+const hTot=(k,v)=>d3.sum(hViews(k),r=>r.v===v?r.t:0);
+function resolve(){
+  const RAW=S.scrap?BASE:[],out=pairUp(RAW);
   const rows=RAW.map(r=>({...r,hid:0,hu:0,hs:null})).concat(out.map(r=>({...r,hid:0,hu:0,hs:null})));
   const on=hidOn();
   if(on.length){
     const idx=new Map();for(const r of rows)idx.set(r.v+"|"+r.ex+"|"+r.rc,r);
     for(const k of on){
-      for(const [e,i,t,usd] of data.hidden[k]||[]){const ex=String(e),rc=String(i);if(!C[ex]||!C[rc])continue;const f=shareOf(k,ex);
-        for(const v of [0,1,2]){const key=v+"|"+ex+"|"+rc;let r=idx.get(key);
-          if(!r){r={v,ex,rc,t:0,usd:0,est:false,basis:"hidden plastic only (BACI)",hid:0,hu:0,hs:null};rows.push(r);idx.set(key,r)}
-          const tt=t*f,uu=usd*f;r.t+=tt;r.usd+=uu;r.hid+=tt;r.hu+=uu;(r.hs||(r.hs={}))[k]=(r.hs[k]||0)+tt}}}
+      for(const h of hViews(k)){const {v,ex,rc}=h,f=shareOf(k,ex),key=v+"|"+ex+"|"+rc;let r=idx.get(key);
+        if(!r){r={v,ex,rc,t:0,usd:0,est:false,basis:"hidden plastic only",hid:0,hu:0,hs:null};rows.push(r);idx.set(key,r)}
+        const tt=h.t*f,uu=h.usd*f;r.t+=tt;r.usd+=uu;r.hid+=tt;r.hu+=uu;(r.hs||(r.hs={}))[k]=(r.hs[k]||0)+tt}}
   }
   R=rows;
 }
 const PW=()=>{const h=hidOn().length;return !h?"plastic waste":S.scrap?"plastic waste and hidden plastic":"hidden plastic"};
 const aggS=rs=>{let t=0,usd=0,est=0;for(const r of rs){t+=r.t-(r.hid||0);usd+=r.usd-(r.hu||0);if(r.est)est+=r.t-(r.hid||0)}return{t,usd,est,n:rs.length}};
 const hDesc=k=>{const h=HON[k];return HS[k].n+" "+(h.byInc?"HIC "+h.inc.HIC+"/UMC "+h.inc.UMC+"/LMC "+h.inc.LMC+"/LIC "+h.inc.LIC+"% plastic":h.f+"% plastic")+(isDef(k)?"":" (user value"+(h.usrc.trim()?"; source: "+h.usrc.trim():", no source given")+")")};
-function hpNote(){const on=hidOn();return on.length?" · hidden plastic: "+on.map(hDesc).join(", ")+" (BACI 2023)"+(S.scrap?"":" · plastic scrap left out"):""}
+function hpNote(){const on=hidOn();return on.length?" · hidden plastic: "+on.map(hDesc).join(", ")+" (UN Comtrade "+YEAR+")"+(S.scrap?"":" · plastic scrap left out"):""}
 resolve();
 const name=c=>C[c]?C[c][1]:c, iso=c=>C[c]?C[c][0]:c, inc=c=>C[c]?C[c][2]:"NS";
 const regOf=(c,sch=S.scheme)=>(SCH[sch]&&SCH[sch][c])||null;
@@ -1205,8 +1209,8 @@ $("#dlcopy").onclick=async()=>{const rows=dlRows(),keys=dlKeys(),txt=S.fmt==="js
 
 // ---------- CONTROLS ----------
 function segment(sel,attr,fn){const btns=[...document.querySelectorAll(sel+" button")];btns.forEach(b=>b.addEventListener("click",()=>{if(b.disabled||b.dataset[attr]===undefined)return;btns.forEach(x=>x.setAttribute("aria-pressed",x===b?"true":"false"));fn(b.dataset[attr])}))}
-segment("#view","v",v=>{S.view=+v;$("#resmethodbox").hidden=S.view!==2;B.view=S.view;pressed("#bview","v",B.view);render()});
-$("#resmethod").onchange=e=>{S.resolve=e.target.value;resolve();render()};
+segment("#view","v",v=>{S.view=+v;$("#resmethodbox").hidden=S.view!==2;B.view=S.view;pressed("#bview","v",B.view);render();if(HAS_HID)hpUI()});
+$("#resmethod").onchange=e=>{S.resolve=e.target.value;resolve();render();if(HAS_HID)hpUI()};
 segment("#measure","m",v=>{S.measure=v;render()});
 segment("#incf","f",v=>{S.incf=v;render()});
 segment("#mapmode","v",v=>{S.mapMode=v;S.sel=null;partnerVals=new Map();$("#hlbox").hidden=v==="regions";render()});
@@ -1218,27 +1222,28 @@ segment("#lval","v",v=>{if(v==="none"){D.lab="none"}else{D.lval=v;if(D.lab==="no
 segment("#fdir","v",v=>{S.fdir=v;render()});
 segment("#fgrp","v",v=>{S.fgrp=v;render();fitFocus()});
 // ---------- hidden plastics ----------
-const SCRAPT=d3.sum(BASE.filter(r=>r.v===0),r=>r.t);
+const SCRAPV=v=>v===2?d3.sum(pairUp(BASE),r=>r.t):d3.sum(BASE,r=>r.v===v?r.t:0);
 function hpUI(){
   const num=(attr,k,v,lab)=>`<input type="number" min="0" max="100" step="0.25" value="${v}" ${attr}="${k}" aria-label="${lab}">`;
-  $("#hpgrid").innerHTML=`<div class="hpc ${S.scrap?"on":""}" data-k="scrap"><label class="t"><input type="checkbox" id="hp-scrap" ${S.scrap?"checked":""}> <span>Plastic scrap</span></label><small>${esc(CODE)} · ${fT(SCRAPT)} by exporters' reports</small><div class="f">Counted in full</div><small class="src">The main series, from UN Comtrade.</small></div>`+
-    Object.entries(HS).map(([k,h])=>{const o=HON[k],L=esc(h.n);return `<div class="hpc ${o.on?"on":""}" data-k="${k}"><label class="t"><input type="checkbox" data-k="${k}" ${o.on?"checked":""}> <span>${L}</span></label><small>${h.codes} · ${fT(HTOT[k])} traded in ${YEAR}</small>
+  $("#hpgrid").innerHTML=`<div class="hpc ${S.scrap?"on":""}" data-k="scrap"><label class="t"><input type="checkbox" id="hp-scrap" ${S.scrap?"checked":""}> <span>Plastic scrap</span></label><small>${esc(CODE)} · ${fT(SCRAPV(S.view))}, ${VIEWS[S.view]}</small><div class="f">Counted in full</div><small class="src">The main series, from UN Comtrade.</small></div>`+
+    Object.entries(HS).filter(([k])=>HROWS[k].length).map(([k,h])=>{const o=HON[k],L=esc(h.n);return `<div class="hpc ${o.on?"on":""}" data-k="${k}"><label class="t"><input type="checkbox" data-k="${k}" ${o.on?"checked":""}> <span>${L}</span></label><small>${h.codes} · ${fT(hTot(k,S.view))} traded in ${YEAR}</small>
       <div class="f" ${o.byInc?"hidden":""}><span class="fl">Plastic share</span><input type="range" min="0" max="100" step="0.25" value="${o.f}" data-kf="${k}" list="hpd-${k}" aria-label="Plastic share of ${L}"><datalist id="hpd-${k}"><option value="${h.f}"></option></datalist>${num("data-kn",k,o.f,"Plastic share of "+L+", per cent")}%</div>
       <div class="incg" ${o.byInc?"":"hidden"}>${["HIC","UMC","LMC","LIC"].map(g=>`<label>${g}${num("data-ki-"+g.toLowerCase(),k,o.inc[g],"Plastic share for "+INC[g]+" exporters")}</label>`).join("")}</div>
       <label class="sm"><input type="checkbox" data-kb="${k}" ${o.byInc?"checked":""}> Plastic share varies by exporter's income group</label>
       <div class="srcbox" id="hps-${k}"></div><div class="add" id="hpa-${k}"></div></div>`}).join("");
-  for(const k in HS)hpSrc(k,true);
+  for(const k in HS)if(HROWS[k].length)hpSrc(k,true);
   hpRefresh();
 }
 function hpSrc(k,force){const box=$("#hps-"+k),d=isDef(k);if(!force&&box.dataset.d===String(d))return;box.dataset.d=d;const h=HS[k],o=HON[k];
   box.innerHTML=d?`<small class="src">${esc(h.src)}</small>`:`<label class="usl"><span>Source for your value</span><input type="text" maxlength="300" class="usrc ${o.usrc.trim()?"":"need"}" data-ks="${k}" value="${esc(o.usrc)}" placeholder="Add a source" aria-label="Source for your ${esc(h.n)} plastic share"></label><small class="src def">Default ${h.f}%. ${esc(h.src)} <button type="button" class="relnk" data-kr="${k}">Use default</button></small>`}
-const addOf=k=>{let s=0;for(const [e,i,t] of data.hidden[k]||[]){const ex=String(e);if(C[ex]&&C[String(i)])s+=t*shareOf(k,ex)}return s};
+const addOf=k=>{let s=0;for(const h of hViews(k))if(h.v===S.view)s+=h.t*shareOf(k,h.ex);return s};
 function hpRefresh(){
   const on=hidOn(),adds={};for(const k in HS)adds[k]=addOf(k);const add=d3.sum(on,k=>adds[k]);
-  for(const k in HS){hpSrc(k);$("#hpa-"+k).textContent=(HON[k].on?"Adds ":"Would add ")+fT(adds[k])+" of plastic";$(`.hpc[data-k="${k}"]`).classList.toggle("on",HON[k].on)}
+  const SCRAPT=SCRAPV(S.view);
+  for(const k in HS){if(!HROWS[k].length)continue;hpSrc(k);$("#hpa-"+k).textContent=(HON[k].on?"Adds ":"Would add ")+fT(adds[k])+" of plastic";$(`.hpc[data-k="${k}"]`).classList.toggle("on",HON[k].on)}
   $(`.hpc[data-k="scrap"]`).classList.toggle("on",S.scrap);
   $("#hpsum").innerHTML=on.length?`<b>${on.length} stream${on.length>1?"s":""} on</b>, adding ${fT(add)} of plastic${S.scrap?` to ${fT(SCRAPT)} of plastic scrap (+${d3.format(".0%")(add/SCRAPT)})`:", plastic scrap left out"}`:S.scrap?"":"Nothing selected.";
-  $("#hptot").textContent=on.length?`Total: ${fT(add+(S.scrap?SCRAPT:0))} of plastic on exporters' figures.`:"";
+  $("#hptot").textContent=on.length?`Total: ${fT(add+(S.scrap?SCRAPT:0))} of plastic, ${VIEWS[S.view]}.`:"";
   try{localStorage.setItem("gwt-assumptions",JSON.stringify({streams:HON}))}catch(e){}
 }
 let hpT=0;const hpApply=()=>{cancelAnimationFrame(hpT);hpT=requestAnimationFrame(()=>{resolve();render();hpRefresh()})};
