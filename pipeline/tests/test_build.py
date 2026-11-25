@@ -148,6 +148,17 @@ class SiteData(unittest.TestCase):
             for k in ("un", "unsub", "wb", "oecd"):
                 self.assertIn(k, d["schemes"])
 
+    def test_trend_files_keep_views_apart(self):
+        man = json.load(open(ROOT / "site" / "data" / "manifest.json"))
+        for f in (ROOT / "site" / "data").glob("trends*.json"):
+            t = json.load(open(f))
+            self.assertEqual(t["years"], man["years"])
+            for v in ("0", "1"):
+                flows = t["income_flows"][v]
+                self.assertEqual(len(flows), len(t["years"]))
+                for i, m in enumerate(flows):
+                    self.assertAlmostEqual(sum(map(sum, m)), t["world"][v]["t"][i], delta=len(t["groups"]) ** 2)
+
 
 if __name__ == "__main__":
     unittest.main()
