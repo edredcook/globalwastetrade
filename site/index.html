@@ -127,6 +127,15 @@ aside.side > *{min-width:0}
 .side .sub{color:var(--muted);font-size:13px;margin-top:2px}
 .pill{display:inline-block;font-size:11px;text-transform:uppercase;letter-spacing:.06em;padding:2px 8px;border-radius:999px;border:1px solid var(--border);color:var(--muted);font-weight:600}
 .kpis{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.trend svg{display:block;width:100%;height:auto;overflow:visible;cursor:pointer}
+.trend .tl{fill:none;stroke-width:2}
+.trend .tl.dash{stroke-dasharray:4 3}
+.trend .ax{font-size:10px;fill:var(--muted)}
+.trend .grid{stroke:var(--border);stroke-width:.5}
+.trend .now{stroke:var(--ink);stroke-width:1;stroke-dasharray:2 2}
+.trend .leg{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px;color:var(--muted);margin-top:4px}
+.trend .leg i{display:inline-block;width:14px;height:0;border-top:2px solid;vertical-align:middle;margin-right:4px}
+.trend .leg i.dash{border-top-style:dashed}
 .kpi{background:var(--raise);border-radius:8px;padding:10px;min-width:0}
 .kpi span{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:600;display:block}
 .kpi b{font-family:var(--mono);font-size:19px;font-weight:500;font-variant-numeric:tabular-nums;display:block;margin-top:2px}
@@ -147,6 +156,17 @@ aside.side > *{min-width:0}
 .side h4{margin:0 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-weight:600}
 
 section.block{margin-top:36px;scroll-margin-top:64px}
+.cred{display:grid;grid-template-columns:112px 1fr minmax(200px,260px);gap:20px 24px;padding:20px;align-items:start}
+.cred .face{width:112px;height:112px;border-radius:50%;object-fit:cover;background:var(--raise)}
+.cred h3{margin:0;font-family:var(--display);font-stretch:85%;font-weight:800;font-size:22px}
+.cred .role{color:var(--muted);font-size:13px;margin-top:2px}
+.cred p{margin:10px 0 0;font-size:14px;line-height:1.55;max-width:70ch}
+.cred .links{display:flex;gap:14px;margin-top:10px;font-size:13px}
+.cred a{color:var(--in);text-underline-offset:2px}
+.cred .made{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:13px;border-left:1px solid var(--border);padding-left:20px}
+.cred .made dt{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:600;padding-top:2px}
+.cred .made dd{margin:0}
+@media (max-width:820px){.cred{grid-template-columns:88px 1fr}.cred .face{width:88px;height:88px}.cred .made{grid-column:1/-1;border-left:0;padding-left:0;border-top:1px solid var(--border);padding-top:14px}}
 .block > .hd{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:12px}
 .block h2{margin:0;font-family:var(--display);font-stretch:85%;font-weight:800;font-size:28px;line-height:1.1;text-wrap:balance}
 .block .hd p{margin:4px 0 0;color:var(--muted);font-size:14px;max-width:72ch}
@@ -270,7 +290,7 @@ footer b{color:var(--ink);font-weight:600}
 <header class="mast"><div class="wrap">
   <div class="brand"><i aria-hidden="true"></i>Global Waste Trade</div>
   <nav class="top" aria-label="Sections">
-    <a href="#explore">Map</a><a href="#build">Build a chart</a><a href="#rankings">Countries</a><a href="#getdata">Get the data</a>
+    <a href="#explore">Map</a><a href="#build">Build a chart</a><a href="#rankings">Countries</a><a href="#getdata">Get the data</a><a href="#credits">Credits</a>
     <button class="designbtn" data-open-design>Design</button>
   </nav>
 </div></header>
@@ -288,7 +308,7 @@ footer b{color:var(--ink);font-weight:600}
         <button disabled>E-waste <small>soon</small></button>
       </div></div>
     <div class="ctl"><span>Year</span>
-      <div class="seg"><button disabled>2019</button><button disabled>2021</button><button aria-pressed="true">2023</button></div></div>
+      <select id="year" aria-label="Year"></select></div>
     <div class="ctl"><span>Whose figures</span>
       <div class="seg" id="view">
         <button data-v="0" aria-pressed="true"><span class="dot" style="background:var(--out)"></span>Exporters'</button>
@@ -415,6 +435,25 @@ footer b{color:var(--ink);font-weight:600}
     </div>
   </section>
 
+  <section class="block" id="credits">
+    <div class="hd"><div><h2>Credits</h2></div></div>
+    <div class="card cred">
+      <img class="face" src="img/ed-cook.webp" width="112" height="112" alt="Ed Cook">
+      <div class="who">
+        <h3>Dr Ed Cook</h3>
+        <div class="role">Research Associate, Department of Civil and Environmental Engineering, Imperial College London</div>
+        <p>Ed works on plastic pollution and the circular economy. He was a core member of the team behind the P2O model and <i>Breaking the Plastic Wave</i>, helped build the waste component of the OECD's <i>Global Plastics Outlook</i>, and co-developed SPOT, the global plastic pollution model published in <i>Nature</i> in 2024. He is lead author of the World Bank's <i>What a Waste 3.0</i> (2026). Before academia he ran waste services for events, worked on the waste strategy for the London 2012 Games and advised governments and companies on the transboundary trade in waste. He is a Chartered Waste Manager.</p>
+        <div class="links"><a href="https://profiles.imperial.ac.uk/e.r.cook" target="_blank" rel="noopener">Imperial profile</a><a href="https://orcid.org/0000-0003-3902-7705" target="_blank" rel="noopener">ORCID</a></div>
+      </div>
+      <dl class="made">
+        <dt>Data</dt><dd>UN Comtrade</dd>
+        <dt>Income groups</dt><dd>World Bank historical classifications</dd>
+        <dt>Map</dt><dd>Natural Earth</dd>
+        <dt>Built with</dt><dd>Claude, by Anthropic</dd>
+      </dl>
+    </div>
+  </section>
+
 </main>
 
 <aside class="drawer" id="drawer" hidden aria-label="Design settings">
@@ -485,18 +524,22 @@ const B={type:"sankey",from:"c",to:"c",side:"ex",group:"c",scheme:"un",view:0,me
 const DDEF={preset:"container",out:null,in:null,res:null,maxr:45,line:1,lab:"both",lval:"net",globe:"trade",lpos:"auto",ldens:3,lsize:11,anim:true,choro:false,font:12,vals:true,nodew:12,gap:10,op:.35,lcol:"source",h:1};
 let D={...DDEF};try{const s=JSON.parse(localStorage.getItem("gwt-design-v6")||"null");if(s)D={...DDEF,...s}}catch(e){}
 
-let data,world;
-try{const ok=r=>{if(!r.ok)throw new Error(r.status);return r.json()};const man=await fetch("data/manifest.json").then(ok);[data,world]=await Promise.all([fetch(`data/plastic_${man.latest}.json`).then(ok),fetch("data/world-110m.json").then(ok)]);}
+let data,world,TR=null,MAN=null;
+try{const ok=r=>{if(!r.ok)throw new Error(r.status);return r.json()};MAN=await fetch("data/manifest.json").then(ok);const qy=+new URLSearchParams(location.search).get("year");const yr=MAN.years.includes(qy)?qy:MAN.latest;[data,world,TR]=await Promise.all([fetch(`data/plastic_${yr}.json`).then(ok),fetch("data/world-110m.json").then(ok),fetch("data/trends.json").then(ok).catch(()=>null)]);}
 catch(e){$("#maptitle").textContent="The data could not load. Refresh the page to try again.";$("#side").innerHTML="";return;}
 
 const C=data.countries,SCH=data.schemes,YEAR=data.meta.year,CODE=data.meta.code;
+$("#year").innerHTML=MAN.years.slice().reverse().map(y=>`<option value="${y}" ${y===YEAR?"selected":""}>${y}</option>`).join("");
+const goYear=y=>{const u=new URL(location.href);u.searchParams.set("year",y);if(S.sel)u.searchParams.set("c",S.sel);else u.searchParams.delete("c");location.href=u.toString()};
+$("#year").onchange=e=>goYear(e.target.value);
 VERSION=`UN Comtrade ${YEAR}, ${CODE}`+(data.meta.built?` · built ${data.meta.built}`:"");
 $("#srcline").textContent=`UN Comtrade ${YEAR} · ${CODE} · ${data.meta.desc}`;
 const BASE=data.routes.map(r=>({v:r[0],ex:String(r[1]),rc:String(r[2]),t:r[3],usd:r[4],est:r[5],basis:r[0]===0?"exporter report":"importer report"}));
 const HTOT={};for(const k in HS)HTOT[k]=d3.sum(data.hidden[k]||[],x=>x[2]);
 const ALIAS=data.aliases||{};
 let R=[];
-const hidOn=()=>Object.keys(HS).filter(k=>{const h=HON[k];return h.on&&h.w>0&&(h.byInc?Object.values(h.inc).some(v=>v>0):h.f>0)});
+const HAS_HID=Object.keys(data.hidden||{}).length>0;if(!HAS_HID)$("#hp").hidden=true;
+const hidOn=()=>!HAS_HID?[]:Object.keys(HS).filter(k=>{const h=HON[k];return h.on&&h.w>0&&(h.byInc?Object.values(h.inc).some(v=>v>0):h.f>0)});
 function resolve(){
   const RAW=S.scrap?BASE:[];
   const m=new Map();for(const r of RAW){const k=r.ex+">"+r.rc;if(!m.has(k))m.set(k,[null,null]);m.get(k)[r.v]=r}
@@ -869,6 +912,7 @@ function side(){
     const rs=routes(),tot=agg(rs);
     el.innerHTML=`<div class="col"><div><span class="pill">${esc(S.region||"World")} · ${YEAR} · ${VIEWS[S.view]}</span><h3 style="margin-top:8px">${fmt(mval(tot,m),m)}</h3><div class="sub">${S.incf==="hl"?"high-income to lower-income routes":PW()+" traded"}, ${d3.format(",")(rs.length)} country-to-country records</div></div>
     <div class="kpis"><div class="kpi"><span>Weight</span><b>${fT(tot.t)}</b></div><div class="kpi"><span>Value</span><b>${fU(tot.usd)}</b><em>${fP(mval(tot,"ppt"))} average</em></div></div>
+    <div class="trend" id="trend"></div>
     <div class="mirror">${ledger()} ${tot.t?d3.format(".0%")(tot.est/tot.t)+" of the tonnage here is an estimated weight.":""}</div>${hidBars(rs)}</div>
     <div><h4>Biggest senders ${m==="ppt"?"(price, largest by weight)":""}</h4><div class="bars">${bars(topBy(rs,"ex",m,10),css("--out"),m)}</div></div>
     <div><h4>Biggest receivers ${m==="ppt"?"(price, largest by weight)":""}</h4><div class="bars">${bars(topBy(rs,"rc",m,10),css("--in"),m)}</div></div>`;
@@ -889,6 +933,7 @@ function side(){
     el.innerHTML=`<div class="col"><div><span class="pill">${INC[me[2]]||me[2]} · ${esc(regOf(c)||"")}</span><h3 style="margin-top:8px">${esc(me[1])}</h3><div class="sub">${esc(me[0])} · ${PW()} · ${YEAR} · ${VIEWS[S.view]}</div></div>
     <div class="kpis"><div class="kpi out"><span>Sent abroad</span><b>${fT(out.t)}</b><em>${fU(out.usd)} · ${fP(mval(out,"ppt"))}</em></div>
       <div class="kpi in"><span>Received</span><b>${fT(inn.t)}</b><em>${fU(inn.usd)} · ${fP(mval(inn,"ppt"))}</em></div></div>
+    <div class="trend" id="trend"></div>
     <div class="mirror"><b>Exports: three ways to count.</b> ${flag}
       <div class="bar2"><span>${esc(me[0])} says</span><span class="track"><i style="width:${sv/mx*100}%;background:var(--out)"></i></span><span>${fmt(sv,mm)}</span></div>
       <div class="bar2"><span>Partners say</span><span class="track"><i style="width:${mv/mx*100}%;background:var(--in)"></i></span><span>${fmt(mv,mm)}</span></div>
@@ -902,6 +947,36 @@ function side(){
     $("#sidechart").onclick=()=>{B.focus=true;$("#bfocus").checked=true;setType("sankey");$("#build").scrollIntoView()};
   }
   el.querySelectorAll(".row[data-c]").forEach(r=>r.onclick=()=>{if(C[r.dataset.c])select(r.dataset.c)});
+  drawTrend();
+}
+function drawTrend(){
+  const el=$("#trend");if(!el||!TR||TR.years.length<2){if(el)el.remove();return}
+  const m=S.measure,c=S.sel,yrs=TR.years,vs=S.view===2?[0,1]:[S.view],two=vs.length>1;
+  const pick=(t,u)=>yrs.map((_,i)=>m==="usd"?u[i]:m==="ppt"?(t[i]>0?u[i]/t[i]:null):t[i]);
+  const fig=v=>v?"importers' figures":"exporters' figures";
+  let ser=[];
+  if(c){const o=TR.countries[c];if(!o){el.remove();return}
+    for(const v of vs){const s=o[v];if(!s)continue;
+      ser.push({k:"Sent"+(two?` (${fig(v)})`:""),col:css("--out"),dash:two&&v===1,ys:pick(s.out_t||[],s.out_usd||[])});
+      ser.push({k:"Received"+(two?` (${fig(v)})`:""),col:css("--in"),dash:two&&v===1,ys:pick(s.in_t||[],s.in_usd||[])})}}
+  else for(const v of [0,1])ser.push({k:fig(v).replace(/^./,x=>x.toUpperCase()),col:v?css("--in"):css("--out"),dash:false,ys:pick(TR.world[v].t,TR.world[v].usd)});
+  const f=m==="usd"?fU:m==="ppt"?fP:fT,W=Math.max(240,el.clientWidth||300),H=130,L=48,Rm=6,T=8,Bm=18;
+  const x=d3.scaleLinear().domain(d3.extent(yrs)).range([L,W-Rm]);
+  const ymax=d3.max(ser,s=>d3.max(s.ys,v=>v||0))||1,y=d3.scaleLinear().domain([0,ymax]).nice(3).range([H-Bm,T]);
+  const svg=d3.create("svg").attr("viewBox",`0 0 ${W} ${H}`).attr("role","img").attr("aria-label",`${CODE} by year, ${yrs[0]} to ${yrs[yrs.length-1]}`);
+  for(const t of y.ticks(3)){svg.append("line").attr("class","grid").attr("x1",L).attr("x2",W-Rm).attr("y1",y(t)).attr("y2",y(t));
+    svg.append("text").attr("class","ax").attr("x",L-4).attr("y",y(t)+3).attr("text-anchor","end").text(t?f(t):"0")}
+  const step=yrs.length>10?4:2;
+  for(const yr of yrs)if((yr-yrs[0])%step===0||yr===yrs[yrs.length-1])svg.append("text").attr("class","ax").attr("x",x(yr)).attr("y",H-4).attr("text-anchor","middle").text(yr);
+  svg.append("line").attr("class","now").attr("x1",x(YEAR)).attr("x2",x(YEAR)).attr("y1",T).attr("y2",H-Bm);
+  const ln=d3.line().defined(v=>v!=null).x((v,i)=>x(yrs[i])).y(v=>y(v));
+  for(const s of ser){svg.append("path").attr("class","tl"+(s.dash?" dash":"")).attr("stroke",s.col).attr("d",ln(s.ys));
+    const i=yrs.indexOf(YEAR);if(i>=0&&s.ys[i]!=null)svg.append("circle").attr("cx",x(YEAR)).attr("cy",y(s.ys[i])).attr("r",3).attr("fill",s.col)}
+  svg.on("click",e=>{const [px]=d3.pointer(e);const yr=Math.round(x.invert(px));if(yrs.includes(yr)&&yr!==YEAR)goYear(yr)})
+     .on("mousemove",e=>{const [px]=d3.pointer(e);const yr=Math.round(x.invert(px)),i=yrs.indexOf(yr);if(i<0)return;
+       showTip(e,`<b>${yr}</b>`+ser.map(s=>`<br>${esc(s.k)}: ${s.ys[i]==null?"—":f(s.ys[i])}`).join(""))}).on("mouseleave",hideTip);
+  el.innerHTML=`<h4>${esc(CODE)}, ${yrs[0]} to ${yrs[yrs.length-1]}</h4>`;el.append(svg.node());
+  el.insertAdjacentHTML("beforeend",`<div class="leg">${ser.map(s=>`<span><i class="${s.dash?"dash":""}" style="border-color:${s.col}"></i>${esc(s.k)}</span>`).join("")}</div>`);
 }
 
 // ---------- CHART BUILDER ----------
@@ -1213,6 +1288,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){if(!$("#drawer").hi
 function select(c){if(!c){S.fgrp="c";pressed("#fgrp","v","c")}S.sel=c;if(!c){partnerVals=new Map();B.focus=false;$("#bfocus").checked=false}render()}
 function render(){hideTip();side();drawMap();drawChart();rank();buildDL()}
 fillRegions();setType("sankey");render();
+{const qc=new URLSearchParams(location.search).get("c");if(qc&&C[qc])select(qc)}
 })();
 </script>
 </body>

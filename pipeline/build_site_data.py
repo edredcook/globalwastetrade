@@ -33,7 +33,8 @@ WORLD = 0
 
 
 def s(v):
-    return "" if v is None else str(v)
+    # Comtrade pads some codes in older years ("0 " for mosCode), so strip.
+    return "" if v is None else str(v).strip()
 
 
 def is_total(r):
@@ -156,6 +157,28 @@ def countries_for(routes, rows, ref, map_ids):
     return out, new
 
 
+WB_ISO = {"S19": "TWN"}  # Comtrade's code for Taiwan
+
+
+def apply_income(countries, history, year):
+    """Set each country's income group to the World Bank's group for this data year.
+
+    Economies the World Bank lists, but left unclassified that year, get "NS".
+    Places it never lists keep the group from countries.json.
+    """
+    last = str(min(year, history["years"][1]))
+    changed = 0
+    for c, v in countries.items():
+        g = history["groups"].get(WB_ISO.get(v[0], v[0]))
+        if g is None:
+            continue
+        new = g.get(last, "NS")
+        if new != v[2]:
+            countries[c] = [v[0], v[1], new] + v[3:]
+            changed += 1
+    return changed
+
+
 def totals(routes):
     t = defaultdict(lambda: [0, 0.0, 0.0, 0])
     for v, ex, rc, w, usd, est in routes:
@@ -253,6 +276,8 @@ def main():
     changes, med = clean(selected, a.outlier_factor)
     routes = routes_from(selected)
     countries, new = countries_for(routes, rows, ref, map_ids)
+    income = load(REF / "income_history.json")
+    apply_income(countries, income, a.year)
 
     out_path = SITE_DATA / f"plastic_{a.year}.json"
     prev = None
@@ -276,6 +301,7 @@ def main():
             "source": f"UN Comtrade API, HS as reported, downloaded {raw['meta'].get('downloaded')}; "
                       "partner-2 World totals, otherwise partner-2 detail summed",
             "built": dt.date.today().isoformat(),
+            "income": f"{income['source']}; GNI data year {min(a.year, income['years'][1])}",
         },
         "countries": countries,
         "routes": routes,
