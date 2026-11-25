@@ -4,19 +4,22 @@
 // separately and never added together.
 (async function(){
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
-const WASTES=[
-  ["plastic","Plastic waste and scrap (HS 3915)"],
-  ["clothing","Worn clothing (HS 6309)"],
-  ["rags","Rags, twine and rope (HS 6310)"],
-  ["fibre","Synthetic fibre waste (HS 5505.10)"],
-  ["weee","E-waste assemblies and boards (HS 8549.31, 8549.39)"],
-  ["weeeo","Other e-waste (HS 8549.91, 8549.99)"],
-  ["rdf","Refuse-derived fuel and mixed waste (HS 3825.10)"],
-  ["paper","Recovered paper (HS 4707)"]];
+const MATS=[
+  ["Plastic",[["all","All plastic, in every stream below"],["plastic","Plastic waste and scrap (HS 3915)"]]],
+  ["Textiles",[["clothing","Worn clothing (HS 6309)"],["rags","Rags, twine and rope (HS 6310)"],["fibre","Synthetic fibre waste (HS 5505.10)"]]],
+  ["E-waste",[["weee","E-waste assemblies and boards (HS 8549.31, 8549.39)"],["weeeo","Other e-waste (HS 8549.91, 8549.99)"]]],
+  ["Mixed waste",[["rdf","Refuse-derived fuel and mixed waste (HS 3825.10)"]]],
+  ["Paper",[["paper","Recovered paper (HS 4707)"]]]];
+const MATN={all:"All plastic",plastic:"Plastic waste and scrap",clothing:"Worn clothing",rags:"Rags, twine and rope",fibre:"Synthetic fibre waste",weee:"E-waste assemblies and boards",weeeo:"Other e-waste",rdf:"Refuse-derived fuel",paper:"Recovered paper"};
+const MATL=Object.fromEntries(MATS.flatMap(g=>g[1]));
+const STREAMS=["plastic","clothing","rags","fibre","weee","weeeo","rdf","paper"];
+// Plastic shares, as on the explorer's "Plastics traded amongst other materials" panel (sources on the About page).
+const SHARE={plastic:1,clothing:.65,rags:.65,fibre:1,weee:.247,weeeo:.247,rdf:.3325,paper:.02};
+const MATCOL={plastic:"#e0531f",clothing:"#4e79a7",rags:"#76b7b2",fibre:"#b07aa1",weee:"#59a14f",weeeo:"#8cd17d",rdf:"#9c755f",paper:"#edc948"};
 const GL=["H","U","M","L","N"],GKEY={HIC:"H",UMC:"U",LMC:"M",LIC:"L",NS:"N"};
 const GC={H:"--g-hic",U:"--g-umc",M:"--g-lmc",L:"--g-lic",N:"--g-ns"};
 const GN={H:"High income",U:"Upper-middle income",M:"Lower-middle income",L:"Low income",N:"Not classified"};
-const SCHEMES={un:"UN regions",unsub:"UN sub-regions",wb:"World Bank regions",oecd:"OECD groups"};
+const SCHEMES={un:"UN regions",unsub:"UN sub-regions",wb:"World Bank regions",oecd2:"OECD members / non-OECD",oecd:"OECD regions"};
 const REGPAL=["#4e79a7","#f28e2b","#59a14f","#e15759","#76b7b2","#edc948","#b07aa1","#ff9da7","#9c755f","#8cd17d","#499894","#d37295","#a0cbe8","#bab0ac","#86bcb6","#f1ce63"];
 const VN=["exporters' reports","importers' reports"];
 const TOPS=[0,100,50,30,20,10,5,3,1];
@@ -28,16 +31,17 @@ const NONC=/nes$|^Areas|^Special Categories|^Free Zones|^Bunkers/;
 const q=new URLSearchParams(location.search);
 const toks=s=>(s||"").split(",").filter(t=>/^(c|g|r):/.test(t));
 const pick=(v,ok,d)=>ok.includes(v)?v:d;
-const DEF={v:0,m:"t",sch:"un",xr:false,xi:false,ts:0,tr:0,from:[],to:[],split:"rg",bmode:"t",hdir:"in",hrows:20,gdir:"out",gsort:"total",gshow:1,gmin:0,gscale:"own",cdir:"in",cgrp:"c",csort:"b",cn:12,cchart:"dumb",cscale:"lin"};
+const DEF={count:"whole",v:0,m:"t",sch:"un",xr:false,xi:false,ts:0,tr:0,from:[],to:[],split:"rg",bmode:"t",hdir:"in",hrows:20,gdir:"out",gsort:"total",gshow:1,gmin:0,gscale:"own",cdir:"in",cgrp:"c",csort:"b",cn:12,cchart:"dumb",cscale:"lin"};
 const S={...DEF,
-  w:pick(q.get("w"),WASTES.map(w=>w[0]),"plastic"),
+  mats:(()=>{const m=(q.get("w")||"plastic").split(",").filter(k=>MATL[k]);return m.includes("all")?["all"]:m.length?m:["plastic"]})(),
+  count:q.get("count")==="plastic"?"plastic":"whole",
   v:q.get("v")==="1"?1:0, m:pick(q.get("m"),["t","usd"],"t"), sch:pick(q.get("sch"),Object.keys(SCHEMES),"un"),
   xr:q.get("xr")==="1", xi:q.get("xi")==="1",
   ts:Math.max(0,TOPS.indexOf(+q.get("ts"))), tr:Math.max(0,TOPS.indexOf(+q.get("tr"))),
   from:toks(q.get("from")), to:toks(q.get("to")),
   tab:pick(q.get("tab"),["overview","glance","compare"],"overview"),
   y0:+q.get("y0")||0, y1:+q.get("y1")||0, ya:+q.get("ya")||0, yb:+q.get("yb")||0,
-  split:pick(q.get("split"),["rg","sg","rr","sr"],"rg"), cgrp:pick(q.get("cgrp"),["c","r","g"],"c"), cdir:pick(q.get("cdir"),["in","out"],"in"), gdir:pick(q.get("gdir"),["in","out"],"out")};
+  split:pick(q.get("split"),["rg","sg","rr","sr","mt"],"rg"), cgrp:pick(q.get("cgrp"),["c","r","g"],"c"), cdir:pick(q.get("cdir"),["in","out"],"in"), gdir:pick(q.get("gdir"),["in","out"],"out")};
 
 // ---------- helpers ----------
 const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
@@ -54,19 +58,24 @@ const hideTip=()=>tip.hidden=true;
 const sent=()=>S.v?"received":"sent";
 
 // ---------- data ----------
-const cache={};let D=null;
-async function load(k){if(!cache[k]){const r=await fetch(k==="plastic"?"data/flows.json":`data/flows_${k}.json`,{cache:"no-cache"});if(!r.ok)throw new Error(r.status);const d=await r.json();
-  d.nc=d.codes.length;d.idx=new Map(d.codes.map((c,j)=>[c,j]));d.nm=d.names.map(n=>n[1]);
-  d.incY=d.years.map((y,i)=>d.inc.map(s=>s[i]));
-  d.F=[0,1].map(v=>d.flows[String(v)].map(a=>Float64Array.from(a)));delete d.flows;
-  d.real=d.nm.map(n=>!NONC.test(n));
-  const has=d.years.map((y,i)=>d.F[0][i].length+d.F[1][i].length>0),a=has.indexOf(true),b=has.lastIndexOf(true);
-  d.span=a<0?[0,d.years.length-1]:[a,b];cache[k]=d}return cache[k]}
+// Each material file has its own country list; all are mapped onto one shared index.
+const D={codes:[],idx:new Map(),names:[],inc:[],regions:{},years:null,mats:{},nc:0,span:[0,0]};
+async function load(k){if(D.mats[k])return;const r=await fetch(k==="plastic"?"data/flows.json":`data/flows_${k}.json`,{cache:"no-cache"});if(!r.ok)throw new Error(r.status);const d=await r.json();
+  if(!D.years)D.years=d.years;
+  const map=d.codes.map((c,j)=>{let g=D.idx.get(c);if(g==null){g=D.codes.length;D.codes.push(c);D.idx.set(c,g);D.names.push(d.names[j]);D.inc.push(d.inc[j]);for(const sch in d.regions)(D.regions[sch]||(D.regions[sch]=[]))[g]=d.regions[sch][j]}return g});
+  const F=[0,1].map(v=>d.flows[String(v)].map(a=>{const o=Float64Array.from(a);for(let p=0;p<o.length;p+=4){o[p]=map[o[p]];o[p+1]=map[o[p+1]]}return o}));
+  D.mats[k]={F};
+  D.nc=D.codes.length;D.nm=D.names.map(n=>n[1]);D.real=D.nm.map(n=>!NONC.test(n));D.incY=D.years.map((y,i)=>D.inc.map(s=>s[i]));
+  const o=D.regions.oecd||[];D.regions.oecd2=D.codes.map((c,j)=>o[j]?(o[j].startsWith("OECD")?"OECD members":"Non-OECD"):"")}
+// Selected materials as [key, weight]: "all" = every stream at its plastic share.
+const matList=()=>S.mats.includes("all")?STREAMS.map(k=>[k,SHARE[k]]):S.mats.map(k=>[k,S.count==="plastic"?SHARE[k]:1]);
+function setSpan(){const ml=matList(),has=D.years.map((y,i)=>ml.some(([k])=>D.mats[k].F[0][i].length+D.mats[k].F[1][i].length>0));
+  const a=has.indexOf(true),b=has.lastIndexOf(true);D.span=a<0?[0,D.years.length-1]:[a,b]}
 let I0=0,I1=0,Y=[],N=0,LAST=0;
 const sl=a=>Array.from(a.slice(I0,I1+1));
 const name=j=>D.nm[j];
 const regCol=nm=>{if(!nm||nm==="Other")return css("--g-ns");const all=[...new Set(D.regions[S.sch])].filter(Boolean).sort();return REGPAL[Math.max(0,all.indexOf(nm))%REGPAL.length]};
-const events=()=>S.w==="plastic"?[[2018,"China ban"],[2021,"Basel amendments"]]:[[2018,"China ban"]];
+const events=()=>S.mats.some(k=>k==="plastic"||k==="all")?[[2018,"China ban"],[2021,"Basel amendments"]]:[[2018,"China ban"]];
 
 // Token → member mask for year i.
 function mask(tokens,i){if(!tokens.length)return null;const m=new Uint8Array(D.nc);
@@ -79,17 +88,19 @@ function mask(tokens,i){if(!tokens.length)return null;const m=new Uint8Array(D.n
 // One pass over the routes of view v with every filter applied.
 function agg(v,lim){const NY=D.years.length,nc=D.nc,R=D.regions[S.sch],usd=S.m==="usd",sk=S.split;
   const tot=new Float64Array(NY),out=new Float64Array(nc*NY),inn=new Float64Array(nc*NY),hl=new Float64Array(NY),hAll=new Float64Array(NY),split=new Map();
-  for(let i=I0;i<=I1;i++){const a=D.F[v][i],fm=mask(S.from,i),tm=mask(S.to,i),inc=D.incY[i];
+  const ml=matList();
+  for(let i=I0;i<=I1;i++){const fm=mask(S.from,i),tm=mask(S.to,i),inc=D.incY[i];
+   for(const [mk,w] of ml){const a=D.mats[mk].F[v][i];
     for(let p=0;p<a.length;p+=4){const e=a[p],r=a[p+1];
       if(fm&&!fm[e]||tm&&!tm[r])continue;
       if(lim&&(lim.ex&&!lim.ex[e]||lim.rc&&!lim.rc[r]))continue;
       if(S.xr&&R[e]&&R[e]===R[r])continue;
       if(S.xi&&inc[e]===inc[r])continue;
-      const val=usd?a[p+3]*1000:a[p+2];if(!val)continue;
+      const val=(usd?a[p+3]*1000:a[p+2])*w;if(!val)continue;
       tot[i]+=val;out[e*NY+i]+=val;inn[r*NY+i]+=val;
       if(inc[e]==="H"){hAll[i]+=val;if(inc[r]==="U"||inc[r]==="M"||inc[r]==="L")hl[i]+=val}
-      const key=sk==="rg"?inc[r]:sk==="sg"?inc[e]:sk==="rr"?(R[r]||"Other"):(R[e]||"Other");
-      let s=split.get(key);if(!s){s=new Float64Array(NY);split.set(key,s)}s[i]+=val}}
+      const key=sk==="mt"?mk:sk==="rg"?inc[r]:sk==="sg"?inc[e]:sk==="rr"?(R[r]||"Other"):(R[e]||"Other");
+      let s=split.get(key);if(!s){s=new Float64Array(NY);split.set(key,s)}s[i]+=val}}}
   return {tot,out,inn,hl,hAll,split}}
 const series=(arr,j)=>{const NY=D.years.length;return Array.from(arr.slice(j*NY+I0,j*NY+I1+1))};
 function limits(){if(!S.ts&&!S.tr)return null;const base=agg(S.v,null),NY=D.years.length;
@@ -133,12 +144,13 @@ function chartA(){const el=$("#cA");const w0=sl(A[0].tot),w1=sl(A[1].tot);
   if(N>2&&s[pk])svg.append("text").attr("class","lbl").attr("x",Math.min(x(Y[pk]),f.W-200)).attr("y",y(s[pk])-10).attr("text-anchor","middle").attr("fill",css("--ink")).text("Peak "+fV(s[pk])+", "+Y[pk]);
   hover(f,i=>`<b>${Y[i]}</b><br>Exporters' reports ${fV(w0[i])}<br>Importers' reports ${fV(w1[i])}`)}
 
-const BTITLE={rg:"Where it goes",sg:"Where it comes from",rr:"Where it goes",sr:"Where it comes from"};
-function chartB(){const el=$("#cB");$("#hB").textContent=BTITLE[S.split];const sp=cur().split,inc=S.split[1]==="g";
+const BTITLE={rg:"Where it goes",sg:"Where it comes from",rr:"Where it goes",sr:"Where it comes from",mt:"By material"};
+function chartB(){const el=$("#cB");$("#hB").textContent=BTITLE[S.split];const sp=cur().split,inc=S.split[1]==="g",mt=S.split==="mt";
   let keys=[...sp.keys()].filter(k=>d3.sum(sl(sp.get(k)))>0);
-  keys=inc?GL.filter(g=>keys.includes(g)):keys.sort((a,b)=>(a==="Other")-(b==="Other")||d3.sum(sl(sp.get(b)))-d3.sum(sl(sp.get(a))));
+  keys=inc?GL.filter(g=>keys.includes(g)):mt?STREAMS.filter(k=>keys.includes(k)):keys.sort((a,b)=>(a==="Other")-(b==="Other")||d3.sum(sl(sp.get(b)))-d3.sum(sl(sp.get(a))));
   if(!keys.length)return empty(el,$("#lB"));
-  const col=k=>inc?css(GC[k]):regCol(k),lab=k=>inc?GN[k]:k;
+  const plc=S.mats.includes("all")||S.count==="plastic";
+  const col=k=>inc?css(GC[k]):mt?MATCOL[k]:regCol(k),lab=k=>inc?GN[k]:mt?MATN[k]+(plc&&k!=="plastic"?`, ${d3.format(".4~p")(SHARE[k])} plastic`:""):k;
   const f=frame(el,280,{l:60,r:12,t:30,b:28});const {svg,x}=f;
   const rows=Y.map((yr,i)=>{const o={yr},t=d3.sum(keys,k=>sp.get(k)[I0+i]);keys.forEach(k=>{const v=sp.get(k)[I0+i];o[k]=S.bmode==="s"?(t?v/t:0):v});o._t=t;return o});
   const st=d3.stack().keys(keys)(rows);
@@ -256,25 +268,49 @@ function slope(el,rows){const W=Math.max(320,el.clientWidth||700),narrow=W<600,H
     svg.append("text").attr("class","lbl").attr("x",xb+8).attr("y",lb.get(r.k)+4).attr("fill",c).text(narrow?`${fV(r.b)} ${nm.slice(0,12)}`:`${fV(r.b)} ${nm}`)}}
 
 // ---------- filter controls ----------
-function options(){const R=D.regions[S.sch],opts=[];
-  GL.slice(0,4).forEach(g=>opts.push([GN[g]+" · income group","g:"+g]));
-  const suf={un:"UN region",unsub:"UN sub-region",wb:"World Bank region",oecd:"OECD group"}[S.sch];
-  [...new Set(R)].filter(Boolean).sort().forEach(r=>opts.push([r+" · "+suf,"r:"+S.sch+":"+r]));
-  d3.range(D.nc).filter(j=>D.real[j]).sort((a,b)=>name(a).localeCompare(name(b))).forEach(j=>opts.push([name(j),"c:"+D.codes[j]]));
-  OPT=new Map(opts);$("#opts").innerHTML=opts.map(([l])=>`<option value="${esc(l)}"></option>`).join("")}
-let OPT=new Map();
+// Grouped choices for the From / To pickers.
+let GROUPS=[];
+function options(){const g=[["Income groups",["H","U","M","L"].map(x=>[GN[x],"g:"+x])],["OECD",[["OECD members","r:oecd2:OECD members"],["Non-OECD","r:oecd2:Non-OECD"]]]];
+  for(const [sch,lab] of [["un","UN regions"],["unsub","UN sub-regions"],["wb","World Bank regions"],["oecd","OECD regions"]])
+    g.push([lab,[...new Set(D.regions[sch]||[])].filter(Boolean).sort().map(r=>[r,`r:${sch}:${r}`])]);
+  g.push(["Countries",d3.range(D.nc).filter(j=>D.real[j]).sort((a,b)=>name(a).localeCompare(name(b))).map(j=>[name(j),"c:"+D.codes[j]])]);
+  GROUPS=g}
 function tokLabel(t){if(t[0]==="g")return [GN[t.slice(2)]||t,css(GC[t.slice(2)]||"--g-ns")];
   if(t[0]==="c"){const j=D.idx.get(t.slice(2));return [j!=null?name(j):"Code "+t.slice(2),null]}
   const p=t.indexOf(":",2),r=t.slice(p+1);return [r,t.slice(2,p)===S.sch?regCol(r):css("--g-ns")]}
 function chips(){$$(".pickbox").forEach(box=>{const k=box.dataset.p;box.querySelectorAll(".chip").forEach(c=>c.remove());const inp=box.querySelector("input");
   S[k].forEach(t=>{const [l,c]=tokLabel(t);const ch=document.createElement("span");ch.className="chip";ch.innerHTML=`${c?`<i style="background:${c}"></i>`:""}${esc(l)}<button aria-label="Remove ${esc(l)}">×</button>`;
     ch.querySelector("button").onclick=()=>{S[k]=S[k].filter(x=>x!==t);update()};box.insertBefore(ch,inp)})})}
-$$(".pickbox").forEach(box=>{const inp=box.querySelector("input"),k=box.dataset.p;
-  const take=()=>{const t=OPT.get(inp.value);if(t){if(!S[k].includes(t))S[k].push(t);inp.value="";update()}};
-  inp.addEventListener("input",take);inp.addEventListener("change",take);
-  inp.addEventListener("keydown",e=>{if(e.key==="Enter"){const v=inp.value.trim().toLowerCase();if(!v)return;const hit=[...OPT.keys()].find(l=>l.toLowerCase().startsWith(v))||[...OPT.keys()].find(l=>l.toLowerCase().includes(v));if(hit){inp.value=hit;take()}}
+$$(".pickbox").forEach(box=>{const inp=box.querySelector("input"),menu=box.querySelector(".menu"),k=box.dataset.p;let act=-1;
+  const items=()=>[...menu.querySelectorAll(".mi")];
+  const render=()=>{const qq=inp.value.trim().toLowerCase();let h="";
+    for(const [hd,its] of GROUPS){const f=its.filter(([l])=>!qq||l.toLowerCase().includes(qq));if(!f.length)continue;
+      h+=`<div class="mh">${esc(hd)}</div>`+f.map(([l,t])=>`<div class="mi${S[k].includes(t)?" on":""}" role="option" data-t="${esc(t)}">${esc(l)}</div>`).join("")}
+    menu.innerHTML=h||`<div class="mh">No match</div>`;act=-1};
+  const open=()=>{render();menu.hidden=false;inp.setAttribute("aria-expanded","true")};
+  const close=()=>{menu.hidden=true;inp.setAttribute("aria-expanded","false")};
+  const take=t=>{if(t&&!S[k].includes(t))S[k].push(t);inp.value="";close();update()};
+  const mark=()=>items().forEach((el,n)=>{el.setAttribute("aria-selected",String(n===act));if(n===act)el.scrollIntoView({block:"nearest"})});
+  inp.addEventListener("focus",open);inp.addEventListener("input",open);inp.addEventListener("blur",()=>setTimeout(close,120));
+  menu.addEventListener("mousedown",e=>{e.preventDefault();const el=e.target.closest(".mi");if(el)take(el.dataset.t)});
+  inp.addEventListener("keydown",e=>{const it=items();
+    if(e.key==="ArrowDown"){e.preventDefault();if(menu.hidden)open();act=Math.min(items().length-1,act+1);mark()}
+    else if(e.key==="ArrowUp"){e.preventDefault();act=Math.max(0,act-1);mark()}
+    else if(e.key==="Enter"){e.preventDefault();const el=it[act>=0?act:0];if(el&&(act>=0||inp.value.trim()))take(el.dataset.t)}
+    else if(e.key==="Escape")close();
     else if(e.key==="Backspace"&&!inp.value&&S[k].length){S[k].pop();update()}});
   box.addEventListener("click",e=>{if(e.target===box)inp.focus()})});
+
+// Materials menu: tick several; "All plastic" stands on its own.
+function matUI(){$("#matmenu").innerHTML=MATS.map(([hd,its])=>`<div class="mh">${esc(hd)}</div>`+its.map(([k,l])=>`<label><input type="checkbox" value="${k}" ${S.mats.includes(k)?"checked":""}>${k==="all"?"":`<i style="background:${MATCOL[k]}"></i>`}${esc(l)}</label>`).join("")).join("");
+  $("#matsum").textContent=S.mats[0]==="all"?"All plastic":S.mats.length===1?MATL[S.mats[0]]:`${S.mats.length} materials: `+S.mats.map(k=>MATN[k]).join(", ");
+  $("#countctl").hidden=S.mats.includes("all")||S.mats.every(k=>k==="plastic")}
+$("#matmenu").addEventListener("change",e=>{const k=e.target.value;let m=S.mats.filter(x=>x!=="all");
+  if(k==="all")m=e.target.checked?["all"]:["plastic"];else if(e.target.checked)m.push(k);else m=m.filter(x=>x!==k);
+  if(!m.length)m=["plastic"];const before=S.mats.length;S.mats=STREAMS.concat("all").filter(x=>m.includes(x));
+  if((S.mats.length>1||S.mats[0]==="all")&&before<2&&S.split!=="mt")S.split="mt";
+  setMats()});
+document.addEventListener("click",e=>{const dd=$("#mats");if(dd.open&&!dd.contains(e.target))dd.open=false});
 
 function yearsUI(){const a=D.span[0],b=D.span[1];const r0=$("#y0"),r1=$("#y1");[r0,r1].forEach(r=>{r.min=D.years[a];r.max=D.years[b];r.step=1});
   r0.value=Y[0];r1.value=LAST;$("#yrs").textContent=Y[0]===LAST?Y[0]:`${Y[0]}–${LAST}`;
@@ -292,7 +328,7 @@ function syncUI(){$$(".seg[data-k]").forEach(s=>s.querySelectorAll("button").for
   $$(".tabs button").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.tab===S.tab)));
   ["overview","glance","compare"].forEach(t=>$("#p-"+t).hidden=t!==S.tab)}
 function syncURL(){const u=new URL(location.href),p=u.searchParams;const set=(k,v,d)=>{if(v===d||v===""||v==null)p.delete(k);else p.set(k,v)};
-  set("w",S.w,"plastic");set("v",S.v?"1":"","");set("m",S.m,"t");set("sch",S.sch,"un");set("xr",S.xr?"1":"","");set("xi",S.xi?"1":"","");
+  set("w",S.mats.join(","),"plastic");set("count",S.count,"whole");set("v",S.v?"1":"","");set("m",S.m,"t");set("sch",S.sch,"un");set("xr",S.xr?"1":"","");set("xi",S.xi?"1":"","");
   set("ts",S.ts?TOPS[S.ts]:"","");set("tr",S.tr?TOPS[S.tr]:"","");set("from",S.from.join(","),"");set("to",S.to.join(","),"");
   set("y0",I0!==D.span[0]?Y[0]:"","");set("y1",I1!==D.span[1]?LAST:"","");set("tab",S.tab,"overview");
   set("split",S.split,"rg");set("cgrp",S.cgrp,"c");set("cdir",S.cdir,"in");set("gdir",S.gdir,"out");
@@ -300,22 +336,21 @@ function syncURL(){const u=new URL(location.href),p=u.searchParams;const set=(k,
 
 const run=fns=>{hideTip();for(const f of fns){try{f()}catch(e){console.error(e)}}};
 function drawTab(){if(S.tab==="overview")run([chartA,chartB,chartC,chartE]);else if(S.tab==="glance")run([chartF]);else run([chartG])}
-function update(){setRange();yearsUI();cmpYears();compute();chips();syncUI();drawTab();syncURL()}
+function update(){$("#split").value=S.split;setRange();yearsUI();cmpYears();compute();chips();syncUI();drawTab();syncURL()}
 
-async function setWaste(k){try{D=await load(k)}catch(e){$("main").insertAdjacentHTML("beforeend",`<div class="empty">The data could not load. Refresh the page to try again.</div>`);return}
-  S.w=k;options();update()}
+async function setMats(){matUI();const need=S.mats.includes("all")?STREAMS:S.mats;
+  try{await Promise.all(need.map(load))}catch(e){$("main").insertAdjacentHTML("beforeend",`<div class="empty">The data could not load. Refresh the page to try again.</div>`);return}
+  setSpan();options();update()}
 
 // ---------- wiring ----------
-$("#waste").innerHTML=WASTES.map(([k,n])=>`<option value="${k}" ${k===S.w?"selected":""}>${n}</option>`).join("");
-$("#waste").onchange=e=>setWaste(e.target.value);
 $$(".seg[data-k]").forEach(s=>s.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;const k=s.dataset.k,v=b.dataset.v;S[k]=k==="v"?+v:v;
-  if(["v","m"].includes(k))update();else{syncUI();drawTab();syncURL()}}));
+  if(k==="count"){setSpan();update()}else if(["v","m"].includes(k))update();else{syncUI();drawTab();syncURL()}}));
 $("#xr").onclick=()=>{S.xr=!S.xr;update()};$("#xi").onclick=()=>{S.xi=!S.xi;update()};
 $("#sch").onchange=e=>{S.sch=e.target.value;options();update()};
 $("#ts").oninput=e=>{S.ts=+e.target.value;update()};$("#tr").oninput=e=>{S.tr=+e.target.value;update()};
 const yr=()=>{let a=+$("#y0").value,b=+$("#y1").value;if(a>b)[a,b]=[b,a];S.y0=a;S.y1=b;update()};
 $("#y0").oninput=yr;$("#y1").oninput=yr;
-$("#reset").onclick=()=>{Object.assign(S,{...DEF,from:[],to:[],w:S.w,tab:S.tab,y0:0,y1:0,ya:0,yb:0,gq:""});update()};
+$("#reset").onclick=()=>{Object.assign(S,{...DEF,from:[],to:[],mats:S.mats,count:S.count,tab:S.tab,y0:0,y1:0,ya:0,yb:0,gq:""});update()};
 $$(".tabs button").forEach(b=>b.onclick=()=>{S.tab=b.dataset.tab;syncUI();drawTab();syncURL()});
 $("#split").onchange=e=>{S.split=e.target.value;compute();chartB();syncURL()};
 $("#hrows").oninput=e=>{S.hrows=+e.target.value;chartE()};
@@ -326,5 +361,5 @@ $("#csort").onchange=e=>{S.csort=e.target.value;chartG()};$("#cn").oninput=e=>{S
 let rt;addEventListener("resize",()=>{clearTimeout(rt);rt=setTimeout(()=>D&&drawTab(),150)});
 matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>D&&drawTab());
 S.gq="";
-await setWaste(S.w);
+await setMats();
 })();
