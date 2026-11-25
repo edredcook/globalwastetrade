@@ -479,6 +479,8 @@ def main():
     if mixed_meta:
         data["meta"]["hidden_source"] = (f"UN Comtrade API, downloaded {mixed_meta.get('downloaded')}; "
                                          "same selection and cleaning as HS 3915")
+        if mixed_meta.get("modelled"):
+            data["meta"]["hidden_source"] += "; modelled: " + mixed_meta["method"]
         data["hidden"] = {k: v for k, v in mixed.items() if v}
     elif a.year >= 2019 and not raw["meta"].get("modelled"):
         warn.append("No mixed-stream download (comtrade_mixed_<year>.json); run fetch_comtrade.py --name mixed.")

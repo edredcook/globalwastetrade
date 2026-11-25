@@ -27,6 +27,10 @@ jobs:
       - name: Download from UN Comtrade and build each year
         env:
           COMTRADE_API_KEY: ${{ secrets.COMTRADE_API_KEY }}
+          CENSUS_API_KEY: ${{ secrets.CENSUS_API_KEY }}
+          ESTAT_APP_ID: ${{ secrets.ESTAT_APP_ID }}
+          KCS_SERVICE_KEY: ${{ secrets.KCS_SERVICE_KEY }}
+          MIXED: 550510,6309,6310,854931,854939,854991,854999,382510,4707,401220,4004,401700
         run: |
           if [ -z "$YEARS" ]; then Y=$(date -u +%Y); YEARS="$((Y-3)) $((Y-2)) $((Y-1))"; fi
           echo "YEARS=$YEARS" >> "$GITHUB_ENV"
@@ -35,8 +39,7 @@ jobs:
             if ! python pipeline/fetch_comtrade.py --year "$y"; then
               echo "$y: no download" >> failed.txt; continue
             fi
-            if ! python pipeline/fetch_comtrade.py --year "$y" --name mixed \
-                 --cmd 550510,6309,6310,854931,854939,854991,854999,382510,4707,401220,4004,401700; then
+            if ! python pipeline/fetch_comtrade.py --year "$y" --name mixed --cmd "$MIXED"; then
               echo "$y: no download of the mixed streams" >> failed.txt; continue
             fi
             python pipeline/build_site_data.py --year "$y" || echo "$y: build stopped, see the report" >> failed.txt
@@ -46,9 +49,17 @@ jobs:
           Y=$(date -u +%Y)
           for y in $((Y-2)) $((Y-1)) $Y; do
             python pipeline/fetch_comtrade.py --year "$y" --monthly || echo "$y: no monthly download" >> failed.txt
+            python pipeline/fetch_comtrade.py --year "$y" --monthly --name mixed --cmd "$MIXED" \
+              || echo "$y: no monthly download of the mixed streams" >> failed.txt
           done
+          # Months not yet in Comtrade, from national statistics offices (provisional)
+          NOW=$(date -u +%Y%m); MONTHS=""
+          for y in $((Y-1)) $Y; do for m in 01 02 03 04 05 06 07 08 09 10 11 12; do
+            [ "$y$m" -lt "$NOW" ] && MONTHS="$MONTHS --month $y-$m"
+          done; done
+          python pipeline/fetch_national.py --source all $MONTHS || echo "national data: some months not fetched" >> failed.txt
           for y in $((Y-1)) $Y; do
-            if python pipeline/model_part_year.py --year "$y"; then
+            if python pipeline/model_part_year.py --year "$y" && python pipeline/model_part_year.py --year "$y" --name mixed; then
               python pipeline/build_site_data.py --year "$y" || echo "$y (modelled): build stopped, see the report" >> failed.txt
             else
               echo "$y (modelled): not modelled" >> failed.txt
