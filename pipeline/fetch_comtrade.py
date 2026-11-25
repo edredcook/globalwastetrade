@@ -2,7 +2,8 @@
 
 Writes pipeline/raw/comtrade_hs<cmd>_<year>.json with the fields the build needs.
 Needs a subscription key in the COMTRADE_API_KEY environment variable
-(the free tier is enough: 500 calls a day, up to 100,000 records a call).
+(the free tier is enough: 500 calls a day, up to 100,000 records a call),
+or --key-from-proxy where a network proxy adds the Ocp-Apim-Subscription-Key header.
 
     python pipeline/fetch_comtrade.py --year 2023
 """
@@ -95,10 +96,12 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--year", type=int, required=True)
     ap.add_argument("--cmd", default="3915", help="HS code (default 3915, plastic waste)")
+    ap.add_argument("--key-from-proxy", action="store_true",
+                    help="send no key; a network proxy adds the subscription header")
     a = ap.parse_args()
     key = os.environ.get("COMTRADE_API_KEY", "").strip()
-    if not key:
-        raise SystemExit("Set COMTRADE_API_KEY first.")
+    if not key and not a.key_from_proxy:
+        raise SystemExit("Set COMTRADE_API_KEY first, or pass --key-from-proxy.")
     rows = fetch(key, a.year, a.cmd)
     if not rows:
         raise SystemExit("Comtrade returned no records.")
