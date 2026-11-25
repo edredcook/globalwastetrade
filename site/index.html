@@ -54,7 +54,12 @@ nav.top a{color:inherit;opacity:.75;text-decoration:none;padding:6px 10px;border
 nav.top a:hover{opacity:1;background:rgba(255,255,255,.1)}
 .designbtn{font:inherit;font-size:14px;font-weight:600;background:#ff7a3d;color:#13212a;border:0;border-radius:6px;padding:6px 12px;cursor:pointer;margin-left:6px}
 .proto{background:var(--hi);color:var(--ink);font-size:13px}
-.proto .wrap{padding-block:7px}
+.proto .wrap{padding-block:7px;display:flex;flex-wrap:wrap;gap:4px 18px;align-items:center}
+nav.top a[aria-current]{opacity:1;background:rgba(255,255,255,.12)}
+.brand{color:inherit;text-decoration:none}
+nav.sub{display:flex;flex-wrap:wrap;gap:2px 16px;margin-left:auto}
+nav.sub a{color:inherit;text-decoration:none;font-weight:600}
+nav.sub a:hover{text-decoration:underline}
 .proto b{font-weight:600}
 
 .controls{display:flex;flex-wrap:wrap;gap:16px 26px;padding-block:18px 14px;align-items:flex-end}
@@ -282,13 +287,15 @@ footer b{color:var(--ink);font-weight:600}
 <body>
 
 <header class="mast"><div class="wrap">
-  <div class="brand"><i aria-hidden="true"></i>Global Waste Trade</div>
-  <nav class="top" aria-label="Sections">
-    <a href="#explore">Map</a><a href="#build">Build a chart</a><a href="#rankings">Countries</a><a href="#getdata">Get the data</a><a href="#credits">Credits</a><a href="trends.html">Trends</a><a href="about.html">About</a>
+  <a class="brand" href="./"><i aria-hidden="true"></i>Global Waste Trade</a>
+  <nav class="top" aria-label="Pages">
+    <a href="./" aria-current="page">Explorer</a><a href="trends.html">Trends</a><a href="about.html">About</a>
     <button class="designbtn" data-open-design>Design</button>
   </nav>
 </div></header>
-<div class="proto"><div class="wrap"><b>Beta.</b> <span id="srcline">UN Comtrade</span></div></div>
+<div class="proto"><div class="wrap"><span><b>Beta.</b> <span id="srcline">UN Comtrade</span></span>
+  <nav class="sub" aria-label="On this page"><a href="#explore">Map</a><a href="#build">Build a chart</a><a href="#rankings">Countries</a><a href="#getdata">Get the data</a><a href="#credits">Credits</a></nav>
+</div></div>
 
 <main class="wrap">
   <div class="controls" id="explore" style="scroll-margin-top:64px">
@@ -319,7 +326,7 @@ footer b{color:var(--ink);font-weight:600}
     <div class="ctl"><span>Measure</span>
       <div class="seg" id="measure"><button data-m="t" aria-pressed="true">Tonnes</button><button data-m="usd" aria-pressed="false">US$</button><button data-m="ppt" aria-pressed="false">US$ per tonne</button></div></div>
     <div class="ctl"><span>Routes</span>
-      <div class="seg" id="incf"><button data-f="all" aria-pressed="true">All</button><button data-f="hl" aria-pressed="false">High → lower income</button></div></div>
+      <div class="seg" id="incf"><button data-f="all" aria-pressed="true">All</button><button data-f="hl" aria-pressed="false">High → middle- and low-income</button></div></div>
     <div class="ctl"><span>Find a country</span>
       <input type="search" id="find" list="clist" placeholder="e.g. Malaysia" aria-label="Find a country"><datalist id="clist"></datalist></div>
   </div>
@@ -513,7 +520,7 @@ const DDEF={preset:"container",out:null,in:null,res:null,maxr:45,line:1,lab:"bot
 let D={...DDEF};try{const s=JSON.parse(localStorage.getItem("gwt-design-v6")||"null");if(s)D={...DDEF,...s}}catch(e){}
 
 let data,world,TR=null,MAN=null;
-try{const ok=r=>{if(!r.ok)throw new Error(r.status);return r.json()};MAN=await fetch("data/manifest.json").then(ok);const qy=+new URLSearchParams(location.search).get("year");const yr=MAN.years.includes(qy)?qy:MAN.latest;[data,world,TR]=await Promise.all([fetch(`data/plastic_${yr}.json`).then(ok),fetch("data/world-110m.json").then(ok),fetch("data/trends.json").then(ok).catch(()=>null)]);}
+try{const ok=r=>{if(!r.ok)throw new Error(r.status);return r.json()};MAN=await fetch("data/manifest.json",{cache:"no-cache"}).then(ok);const qy=+new URLSearchParams(location.search).get("year");const yr=MAN.years.includes(qy)?qy:MAN.latest;[data,world,TR]=await Promise.all([fetch(`data/plastic_${yr}.json`,{cache:"no-cache"}).then(ok),fetch("data/world-110m.json").then(ok),fetch("data/trends.json",{cache:"no-cache"}).then(ok).catch(()=>null)]);}
 catch(e){$("#maptitle").textContent="The data could not load. Refresh the page to try again.";$("#side").innerHTML="";return;}
 
 const C=data.countries,SCH=data.schemes,YEAR=data.meta.year,CODE=data.meta.code;
@@ -827,7 +834,7 @@ function drawMap(){
     :lm?`${S.hl==="lmic"?"Low & middle income":"High income"} countries sent ${fmt(mval(lm.a,w),w)} and received ${fmt(mval(lm.b,w),w)} of ${PW()} in ${YEAR}`
     :m==="ppt"?`${PW()[0].toUpperCase()+PW().slice(1)} sold for ${fP(mval(tot,"ppt"))} on average in ${YEAR}`
     :S.region?`${S.region}: ${fmt(mval(tot,m),m)} of ${PW()} ${({both:"traded in and out",out:"leaving",in:"arriving",within:"traded within the region"})[S.rdir]}, ${YEAR}`
-    :S.incf==="hl"?`${fmt(mval(tot,m),m)} of ${PW()} went from high-income to lower-income countries in ${YEAR}`:`${fmt(mval(tot,m),m)} of ${PW()} crossed borders in ${YEAR}`;
+    :S.incf==="hl"?`${fmt(mval(tot,m),m)} of ${PW()} went from high-income to middle- and low-income countries in ${YEAR}`:`${fmt(mval(tot,m),m)} of ${PW()} crossed borders in ${YEAR}`;
   $("#legend").innerHTML=S.sel?`<span><span class="dot" style="background:var(--out)"></span>sent by ${esc(name(S.sel))}</span><span><span class="dot" style="background:var(--in)"></span>sent to ${esc(name(S.sel))}</span>`
     :S.hl!=="none"?(S.hl==="lmic"?["UMC","LMC","LIC"]:["HIC"]).map(g=>`<span><span class="dot" style="background:var(--g-${g.toLowerCase()})"></span>${INC[g]}</span>`).join("")+`<span><span class="dot" style="background:var(--out)"></span>leaving them</span><span><span class="dot" style="background:var(--in)"></span>arriving</span>`
     :D.choro?`<span><span class="dot" style="background:var(--out)"></span>net exporter</span><span><span class="dot" style="background:var(--in)"></span>net importer</span><span>${m==="ppt"?"Export price":"Exports"}, ${VIEWS[S.view]}</span><span class="ramp" style="background:linear-gradient(90deg,var(--land),${c})"></span><span>${m==="ppt"?"dearer":"more"}</span>`:`<span><span class="dot" style="background:${c}"></span>lines: ${VIEWS[S.view]}</span>`+(D.lab!=="none"&&D.lval==="net"?`<span><span class="dot" style="background:var(--out)"></span>net exporter</span><span><span class="dot" style="background:var(--in)"></span>net importer</span>`:"");
@@ -911,7 +918,7 @@ function side(){
   }
   if(!S.sel){
     const rs=routes(),tot=agg(rs);
-    el.innerHTML=`<div class="col"><div><span class="pill">${esc(S.region||"World")} · ${YEAR} · ${VIEWS[S.view]}</span><h3 style="margin-top:8px">${fmt(mval(tot,m),m)}</h3><div class="sub">${S.incf==="hl"?"high-income to lower-income routes":PW()+" traded"}, ${d3.format(",")(rs.length)} country-to-country records</div></div>
+    el.innerHTML=`<div class="col"><div><span class="pill">${esc(S.region||"World")} · ${YEAR} · ${VIEWS[S.view]}</span><h3 style="margin-top:8px">${fmt(mval(tot,m),m)}</h3><div class="sub">${S.incf==="hl"?"high-income to middle- and low-income routes":PW()+" traded"}, ${d3.format(",")(rs.length)} country-to-country records</div></div>
     <div class="kpis"><div class="kpi"><span>Weight</span><b>${fT(tot.t)}</b></div><div class="kpi"><span>Value</span><b>${fU(tot.usd)}</b><em>${fP(mval(tot,"ppt"))} average</em></div></div>
     <div class="trend" id="trend"></div>
     <div class="mirror">${ledger()} ${tot.t?d3.format(".0%")(tot.est/tot.t)+" of the tonnage here is an estimated weight.":""}</div>${hidBars(rs)}</div>
