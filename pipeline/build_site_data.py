@@ -229,6 +229,28 @@ def apply_income(countries, history, year):
     return changed
 
 
+def reporting(rows, ref, history, year):
+    """Who filed a report for this code and year.
+
+    X and M list the Comtrade codes of countries with any export or import record
+    (the World total counts). universe lists every economy the World Bank classified
+    that year, plus any other reporter: {code: [iso, name, map id]}.
+    """
+    rep = {"X": set(), "M": set()}
+    for r in rows:
+        f = s(r.get("flowCode"))
+        if f in rep:
+            rep[f].add(str(int(r["reporterCode"])))
+    yr = str(min(year, history["years"][1]))
+    universe = {}
+    for c, v in ref.items():
+        g = history["groups"].get(WB_ISO.get(v[0], v[0]), {}).get(yr)
+        if g in ("HIC", "UMC", "LMC", "LIC") or c in rep["X"] or c in rep["M"]:
+            universe[c] = [v[0], v[1], v[3]]
+    return {"X": sorted(rep["X"] & universe.keys(), key=int), "M": sorted(rep["M"] & universe.keys(), key=int),
+            "universe": dict(sorted(universe.items(), key=lambda kv: int(kv[0])))}
+
+
 def totals(routes):
     t = defaultdict(lambda: [0, 0.0, 0.0, 0])
     for v, ex, rc, w, usd, est in routes:
@@ -395,6 +417,7 @@ def main():
         "schemes": schemes,
         "aliases": aliases,
         "hidden": {},
+        "reporting": reporting(rows, ref, income, a.year),
     }
     if mixed_meta:
         data["meta"]["hidden_source"] = (f"UN Comtrade API, downloaded {mixed_meta.get('downloaded')}; "

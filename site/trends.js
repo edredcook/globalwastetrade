@@ -194,6 +194,39 @@ function chartE(){const el=$("#cE");el.innerHTML="";const ramp=dark()?RAMP_D:RAM
   Y.forEach((yr,i)=>{if((yr-Y[0])%2===0||N<8)svg.append("text").attr("x",m.l+i*cw+cw/2).attr("y",H-8).attr("text-anchor","middle").attr("fill",css("--muted")).style("font-family","var(--mono)").style("font-size","11px").text("’"+String(yr).slice(2))});
   $("#lE").innerHTML=`<span>${fV(lo)}</span><span class="ramp" style="background:linear-gradient(90deg,${ramp.join(",")})"></span><span>${fV(mx)}</span>`}
 
+// ---------- who reported (HS 3915) ----------
+let WR=null,WY=null;
+async function loadWR(){if(WR)return WR;const r=await fetch("data/completeness.json",{cache:"no-cache"});if(!r.ok)throw new Error(r.status);return WR=await r.json()}
+function chartW(){const el=$("#cW");if(!WR){loadWR().then(chartW).catch(()=>empty(el));return}
+  const W0=WR,yrs=W0.years.filter((y,i)=>W0.universe[i]!=null),ix=y=>W0.years.indexOf(y);
+  if(!yrs.length)return empty(el,$("#lW"));
+  if(!yrs.includes(WY))WY=yrs.at(-1);
+  const v=String(S.v),o=S.v?"0":"1",share=y=>{const i=ix(y),t=W0.total_t[o][i];return t?W0.partner_only_t[v][i]/t:0};
+  const up=y=>W0.both[ix(y)]+W0.x_only[ix(y)]+W0.m_only[ix(y)],dn=y=>W0.none[ix(y)];
+  const Wd=Math.max(300,el.clientWidth||600),H=310,m={l:44,r:52,t:22,b:40};el.innerHTML="";
+  const svg=d3.select(el).append("svg").attr("viewBox",`0 0 ${Wd} ${H}`);
+  const x=d3.scaleBand().domain(yrs).range([m.l,Wd-m.r]).padding(.28),bw=x.bandwidth();
+  const mu=d3.max(yrs,up)||1,md=d3.max(yrs,dn)||1,z=m.t+(H-m.t-m.b)*mu/(mu+md),k=(H-m.t-m.b)/(mu+md);
+  const ys=d3.scaleLinear().domain([0,Math.max(.05,d3.max(yrs,share)*1.15)]).nice().range([H-m.b,m.t]);
+  svg.append("g").attr("class","ax").attr("transform",`translate(${Wd-m.r},0)`).call(d3.axisRight(ys).ticks(4).tickFormat(d3.format(".0%")).tickSize(0).tickPadding(6)).select(".domain").remove();
+  const muted=css("--muted"),out=css("--out");
+  yrs.forEach(y=>{const i=ix(y),b=W0.both[i],one=W0.x_only[i]+W0.m_only[i],n=W0.none[i],xx=x(y),sel=y===WY;
+    const g=svg.append("g").style("cursor","pointer").on("click",()=>{WY=y;chartW()})
+      .on("mousemove",e=>showTip(e,`<b>${y}</b> · ${W0.universe[i]} economies<br>Exports and imports: ${b}<br>Exports only: ${W0.x_only[i]}<br>Imports only: ${W0.m_only[i]}<br>Nothing: ${n}<br>Seen only in partners' reports: ${d3.format(".1%")(share(y))} (${VN[S.v]})`)).on("mouseleave",hideTip);
+    g.append("rect").attr("x",xx-2).attr("width",bw+4).attr("y",m.t).attr("height",H-m.t-m.b).attr("fill",sel?css("--raise"):"transparent").attr("rx",3);
+    g.append("rect").attr("x",xx).attr("width",bw).attr("y",z-b*k).attr("height",b*k).attr("fill",muted).attr("opacity",.6);
+    g.append("rect").attr("x",xx).attr("width",bw).attr("y",z-(b+one)*k).attr("height",one*k).attr("fill",muted).attr("opacity",.25);
+    g.append("rect").attr("x",xx).attr("width",bw).attr("y",z).attr("height",n*k).attr("fill",out).attr("opacity",.85);
+    if(bw>=16){g.append("text").attr("x",xx+bw/2).attr("y",z-(b+one)*k-4).attr("text-anchor","middle").attr("fill",muted).style("font-family","var(--mono)").style("font-size","10.5px").text(b+one);
+      g.append("text").attr("x",xx+bw/2).attr("y",z+n*k+12).attr("text-anchor","middle").attr("fill",css("--ink")).style("font-family","var(--mono)").style("font-size","10.5px").style("font-weight",600).text(n)}
+    g.append("text").attr("x",xx+bw/2).attr("y",H-8).attr("text-anchor","middle").attr("fill",sel?css("--ink"):muted).style("font-family","var(--mono)").style("font-size","11px").style("font-weight",sel?600:400).text(bw<24?"’"+String(y).slice(2):y)});
+  svg.append("line").attr("x1",m.l).attr("x2",Wd-m.r).attr("y1",z).attr("y2",z).attr("stroke",css("--ink")).attr("stroke-width",1);
+  svg.append("path").attr("fill","none").attr("stroke",css("--in")).attr("stroke-width",2).attr("pointer-events","none").attr("d",d3.line().x(y=>x(y)+bw/2).y(y=>ys(share(y)))(yrs));
+  svg.append("g").attr("pointer-events","none").selectAll("circle").data(yrs).join("circle").attr("cx",y=>x(y)+bw/2).attr("cy",y=>ys(share(y))).attr("r",2.5).attr("fill",css("--in"));
+  $("#lW").innerHTML=`<span><i style="background:var(--muted);opacity:.6"></i>Reported exports and imports</span><span><i style="background:var(--muted);opacity:.25"></i>One flow only</span><span><i style="background:var(--out)"></i>Reported nothing</span><span><i style="background:var(--in);height:3px"></i>Seen only in partners' reports, ${VN[S.v]} (right)</span>`;
+  const i=ix(WY),ids=W0.nonreporters[v][i]||[],nm=ids.map(c=>(W0.names[c]||[c,c])[1]).sort((a,b)=>a.localeCompare(b));
+  $("#wlist").innerHTML=`<b>No ${S.v?"import":"export"} report, ${WY} (${ids.length}):</b> ${nm.map(esc).join(", ")}`}
+
 // ---------- at a glance ----------
 function chartF(){const el=$("#cF");el.innerHTML="";const out=S.gdir==="out",arr=out?cur().out:cur().inn,c=css(out?"--out":"--in"),verb=out?"sent":"received";
   $("#hF").textContent=out?"Senders at a glance":"Receivers at a glance";
@@ -335,7 +368,7 @@ function syncURL(){const u=new URL(location.href),p=u.searchParams;const set=(k,
   set("ya",S.tab==="compare"?S.ya:"","");set("yb",S.tab==="compare"?S.yb:"","");history.replaceState(null,"",u)}
 
 const run=fns=>{hideTip();for(const f of fns){try{f()}catch(e){console.error(e)}}};
-function drawTab(){if(S.tab==="overview")run([chartA,chartB,chartC,chartE]);else if(S.tab==="glance")run([chartF]);else run([chartG])}
+function drawTab(){if(S.tab==="overview")run([chartA,chartB,chartC,chartE,chartW]);else if(S.tab==="glance")run([chartF]);else run([chartG])}
 function update(){$("#split").value=S.split;setRange();yearsUI();cmpYears();compute();chips();syncUI();drawTab();syncURL()}
 
 async function setMats(){matUI();const need=S.mats.includes("all")?STREAMS:S.mats;
