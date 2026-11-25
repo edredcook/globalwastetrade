@@ -156,17 +156,11 @@ aside.side > *{min-width:0}
 .side h4{margin:0 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-weight:600}
 
 section.block{margin-top:36px;scroll-margin-top:64px}
-.cred{display:grid;grid-template-columns:112px 1fr minmax(200px,260px);gap:20px 24px;padding:20px;align-items:start}
-.cred .face{width:112px;height:112px;border-radius:50%;object-fit:cover;background:var(--raise)}
-.cred h3{margin:0;font-family:var(--display);font-stretch:85%;font-weight:800;font-size:22px}
-.cred .role{color:var(--muted);font-size:13px;margin-top:2px}
-.cred p{margin:10px 0 0;font-size:14px;line-height:1.55;max-width:70ch}
-.cred .links{display:flex;gap:14px;margin-top:10px;font-size:13px}
-.cred a{color:var(--in);text-underline-offset:2px}
-.cred .made{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:13px;border-left:1px solid var(--border);padding-left:20px}
-.cred .made dt{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:600;padding-top:2px}
+.cred{padding:16px 20px}
+.cred .made{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 16px;font-size:14px;max-width:560px}
+.cred .made dt{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:600;padding-top:3px}
 .cred .made dd{margin:0}
-@media (max-width:820px){.cred{grid-template-columns:88px 1fr}.cred .face{width:88px;height:88px}.cred .made{grid-column:1/-1;border-left:0;padding-left:0;border-top:1px solid var(--border);padding-top:14px}}
+.cred a{color:var(--in);text-underline-offset:2px}
 .block > .hd{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:12px}
 .block h2{margin:0;font-family:var(--display);font-stretch:85%;font-weight:800;font-size:28px;line-height:1.1;text-wrap:balance}
 .block .hd p{margin:4px 0 0;color:var(--muted);font-size:14px;max-width:72ch}
@@ -290,7 +284,7 @@ footer b{color:var(--ink);font-weight:600}
 <header class="mast"><div class="wrap">
   <div class="brand"><i aria-hidden="true"></i>Global Waste Trade</div>
   <nav class="top" aria-label="Sections">
-    <a href="#explore">Map</a><a href="#build">Build a chart</a><a href="#rankings">Countries</a><a href="#getdata">Get the data</a><a href="#credits">Credits</a>
+    <a href="#explore">Map</a><a href="#build">Build a chart</a><a href="#rankings">Countries</a><a href="#getdata">Get the data</a><a href="#credits">Credits</a><a href="about.html">About</a>
     <button class="designbtn" data-open-design>Design</button>
   </nav>
 </div></header>
@@ -438,14 +432,8 @@ footer b{color:var(--ink);font-weight:600}
   <section class="block" id="credits">
     <div class="hd"><div><h2>Credits</h2></div></div>
     <div class="card cred">
-      <img class="face" src="img/ed-cook.webp?v=2" width="112" height="112" alt="Ed Cook">
-      <div class="who">
-        <h3>Dr Ed Cook</h3>
-        <div class="role">Research Associate, Department of Civil and Environmental Engineering, Imperial College London</div>
-        <p>Ed works on plastic pollution and the circular economy. He was a core member of the team behind the P2O model and <i>Breaking the Plastic Wave</i>, helped build the waste component of the OECD's <i>Global Plastics Outlook</i>, and co-developed SPOT, the global plastic pollution model published in <i>Nature</i> in 2024. He is lead author of the World Bank's <i>What a Waste 3.0</i> (2026). Before academia he ran waste services for events, worked on the waste strategy for the London 2012 Games and advised governments and companies on the transboundary trade in waste. He is a Chartered Waste Manager.</p>
-        <div class="links"><a href="https://profiles.imperial.ac.uk/e.r.cook" target="_blank" rel="noopener">Imperial profile</a><a href="https://orcid.org/0000-0003-3902-7705" target="_blank" rel="noopener">ORCID</a></div>
-      </div>
       <dl class="made">
+        <dt>Created by</dt><dd><a href="about.html">Dr Ed Cook</a></dd>
         <dt>Data</dt><dd>UN Comtrade</dd>
         <dt>Income groups</dt><dd>World Bank historical classifications</dd>
         <dt>Map</dt><dd>Natural Earth</dd>
