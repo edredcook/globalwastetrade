@@ -124,6 +124,21 @@ class Cleaning(unittest.TestCase):
         self.assertEqual(s[(5, "M", 6)]["est"], 2)
         self.assertEqual([c["rule"] for c in changes], ["D"])
 
+    def test_listed_comtrade_estimates_replaced(self):
+        s = self.base()
+        s[(156, "M", 2)] = dict(sel(120, 48000), est=True)   # Comtrade estimate, in range
+        s[(2, "X", 156)] = sel(100, 50000)
+        s[(156, "M", 3)] = dict(sel(50, 20000), est=True)    # no partner report
+        s[(156, "M", 4)] = sel(30, 15000)                    # reported, left alone
+        s[(344, "X", 5)] = dict(sel(10, 3000), est=True)
+        changes, _ = b.clean(s, replace_est={(156, "M"): "partner", (344, "X"): 300.0})
+        self.assertEqual(s[(156, "M", 2)]["t"], 100)
+        self.assertAlmostEqual(s[(156, "M", 3)]["t"], 40)
+        self.assertEqual(s[(156, "M", 4)]["t"], 30)
+        self.assertAlmostEqual(s[(344, "X", 5)]["t"], 10)
+        self.assertEqual(s[(156, "M", 2)]["est"], 2)
+        self.assertEqual(sorted(c["rule"] for c in changes), ["E", "E", "E"])
+
     def test_in_range_records_untouched(self):
         s = self.base()
         before = {k: dict(v) for k, v in s.items()}

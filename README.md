@@ -28,6 +28,7 @@ Source for [globalwastetrade.org](https://globalwastetrade.org): an explorer for
 - Cleaning, with every change listed in the check report:
   - A record with a value but no weight takes the partner's weight. If there is no usable partner report, the weight is the value divided by the median US$ per tonne.
   - A record whose US$ per tonne is more than 10 times above or below the median takes the partner's weight, if the partner's report is in range. Otherwise, if it is more than 100 times out (a units error), its weight is the value at the median US$ per tonne; this is not applied to municipal waste (HS 3825.10), which can genuinely move at near-zero value. Anything else is left as reported and listed.
+  - Where Comtrade has replaced a reporter's own weights with its own estimate and the result is out of line, the estimate is replaced: by the partner's weight, or by the value at the reporter's usual US$ per tonne where partners book the trade differently. The cases are listed, with reasons, in `pipeline/reference/estimated_weights.json` (China's 2016 imports and Hong Kong's 2013 exports).
   - Re-estimated weights are marked as such on the page and in downloads.
 - The build stops without changing the site if either view's tonnes fall below 60% of the previous file, or if a view has fewer than 300 routes.
 
