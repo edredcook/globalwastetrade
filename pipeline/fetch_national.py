@@ -1,4 +1,4 @@
-"""Download recent monthly trade from national statistics offices.
+"""Download recent monthly waste trade from national statistics offices.
 
 These sources publish a month's trade weeks before it reaches UN Comtrade. Each
 source is reported by one country (or the EU), so its export rows belong only to
@@ -35,7 +35,13 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 RAW = HERE / "raw" / "national"
 CODES = json.loads((HERE / "reference" / "national_codes.json").read_text(encoding="utf-8"))
-HS4 = os.environ.get("NATIONAL_HS4", "3915").split(",")
+# Plastic waste plus every waste stream the site shows, and tyres. HS4 or HS6 prefixes.
+WASTE_CODES = ["3915", "550510", "6309", "6310", "854931", "854939", "854991", "854999",
+               "382510", "4707", "401220", "400400"]
+HS4 = os.environ.get("NATIONAL_CODES", ",".join(WASTE_CODES)).split(",")
+# Comext is asked for HS6 subheadings; these expand the four-digit codes.
+HS6_OF = {"3915": ["391510", "391520", "391530", "391590"], "6309": ["630900"],
+          "6310": ["631010", "631090"], "4707": ["470710", "470720", "470730", "470790"]}
 EU27 = ("AT BE BG HR CY CZ DK EE FI FR DE GR HU IE IT LV LT LU MT NL PL PT RO SK SI ES SE").split()
 
 
@@ -139,11 +145,9 @@ def comext(month):
 
 
 def product_codes_hs6():
-    # Comext publishes HS6 aggregates alongside CN8; HS 3915 has four subheadings.
-    sub = {"3915": ["391510", "391520", "391530", "391590"]}
     out = []
     for h in HS4:
-        out += sub.get(h, [h])
+        out += HS6_OF.get(h, [h])
     return out
 
 
@@ -162,7 +166,7 @@ def hmrc(month):
         url = res.get("@odata.nextLink")
     acc = {}
     for h in HS4:
-        lo, hi = int(h + "0000"), int(h + "9999")
+        lo, hi = int(h.ljust(8, "0")), int(h.ljust(8, "9"))
         flt = f"MonthId eq {period} and CommodityId ge {lo} and CommodityId le {hi}"
         url = HMRC + "/OTS?" + urllib.parse.urlencode({"$filter": flt}, quote_via=urllib.parse.quote)
         while url:
