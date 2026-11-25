@@ -6,12 +6,13 @@ Source for [globalwastetrade.org](https://globalwastetrade.org): an explorer for
 
 | Path | What it is |
 |---|---|
-| `site/` | The website: the explorer (`index.html`), Trends (`trends.html`, `trends.js`) and About (`about.html`), served as is. No build step. |
+| `site/` | The website: the explorer (`index.html`), Trends (`trends.html`, `trends.js`), Validation (`validation.html`, `validation.js`) and About (`about.html`), served as is. No build step. |
 | `site/data/` | The data the page loads: `manifest.json` lists the years, `plastic_<year>.json` holds each year's trade records, `trends.json` and `trends_<stream>.json` the yearly totals (used by the explorer's side panel), and `flows.json` and `flows_<stream>.json` every route for every year, per view, which the Trends page filters by country, region and income group. `completeness.json` and `completeness.csv` say who reported HS 3915 exports and imports each year, and each `plastic_<year>.json` carries a `reporting` block used to hatch non-reporters on the map. `imputed_<year>.json` (and `imputed` in each flows file) holds the routes filled in for non-reporters by `pipeline/impute.py`, shown only when "Imputed" is switched on. `manifest.json` also names the `default` year (the most recent with normal coverage) and the `modelled` years. |
 | `site/vendor/` | d3 7.8.5, d3-sankey 0.12.3 and topojson-client 3.1.0, kept locally. |
 | `pipeline/fetch_comtrade.py` | Downloads one year of HS 3915 records from the Comtrade API, or with `--name mixed` the wastes that carry plastic amongst other materials. |
 | `pipeline/build_site_data.py` | Applies the data rules, writes `site/data/` and a check report in `pipeline/reports/`. |
 | `pipeline/build_trends.py` | Summarises every year into the trend and flow files, for plastic waste and each mixed stream. |
+| `pipeline/build_validation.py` | Compares the site's figures with published studies and official statistics listed in `pipeline/reference/validation_sources.json`, and writes `site/data/validation.json` for the Validation page (`validation.html`). Uses reported routes only, never imputed routes or modelled years. |
 | `pipeline/income_history.py` | Turns the World Bank's historical income classification (OGHIST.xlsx) into `pipeline/reference/income_history.json`. |
 | `pipeline/reference/` | Country names, income groups (the World Bank group for each year), region schemes, and BACI 2023 figures kept only to check the Comtrade figures for plastic traded amongst other materials. |
 | `render.yaml` | Render Blueprint for hosting. |
@@ -27,6 +28,7 @@ Source for [globalwastetrade.org](https://globalwastetrade.org): an explorer for
 - Cleaning, with every change listed in the check report:
   - A record with a value but no weight takes the partner's weight. If there is no usable partner report, the weight is the value divided by the median US$ per tonne.
   - A record whose US$ per tonne is more than 10 times above or below the median takes the partner's weight, if the partner's report is in range. Otherwise, if it is more than 100 times out (a units error), its weight is the value at the median US$ per tonne; this is not applied to municipal waste (HS 3825.10), which can genuinely move at near-zero value. Anything else is left as reported and listed.
+  - Where Comtrade has replaced a reporter's own weights with its own estimate and the result is out of line, the estimate is replaced: by the partner's weight, or by the value at the reporter's usual US$ per tonne where partners book the trade differently. The cases are listed, with reasons, in `pipeline/reference/estimated_weights.json` (China's 2016 imports and Hong Kong's 2013 exports).
   - Re-estimated weights are marked as such on the page and in downloads.
 - The build stops without changing the site if either view's tonnes fall below 60% of the previous file, or if a view has fewer than 300 routes.
 
@@ -45,6 +47,7 @@ python pipeline/fetch_comtrade.py --year 2023 --name mixed \
   --cmd 550510,6309,6310,854931,854939,854991,854999,382510,4707
 python pipeline/build_site_data.py --year 2023
 python pipeline/build_trends.py
+python pipeline/build_validation.py
 python -m unittest discover -s pipeline/tests
 python -m http.server -d site 8000  # then open http://localhost:8000
 ```

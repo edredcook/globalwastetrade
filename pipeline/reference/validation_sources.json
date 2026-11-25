@@ -1,0 +1,723 @@
+{
+ "_about": "Published figures that pipeline/build_validation.py compares with this site's Comtrade figures. Each check gives the published value, its source and a measure the script computes from site/data/plastic_<year>.json (reported routes after cleaning; imputed and modelled years are never used). Sets: '*' all economies, 'EU27', 'OECD' (current members), '!X' everything outside X, 'MLIC' the World Bank's middle- and low-income groups in that year, or a list of Comtrade codes. 'share_of' turns the measure into a percentage of a second measure. 'rule': 'views' gives exporters' and importers' figures separately; 'larger' also gives the larger of the two reports route by route, used only where a study did that. 'years' with 'agg': 'mean' averages several years. 'stream' uses a waste that carries plastic amongst other materials instead of HS 3915. Values in tonnes unless unit is '%'. 1 lb = 0.45359237 kg.",
+ "sources": {
+  "brooks2018": {
+   "short": "Brooks et al. (2018)",
+   "kind": "Peer-reviewed",
+   "cite": "Brooks, A.L., Wang, S. and Jambeck, J.R. (2018) 'The Chinese import ban and its impact on global plastic waste trade', <i>Science Advances</i>, 4(6), eaat0131.",
+   "url": "https://doi.org/10.1126/sciadv.aat0131",
+   "data": "UN Comtrade, HS 3915, 1988 to 2016"
+  },
+  "wang2020": {
+   "short": "Wang et al. (2020)",
+   "kind": "Peer-reviewed",
+   "cite": "Wang, C., Zhao, L., Lim, M.K., Chen, W.-Q. and Sutherland, J.W. (2020) 'Structure of the global plastic waste trade network and the impact of China's import ban', <i>Resources, Conservation and Recycling</i>, 153, 104591.",
+   "url": "https://doi.org/10.1016/j.resconrec.2019.104591",
+   "data": "UN Comtrade, HS 3915, 1988 to 2017; larger of the exporter's and importer's report for each pair"
+  },
+  "wen2021": {
+   "short": "Wen et al. (2021)",
+   "kind": "Peer-reviewed",
+   "cite": "Wen, Z., Xie, Y., Chen, M. and Dinga, C.D. (2021) 'China's plastic import ban increases prospects of environmental impact mitigation of plastic waste trade flow worldwide', <i>Nature Communications</i>, 12, 425.",
+   "url": "https://doi.org/10.1038/s41467-020-20741-9",
+   "data": "UN Comtrade, exporters' reports; baseline 2008 to 2016"
+  },
+  "oecd2024": {
+   "short": "OECD (2024)",
+   "kind": "International organisation",
+   "cite": "Park, B. et al. (2024) <i>Monitoring trade in plastic waste and scrap</i>. OECD Environment Working Papers, No. 233. Paris: OECD Publishing.",
+   "url": "https://doi.org/10.1787/013bcfdd-en",
+   "data": "UN Comtrade, HS 3915, downloaded October 2023; Basel Convention national reports"
+  },
+  "eurostat2023": {
+   "short": "Eurostat (2023)",
+   "kind": "Official statistics",
+   "cite": "Eurostat (2023) <i>Decline in EU exports of recyclables over last decade</i>. Eurostat News, 14 November.",
+   "url": "https://ec.europa.eu/eurostat/web/products-eurostat-news/w/ddn-20231114-1",
+   "data": "EU international trade in goods statistics, CN 3915, extra-EU exports"
+  },
+  "eurostat2024": {
+   "short": "Eurostat (2024)",
+   "kind": "Official statistics",
+   "cite": "Eurostat (2024) <i>Marked increase in EU exports of recyclables in 2023</i>. Eurostat News, 11 October.",
+   "url": "https://ec.europa.eu/eurostat/web/products-eurostat-news/w/ddn-20241011-1",
+   "data": "EU international trade in goods statistics, CN 3915, extra-EU exports"
+  },
+  "staub2024": {
+   "short": "Staub (2024)",
+   "kind": "Trade press, from US Census Bureau data",
+   "cite": "Staub, C. (2024) 'Fiber exports drop 17%, plastic shipments hit record low', <i>Resource Recycling</i>, 13 February.",
+   "url": "https://resource-recycling.com/recycling/2024/02/13/fiber-exports-drop-17-plastic-shipments-hit-record-low/",
+   "data": "US Census Bureau, HS 3915, US exports"
+  },
+  "friedman2024": {
+   "short": "Friedman (2024)",
+   "kind": "Trade press, from US Census Bureau data",
+   "cite": "Friedman, E. (2024) 'INSIGHT: 2023 marks first year as US net plastic scrap importer, driven by PET imports increasing 33% year on year', <i>ICIS</i>, 16 February.",
+   "url": "https://www.icis.com/explore/resources/news/2024/02/16/10971916/insight-2023-marks-first-year-as-us-net-plastic-scrap-importer-driven-by-pet-imports-increasing-33-year-on-year",
+   "data": "US Census Bureau, HS 3915, US imports"
+  },
+  "ban2026": {
+   "short": "BAN (2026)",
+   "kind": "NGO",
+   "cite": "Basel Action Network (2026) <i>US Export Data: 2025 Annual Summary</i>. Seattle: BAN.",
+   "url": "https://www.ban.org/plastic-waste-project-hub/trade-data/usa-export-data-annual-summary",
+   "data": "US Census Bureau, HS 3915, US exports by OECD and non-OECD destination"
+  },
+  "baci2026": {
+   "short": "CEPII BACI (2026)",
+   "kind": "Research database",
+   "cite": "Gaulier, G. and Zignago, S. (2010) <i>BACI: International Trade Database at the Product-Level. The 1994–2007 Version</i>. CEPII Working Paper 2010-23. Data: BACI HS22, version 202601. Paris: CEPII.",
+   "url": "https://www.cepii.fr/CEPII/en/bdd_modele/bdd_modele_item.asp?id=37",
+   "data": "UN Comtrade reconciled by CEPII (one figure per route from both reports), 2023, records with known quantity"
+  },
+  "ipen2023": {
+   "short": "IPEN (2023)",
+   "kind": "NGO",
+   "cite": "IPEN (2023) <i>Plastic Waste Trade: The Hidden Numbers</i>. Gothenburg: International Pollutants Elimination Network.",
+   "url": "https://ipen.org/documents/plastic-waste-trade-hidden-numbers",
+   "data": "UN Comtrade; exports from the EU, Japan, the UK and the US to non-OECD countries and Türkiye"
+  }
+ },
+ "checks": [
+  {
+   "group": "World",
+   "label": "World trade",
+   "year": 2014,
+   "published": 15990000,
+   "source": "wang2020",
+   "rule": "larger",
+   "measure": {
+    "from": "*",
+    "to": "*"
+   },
+   "why": "Taking the larger report for each route gives more than the study, because the two sides often book the same shipment to different partners, such as Hong Kong re-exports. The study's total sits between the site's exporters' and importers' figures."
+  },
+  {
+   "group": "World",
+   "label": "World exports",
+   "year": 2016,
+   "published": 14100000,
+   "source": "brooks2018",
+   "measure": {
+    "from": "*",
+    "to": "*"
+   },
+   "why": "Within 8% of exporters' figures. Comtrade's own estimate of China's 2016 import weight is replaced by partners' weights."
+  },
+  {
+   "group": "World",
+   "label": "World exports, 2008–2016 average",
+   "years": [
+    2008,
+    2009,
+    2010,
+    2011,
+    2012,
+    2013,
+    2014,
+    2015,
+    2016
+   ],
+   "agg": "mean",
+   "published": 14304561,
+   "source": "wen2021",
+   "measure": {
+    "from": "*",
+    "to": "*"
+   },
+   "why": "Within 3% of exporters' figures."
+  },
+  {
+   "group": "World",
+   "label": "World trade",
+   "year": 2017,
+   "published": 13690000,
+   "source": "wang2020",
+   "rule": "larger",
+   "measure": {
+    "from": "*",
+    "to": "*"
+   },
+   "why": "As for 2014. The study's total is within 1% of the site's importers' figures."
+  },
+  {
+   "group": "World",
+   "label": "World exports",
+   "year": 2017,
+   "published": 12400000,
+   "source": "oecd2024",
+   "measure": {
+    "from": "*",
+    "to": "*"
+   },
+   "why": "Within 3%."
+  },
+  {
+   "group": "World",
+   "label": "World exports",
+   "year": 2018,
+   "published": 7800583,
+   "source": "wen2021",
+   "measure": {
+    "from": "*",
+    "to": "*"
+   },
+   "why": "The study used Comtrade as of mid-2020. Later reports and revisions add about 0.9 Mt to exporters' figures."
+  },
+  {
+   "group": "World",
+   "label": "World exports",
+   "year": 2020,
+   "published": 6800000,
+   "source": "oecd2024",
+   "measure": {
+    "from": "*",
+    "to": "*"
+   },
+   "why": "Within 3%."
+  },
+  {
+   "group": "World",
+   "label": "World exports",
+   "year": 2021,
+   "published": 6700000,
+   "source": "oecd2024",
+   "measure": {
+    "from": "*",
+    "to": "*"
+   },
+   "why": "Within 3%."
+  },
+  {
+   "group": "World",
+   "label": "World exports",
+   "year": 2022,
+   "published": 6300000,
+   "source": "oecd2024",
+   "measure": {
+    "from": "*",
+    "to": "*"
+   },
+   "why": "The OECD used Comtrade as of October 2023. Late and revised reports since then add about 0.5 Mt."
+  },
+  {
+   "group": "China and Hong Kong",
+   "label": "China's imports",
+   "year": 2016,
+   "published": 7350000,
+   "source": "brooks2018",
+   "measure": {
+    "from": "*",
+    "to": [
+     156
+    ]
+   },
+   "why": "Comtrade had replaced China's reported 2016 weight with its own estimate of 8.80 Mt. The site now uses partners' weights for those routes instead."
+  },
+  {
+   "group": "China and Hong Kong",
+   "label": "China's share of world imports, 2008–2016",
+   "years": [
+    2008,
+    2009,
+    2010,
+    2011,
+    2012,
+    2013,
+    2014,
+    2015,
+    2016
+   ],
+   "agg": "mean",
+   "unit": "%",
+   "published": 55.7,
+   "source": "wen2021",
+   "measure": {
+    "from": "*",
+    "to": [
+     156
+    ]
+   },
+   "share_of": {
+    "from": "*",
+    "to": "*"
+   },
+   "why": "Within 2 points of exporters' figures."
+  },
+  {
+   "group": "China and Hong Kong",
+   "label": "Hong Kong to China, 2008–2016 average",
+   "years": [
+    2008,
+    2009,
+    2010,
+    2011,
+    2012,
+    2013,
+    2014,
+    2015,
+    2016
+   ],
+   "agg": "mean",
+   "published": 3184176,
+   "source": "wen2021",
+   "measure": {
+    "from": [
+     344
+    ],
+    "to": [
+     156
+    ]
+   },
+   "why": "Within 3% of Hong Kong's own reports. China records half as much from Hong Kong, because it books most of these shipments to the country of origin."
+  },
+  {
+   "group": "OECD",
+   "label": "OECD exports",
+   "year": 2021,
+   "published": 5210000,
+   "source": "oecd2024",
+   "measure": {
+    "from": "OECD",
+    "to": "*"
+   },
+   "why": "About 14% higher, mostly from late and revised reports since October 2023."
+  },
+  {
+   "group": "OECD",
+   "label": "OECD exports",
+   "year": 2022,
+   "published": 5500000,
+   "source": "oecd2024",
+   "measure": {
+    "from": "OECD",
+    "to": "*"
+   },
+   "why": "About 6% higher, for the same reason."
+  },
+  {
+   "group": "OECD",
+   "label": "OECD share of world exports",
+   "year": 2022,
+   "unit": "%",
+   "published": 87,
+   "source": "oecd2024",
+   "measure": {
+    "from": "OECD",
+    "to": "*"
+   },
+   "share_of": {
+    "from": "*",
+    "to": "*"
+   },
+   "why": "Within 2 points."
+  },
+  {
+   "group": "OECD",
+   "label": "OECD imports",
+   "year": 2022,
+   "published": 5300000,
+   "source": "oecd2024",
+   "measure": {
+    "from": "*",
+    "to": "OECD"
+   },
+   "why": "Within 1% of importers' figures."
+  },
+  {
+   "group": "OECD",
+   "label": "OECD share of world imports",
+   "year": 2022,
+   "unit": "%",
+   "published": 77,
+   "source": "oecd2024",
+   "measure": {
+    "from": "*",
+    "to": "OECD"
+   },
+   "share_of": {
+    "from": "*",
+    "to": "*"
+   },
+   "why": "Within 5 points of importers' figures."
+  },
+  {
+   "group": "European Union",
+   "label": "EU exports outside the EU",
+   "year": 2022,
+   "published": 1100000,
+   "source": "eurostat2023",
+   "measure": {
+    "from": "EU27",
+    "to": "!EU27"
+   },
+   "why": "Within 6%. Eurostat rounds to 0.1 Mt."
+  },
+  {
+   "group": "European Union",
+   "label": "Share to Türkiye",
+   "year": 2022,
+   "unit": "%",
+   "published": 29,
+   "source": "eurostat2023",
+   "measure": {
+    "from": "EU27",
+    "to": [
+     792
+    ]
+   },
+   "share_of": {
+    "from": "EU27",
+    "to": "!EU27"
+   },
+   "why": "Matches exporters' figures. Türkiye records more from the EU than EU countries record sending."
+  },
+  {
+   "group": "European Union",
+   "label": "Share to Indonesia",
+   "year": 2022,
+   "unit": "%",
+   "published": 17,
+   "source": "eurostat2023",
+   "measure": {
+    "from": "EU27",
+    "to": [
+     360
+    ]
+   },
+   "share_of": {
+    "from": "EU27",
+    "to": "!EU27"
+   },
+   "why": ""
+  },
+  {
+   "group": "European Union",
+   "label": "Share to Malaysia",
+   "year": 2022,
+   "unit": "%",
+   "published": 15,
+   "source": "eurostat2023",
+   "measure": {
+    "from": "EU27",
+    "to": [
+     458
+    ]
+   },
+   "share_of": {
+    "from": "EU27",
+    "to": "!EU27"
+   },
+   "why": ""
+  },
+  {
+   "group": "European Union",
+   "label": "EU exports outside the EU",
+   "year": 2023,
+   "published": 1300000,
+   "source": "eurostat2024",
+   "measure": {
+    "from": "EU27",
+    "to": "!EU27"
+   },
+   "why": "Within 5% of exporters' figures."
+  },
+  {
+   "group": "European Union",
+   "label": "Share to Türkiye",
+   "year": 2023,
+   "unit": "%",
+   "published": 22,
+   "source": "eurostat2024",
+   "measure": {
+    "from": "EU27",
+    "to": [
+     792
+    ]
+   },
+   "share_of": {
+    "from": "EU27",
+    "to": "!EU27"
+   },
+   "why": "Matches exporters' figures. Türkiye records more from the EU than EU countries record sending."
+  },
+  {
+   "group": "European Union",
+   "label": "Share to Malaysia",
+   "year": 2023,
+   "unit": "%",
+   "published": 21,
+   "source": "eurostat2024",
+   "measure": {
+    "from": "EU27",
+    "to": [
+     458
+    ]
+   },
+   "share_of": {
+    "from": "EU27",
+    "to": "!EU27"
+   },
+   "why": ""
+  },
+  {
+   "group": "European Union",
+   "label": "Share to Indonesia",
+   "year": 2023,
+   "unit": "%",
+   "published": 19,
+   "source": "eurostat2024",
+   "measure": {
+    "from": "EU27",
+    "to": [
+     360
+    ]
+   },
+   "share_of": {
+    "from": "EU27",
+    "to": "!EU27"
+   },
+   "why": ""
+  },
+  {
+   "group": "United States",
+   "label": "US exports",
+   "year": 2022,
+   "published": 436356,
+   "source": "staub2024",
+   "measure": {
+    "from": [
+     842
+    ],
+    "to": "*"
+   },
+   "why": "962 million lb. Within 1% of exporters' figures, which are the US's own."
+  },
+  {
+   "group": "United States",
+   "label": "US exports",
+   "year": 2023,
+   "published": 416398,
+   "source": "staub2024",
+   "measure": {
+    "from": [
+     842
+    ],
+    "to": "*"
+   },
+   "why": "918 million lb. Within 4% of exporters' figures, which are the US's own."
+  },
+  {
+   "group": "United States",
+   "label": "US exports to Canada",
+   "year": 2023,
+   "published": 153768,
+   "source": "staub2024",
+   "measure": {
+    "from": [
+     842
+    ],
+    "to": [
+     124
+    ]
+   },
+   "why": ""
+  },
+  {
+   "group": "United States",
+   "label": "US exports to Mexico",
+   "year": 2023,
+   "published": 74843,
+   "source": "staub2024",
+   "measure": {
+    "from": [
+     842
+    ],
+    "to": [
+     484
+    ]
+   },
+   "why": ""
+  },
+  {
+   "group": "United States",
+   "label": "US exports to India",
+   "year": 2023,
+   "published": 45813,
+   "source": "staub2024",
+   "measure": {
+    "from": [
+     842
+    ],
+    "to": [
+     699
+    ]
+   },
+   "why": ""
+  },
+  {
+   "group": "United States",
+   "label": "US exports to Malaysia",
+   "year": 2023,
+   "published": 34019,
+   "source": "staub2024",
+   "measure": {
+    "from": [
+     842
+    ],
+    "to": [
+     458
+    ]
+   },
+   "why": "Matches US reports. Malaysia records three times as much from the US."
+  },
+  {
+   "group": "United States",
+   "label": "US exports to Viet Nam",
+   "year": 2023,
+   "published": 19958,
+   "source": "staub2024",
+   "measure": {
+    "from": [
+     842
+    ],
+    "to": [
+     704
+    ]
+   },
+   "why": ""
+  },
+  {
+   "group": "United States",
+   "label": "US imports",
+   "year": 2023,
+   "published": 446778,
+   "source": "friedman2024",
+   "measure": {
+    "from": "*",
+    "to": [
+     842
+    ]
+   },
+   "why": "Matches importers' figures, which are the US's own."
+  },
+  {
+   "group": "United States",
+   "label": "US exports to non-OECD economies",
+   "year": 2024,
+   "published": 148000000,
+   "scale": 0.001,
+   "source": "ban2026",
+   "measure": {
+    "from": [
+     842
+    ],
+    "to": "!OECD"
+   },
+   "why": "Within 2% of US reports. Partners record far more, mostly Malaysia."
+  },
+  {
+   "group": "United States",
+   "label": "US exports to OECD economies",
+   "year": 2024,
+   "published": 265000000,
+   "scale": 0.001,
+   "source": "ban2026",
+   "measure": {
+    "from": [
+     842
+    ],
+    "to": "OECD"
+   },
+   "why": ""
+  },
+  {
+   "group": "United States",
+   "label": "US exports to non-OECD economies",
+   "year": 2025,
+   "published": 125000000,
+   "scale": 0.001,
+   "source": "ban2026",
+   "measure": {
+    "from": [
+     842
+    ],
+    "to": "!OECD"
+   },
+   "why": ""
+  },
+  {
+   "group": "United States",
+   "label": "US exports to OECD economies",
+   "year": 2025,
+   "published": 260000000,
+   "scale": 0.001,
+   "source": "ban2026",
+   "measure": {
+    "from": [
+     842
+    ],
+    "to": "OECD"
+   },
+   "why": ""
+  }
+ ],
+ "baci_streams": {
+  "source": "baci2026",
+  "year": 2023,
+  "labels": {
+   "clothing": "Worn clothing (HS 6309)",
+   "rags": "Rags (HS 6310)",
+   "fibre": "Synthetic fibre waste (HS 5505.10)",
+   "weee": "E-waste, plastic-rich (HS 8549.31, .39)",
+   "weeeo": "E-waste, other (HS 8549.91, .99)",
+   "rdf": "Municipal waste and RDF (HS 3825.10)",
+   "paper": "Recovered paper (HS 4707)"
+  },
+  "why": {
+   "rags": "India books large imports of worn clothing as rags, so importers' figures are about twice exporters'.",
+   "fibre": "BACI fills routes where only one side reported; the site keeps the two sides apart.",
+   "rdf": "BACI fills routes where only one side reported; the site keeps the two sides apart.",
+   "weee": "HS 8549 began in 2022 and fewer importers use it yet.",
+   "weeeo": "HS 8549 began in 2022 and fewer importers use it yet."
+  }
+ },
+ "findings": [
+  {
+   "title": "China's 2016 imports",
+   "status": "Fixed: partners' weights used.",
+   "text": "Comtrade had replaced China's 2016 import weight with its own estimate (8.80 Mt at US$420 a tonne), against the 7.35 Mt China reported. The site now takes each partner's reported weight for those routes, which gives 7.95 Mt. China's own figures for 2008 to 2015 are as reported."
+  },
+  {
+   "title": "Hong Kong's 2013 exports",
+   "status": "Fixed: Hong Kong's usual price used.",
+   "text": "Comtrade's estimated weight for Hong Kong's 2013 exports was 1.49 Mt, against about 3 Mt in 2012 and 2014 at similar values. Partners' reports cannot stand in, because China books most of these shipments to the country of origin, so the site divides each value by Hong Kong's own US$ per tonne in 2012 and 2014. This gives 2.42 Mt."
+  },
+  {
+   "title": "Hong Kong re-exports",
+   "status": "Same as the published studies.",
+   "text": "Until 2017 most waste shipped to Hong Kong went on to China and is counted twice in world totals, once into Hong Kong and once into China: 2.8 Mt in 2016 by Hong Kong's reports. The studies above count it the same way."
+  },
+  {
+   "title": "Larger of the two reports",
+   "status": "For the resolved-figure decision.",
+   "text": "Taking the larger report for each route gives world totals 20 to 30% above either side's total, because exporters and importers often book the same shipment to different partners. Any single resolved figure per route inherits part of this."
+  },
+  {
+   "title": "Partners' reports for US and EU exports",
+   "status": "Shown as reported.",
+   "text": "US and EU exporters' figures match US Census and Eurostat closely. Importers record more: Malaysia records three times what the US reports sending in 2023, and in 2022 Türkiye recorded a fifth more than the EU reported sending."
+  },
+  {
+   "title": "Plastic in recovered paper",
+   "status": "Assumption to review.",
+   "text": "The site assumes 2% plastic in recovered paper (HS 4707). IPEN (2023) uses 5 to 30% for paper bales, which would make paper the largest carrier of plastic amongst other materials."
+  },
+  {
+   "title": "Basel Convention data",
+   "status": "Not usable as a volume check.",
+   "text": "OECD countries reported 17,193 t of plastic waste exports under the Basel prior informed consent procedure in 2021, against 5.21 Mt reported to Comtrade (OECD, 2024). Most plastic waste trade falls outside that procedure."
+  }
+ ]
+}

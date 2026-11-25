@@ -87,8 +87,14 @@ def view_medians(selected):
     return med
 
 
-def clean(selected, factor=10.0, gross=100.0):
+def clean(selected, factor=10.0, gross=100.0, replace_est=None):
     """Repair weights in place. Returns a list of changes for the check report.
+
+    E. Weights that Comtrade estimated for a reporter and flow listed in
+       pipeline/reference/estimated_weights.json (replace_est maps (reporter, flow)
+       to a method). "partner": take the partner's weight if its report is in range,
+       otherwise value / that flow's median US$ per tonne. A number: value divided by
+       that US$ per tonne (the reporter's own price in nearby years).
 
     A. No weight but a value: take the partner's weight if its mirror report is in
        range, otherwise weight = value / that flow's median US$ per tonne.
@@ -108,12 +114,24 @@ def clean(selected, factor=10.0, gross=100.0):
         m = med[flow]
         return m and v["t"] > 0 and v["usd"] > 0 and m / factor <= v["usd"] / v["t"] <= m * factor
 
+    replace_est = replace_est or {}
     for (rep, flow, par), v in selected.items():
         m = med[flow]
         if not m:
             continue
         mflow = "M" if flow == "X" else "X"
         mirror = selected.get((par, mflow, rep))
+        how_e = replace_est.get((rep, flow))
+        if how_e is not None and v["est"] and v["usd"] > 0:
+            if how_e == "partner" and mirror and in_range(mirror, mflow):
+                new, how = mirror["t"], "Comtrade estimate replaced by partner's weight"
+            elif how_e == "partner":
+                new, how = v["usd"] / m, "Comtrade estimate replaced by value at the median US$ per tonne"
+            else:
+                new, how = v["usd"] / float(how_e), "Comtrade estimate replaced by value at the reporter's usual US$ per tonne"
+            changes.append({"rule": "E", "key": (rep, flow, par), "old_t": v["t"], "new_t": new, "usd": v["usd"]})
+            v.update(t=new, est=2, cleaned=how)
+            continue
         if v["t"] <= 0 and v["usd"] > 0:
             if mirror and in_range(mirror, mflow):
                 new, how = mirror["t"], "weight from partner's report"
@@ -273,7 +291,8 @@ def cleaning_section(changes, med, factor, names):
     rules = {"A": "No weight given: partner's weight, or value at the median US$ per tonne",
              "B": "US$ per tonne out of range: weight taken from the partner's report",
              "D": "US$ per tonne 100 times out, no usable partner report: value at the median US$ per tonne",
-             "C": "US$ per tonne out of range, no usable partner report: left as reported"}
+             "C": "US$ per tonne out of range, no usable partner report: left as reported",
+             "E": "Comtrade's own weight estimate replaced (see pipeline/reference/estimated_weights.json)"}
     lines = ["## Cleaning", "",
              "Median US$ per tonne: " + ", ".join(f"{flows[f]} {m:,.0f}" for f, m in med.items() if m) +
              f". Out of range means more than {factor:g} times above or below the median.", "",
@@ -282,7 +301,7 @@ def cleaning_section(changes, med, factor, names):
         cs = [c for c in changes if c["rule"] == k]
         lines.append(f"| {label} | {len(cs):,} | {sum(c['old_t'] for c in cs):,.0f} | {sum(c['new_t'] for c in cs):,.0f} |")
     lines.append("")
-    for k in ("B", "D", "C"):
+    for k in ("E", "B", "D", "C"):
         cs = sorted((c for c in changes if c["rule"] == k), key=lambda c: -max(c["old_t"], c["new_t"], c["usd"] / 1e4))[:25]
         if not cs:
             continue
@@ -360,6 +379,31 @@ def load(p):
         return json.load(f)
 
 
+def estimated_weights(year):
+    """(reporter, flow) -> method for this year's entries in estimated_weights.json.
+    An entry with "price_years" gets the reporter's own US$ per tonne for that flow,
+    from the site data of those years (weights it reported itself)."""
+    path = REF / "estimated_weights.json"
+    if not path.exists():
+        return {}
+    out = {}
+    for e in load(path)["replace"]:
+        if e["year"] != year:
+            continue
+        how = e.get("method", "partner")
+        if how == "own_price":
+            view = 0 if e["flow"] == "X" else 1
+            t = usd = 0.0
+            for y in e["price_years"]:
+                for v, ex, rc, w, u, est in load(SITE_DATA / f"plastic_{y}.json")["routes"]:
+                    if v == view and (ex if view == 0 else rc) == e["reporter"] and est == 0 and ex != rc:
+                        t += w
+                        usd += u
+            how = usd / t
+        out[(e["reporter"], e["flow"])] = how
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--year", type=int, required=True)
@@ -379,7 +423,7 @@ def main():
     map_ids = {g.get("id") for g in world["objects"]["countries"]["geometries"]}
 
     selected = select(rows)
-    changes, med = clean(selected, a.outlier_factor)
+    changes, med = clean(selected, a.outlier_factor, replace_est=estimated_weights(a.year))
     routes = routes_from(selected)
     mixed_path = RAW / f"comtrade_mixed_{a.year}.json"
     mixed, mixed_rules, mixed_meta = {}, {}, None
