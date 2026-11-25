@@ -10,9 +10,13 @@ sent abroad and received, in tonnes and US$; and tonnes between World Bank incom
 groups (exporter's group by recipient's group, using each year's classification).
 The two views are kept apart and never added together.
 
+It also writes site/data/completeness.json and completeness.csv: for HS 3915, who
+reported exports and imports each year, and what partners recorded with those who did not.
+
 It also writes site/data/flows.json and flows_<stream>.json: every route for every
 year, per view, so the Trends page can filter by country, region and income group.
 """
+import csv
 import json
 from collections import defaultdict
 from pathlib import Path
@@ -89,6 +93,68 @@ def flows(years, per_year, schemes):
     }
 
 
+def completeness(years, data):
+    """Per year: counts of economies by reporting status, the tonnes only partners
+    record, and one CSV row per economy."""
+    out = {"years": years, "universe": [], "both": [], "x_only": [], "m_only": [], "none": [],
+           "partner_only_t": {"0": [], "1": []}, "total_t": {"0": [], "1": []}, "nonreporters": {"0": [], "1": []},
+           "names": {}}
+    rows = []
+    for y, d in zip(years, data):
+        rp = d.get("reporting")
+        if not rp:
+            for k in ("universe", "both", "x_only", "m_only", "none"):
+                out[k].append(None)
+            for v in ("0", "1"):
+                out["partner_only_t"][v].append(None)
+                out["total_t"][v].append(None)
+                out["nonreporters"][v].append([])
+            continue
+        U, X, M = rp["universe"], set(rp["X"]), set(rp["M"])
+        out["universe"].append(len(U))
+        out["both"].append(len(X & M))
+        out["x_only"].append(len(X - M))
+        out["m_only"].append(len(M - X))
+        out["none"].append(len(set(U) - X - M))
+        sent, recv = defaultdict(float), defaultdict(float)   # partners' records: imports from c, exports to c
+        own_x, own_m = defaultdict(float), defaultdict(float)
+        tot = {0: 0.0, 1: 0.0}
+        for v, ex, rc, t, usd, est in d["routes"]:
+            ex, rc = str(ex), str(rc)
+            if ex == rc:
+                continue
+            tot[v] += t
+            if v == 1:
+                sent[ex] += t
+                own_m[rc] += t
+            else:
+                recv[rc] += t
+                own_x[ex] += t
+        # Exporters' view misses what importers record from countries with no export report;
+        # importers' view misses what exporters record to countries with no import report.
+        po0 = sum(t for c, t in sent.items() if c not in X)
+        po1 = sum(t for c, t in recv.items() if c not in M)
+        out["partner_only_t"]["0"].append(round(po0))
+        out["partner_only_t"]["1"].append(round(po1))
+        out["total_t"]["0"].append(round(tot[0]))
+        out["total_t"]["1"].append(round(tot[1]))
+        out["nonreporters"]["0"].append(sorted((c for c in U if c not in X), key=int))
+        out["nonreporters"]["1"].append(sorted((c for c in U if c not in M), key=int))
+        inc = d["countries"]
+        for c, (iso, name, _) in U.items():
+            out["names"][c] = [iso, name]
+            rows.append([y, c, iso, name, (inc.get(c) or [None, None, ""])[2],
+                         "yes" if c in X else "no", "yes" if c in M else "no",
+                         round(own_x[c]), round(own_m[c]), round(sent[c]), round(recv[c])])
+    out["names"] = dict(sorted(out["names"].items(), key=lambda kv: int(kv[0])))
+    return out, rows
+
+
+CSV_HEAD = ["year", "comtrade_code", "iso3", "country", "income_group", "reported_exports", "reported_imports",
+            "own_reported_exports_t", "own_reported_imports_t", "partners_report_imports_from_t",
+            "partners_report_exports_to_t"]
+
+
 def write(name, out):
     with open(SITE_DATA / name, "w", encoding="utf-8") as f:
         json.dump(out, f, separators=(",", ":"), ensure_ascii=False)
@@ -102,6 +168,12 @@ def main():
     per = [(d["routes"], d["countries"]) for d in data]
     write("trends.json", summarise(years, per))
     write("flows.json", flows(years, per, schemes))
+    comp, rows = completeness(years, data)
+    write("completeness.json", comp)
+    with open(SITE_DATA / "completeness.csv", "w", encoding="utf-8", newline="") as f:
+        w = csv.writer(f)
+        w.writerow(CSV_HEAD)
+        w.writerows(rows)
     streams = sorted({k for d in data for k in d.get("hidden", {})})
     for k in streams:
         per = [(d.get("hidden", {}).get(k, []), d["countries"]) for d in data]

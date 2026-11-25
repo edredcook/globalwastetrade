@@ -175,6 +175,17 @@ class SiteData(unittest.TestCase):
                     n = len(a) // 4
                     self.assertAlmostEqual(sum(a[2::4]), tr["world"][v]["t"][i], delta=n * 0.5 + 1)
 
+    def test_completeness_counts_add_up(self):
+        c = json.load(open(ROOT / "site" / "data" / "completeness.json"))
+        for i, y in enumerate(c["years"]):
+            if c["universe"][i] is None:
+                continue
+            self.assertEqual(c["both"][i] + c["x_only"][i] + c["m_only"][i] + c["none"][i], c["universe"][i])
+            for v in ("0", "1"):
+                self.assertLessEqual(c["partner_only_t"][v][i], c["total_t"]["1" if v == "0" else "0"][i])
+        d = json.load(open(ROOT / "site" / "data" / f"plastic_{c['years'][-1]}.json"))
+        self.assertTrue(set(d["reporting"]["X"]) <= set(d["reporting"]["universe"]))
+
 
 if __name__ == "__main__":
     unittest.main()

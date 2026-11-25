@@ -223,6 +223,7 @@ tbody tr:hover td{background:var(--raise)}
 .dl .prev{padding:16px;display:flex;flex-direction:column;gap:10px;min-width:0}
 .dl pre{margin:0;background:var(--raise);border-radius:8px;padding:10px;font-family:var(--mono);font-size:12px;overflow:auto;max-height:230px;white-space:pre}
 .actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.hatchdot{background:repeating-linear-gradient(45deg,var(--muted) 0 1.2px,transparent 1.2px 4px)!important;border:1px solid var(--border)}
 .btn{font:inherit;font-size:14px;font-weight:600;border:0;border-radius:8px;padding:9px 16px;cursor:pointer;background:var(--out);color:#fff}
 .btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--border);font-weight:500}
 .btn.sm{font-size:13px;padding:6px 12px}
@@ -347,6 +348,7 @@ footer b{color:var(--ink);font-weight:600}
       <div class="ctl"><span>Region</span><select id="region" aria-label="Focus on a region"><option value="">Whole world</option></select></div>
       <div class="ctl" id="rdirbox" hidden><span>Trade</span><div class="seg" id="rdir"><button data-d="both" aria-pressed="true">In and out</button><button data-d="out" aria-pressed="false">Leaving</button><button data-d="in" aria-pressed="false">Arriving</button><button data-d="within" aria-pressed="false">Within</button></div></div>
       <div class="ctl" id="hlbox"><span>Highlight</span><div class="seg" id="hl"><button data-v="none" aria-pressed="true">Nothing</button><button data-v="lmic" aria-pressed="false">Low &amp; middle income</button><button data-v="hic" aria-pressed="false">High income</button></div></div>
+      <div class="ctl" id="nrbox"><span>Non-reporters</span><div class="seg" id="nrep"><button data-v="on" aria-pressed="true">Hatched</button><button data-v="off" aria-pressed="false">Off</button></div></div>
       <div class="ctl" id="focusbox" hidden><span>Selected country</span><div class="seg" id="fdir"><button data-v="in" aria-pressed="false">Coming in</button><button data-v="out" aria-pressed="false">Going out</button><button data-v="both" aria-pressed="true">Both</button></div></div>
       <div class="ctl" id="fgrpbox" hidden><span>Group partners</span><div class="seg" id="fgrp"><button data-v="c" aria-pressed="true">Countries</button><button data-v="r" aria-pressed="false">By region</button></div></div>
     </div>
@@ -431,7 +433,7 @@ footer b{color:var(--ink);font-weight:600}
         <div class="ctl"><span>Columns</span><div class="dlcols" id="dlcols"></div></div>
       </div>
       <div class="prev">
-        <div class="actions"><button class="btn" id="dlgo">Download</button><button class="btn ghost" id="dlcopy">Copy to clipboard</button><span class="count" id="dlcount"></span></div>
+        <div class="actions"><button class="btn" id="dlgo">Download</button><button class="btn ghost" id="dlcopy">Copy to clipboard</button><a class="btn ghost" href="data/completeness.csv" download="gwt-who-reported-hs3915-2008-2024.csv" style="text-decoration:none">Who reported, all years (CSV)</a><span class="count" id="dlcount"></span></div>
       </div>
     </div>
   </section>
@@ -518,7 +520,7 @@ try{const sv=JSON.parse(localStorage.getItem("gwt-assumptions")||"null");if(sv&&
 function sanitiseH(k,o){const c=v=>Math.max(0,Math.min(100,+v));const d=HDEF(k),n=x=>x!=null&&isFinite(+x);
   return{on:!!o.on,usrc:typeof o.usrc==="string"?o.usrc.slice(0,300):typeof o.source==="string"&&o.source!==HS[k].src?o.source.slice(0,300):"",f:n(o.f)?c(o.f):d.f,w:100,byInc:!!o.byInc,inc:Object.fromEntries(["HIC","UMC","LMC","LIC"].map(g=>[g,o.inc&&n(o.inc[g])?c(o.inc[g]):d.inc[g]]))}}
 const shareOf=(k,e)=>{const h=HON[k],g=C[e]?C[e][2]:"NS";return (h.byInc&&h.inc[g]!=null?h.inc[g]:h.f)/100*h.w/100};
-const S={scrap:true,fdir:"both",fgrp:"c",view:0,measure:"t",incf:"all",sel:null,region:null,rdir:"both",scheme:"un",mapMode:"routes",hl:"none",resolve:"mean",rank:"exp",rankSort:null,fmt:"csv"};
+const S={hatch:true,scrap:true,fdir:"both",fgrp:"c",view:0,measure:"t",incf:"all",sel:null,region:null,rdir:"both",scheme:"un",mapMode:"routes",hl:"none",resolve:"mean",rank:"exp",rankSort:null,fmt:"csv"};
 const B={type:"sankey",from:"c",to:"c",side:"ex",group:"c",scheme:"un",view:0,measure:"t",top:15,focus:false,nointra:false};
 const DDEF={preset:"container",out:null,in:null,res:null,maxr:45,line:1,lab:"both",lval:"net",globe:"trade",lpos:"auto",ldens:3,lsize:11,anim:true,choro:false,font:12,vals:true,nodew:12,gap:10,op:.35,lcol:"source",h:1};
 let D={...DDEF};try{const s=JSON.parse(localStorage.getItem("gwt-design-v6")||"null");if(s)D={...DDEF,...s}}catch(e){}
@@ -664,6 +666,7 @@ const hlOn=c=>S.hl==="lmic"?isL(c):S.hl==="hic"?isH(c):true;
 
 // ---------- MAP ----------
 const svg=d3.select("#map");
+svg.append("defs").html(`<pattern id="hatch" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="5" style="stroke:var(--muted)" stroke-width="1.2" opacity=".75"/></pattern>`);
 // Keep the whole map box (tools, map and bar) within one screen below the sticky header.
 {const el=$("#map"),box=el.closest(".mapbox"),mast=$("header.mast");
  const fitMap=()=>{const w=el.getBoundingClientRect().width,natural=w*500/960;
@@ -676,11 +679,21 @@ const svg=d3.select("#map");
 const zg=svg.append("g");
 const sphereP=zg.append("path").attr("d",path({type:"Sphere"})).attr("fill","var(--sea)");
 const gratP=zg.append("path").attr("d",path(d3.geoGraticule10())).attr("vector-effect","non-scaling-stroke").attr("fill","none").attr("stroke","var(--border)").attr("stroke-width",.3).attr("opacity",.6);
-const gC=zg.append("g"),gA=zg.append("g"),gN=zg.append("g"),gLL=zg.append("g"),gL=zg.append("g"),gR=zg.append("g");
+const gC=zg.append("g"),gH=zg.append("g").attr("pointer-events","none"),gA=zg.append("g"),gN=zg.append("g"),gLL=zg.append("g"),gL=zg.append("g"),gR=zg.append("g");
 const countries=gC.selectAll("path").data(feats).join("path").attr("class","country").attr("d",path).attr("display",f=>D.globe!=="full"&&f.id==="010"?"none":null).attr("vector-effect","non-scaling-stroke")
   .on("click",(e,f)=>{const c=mapToCode[f.id];if(!c)return;if(S.mapMode==="regions"){const r=regOf(c);if(r){setRegion(r)}}else select(c)})
-  .on("mousemove",(e,f)=>{const c=mapToCode[f.id];showTip(e,c?`<b>${esc(name(c))}</b> <span style="opacity:.7">${INC[inc(c)]} · ${esc(regOf(c)||"")}</span><br>${tipLine(c)}`:`<b>${esc(f.properties.name)}</b><br>No plastic waste trade recorded`)})
+  .on("mousemove",(e,f)=>{const c=mapToCode[f.id],u=uCode(f.id),nr=u&&noRep(u)?`<br><span style="opacity:.8">${noRepText()} for ${YEAR}</span>`:"";showTip(e,c?`<b>${esc(name(c))}</b> <span style="opacity:.7">${INC[inc(c)]} · ${esc(regOf(c)||"")}</span><br>${tipLine(c)}${nr}`:`<b>${esc(f.properties.name)}</b><br>No plastic waste trade recorded${nr}`)})
   .on("mouseleave",hideTip);
+// Non-reporters for the year: hatched on the map in the exporters' and importers' views.
+const RP=()=>data.reporting||null;
+let RPX=null,RPM=null,U2C=null;
+function rpSets(){const rp=RP();if(!rp){RPX=RPM=null;U2C={};return}RPX=new Set(rp.X);RPM=new Set(rp.M);U2C={};for(const [c,v] of Object.entries(rp.universe))if(v[2])U2C[v[2]]=c}
+const uCode=id=>{if(!U2C)rpSets();return U2C[id]||null};
+const noRep=c=>{if(!U2C)rpSets();if(!RPX)return false;return S.view===0?!RPX.has(c):S.view===1?!RPM.has(c):!RPX.has(c)&&!RPM.has(c)};
+const noRepText=()=>S.view===0?"No export report":S.view===1?"No import report":"No report";
+function hatch(){gH.selectAll("*").remove();if(!RP()||S.mapMode==="regions"||!S.hatch)return;
+  const fs=Object.entries(RP().universe).filter(([c,v])=>v[2]&&byMap[v[2]]&&noRep(c)).map(([c,v])=>byMap[v[2]]);
+  gH.selectAll("path").data(fs).join("path").attr("d",path).attr("fill","url(#hatch)").attr("stroke","none").attr("display",f=>D.globe!=="full"&&f.id==="010"?"none":null)}
 function tipLine(c){const rs=routes();const o=agg(rs.filter(r=>r.ex===c)),i=agg(rs.filter(r=>r.rc===c));return `Sent ${fT(o.t)} · ${fU(o.usd)}<br>Received ${fT(i.t)} · ${fU(i.usd)}`}
 // zoom
 let K=1;
@@ -787,7 +800,7 @@ let partnerVals=new Map(),partnerMax=1,mapRows=[];
 const vc=()=>css(VCOL[S.view]);
 
 function drawMap(){
-  gR.selectAll("*").remove();
+  gR.selectAll("*").remove();hatch();
   if(S.mapMode==="regions")return drawRegionMap();
   $("#focusbox").hidden=$("#fgrpbox").hidden=!S.sel;
   const rs=routes(),c=vc(),m=S.measure,w=m==="ppt"?"t":m;
@@ -842,6 +855,7 @@ function drawMap(){
   $("#legend").innerHTML=S.sel?`<span><span class="dot" style="background:var(--out)"></span>sent by ${esc(name(S.sel))}</span><span><span class="dot" style="background:var(--in)"></span>sent to ${esc(name(S.sel))}</span>`
     :S.hl!=="none"?(S.hl==="lmic"?["UMC","LMC","LIC"]:["HIC"]).map(g=>`<span><span class="dot" style="background:var(--g-${g.toLowerCase()})"></span>${INC[g]}</span>`).join("")+`<span><span class="dot" style="background:var(--out)"></span>leaving them</span><span><span class="dot" style="background:var(--in)"></span>arriving</span>`
     :D.choro?`<span><span class="dot" style="background:var(--out)"></span>net exporter</span><span><span class="dot" style="background:var(--in)"></span>net importer</span><span>${m==="ppt"?"Export price":"Exports"}, ${VIEWS[S.view]}</span><span class="ramp" style="background:linear-gradient(90deg,var(--land),${c})"></span><span>${m==="ppt"?"dearer":"more"}</span>`:`<span><span class="dot" style="background:${c}"></span>lines: ${VIEWS[S.view]}</span>`+(D.lab!=="none"&&D.lval==="net"?`<span><span class="dot" style="background:var(--out)"></span>net exporter</span><span><span class="dot" style="background:var(--in)"></span>net importer</span>`:"");
+  if(RP()&&S.hatch)$("#legend").insertAdjacentHTML("beforeend",`<span><span class="dot hatchdot"></span>${noRepText()}</span>`);
   $("#mapnote").textContent=S.sel?"Line width shows the amount. Labels give each partner's share. Try Group partners: By region.":`Lines show the ${list.length} largest routes by ${w==="t"?"tonnes":"value"}. Change the number in Map design. Click any country to see all of its trade.`;
   $("#reset").hidden=!S.sel;
 }
@@ -1223,6 +1237,7 @@ segment("#measure","m",v=>{S.measure=v;render()});
 segment("#incf","f",v=>{S.incf=v;render()});
 segment("#mapmode","v",v=>{S.mapMode=v;S.sel=null;partnerVals=new Map();$("#hlbox").hidden=v==="regions";render()});
 segment("#hl","v",v=>{S.hl=v;render()});
+segment("#nrep","v",v=>{S.hatch=v==="on";render()});
 const fitFocus=()=>{if(S.sel&&S.fgrp==="r"&&mapRows.length)zoomToPts(mapRows.map(f=>f.a).concat([pos[S.sel]]),4)};
 segment("#globe","v",v=>{D.globe=v;applyDesign();setProj();placeCountries();anchorCache={};sphereP.attr("d",path({type:"Sphere"}));gratP.attr("d",path(d3.geoGraticule10()));
   countries.attr("d",path).attr("display",f=>D.globe!=="full"&&f.id==="010"?"none":null);svg.call(zoom.transform,d3.zoomIdentity);render()});
