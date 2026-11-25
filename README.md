@@ -52,3 +52,7 @@ python -m http.server -d site 8000  # then open http://localhost:8000
 ## Hosting
 
 Render serves `site/` as a static site (see `render.yaml`). Every merge to `main` redeploys it.
+
+## Licence
+
+The site's text, charts and processed data are CC BY 4.0; see [LICENSE.md](LICENSE.md). Sources and the "Please cite as" line are on the About page.

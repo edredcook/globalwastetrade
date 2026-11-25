@@ -445,6 +445,9 @@ footer b{color:var(--ink);font-weight:600}
         <dt>Income groups</dt><dd>World Bank historical classifications</dd>
         <dt>Map</dt><dd>Natural Earth</dd>
         <dt>Built with</dt><dd>Claude, by Anthropic</dd>
+        <dt>Licence</dt><dd><a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener license">CC BY 4.0</a></dd>
+        <dt>Cite as</dt><dd><a href="about.html#cite">Cook, E. (2026) Global Waste Trade</a></dd>
+        <dt>Sources</dt><dd><a href="about.html#sources">All sources and how they are used</a></dd>
       </dl>
     </div>
   </section>
@@ -498,6 +501,7 @@ const VCOL=["--out","--in","--res"];
 const SCHEMES={un:"UN regions",unsub:"UN sub-regions",wb:"World Bank regions",oecd:"OECD groups"};
 const RMETH={mean:"average where both report",imp:"importer's figure preferred",exp:"exporter's figure preferred",max:"larger figure"};
 let VERSION="UN Comtrade";
+const CITE="Cook, E. (2026) Global Waste Trade. Available at: https://globalwastetrade.org. Licence: CC BY 4.0";
 const HS={
   fibre:{n:"Synthetic fibre waste",codes:"HS 5505.10",f:100,shape:true,src:"Assumption: synthetic fibre is plastic."},
   clothing:{n:"Worn clothing",codes:"HS 6309",f:65,shape:true,src:"Source: Textile Exchange, Materials Market Report 2023, p10 (synthetic share of global fibre production, 2022)."},
@@ -1179,7 +1183,7 @@ function standaloneSVG(svgEl,title,note){
   tx(title,28,20,css("--ink"),700);if(note)tx(note,46,12,css("--muted"));
   const inner=document.createElementNS(ns,"svg");inner.setAttribute("x",0);inner.setAttribute("y",top);inner.setAttribute("width",W);inner.setAttribute("height",H);inner.setAttribute("viewBox",`0 0 ${W} ${H}`);
   while(clone.firstChild)inner.appendChild(clone.firstChild);out.appendChild(inner);
-  tx("Global Waste Trade · globalwastetrade.org · "+VERSION,H+top+22,11,css("--muted"));
+  tx("Global Waste Trade · globalwastetrade.org · CC BY 4.0 · "+VERSION,H+top+22,11,css("--muted"));
   return new XMLSerializer().serializeToString(out);
 }
 function svgToPNG(str){return new Promise((res,rej)=>{const img=new Image();img.onload=()=>{const s=2,c=document.createElement("canvas");c.width=img.width*s;c.height=img.height*s;const x=c.getContext("2d");x.scale(s,s);x.drawImage(img,0,0);c.toBlob(b=>b?res(b):rej(new Error("png")),"image/png")};img.onerror=rej;img.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(str)})}
@@ -1188,15 +1192,15 @@ document.addEventListener("click",async e=>{
   const what=b.dataset.save,f=b.dataset.fmt;
   try{
     if(what==="map"){
-      const title=$("#maptitle").textContent,base="gwt-map-"+slug(S.mapMode==="regions"?SCHEMES[S.scheme]:S.sel?name(S.sel):S.region||"world")+"-2023";
+      const title=$("#maptitle").textContent,base="gwt-map-"+slug(S.mapMode==="regions"?SCHEMES[S.scheme]:S.sel?name(S.sel):S.region||"world")+"-"+YEAR;
       if(f==="csv"){const rows=S.sel&&S.fgrp==="r"&&S.mapMode!=="regions"?mapRows.map(r=>({country:name(S.sel),direction:r.dir==="in"?"imports from":"exports to",partner_region:r.reg,region_definition:SCHEMES[S.scheme],partner_countries:r.n,net_weight_t:Math.round(r.t),value_usd:Math.round(r.usd),figures:VIEWS[S.view],source:VERSION+hpNote()})):S.mapMode==="regions"?mapRows.map(r=>({from_region:r.a,to_region:r.b,net_weight_t:Math.round(r.t),value_usd:Math.round(r.usd),figures:VIEWS[S.view],source:VERSION})):mapRows.map(r=>({exporter:name(r.ex),recipient:name(r.rc),net_weight_t:r.t,value_usd:r.usd,figures:VIEWS[r.v],source:VERSION}));return saveFile(base+".csv",toCSV(rows,Object.keys(rows[0]||{exporter:1})))}
       const s=standaloneSVG($("#map"),title,`${PW()}, ${VIEWS[S.view]}${S.view===2?" ("+RMETH[S.resolve]+")":""}${hpNote()}`);
       return f==="svg"?saveFile(base+".svg",s):saveFile(base+".png",await svgToPNG(s));
     }
     if(what==="chart"){
       const base="gwt-"+B.type+"-"+slug($("#ctitle").textContent);
-      if(f==="csv")return saveFile(base+".csv",toCSV(chartRows,chartCols)+"\n\n"+csvCell("Source: "+VERSION));
-      if(f==="json")return saveFile(base+".json",JSON.stringify({title:$("#ctitle").textContent,note:$("#cnote").textContent,source:VERSION,rows:chartRows},null,1));
+      if(f==="csv")return saveFile(base+".csv",toCSV(chartRows,chartCols)+"\n\n"+csvCell("Source: "+VERSION)+"\n"+csvCell("Cite as: "+CITE));
+      if(f==="json")return saveFile(base+".json",JSON.stringify({title:$("#ctitle").textContent,note:$("#cnote").textContent,source:VERSION,cite:CITE,rows:chartRows},null,1));
       const s=standaloneSVG($("#chart"),$("#ctitle").textContent,$("#cnote").textContent);
       return f==="svg"?saveFile(base+".svg",s):saveFile(base+".png",await svgToPNG(s));
     }

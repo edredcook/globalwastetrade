@@ -60,6 +60,29 @@ h1{margin:0 0 16px;font-family:var(--display);font-stretch:85%;font-weight:800;f
 .bio .links{display:flex;gap:14px;margin-top:12px;font-size:14px}
 .bio a{color:var(--in);text-underline-offset:2px}
 @media (max-width:640px){.bio{grid-template-columns:1fr}.bio img{width:120px;height:120px}}
+.sec{max-width:960px;margin-top:20px;padding:22px 24px}
+.sec h2{margin:0 0 10px;font-family:var(--display);font-stretch:85%;font-weight:800;font-size:22px}
+.sec h3{margin:20px 0 6px;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.sec p,.sec li{font-size:15px;line-height:1.6;max-width:75ch}
+.sec p{margin:8px 0}
+.sec a{color:var(--in);text-underline-offset:2px;overflow-wrap:anywhere}
+.sec ul{margin:8px 0;padding-left:20px}
+.cite{display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap;background:var(--raise);border:1px solid var(--border);border-radius:8px;padding:12px 14px}
+.cite p{margin:0;flex:1 1 240px;overflow-wrap:anywhere}
+.copy{font:inherit;font-size:13px;font-weight:600;border:1px solid var(--border);background:var(--panel);color:var(--ink);padding:5px 12px;border-radius:6px;cursor:pointer}
+.lic{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.badge{display:inline-flex;border-radius:4px;overflow:hidden;font-family:var(--mono);font-size:12px;font-weight:600;border:1px solid var(--ink)}
+.badge b{background:var(--ink);color:var(--panel);padding:3px 7px;font-weight:600}
+.badge span{padding:3px 7px}
+.refs{list-style:none;padding:0!important;margin:0}
+.refs li{overflow-wrap:anywhere;margin:0 0 14px;padding-left:24px;text-indent:-24px}
+.refs .use{display:block;text-indent:0;color:var(--muted);font-size:14px;margin-top:2px}
+.shares{border-collapse:collapse;font-size:14px;margin:6px 0 4px;width:100%;max-width:760px}
+.shares th,.shares td{text-align:left;padding:6px 10px 6px 0;border-bottom:1px solid var(--border);vertical-align:top}
+.shares th{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.shares td:nth-child(2){font-family:var(--mono);white-space:nowrap}
+.tw{overflow-x:auto}
+
 </style>
 </head>
 <body>
@@ -79,6 +102,74 @@ h1{margin:0 0 16px;font-family:var(--display);font-stretch:85%;font-weight:800;f
       <div class="links"><a href="https://orcid.org/0000-0003-3902-7705" target="_blank" rel="noopener">ORCID</a></div>
     </div>
   </section>
+  <section class="card sec" id="cite">
+    <h2>Please cite as</h2>
+    <div class="cite"><p id="citetext">Cook, E. (2026) <i>Global Waste Trade</i>. Available at: https://globalwastetrade.org (Accessed: <span id="today">25 November 2026</span>).</p><button class="copy" id="copy">Copy</button></div>
+  </section>
+
+  <section class="card sec" id="licence">
+    <h2>Licence</h2>
+    <div class="lic"><a class="badge" href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener license"><b>CC</b><span>BY 4.0</span></a></div>
+    <p>The text, charts and processed data on this site are open access under a <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener license">Creative Commons Attribution 4.0 International licence</a>. Anyone may copy, share and adapt them for any purpose, as long as they cite the site as above and say what they changed.</p>
+    <p>The source data keep their own terms. Figures derived from UN Comtrade should also carry "Source: UN Comtrade". The UN Comtrade licence covers re-use of its original records.</p>
+  </section>
+
+  <section class="card sec" id="method">
+    <h2>How the figures are made</h2>
+    <ul>
+      <li><b>Trade records.</b> Annual trade for each waste code, 2008 to 2024, comes from the UN Comtrade database as each country reported it. Exporters' and importers' reports of the same trade often differ, so they are shown as separate views and never added together. The resolved view uses the mean where both sides report and the one available report otherwise.</li>
+      <li><b>One figure per route.</b> For each reporter, partner and direction, the total across all customs procedures and transport modes is used, from the partner-2 "World" record where there is one and otherwise the sum of the detail.</li>
+      <li><b>Cleaning.</b> Missing weights are filled from the partner's report of the same trade (rule A). Weights whose price per tonne is more than ten times off the median for that code are replaced by the partner's figure where it is in range (rule B). With no usable partner figure and a price more than 100 times off, the weight is estimated from the value (rule D, not applied to municipal waste). Other odd records are left as reported and flagged (rule C).</li>
+      <li><b>Income groups.</b> Each country takes its World Bank income group for the year of the trade, so a country that moved group is counted in the group it was in at the time.</li>
+      <li><b>Plastics traded amongst other materials.</b> Wastes such as worn clothing, e-waste and refuse-derived fuel carry plastic. Their tonnages come from UN Comtrade in the same way, and the plastic in them is estimated with the shares below, which users can change.</li>
+    </ul>
+    <h3>Plastic shares</h3>
+    <div class="tw"><table class="shares">
+      <thead><tr><th>Waste</th><th>Plastic</th><th>Basis</th></tr></thead>
+      <tbody>
+        <tr><td>Worn clothing (HS 6309)</td><td>65%</td><td>Synthetic share of global fibre production in 2022 (Textile Exchange, 2023, p. 10)</td></tr>
+        <tr><td>Rags, twine and rope (HS 6310)</td><td>65%</td><td>Assumption, using the same synthetic share (Textile Exchange, 2023, p. 10)</td></tr>
+        <tr><td>Synthetic fibre waste (HS 5505.10)</td><td>100%</td><td>Assumption: synthetic fibre is plastic</td></tr>
+        <tr><td>E-waste assemblies and boards (HS 8549.31, 8549.39)</td><td>24.7%</td><td>15.30 Mt of plastic in e-waste in 2022 (OECD, 2022) divided by 61.9 Mt of e-waste in 2022 (Baldé <i>et al.</i>, 2024, Table A2.2)</td></tr>
+        <tr><td>Other e-waste (HS 8549.91, 8549.99)</td><td>24.7%</td><td>Assumption, using the same share (OECD, 2022; Baldé <i>et al.</i>, 2024)</td></tr>
+        <tr><td>Refuse-derived fuel and mixed waste (HS 3825.10)</td><td>33.25%</td><td>30% plastic plus 5% textiles at 65% synthetic (Gerassimidou <i>et al.</i>, 2020, Table 1)</td></tr>
+        <tr><td>Recovered paper (HS 4707)</td><td>2%</td><td>Assumption, for illustration</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section class="card sec" id="sources">
+    <h2>Sources</h2>
+    <ol class="refs">
+      <li>Baldé, C.P., Kuehr, R., Yamamoto, T., McDonald, R., D'Angelo, E., Althaf, S., Bel, G., Deubzer, O., Fernandez-Cubillo, E., Forti, V., Gray, V., Herat, S., Honda, S., Iattoni, G., Khetriwal, D.S., Luda di Cortemiglia, V., Lobuntsova, Y., Nnorom, I., Pralat, N. and Wagner, M. (2024) <i>Global E-waste Monitor 2024</i>. Geneva and Bonn: International Telecommunication Union and United Nations Institute for Training and Research.<span class="use">Used for: total e-waste generated in 2022, the denominator of the e-waste plastic share.</span></li>
+      <li>Bostock, M. (no date) <i>World Atlas TopoJSON</i>, version 2. Available at: <a href="https://github.com/topojson/world-atlas" target="_blank" rel="noopener">https://github.com/topojson/world-atlas</a> (Accessed: 25 November 2026).<span class="use">Used for: the country outlines of the map, built from Natural Earth.</span></li>
+      <li>Bostock, M., Ogievetsky, V. and Heer, J. (2011) 'D3: Data-Driven Documents', <i>IEEE Transactions on Visualization and Computer Graphics</i>, 17(12), pp. 2301–2309. Available at: <a href="https://doi.org/10.1109/TVCG.2011.185" target="_blank" rel="noopener">https://doi.org/10.1109/TVCG.2011.185</a>.<span class="use">Used for: drawing every map and chart.</span></li>
+      <li>Gaulier, G. and Zignago, S. (2010) <i>BACI: International Trade Database at the Product-Level. The 1994–2007 Version</i>. CEPII Working Paper 2010-23. Paris: CEPII.<span class="use">Used for: checking the 2023 tonnages of the wastes that carry plastic, and as a model for the cleaning rules. No BACI figures appear on the site.</span></li>
+      <li>Gerassimidou, S., Velis, C.A., Williams, P.T. and Komilis, D. (2020) 'Characterisation and composition identification of waste-derived fuels obtained from municipal solid waste using thermogravimetry: a review', <i>Waste Management &amp; Research</i>, 38(9), pp. 942–965. Available at: <a href="https://doi.org/10.1177/0734242X20941085" target="_blank" rel="noopener">https://doi.org/10.1177/0734242X20941085</a>.<span class="use">Used for: the plastic and textile content of refuse-derived fuel.</span></li>
+      <li>Natural Earth (no date) <i>1:110m Cultural Vectors: Admin 0 – Countries</i>. Available at: <a href="https://www.naturalearthdata.com" target="_blank" rel="noopener">https://www.naturalearthdata.com</a> (Accessed: 25 November 2026).<span class="use">Used for: the map, through World Atlas TopoJSON. Natural Earth is in the public domain.</span></li>
+      <li>OECD (2022) <i>Global Plastics Outlook: Economic Drivers, Environmental Impacts and Policy Options</i>. Paris: OECD Publishing. Available at: <a href="https://doi.org/10.1787/de747aef-en" target="_blank" rel="noopener">https://doi.org/10.1787/de747aef-en</a>.<span class="use">Used for: the tonnage of plastic in e-waste in 2022, the numerator of the e-waste plastic share.</span></li>
+      <li>OECD (no date) <i>Members and partners</i>. Available at: <a href="https://www.oecd.org/en/about/members-partners.html" target="_blank" rel="noopener">https://www.oecd.org/en/about/members-partners.html</a> (Accessed: 25 November 2026).<span class="use">Used for: the OECD / non-OECD region grouping.</span></li>
+      <li>Textile Exchange (2023) <i>Materials Market Report 2023</i>. Textile Exchange.<span class="use">Used for: the synthetic share of fibre, applied to worn clothing and rags.</span></li>
+      <li>United Nations (2026) <i>UN Comtrade Database</i>. New York: United Nations Statistics Division. Available at: <a href="https://comtradeplus.un.org" target="_blank" rel="noopener">https://comtradeplus.un.org</a> (Accessed: 25 November 2026).<span class="use">Used for: every trade figure on the site, for HS 3915 and for the wastes that carry plastic, 2008 to 2024. Downloaded through the UN Comtrade API and refreshed monthly.</span></li>
+      <li>United Nations Statistics Division (no date) <i>Standard Country or Area Codes for Statistical Use (M49)</i>. Available at: <a href="https://unstats.un.org/unsd/methodology/m49/" target="_blank" rel="noopener">https://unstats.un.org/unsd/methodology/m49/</a> (Accessed: 25 November 2026).<span class="use">Used for: the UN regions and sub-regions.</span></li>
+      <li>World Bank (2026) <i>World Bank Country and Lending Groups: Historical Classification by Income</i>. Washington, DC: World Bank. Available at: <a href="https://ddh-openapi.worldbank.org/resources/DR0095334/download" target="_blank" rel="noopener">https://ddh-openapi.worldbank.org/resources/DR0095334/download</a> (Accessed: 25 November 2026).<span class="use">Used for: each country's income group in each year. The World Bank regions follow the World Bank's current country classification.</span></li>
+      <li>World Customs Organization (2022) <i>Harmonized Commodity Description and Coding System</i>, 2022 edn. Brussels: World Customs Organization.<span class="use">Used for: the definitions of the waste codes. The e-waste codes under heading 8549 exist only from the 2022 edition.</span></li>
+    </ol>
+  </section>
+
+  <section class="card sec" id="built">
+    <h2>Built with</h2>
+    <p>Built with Claude, by Anthropic. The page uses d3, d3-sankey and topojson-client, and the Archivo and IBM Plex typefaces.</p>
+  </section>
 </main>
+<script>
+(function(){
+  try{var t=new Date().toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric"});document.getElementById("today").textContent=t}catch(e){}
+  var b=document.getElementById("copy");
+  b.addEventListener("click",function(){var txt=document.getElementById("citetext").textContent;
+    var done=function(){b.textContent="Copied";setTimeout(function(){b.textContent="Copy"},1600)};
+    if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(txt).then(done,function(){});});
+})();
+</script>
 </body>
 </html>
