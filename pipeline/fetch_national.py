@@ -204,7 +204,11 @@ def census(month):
                 continue
             if not body.strip():
                 continue  # the API answers an empty body when the month is not out yet
-            res = json.loads(body)
+            try:
+                res = json.loads(body)
+            except json.JSONDecodeError:
+                errors.append("non-JSON answer: " + body[:200].decode("utf-8", "replace").replace("\n", " "))
+                continue
             head, rows = res[0], res[1:]
             ix = {c: i for i, c in enumerate(head)}
             for r in rows:
