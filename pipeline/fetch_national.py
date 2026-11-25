@@ -190,26 +190,32 @@ def census(month):
     acc = {}
     specs = (("exports", "X", "E_COMMODITY", "ALL_VAL_MO", "QTY_1_MO"),
              ("imports", "M", "I_COMMODITY", "GEN_VAL_MO", "GEN_QY1_MO"))
+    errors = []
     for path, flow, comm, val, qty in specs:
-        for h in HS4:
+        for h in product_codes_hs6():
             params = {"get": f"CTY_CODE,CTY_NAME,{val},{qty},UNIT_QY1",
-                      "COMM_LVL": "HS10", comm: h + "*", "time": month}
+                      "COMM_LVL": "HS6", comm: h, "time": month}
             if key:
                 params["key"] = key
             try:
-                res = get(f"{CENSUS}/{path}/hs?" + urllib.parse.urlencode(params, safe="*,"))
-            except json.JSONDecodeError:
-                continue  # the API answers an empty body when nothing matches
-            head, body = res[0], res[1:]
+                body = get(f"{CENSUS}/{path}/hs?" + urllib.parse.urlencode(params, safe=","), raw=True)
+            except RuntimeError as e:
+                errors.append(str(e))
+                continue
+            if not body.strip():
+                continue  # the API answers an empty body when the month is not out yet
+            res = json.loads(body)
+            head, rows = res[0], res[1:]
             ix = {c: i for i, c in enumerate(head)}
-            for r in body:
+            for r in rows:
                 code, name = r[ix["CTY_CODE"]], r[ix["CTY_NAME"]]
                 if not code.isdigit() or code.startswith("0"):
                     continue  # totals and country groups
-                unit = r[ix["UNIT_QY1"]]
-                kg = float(r[ix[qty]] or 0) if unit == "KG" else 0
-                add(acc, "census", "USA", iso3_from_name(name), name, flow, r[ix[comm]], period,
+                kg = float(r[ix[qty]] or 0) if r[ix["UNIT_QY1"]] == "KG" else 0
+                add(acc, "census", "USA", iso3_from_name(name), name, flow, h, period,
                     kg, r[ix[val]], "USD")
+    if errors and not acc:
+        raise RuntimeError(errors[0])
     return rows_from(acc)
 
 
