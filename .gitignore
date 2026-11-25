@@ -1,0 +1,5 @@
+pipeline/raw/*
+!pipeline/raw/.gitkeep
+__pycache__/
+*.pyc
+.DS_Store
