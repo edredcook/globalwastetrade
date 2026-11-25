@@ -1,0 +1,42 @@
+name: National trade data
+on:
+  workflow_dispatch:
+    inputs:
+      months:
+        description: Months to fetch as YYYY-MM, separated by spaces (blank means the last four complete months)
+        default: ""
+        required: false
+  schedule:
+    - cron: "0 7 16 * *" # 07:00 UTC on the 16th, after most national releases
+  pull_request:
+    paths:
+      - pipeline/fetch_national.py
+      - pipeline/reference/national_codes.json
+      - .github/workflows/national-data.yml
+permissions:
+  contents: read
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Fetch from national statistics offices
+        env:
+          MONTHS: ${{ github.event.inputs.months }}
+          CENSUS_API_KEY: ${{ secrets.CENSUS_API_KEY }}
+          ESTAT_APP_ID: ${{ secrets.ESTAT_APP_ID }}
+          KCS_SERVICE_KEY: ${{ secrets.KCS_SERVICE_KEY }}
+        run: |
+          ARGS=""
+          for m in $MONTHS; do ARGS="$ARGS --month $m"; done
+          [ -z "$ARGS" ] && ARGS="--latest 4"
+          python pipeline/fetch_national.py --source all $ARGS
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: national-${{ github.run_id }}
+          path: pipeline/raw/national/
+          retention-days: 30
