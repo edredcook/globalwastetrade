@@ -15,8 +15,7 @@ reporter, partner, flow and HS6 code:
 Sources and what they need:
     comext  Eurostat Comext, EU-27 by partner, CN8. No key.
     hmrc    UK HMRC overseas trade statistics, CN8. No key.
-    census  US Census international trade API, HS10. Works without a key at low
-            volume; set CENSUS_API_KEY for more.
+    census  US Census international trade API, HS6. Needs CENSUS_API_KEY (free).
     estat   Japan Customs via e-Stat. Needs ESTAT_APP_ID (free registration).
     kcs     Korea Customs Service via data.go.kr. Needs KCS_SERVICE_KEY (free).
 """
@@ -187,6 +186,8 @@ CENSUS = "https://api.census.gov/data/timeseries/intltrade"
 def census(month):
     period = month.replace("-", "")
     key = os.environ.get("CENSUS_API_KEY")
+    if not key:
+        raise RuntimeError("US Census needs CENSUS_API_KEY; register for a free key and add it as a repo secret.")
     acc = {}
     specs = (("exports", "X", "E_COMMODITY", "ALL_VAL_MO", "QTY_1_MO"),
              ("imports", "M", "I_COMMODITY", "GEN_VAL_MO", "GEN_QY1_MO"))
@@ -270,7 +271,7 @@ def main():
                 rows = SOURCES[s](month)
             except Exception as e:  # report and carry on with the other sources
                 summary.append(f"| {s} | {month} | not fetched: {str(e)[:160]} |")
-                failed = failed or s in ("comext", "hmrc", "census")
+                failed = failed or s in ("comext", "hmrc")
                 continue
             if not rows:
                 summary.append(f"| {s} | {month} | no rows yet |")
