@@ -7,11 +7,11 @@ Source for [globalwastetrade.org](https://globalwastetrade.org): an explorer for
 | Path | What it is |
 |---|---|
 | `site/` | The website: the explorer (`index.html`), Trends (`trends.html`, `trends.js`) and About (`about.html`), served as is. No build step. |
-| `site/data/` | The data the page loads: `manifest.json` lists the years, `plastic_<year>.json` holds each year's trade records, `trends.json` and `trends_<stream>.json` the yearly totals for the trend charts. |
+| `site/data/` | The data the page loads: `manifest.json` lists the years, `plastic_<year>.json` holds each year's trade records, `trends.json` and `trends_<stream>.json` the yearly totals (used by the explorer's side panel), and `flows.json` and `flows_<stream>.json` every route for every year, per view, which the Trends page filters by country, region and income group. |
 | `site/vendor/` | d3 7.8.5, d3-sankey 0.12.3 and topojson-client 3.1.0, kept locally. |
 | `pipeline/fetch_comtrade.py` | Downloads one year of HS 3915 records from the Comtrade API, or with `--name mixed` the wastes that carry plastic amongst other materials. |
 | `pipeline/build_site_data.py` | Applies the data rules, writes `site/data/` and a check report in `pipeline/reports/`. |
-| `pipeline/build_trends.py` | Summarises every year into the trend files, for plastic waste and each mixed stream. |
+| `pipeline/build_trends.py` | Summarises every year into the trend and flow files, for plastic waste and each mixed stream. |
 | `pipeline/income_history.py` | Turns the World Bank's historical income classification (OGHIST.xlsx) into `pipeline/reference/income_history.json`. |
 | `pipeline/reference/` | Country names, income groups (the World Bank group for each year), region schemes, and BACI 2023 figures kept only to check the Comtrade figures for plastic traded amongst other materials. |
 | `render.yaml` | Render Blueprint for hosting. |
