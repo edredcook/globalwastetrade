@@ -46,6 +46,19 @@ class Selection(unittest.TestCase):
         self.assertIn([1, 826, 792, 3.0, 12, 1], routes)
         self.assertEqual(len(routes), 2)
 
+    def test_padded_codes_count_as_totals(self):
+        self.assertAlmostEqual(b.select([row(156, "M", 840, 3000, 9, mos="0 ")])[(156, "M", 840)]["t"], 3.0)
+
+    def test_income_group_follows_world_bank_year(self):
+        hist = {"years": [1987, 2025], "groups": {"CHN": {"2009": "LMC", "2010": "UMC"}, "VEN": {"2019": "UMC"}}}
+        c = {"156": ["CHN", "China", "UMC", "156"], "862": ["VEN", "Venezuela", "HIC", "862"],
+             "490": ["S19", "Taiwan", "HIC", "158"]}
+        b.apply_income(c, hist, 2009)
+        self.assertEqual(c["156"][2], "LMC")
+        self.assertEqual(c["862"][2], "NS")
+        self.assertEqual(c["490"][2], "HIC")
+        self.assertEqual(c["156"][3], "156")
+
     def test_qty_used_when_net_weight_missing(self):
         r = row(826, "X", 458, None, 10)
         r["qty"] = 2500

@@ -2,10 +2,10 @@ name: Refresh Comtrade data
 on:
   workflow_dispatch:
     inputs:
-      year:
-        description: Year to download
-        default: "2023"
-        required: true
+      years:
+        description: Years to download, separated by spaces (blank means the last three years)
+        default: ""
+        required: false
   schedule:
     - cron: "0 6 1 * *" # 06:00 UTC on the 1st of each month
 permissions:
@@ -18,23 +18,31 @@ jobs:
   refresh:
     runs-on: ubuntu-latest
     env:
-      YEAR: ${{ github.event.inputs.year || '2023' }}
+      YEARS: ${{ github.event.inputs.years }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Download from UN Comtrade
+      - name: Download from UN Comtrade and build each year
         env:
           COMTRADE_API_KEY: ${{ secrets.COMTRADE_API_KEY }}
-        run: python pipeline/fetch_comtrade.py --year "$YEAR"
-      - name: Build site data and check report
-        run: python pipeline/build_site_data.py --year "$YEAR"
+        run: |
+          if [ -z "$YEARS" ]; then Y=$(date -u +%Y); YEARS="$((Y-3)) $((Y-2)) $((Y-1))"; fi
+          echo "YEARS=$YEARS" >> "$GITHUB_ENV"
+          : > failed.txt
+          for y in $YEARS; do
+            if ! python pipeline/fetch_comtrade.py --year "$y"; then
+              echo "$y: no download" >> failed.txt; continue
+            fi
+            python pipeline/build_site_data.py --year "$y" || echo "$y: build stopped, see the report" >> failed.txt
+          done
+          python pipeline/build_trends.py
       - name: Keep the check report even if the build stopped
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: comtrade-${{ env.YEAR }}
+          name: comtrade-${{ github.run_id }}
           path: |
             pipeline/reports/
             pipeline/raw/
@@ -48,14 +56,16 @@ jobs:
           if git diff --quiet -- site/data pipeline/reports; then
             echo "No change in the data."; exit 0
           fi
-          BR="data/refresh-${YEAR}-$(date -u +%Y%m%d)"
+          BR="data/refresh-$(date -u +%Y%m%d)"
+          { echo "Years refreshed: ${YEARS}"; if [ -s failed.txt ]; then echo; echo "Not updated:"; sed 's/^/- /' failed.txt; fi
+            for y in $YEARS; do f="pipeline/reports/hs3915_${y}.md"; [ -f "$f" ] && { echo; cat "$f"; }; done; } > pr-body.md
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -b "$BR"
           git add site/data pipeline/reports
-          git commit -m "Refresh ${YEAR} HS 3915 data from UN Comtrade"
+          git commit -m "Refresh HS 3915 data from UN Comtrade (${YEARS})"
           git push -u origin "$BR"
           gh pr create --draft --base main --head "$BR" \
-            --title "Data refresh: ${YEAR} plastic waste (HS 3915)" \
-            --body-file "pipeline/reports/hs3915_${YEAR}.md" \
+            --title "Data refresh: plastic waste (HS 3915), ${YEARS}" \
+            --body-file pr-body.md \
             || echo "::warning::Branch $BR pushed, but the PR could not be opened. Allow Actions to create pull requests in Settings > Actions > General, or open it by hand."
