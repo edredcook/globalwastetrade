@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Validation · Global Waste Trade</title>
+<meta name="description" content="How the figures on Global Waste Trade compare with published studies and official statistics.">
+<meta property="og:title" content="Validation · Global Waste Trade">
+<meta property="og:description" content="How the figures on Global Waste Trade compare with published studies and official statistics.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://globalwastetrade.org/validation.html">
+<meta name="theme-color" content="#13212a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2313212a'/%3E%3Crect x='6' y='10' width='20' height='12' rx='2' fill='none' stroke='%23ff7a3d' stroke-width='3'/%3E%3Cpath d='M12 12v8M20 12v8' stroke='%23ff7a3d' stroke-width='2'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,500..900&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+[hidden]{display:none!important}
+body{margin:0}
+:root{
+  --sea:#dfe8ec; --land:#f7f9f9; --border:#c3cfd4; --ink:#13212a; --muted:#5a6b74;
+  --panel:#ffffff; --raise:#eef3f5;
+  --out:#e0531f;  /* sent / exports: container orange */
+  --in:#0f7f86;   /* received / imports: harbour teal */
+  --res:#6b4fb3;  /* resolved figures */
+  --warn:#b7791f; --ok:#2f7d4f; --hi:#ffd9c4;
+  --g-hic:#c8423b; --g-umc:#3a9a5b; --g-lmc:#8a5fb8; --g-lic:#2f6fb5; --g-ns:#8a979e;
+  --display:"Archivo","Arial Narrow",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --sea:#0c151b; --land:#1b2730; --border:#2e3d47; --ink:#e4ebee; --muted:#93a5af;
+  --panel:#121d24; --raise:#18252d; --out:#ff7a3d; --in:#3cc3c4; --res:#a48ef0; --warn:#e0a84a; --ok:#5cc48a; --hi:#5a2a14;
+  --g-hic:#ec6a5e; --g-umc:#5cc483; --g-lmc:#b08de0; --g-lic:#6ea6e8; --g-ns:#7c8a92; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --sea:#0c151b; --land:#1b2730; --border:#2e3d47; --ink:#e4ebee; --muted:#93a5af;
+  --panel:#121d24; --raise:#18252d; --out:#ff7a3d; --in:#3cc3c4; --res:#a48ef0; --warn:#e0a84a; --ok:#5cc48a; --hi:#5a2a14;
+  --g-hic:#ec6a5e; --g-umc:#5cc483; --g-lmc:#b08de0; --g-lic:#6ea6e8; --g-ns:#7c8a92; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--sea);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5}
+.wrap{max-width:1360px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:#13212a}
+header.mast{background:#13212a;color:#f2f5f6;position:sticky;top:env(safe-area-inset-top,0px);z-index:15}
+header.mast .wrap{display:flex;align-items:center;gap:20px;padding-block:10px;flex-wrap:wrap}
+.brand{font-family:var(--display);font-weight:800;font-stretch:80%;font-size:22px;letter-spacing:.01em;text-transform:uppercase;display:flex;align-items:center;gap:10px}
+.brand i{display:inline-block;width:22px;height:14px;border:3px solid #ff7a3d;border-radius:2px;position:relative}
+.brand i:after{content:"";position:absolute;inset:2px 4px;border-left:2px solid #ff7a3d;border-right:2px solid #ff7a3d}
+nav.top{display:flex;gap:2px;flex-wrap:wrap;margin-left:auto;align-items:center}
+nav.top a{color:inherit;opacity:.75;text-decoration:none;padding:6px 10px;border-radius:4px;font-weight:500;font-size:14px}
+nav.top a:hover{opacity:1;background:rgba(255,255,255,.1)}
+nav.top a[aria-current]{opacity:1;background:rgba(255,255,255,.12)}
+.brand{color:inherit;text-decoration:none}
+main.wrap{padding-block:36px 64px}
+h1{margin:0 0 16px;font-family:var(--display);font-stretch:85%;font-weight:800;font-size:28px;line-height:1.1}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:10px}
+.bio{display:grid;grid-template-columns:160px 1fr;gap:20px 28px;padding:24px;align-items:start;max-width:960px}
+.bio img{width:160px;height:160px;border-radius:50%;object-fit:cover;background:var(--raise)}
+.bio h2{margin:0;font-family:var(--display);font-stretch:85%;font-weight:800;font-size:24px}
+.bio p{margin:10px 0 0;font-size:15px;line-height:1.6;max-width:68ch}
+.bio .links{display:flex;gap:14px;margin-top:12px;font-size:14px}
+.bio a{color:var(--in);text-underline-offset:2px}
+@media (max-width:640px){.bio{grid-template-columns:1fr}.bio img{width:120px;height:120px}}
+.sec{max-width:960px;margin-top:20px;padding:22px 24px}
+.sec h2{margin:0 0 10px;font-family:var(--display);font-stretch:85%;font-weight:800;font-size:22px}
+.sec h3{margin:20px 0 6px;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.sec p,.sec li{font-size:15px;line-height:1.6;max-width:75ch}
+.sec p{margin:8px 0}
+.sec a{color:var(--in);text-underline-offset:2px;overflow-wrap:anywhere}
+.sec ul{margin:8px 0;padding-left:20px}
+.cite{display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap;background:var(--raise);border:1px solid var(--border);border-radius:8px;padding:12px 14px}
+.cite p{margin:0;flex:1 1 240px;overflow-wrap:anywhere}
+.copy{font:inherit;font-size:13px;font-weight:600;border:1px solid var(--border);background:var(--panel);color:var(--ink);padding:5px 12px;border-radius:6px;cursor:pointer}
+.lic{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.badge{display:inline-flex;border-radius:4px;overflow:hidden;font-family:var(--mono);font-size:12px;font-weight:600;border:1px solid var(--ink)}
+.badge b{background:var(--ink);color:var(--panel);padding:3px 7px;font-weight:600}
+.badge span{padding:3px 7px}
+.refs{list-style:none;padding:0!important;margin:0}
+.refs li{overflow-wrap:anywhere;margin:0 0 14px;padding-left:24px;text-indent:-24px}
+.refs .use{display:block;text-indent:0;color:var(--muted);font-size:14px;margin-top:2px}
+.shares{border-collapse:collapse;font-size:14px;margin:6px 0 4px;width:100%;max-width:760px}
+.shares th,.shares td{text-align:left;padding:6px 10px 6px 0;border-bottom:1px solid var(--border);vertical-align:top}
+.shares th{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.shares td:nth-child(2){font-family:var(--mono);white-space:nowrap}
+.tw{overflow-x:auto}
+
+.sec{max-width:1200px}
+.vt{border-collapse:collapse;font-size:14px;width:100%;min-width:860px}
+.vt th,.vt td{text-align:left;padding:7px 10px 7px 0;border-bottom:1px solid var(--border);vertical-align:top}
+.vt thead th{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600;white-space:nowrap}
+.vt td.n{font-family:var(--mono);white-space:nowrap;text-align:right;padding-right:16px}
+.vt th.n{text-align:right;padding-right:16px}
+.vt td.why{color:var(--muted);min-width:260px;max-width:46ch}
+.vt tr.grp td{font-family:var(--display);font-stretch:85%;font-weight:800;font-size:16px;padding-top:18px;color:var(--ink);border-bottom:2px solid var(--ink)}
+.d{display:inline-block;min-width:44px;margin-left:6px;font-size:12px;padding:0 4px;border-radius:3px;text-align:center}
+.d.ok{color:var(--ok);background:color-mix(in srgb,var(--ok) 14%,transparent)}
+.d.warn{color:var(--warn);background:color-mix(in srgb,var(--warn) 16%,transparent)}
+.d.bad{color:var(--g-hic);background:color-mix(in srgb,var(--g-hic) 14%,transparent)}
+.src{white-space:nowrap}
+.src a{color:var(--in);text-underline-offset:2px}
+.findings{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;margin-top:6px}
+.finding{background:var(--raise);border:1px solid var(--border);border-radius:8px;padding:12px 14px}
+.finding h3{margin:0 0 4px!important;font-size:15px!important;letter-spacing:0!important;text-transform:none!important;color:var(--ink)!important;font-weight:600!important}
+.finding .st{display:inline-block;font-size:12px;font-weight:600;color:var(--muted);border:1px solid var(--border);border-radius:999px;padding:1px 8px;margin-bottom:6px;background:var(--panel)}
+.finding p{margin:0;font-size:14px}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.chart .axis text{fill:var(--muted);font-family:var(--mono);font-size:11px}
+.chart .axis path,.chart .axis line{stroke:var(--border)}
+.chart .grid line{stroke:var(--border);stroke-opacity:.6}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px;margin:8px 0 0;padding:0;list-style:none}
+.legend li{display:flex;align-items:center;gap:6px}
+.legend svg{flex:none}
+.bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:space-between}
+.bar h2{margin:0!important}
+.tip{position:fixed;pointer-events:none;background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:6px 9px;font-size:13px;box-shadow:0 2px 10px rgba(0,0,0,.15);z-index:30;max-width:280px}
+</style>
+</head>
+<body>
+<header class="mast"><div class="wrap">
+  <a class="brand" href="./"><i aria-hidden="true"></i>Global Waste Trade</a>
+  <nav class="top" aria-label="Pages">
+    <a href="./">Explorer</a><a href="trends.html">Trends</a><a href="validation.html" aria-current="page">Validation</a><a href="about.html">About</a>
+  </nav>
+</div></header>
+<main class="wrap">
+  <h1>Validation</h1>
+
+  <section class="card sec" id="world">
+    <h2>World trade in plastic waste (HS 3915)</h2>
+    <div class="chart" id="worldchart"></div>
+    <ul class="legend" id="worldlegend"></ul>
+  </section>
+
+  <section class="card sec" id="checks">
+    <div class="bar"><h2>Comparisons</h2><button class="copy" id="dl">Download CSV</button></div>
+    <div class="tw"><table class="vt" id="checktable">
+      <thead><tr><th>Measure</th><th>Year</th><th class="n">Published</th><th>Source</th><th class="n">Exporters' reports</th><th class="n">Importers' reports</th><th class="n">Larger report</th><th>Finding</th></tr></thead>
+      <tbody></tbody>
+    </table></div>
+  </section>
+
+  <section class="card sec" id="streams">
+    <h2>Wastes that carry plastic, against BACI, <span id="streamyear"></span></h2>
+    <div class="tw"><table class="vt" id="streamtable">
+      <thead><tr><th>Waste</th><th class="n">BACI</th><th class="n">Exporters' reports</th><th class="n">Importers' reports</th><th>Finding</th></tr></thead>
+      <tbody></tbody>
+    </table></div>
+  </section>
+
+  <section class="card sec" id="issues">
+    <h2>Issues found</h2>
+    <div class="findings" id="findings"></div>
+  </section>
+
+  <section class="card sec" id="sources">
+    <h2>Sources compared</h2>
+    <ol class="refs" id="refs"></ol>
+  </section>
+</main>
+<div class="tip" id="tip" hidden></div>
+<script src="vendor/d3-7.8.5.min.js"></script>
+<script src="validation.js?v=1"></script>
+</body>
+</html>
