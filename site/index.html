@@ -1,0 +1,1219 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Global Waste Trade</title>
+<meta name="description" content="Explore the international trade in plastic waste: who sends it, who receives it, and how the figures compare.">
+<meta property="og:title" content="Global Waste Trade">
+<meta property="og:description" content="Explore the international trade in plastic waste: who sends it, who receives it, and how the figures compare.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://globalwastetrade.org/">
+<meta name="theme-color" content="#13212a">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2313212a'/%3E%3Crect x='6' y='10' width='20' height='12' rx='2' fill='none' stroke='%23ff7a3d' stroke-width='3'/%3E%3Cpath d='M12 12v8M20 12v8' stroke='%23ff7a3d' stroke-width='2'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,500..900&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+[hidden]{display:none!important}
+body{margin:0}
+/* Layout: one long chart-room page. Masthead, control strip, full-width map, country panel, chart builder, country table, data builder; design drawer on the right. */
+:root{
+  --sea:#dfe8ec; --land:#f7f9f9; --border:#c3cfd4; --ink:#13212a; --muted:#5a6b74;
+  --panel:#ffffff; --raise:#eef3f5;
+  --out:#e0531f;  /* sent / exports: container orange */
+  --in:#0f7f86;   /* received / imports: harbour teal */
+  --res:#6b4fb3;  /* resolved figures */
+  --warn:#b7791f; --ok:#2f7d4f; --hi:#ffd9c4;
+  --g-hic:#c8423b; --g-umc:#3a9a5b; --g-lmc:#8a5fb8; --g-lic:#2f6fb5; --g-ns:#8a979e;
+  --display:"Archivo","Arial Narrow",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --sea:#0c151b; --land:#1b2730; --border:#2e3d47; --ink:#e4ebee; --muted:#93a5af;
+  --panel:#121d24; --raise:#18252d; --out:#ff7a3d; --in:#3cc3c4; --res:#a48ef0; --warn:#e0a84a; --ok:#5cc48a; --hi:#5a2a14;
+  --g-hic:#ec6a5e; --g-umc:#5cc483; --g-lmc:#b08de0; --g-lic:#6ea6e8; --g-ns:#7c8a92; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --sea:#0c151b; --land:#1b2730; --border:#2e3d47; --ink:#e4ebee; --muted:#93a5af;
+  --panel:#121d24; --raise:#18252d; --out:#ff7a3d; --in:#3cc3c4; --res:#a48ef0; --warn:#e0a84a; --ok:#5cc48a; --hi:#5a2a14;
+  --g-hic:#ec6a5e; --g-umc:#5cc483; --g-lmc:#b08de0; --g-lic:#6ea6e8; --g-ns:#7c8a92; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{background:var(--sea);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5}
+.wrap{max-width:1360px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:#13212a}
+header.mast{background:#13212a;color:#f2f5f6;position:sticky;top:env(safe-area-inset-top,0px);z-index:15}
+header.mast .wrap{display:flex;align-items:center;gap:20px;padding-block:10px;flex-wrap:wrap}
+.brand{font-family:var(--display);font-weight:800;font-stretch:80%;font-size:22px;letter-spacing:.01em;text-transform:uppercase;display:flex;align-items:center;gap:10px}
+.brand i{display:inline-block;width:22px;height:14px;border:3px solid #ff7a3d;border-radius:2px;position:relative}
+.brand i:after{content:"";position:absolute;inset:2px 4px;border-left:2px solid #ff7a3d;border-right:2px solid #ff7a3d}
+nav.top{display:flex;gap:2px;flex-wrap:wrap;margin-left:auto;align-items:center}
+nav.top a{color:inherit;opacity:.75;text-decoration:none;padding:6px 10px;border-radius:4px;font-weight:500;font-size:14px}
+nav.top a:hover{opacity:1;background:rgba(255,255,255,.1)}
+.designbtn{font:inherit;font-size:14px;font-weight:600;background:#ff7a3d;color:#13212a;border:0;border-radius:6px;padding:6px 12px;cursor:pointer;margin-left:6px}
+.proto{background:var(--hi);color:var(--ink);font-size:13px}
+.proto .wrap{padding-block:7px}
+.proto b{font-weight:600}
+
+.controls{display:flex;flex-wrap:wrap;gap:16px 26px;padding-block:18px 14px;align-items:flex-end}
+.ctl{display:flex;flex-direction:column;gap:6px;min-width:0}
+.ctl > span,.lab{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.seg{display:flex;flex-wrap:wrap;gap:4px}
+.seg button{font:inherit;font-size:14px;border:1px solid var(--border);background:var(--panel);color:var(--ink);padding:6px 12px;border-radius:999px;cursor:pointer;display:flex;align-items:center;gap:6px}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+.seg button:disabled{opacity:.45;cursor:not-allowed}
+.seg button small{font-size:10px;text-transform:uppercase;letter-spacing:.06em;opacity:.8}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;flex:none}
+button:focus-visible,select:focus-visible,input:focus-visible,.row:focus-visible{outline:2px solid var(--out);outline-offset:2px}
+select,input[type=search],input[type=number]{font:inherit;font-size:14px;border:1px solid var(--border);background:var(--panel);color:var(--ink);padding:6px 10px;border-radius:6px}
+input[type=range]{accent-color:var(--out)}
+
+.mapfull{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.mapbox{background:var(--panel);border:1px solid var(--border);border-radius:10px;overflow:hidden;min-width:0;max-width:1900px;margin:0 auto}
+.maptools{display:flex;align-items:flex-end;gap:10px 22px;flex-wrap:wrap;padding:10px 14px;border-bottom:1px solid var(--border);background:var(--panel)}
+.maptools .seg button{font-size:13px;padding:5px 11px}
+.maptools select{font-size:13px;padding:5px 8px}
+.maptools.row2{background:var(--raise);padding:8px 14px;gap:8px 22px}
+.mini{display:flex;flex-direction:column;gap:4px;min-width:120px}
+.mini>span{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:600;display:flex;justify-content:space-between;gap:8px}
+.mini>span output{font-family:var(--mono,monospace);letter-spacing:0;text-transform:none}
+.mini input[type=range]{accent-color:var(--out);width:140px}
+.leader{fill:none;stroke:var(--muted);pointer-events:none}
+.mapwrap{position:relative}
+.mapbox svg{display:block;width:100%;height:auto;background:var(--sea);touch-action:none;cursor:grab}
+.mapbox svg:active{cursor:grabbing}
+.country{fill:var(--land);stroke:var(--border);stroke-width:.5;cursor:pointer;transition:fill .2s,opacity .2s}
+.country:hover{stroke:var(--ink);stroke-width:1}
+.country.sel{stroke:var(--ink);stroke-width:1.6}
+.country.dim{opacity:.35}
+.arc{fill:none;stroke-linecap:round;opacity:.8;cursor:pointer}
+.arc:hover{opacity:1}
+.arc.flow{stroke-dasharray:2 7;animation:flow 1.6s linear infinite}
+.arc.faded{opacity:.1}
+@keyframes flow{to{stroke-dashoffset:-18}}
+@media (prefers-reduced-motion:reduce){.arc.flow{animation:none;stroke-dasharray:none}}
+.node{stroke:var(--panel);stroke-width:1}
+.clabel{pointer-events:none;fill:var(--ink);paint-order:stroke;stroke:var(--land);stroke-linejoin:round;font-family:var(--body);font-weight:600}
+.clabel .l2{font-weight:700}
+.clabel.reg .l1{font-family:var(--display);font-weight:700}
+.rlabel{pointer-events:none;fill:var(--ink);paint-order:stroke;stroke:var(--panel);stroke-linejoin:round;font-family:var(--display);font-weight:700}
+.maphead{position:absolute;left:14px;top:12px;right:14px;display:flex;justify-content:space-between;gap:12px;pointer-events:none;flex-wrap:wrap}
+.maphead h2{margin:0;font-family:var(--display);font-stretch:85%;font-weight:700;font-size:clamp(17px,2.2vw,24px);line-height:1.15;text-wrap:balance;background:color-mix(in srgb,var(--sea) 80%,transparent);padding:2px 6px;border-radius:4px;max-width:38ch}
+@media (max-width:640px){.maphead{position:static;padding:10px 12px 6px}.maphead h2{background:none;padding:0}}
+.legend{font-size:12px;color:var(--muted);background:color-mix(in srgb,var(--panel) 88%,transparent);padding:6px 8px;border-radius:6px;display:flex;gap:6px 10px;align-items:center;align-self:flex-start;flex-wrap:wrap;max-width:min(520px,100%)}
+.legend span{display:flex;gap:4px;align-items:center}
+.legend .ramp{width:90px;height:8px;border-radius:2px}
+.zoomctl{position:absolute;right:14px;bottom:14px;display:flex;flex-direction:column;gap:4px;z-index:2}
+.zoomctl button{width:34px;height:34px;border-radius:8px;border:1px solid var(--border);background:var(--panel);color:var(--ink);font:600 18px/1 var(--body);cursor:pointer;display:grid;place-items:center}
+.zoomctl button:hover{border-color:var(--out);color:var(--out)}
+.zhint{position:absolute;left:14px;bottom:12px;font-size:12px;color:var(--muted);background:color-mix(in srgb,var(--panel) 85%,transparent);padding:4px 8px;border-radius:6px;pointer-events:none}
+@media (max-width:640px){.zhint{display:none}}
+.tip{position:fixed;pointer-events:none;background:var(--ink);color:var(--panel);font-size:13px;padding:6px 9px;border-radius:6px;max-width:280px;line-height:1.35;z-index:40}
+.tip b{font-weight:600}
+.bar{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center;padding:8px 14px;font-size:12px;color:var(--muted);border-top:1px solid var(--border);background:var(--panel)}
+.linkbtn{font:inherit;font-size:12px;background:none;border:0;color:var(--out);cursor:pointer;padding:0;text-decoration:underline}
+.save{display:flex;gap:4px;align-items:center;flex-wrap:wrap}
+.save .lab{margin-right:4px}
+.save button{font-size:12px;font-weight:600;border:1px solid var(--border);background:var(--raise);color:var(--ink);padding:3px 9px;border-radius:5px;cursor:pointer;font-family:var(--mono)}
+.save button:hover{border-color:var(--out);color:var(--out)}
+
+.stage{margin-top:16px}
+aside.side{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:16px 28px;align-items:start;min-width:0}
+aside.side > *{min-width:0}
+.side .col{display:flex;flex-direction:column;gap:14px}
+.side h3{margin:0;font-family:var(--display);font-stretch:85%;font-size:26px;line-height:1.1;font-weight:800}
+.side .sub{color:var(--muted);font-size:13px;margin-top:2px}
+.pill{display:inline-block;font-size:11px;text-transform:uppercase;letter-spacing:.06em;padding:2px 8px;border-radius:999px;border:1px solid var(--border);color:var(--muted);font-weight:600}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.kpi{background:var(--raise);border-radius:8px;padding:10px;min-width:0}
+.kpi span{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:600;display:block}
+.kpi b{font-family:var(--mono);font-size:19px;font-weight:500;font-variant-numeric:tabular-nums;display:block;margin-top:2px}
+.kpi.out b{color:var(--out)} .kpi.in b{color:var(--in)} .kpi.res b{color:var(--res)}
+.kpi em{font-style:normal;font-size:12px;color:var(--muted);display:block}
+.mirror{border:1px dashed var(--border);border-radius:8px;padding:10px;font-size:13px}
+.bar2{display:grid;grid-template-columns:96px 1fr 64px;gap:6px;align-items:center;margin-top:6px;font-family:var(--mono);font-size:12px}
+.track{height:8px;background:var(--raise);border-radius:4px;position:relative}
+.track i{position:absolute;top:0;bottom:0;left:0;border-radius:4px}
+.flag{font-weight:600}
+.flag.ok{color:var(--ok)} .flag.warn{color:var(--warn)}
+.bars{display:flex;flex-direction:column;gap:5px}
+.bars .row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 8px;font-size:13px;cursor:pointer;padding:3px 4px;border-radius:4px}
+.bars .row:hover{background:var(--raise)}
+.bars .row .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bars .row .v{font-family:var(--mono);font-size:12px;font-variant-numeric:tabular-nums;color:var(--muted)}
+.bars .row .b{grid-column:1 / -1;height:5px;border-radius:3px}
+.side h4{margin:0 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-weight:600}
+
+section.block{margin-top:36px;scroll-margin-top:64px}
+.block > .hd{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.block h2{margin:0;font-family:var(--display);font-stretch:85%;font-weight:800;font-size:28px;line-height:1.1;text-wrap:balance}
+.block .hd p{margin:4px 0 0;color:var(--muted);font-size:14px;max-width:72ch}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:10px;min-width:0}
+
+.builder{display:grid;grid-template-columns:280px minmax(0,1fr)}
+@media (max-width:900px){.builder{grid-template-columns:minmax(0,1fr)}}
+.bopts{padding:16px;display:flex;flex-direction:column;gap:14px;border-right:1px solid var(--border)}
+@media (max-width:900px){.bopts{border-right:0;border-bottom:1px solid var(--border)}}
+.bopts .seg button{font-size:13px;padding:5px 10px}
+.topn{display:flex;gap:8px;align-items:center}
+.topn input[type=number]{width:70px}
+.topn input[type=range]{flex:1;min-width:0}
+.charttype{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.charttype button{font:inherit;font-size:13px;font-weight:600;border:1px solid var(--border);background:var(--panel);color:var(--ink);border-radius:8px;padding:8px;cursor:pointer;display:flex;flex-direction:column;align-items:flex-start;gap:4px;text-align:left}
+.charttype button svg{width:100%;height:26px}
+.charttype button[aria-pressed="true"]{border-color:var(--out);box-shadow:inset 0 0 0 1px var(--out)}
+.cstage{min-width:0;display:flex;flex-direction:column}
+.cstage .chd{padding:14px 16px 0;display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.cstage h3{margin:0;font-family:var(--display);font-stretch:85%;font-weight:700;font-size:20px;line-height:1.2;text-wrap:balance}
+.cstage .cnote{font-size:12px;color:var(--muted);margin-top:2px}
+.chartbox{overflow-x:auto;padding:8px 12px}
+.chartbox svg{display:block;width:100%;min-width:640px;height:auto}
+.lnk{fill:none;transition:stroke-opacity .15s}
+.cleg{display:flex;gap:6px 12px;flex-wrap:wrap;font-size:12px;color:var(--muted);padding:0 16px 8px}
+.cleg span{display:flex;gap:5px;align-items:center}
+.chk{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:14px}
+.chk label{display:flex;gap:6px;align-items:flex-start;cursor:pointer}
+.chk label input{margin-top:3px;flex:none}
+
+.tbl{overflow:auto;max-height:460px}
+table{border-collapse:collapse;width:100%;font-size:13px;min-width:960px}
+th,td{padding:7px 10px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:600;position:sticky;top:0;background:var(--panel);cursor:pointer;user-select:none}
+th[aria-sort]::after{content:" ▾";color:var(--out)}
+th[aria-sort="ascending"]::after{content:" ▴"}
+td.n{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right}
+th.n{text-align:right}
+td.res{color:var(--res)}
+tbody tr{cursor:pointer}
+tbody tr:hover td{background:var(--raise)}
+.inc{font-size:11px;font-weight:600;padding:1px 6px;border-radius:4px;color:#fff}
+.ratio.warn{color:var(--warn);font-weight:600}
+.spark{display:inline-block;height:6px;border-radius:3px;vertical-align:middle;margin-left:6px;opacity:.75}
+
+.dl{display:flex;flex-direction:column}
+.dlrow{display:flex;flex-wrap:wrap;gap:14px 40px}
+.dlcols{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;font-size:14px}
+.dlcols fieldset{margin:0;border:1px solid var(--border);border-radius:8px;padding:8px 12px 10px;display:flex;flex-direction:column;gap:6px;background:var(--raise)}
+.dlcols legend{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:0 4px}
+.dlcols label{display:flex;gap:6px;align-items:flex-start;cursor:pointer}
+.dlcols label input{margin-top:3px;flex:none}
+.dl .opts{padding:16px;display:flex;flex-direction:column;gap:16px;border-bottom:1px solid var(--border)}
+
+.dl .prev{padding:16px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.dl pre{margin:0;background:var(--raise);border-radius:8px;padding:10px;font-family:var(--mono);font-size:12px;overflow:auto;max-height:230px;white-space:pre}
+.actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.btn{font:inherit;font-size:14px;font-weight:600;border:0;border-radius:8px;padding:9px 16px;cursor:pointer;background:var(--out);color:#fff}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--border);font-weight:500}
+.btn.sm{font-size:13px;padding:6px 12px}
+.note{font-size:12px;color:var(--muted)}
+.hp{margin:0 0 18px}
+.hp>summary{list-style:none;cursor:pointer;display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;padding:12px 16px}
+.hp>summary::-webkit-details-marker{display:none}
+.hp>summary::before{content:"+";font:600 18px/1 var(--body);width:22px;height:22px;border-radius:6px;display:grid;place-items:center;background:var(--res);color:#fff;flex:none}
+.hp[open]>summary::before{content:"−"}
+.hp .hpt{font-family:var(--display);font-weight:700;font-size:17px}
+.hp #hpsum{font-size:14px;color:var(--muted)}
+.hp #hpsum b{color:var(--res)}
+.hpbody{padding:0 16px 16px;border-top:1px solid var(--border)}
+.hpbody>p{margin:12px 0;font-size:14px;color:var(--muted);max-width:90ch}
+.hpgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.hpc{border:1px solid var(--border);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:6px;background:var(--raise)}
+.hpc.on{border-color:var(--res);box-shadow:inset 3px 0 0 var(--res)}
+.hpc label.t{display:flex;gap:8px;align-items:flex-start;font-weight:600;cursor:pointer;font-size:14px}
+.hpc label.t input{margin-top:3px}
+.hpc small{font-size:12px;color:var(--muted)}
+.hpc .f{display:flex;gap:8px;align-items:center;font-size:13px}
+.hpc .f input[type=range]{flex:1;min-width:0;accent-color:var(--res)}
+.hpc .f input[type=number]{width:68px;font:inherit;padding:3px 6px;border:1px solid var(--border);border-radius:6px;background:var(--panel);color:var(--ink)}
+.hpc .add{font-size:13px;font-weight:600;color:var(--res)}
+.hpc .src{font-style:italic}
+.hpc .src.def{font-size:11px}
+.hpc .usl{display:flex;flex-direction:column;gap:3px;font-size:12px;font-weight:600;color:var(--ink)}
+.hpc .usrc{font:inherit;font-weight:400;font-size:13px;padding:4px 8px;border:1px solid var(--border);border-radius:6px;background:var(--panel);color:var(--ink)}
+.hpc .usrc.need{border-color:var(--warn);box-shadow:0 0 0 1px var(--warn)}
+.hpc .relnk{font:inherit;font-style:normal;font-weight:600;background:none;border:0;padding:0;color:var(--res);text-decoration:underline;cursor:pointer}
+.hpc .f{flex-wrap:wrap;row-gap:2px}
+.hpc .f .fl{font-size:12px;color:var(--muted);width:100%}
+.hpc .incg{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;font-size:11px;color:var(--muted)}
+.hpc .incg label{display:flex;flex-direction:column;gap:2px}
+.hpc .incg input{width:100%;font:inherit;font-size:13px;padding:2px 4px;border:1px solid var(--border);border-radius:6px;background:var(--panel);color:var(--ink)}
+.hpc label.sm{font-size:12px;display:flex;gap:6px;align-items:center;color:var(--muted);cursor:pointer}
+.hpfoot{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;margin-top:12px;font-size:14px}
+.count{font-family:var(--mono);font-size:13px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--panel);padding:8px 14px;border-radius:8px;font-size:14px;z-index:50;max-width:calc(100vw - 32px)}
+
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(360px,100vw);background:var(--panel);border-left:1px solid var(--border);z-index:30;display:flex;flex-direction:column;box-shadow:-12px 0 32px rgba(0,0,0,.18);padding-top:env(safe-area-inset-top,0px);padding-right:env(safe-area-inset-right,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.drawer header{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid var(--border)}
+.drawer header h2{margin:0;font-family:var(--display);font-stretch:85%;font-size:22px;font-weight:800}
+.drawer .body{overflow:auto;padding:14px 16px 24px;display:flex;flex-direction:column;gap:16px}
+.drawer h3{margin:6px 0 0;font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink);font-weight:700;border-top:1px solid var(--border);padding-top:12px}
+.drawer label.f{display:grid;grid-template-columns:1fr auto;gap:6px 10px;align-items:center;font-size:14px}
+.drawer label.f input[type=range]{grid-column:1 / -1;width:100%}
+.drawer label.f output{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.drawer input[type=color]{width:44px;height:30px;border:1px solid var(--border);border-radius:6px;background:var(--panel);padding:2px;cursor:pointer}
+.presets{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.presets button{font:inherit;font-size:13px;border:1px solid var(--border);background:var(--panel);color:var(--ink);border-radius:8px;padding:7px 8px;cursor:pointer;display:flex;gap:6px;align-items:center;text-align:left}
+.presets button[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.presets i{width:12px;height:12px;border-radius:3px;flex:none}
+.x{font:inherit;font-size:22px;line-height:1;background:none;border:0;color:var(--muted);cursor:pointer;padding:4px 8px}
+
+footer{margin-top:40px;padding-block:22px 40px;border-top:1px solid var(--border);font-size:13px;color:var(--muted);scroll-margin-top:64px}
+footer .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px}
+footer b{color:var(--ink);font-weight:600}
+.loading{padding:60px 20px;text-align:center;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<header class="mast"><div class="wrap">
+  <div class="brand"><i aria-hidden="true"></i>Global Waste Trade</div>
+  <nav class="top" aria-label="Sections">
+    <a href="#explore">Map</a><a href="#build">Build a chart</a><a href="#rankings">Countries</a><a href="#getdata">Get the data</a>
+    <button class="designbtn" data-open-design>Design</button>
+  </nav>
+</div></header>
+<div class="proto"><div class="wrap"><b>Beta.</b> <span id="srcline">UN Comtrade</span></div></div>
+
+<main class="wrap">
+  <div class="controls" id="explore" style="scroll-margin-top:64px">
+    <div class="ctl"><span>Material</span>
+      <div class="seg">
+        <button aria-pressed="true">Plastics</button>
+        <button disabled>Paper &amp; card <small>soon</small></button>
+        <button disabled>Metals <small>soon</small></button>
+        <button disabled>Textiles <small>soon</small></button>
+        <button disabled>Rubber &amp; tyres <small>soon</small></button>
+        <button disabled>E-waste <small>soon</small></button>
+      </div></div>
+    <div class="ctl"><span>Year</span>
+      <div class="seg"><button disabled>2019</button><button disabled>2021</button><button aria-pressed="true">2023</button></div></div>
+    <div class="ctl"><span>Whose figures</span>
+      <div class="seg" id="view">
+        <button data-v="0" aria-pressed="true"><span class="dot" style="background:var(--out)"></span>Exporters'</button>
+        <button data-v="1" aria-pressed="false"><span class="dot" style="background:var(--in)"></span>Importers'</button>
+        <button data-v="2" aria-pressed="false"><span class="dot" style="background:var(--res)"></span>Resolved</button>
+      </div></div>
+    <div class="ctl" id="resmethodbox" hidden><span>Resolve by</span>
+      <select id="resmethod" aria-label="How to resolve the two sets of figures">
+        <option value="mean">Average where both report</option>
+        <option value="imp">Prefer importer's figure</option>
+        <option value="exp">Prefer exporter's figure</option>
+        <option value="max">Take the larger figure</option>
+      </select></div>
+    <div class="ctl"><span>Measure</span>
+      <div class="seg" id="measure"><button data-m="t" aria-pressed="true">Tonnes</button><button data-m="usd" aria-pressed="false">US$</button><button data-m="ppt" aria-pressed="false">US$ per tonne</button></div></div>
+    <div class="ctl"><span>Routes</span>
+      <div class="seg" id="incf"><button data-f="all" aria-pressed="true">All</button><button data-f="hl" aria-pressed="false">High → lower income</button></div></div>
+    <div class="ctl"><span>Find a country</span>
+      <input type="search" id="find" list="clist" placeholder="e.g. Malaysia" aria-label="Find a country"><datalist id="clist"></datalist></div>
+  </div>
+  <details class="card hp" id="hp"><summary><span class="hpt">Plastics traded amongst other materials</span><span id="hpsum"></span></summary>
+    <div class="hpbody">
+      <div class="hpgrid" id="hpgrid"></div>
+      <div class="hpfoot"><button class="btn ghost sm" id="hpshape">Add main streams</button><button class="btn ghost sm" id="hpoff">Plastic scrap only</button><button class="btn ghost sm" id="hpreset">Reset values</button><button class="btn ghost sm" id="hpsave">Save assumptions</button><label class="btn ghost sm" style="cursor:pointer">Load assumptions<input type="file" id="hpload" accept=".json,application/json" hidden></label><span id="hptot"></span></div>
+
+    </div></details>
+</main>
+
+<section class="mapfull">
+  <div class="mapbox">
+    <div class="maptools">
+      <div class="ctl"><span>Map shows</span><div class="seg" id="mapmode"><button data-v="routes" aria-pressed="true">Country routes</button><button data-v="regions" aria-pressed="false">Region to region</button></div></div>
+      <div class="ctl"><span>Regions by</span><select id="scheme" aria-label="Region definition">
+        <option value="un">UN regions (M49)</option><option value="unsub">UN sub-regions (M49)</option><option value="wb">World Bank regions</option><option value="oecd">OECD / non-OECD</option></select></div>
+      <div class="ctl"><span>Region</span><select id="region" aria-label="Focus on a region"><option value="">Whole world</option></select></div>
+      <div class="ctl" id="rdirbox" hidden><span>Trade</span><div class="seg" id="rdir"><button data-d="both" aria-pressed="true">In and out</button><button data-d="out" aria-pressed="false">Leaving</button><button data-d="in" aria-pressed="false">Arriving</button><button data-d="within" aria-pressed="false">Within</button></div></div>
+      <div class="ctl" id="hlbox"><span>Highlight</span><div class="seg" id="hl"><button data-v="none" aria-pressed="true">Nothing</button><button data-v="lmic" aria-pressed="false">Low &amp; middle income</button><button data-v="hic" aria-pressed="false">High income</button></div></div>
+      <div class="ctl" id="focusbox" hidden><span>Selected country</span><div class="seg" id="fdir"><button data-v="in" aria-pressed="false">Coming in</button><button data-v="out" aria-pressed="false">Going out</button><button data-v="both" aria-pressed="true">Both</button></div></div>
+      <div class="ctl" id="fgrpbox" hidden><span>Group partners</span><div class="seg" id="fgrp"><button data-v="c" aria-pressed="true">Countries</button><button data-v="r" aria-pressed="false">By region</button></div></div>
+    </div>
+    <div class="maptools row2">
+      <div class="ctl"><span>Country labels show</span><div class="seg" id="lval"><button data-v="net" aria-pressed="true">Net</button><button data-v="in" aria-pressed="false">Imports</button><button data-v="out" aria-pressed="false">Exports</button><button data-v="both" aria-pressed="false">In and out</button><button data-v="none" aria-pressed="false">Off</button></div></div>
+      <label class="mini"><span>Routes shown <output id="mo-maxr"></output></span><input type="range" id="m-maxr" min="10" max="300" step="5"></label>
+      <label class="mini"><span>Line width <output id="mo-line"></output></span><input type="range" id="m-line" min="0.3" max="3" step="0.1"></label>
+      <label class="mini"><span>Label size <output id="mo-lsize"></output></span><input type="range" id="m-lsize" min="8" max="16" step="1"></label>
+      <label class="mini"><span>How many labels <output id="mo-ldens"></output></span><input type="range" id="m-ldens" min="1" max="5" step="1"></label>
+      <div class="ctl"><span>Map area</span><div class="seg" id="globe"><button data-v="trade" aria-pressed="true">Trading world</button><button data-v="full" aria-pressed="false">Whole globe</button></div></div>
+    </div>
+    <div class="mapwrap">
+      <div class="maphead"><h2 id="maptitle">Loading the plastic waste trade…</h2><div class="legend" id="legend"></div></div>
+      <svg id="map" viewBox="0 0 960 500" role="img" aria-label="World map of plastic waste trade flows"></svg>
+      <div class="zhint">Drag to move. Ctrl + scroll or pinch to zoom.</div>
+      <div class="zoomctl"><button id="zin" aria-label="Zoom in">+</button><button id="zout" aria-label="Zoom out">−</button><button id="zreset" aria-label="Reset zoom" style="font-size:13px">⤢</button></div>
+    </div>
+    <div class="bar"><span id="mapnote" hidden></span>
+      <span class="save"><button class="linkbtn" id="reset" hidden>Back to the world view</button><button class="linkbtn" data-open-design>Map design</button>
+        <span class="lab" style="margin-left:8px">Save map</span><button data-save="map" data-fmt="png">PNG</button><button data-save="map" data-fmt="svg">SVG</button><button data-save="map" data-fmt="csv">CSV</button></span></div>
+  </div>
+</section>
+
+<main class="wrap">
+  <div class="stage"><aside class="side" id="side" aria-live="polite"><div class="loading">Loading…</div></aside></div>
+
+  <section class="block" id="build">
+    <div class="hd"><div><h2>Build a chart</h2></div></div>
+    <div class="card builder">
+      <div class="bopts">
+        <div class="ctl"><span>Chart</span>
+          <div class="charttype" id="btype">
+            <button data-t="sankey" aria-pressed="true"><svg viewBox="0 0 60 26" aria-hidden="true"><rect x="0" y="2" width="4" height="10" fill="var(--out)"/><rect x="0" y="15" width="4" height="9" fill="var(--out)"/><rect x="56" y="1" width="4" height="7" fill="var(--in)"/><rect x="56" y="11" width="4" height="14" fill="var(--in)"/><path d="M4 7C30 7 30 5 56 5M4 19C30 19 30 18 56 18M4 9C30 9 30 15 56 15" stroke="var(--muted)" stroke-width="3" fill="none" opacity=".5"/></svg>Flows (Sankey)</button>
+            <button data-t="bars" aria-pressed="false"><svg viewBox="0 0 60 26" aria-hidden="true"><rect x="0" y="1" width="58" height="5" fill="var(--out)"/><rect x="0" y="9" width="42" height="5" fill="var(--out)"/><rect x="0" y="17" width="27" height="5" fill="var(--out)"/></svg>Ranking</button>
+            <button data-t="treemap" aria-pressed="false"><svg viewBox="0 0 60 26" aria-hidden="true"><rect x="0" y="0" width="32" height="26" fill="var(--g-hic)"/><rect x="34" y="0" width="26" height="14" fill="var(--g-umc)"/><rect x="34" y="16" width="14" height="10" fill="var(--g-lmc)"/><rect x="50" y="16" width="10" height="10" fill="var(--g-lic)"/></svg>Shares (treemap)</button>
+            <button data-t="scatter" aria-pressed="false"><svg viewBox="0 0 60 26" aria-hidden="true"><path d="M2 24L58 2" stroke="var(--muted)" stroke-dasharray="2 2"/><circle cx="12" cy="19" r="3" fill="var(--g-hic)"/><circle cx="25" cy="12" r="3" fill="var(--g-umc)"/><circle cx="40" cy="12" r="3" fill="var(--g-lmc)"/><circle cx="48" cy="5" r="3" fill="var(--g-hic)"/></svg>Mirror check</button>
+          </div></div>
+        <div class="ctl" data-for="sankey"><span>Left side</span><div class="seg" id="bfrom"><button data-v="c" aria-pressed="true">Countries</button><button data-v="r" aria-pressed="false">Regions</button><button data-v="g" aria-pressed="false">Income groups</button><button data-v="s" aria-pressed="false">Material stream</button></div></div>
+        <div class="ctl" data-for="sankey"><span>Right side</span><div class="seg" id="bto"><button data-v="c" aria-pressed="true">Countries</button><button data-v="r" aria-pressed="false">Regions</button><button data-v="g" aria-pressed="false">Income groups</button></div></div>
+        <div class="ctl" data-for="bars treemap scatter"><span>Show</span><div class="seg" id="bside"><button data-v="ex" aria-pressed="true">Senders</button><button data-v="rc" aria-pressed="false">Receivers</button><button data-v="rt" aria-pressed="false" data-only="bars">Routes</button></div></div>
+        <div class="ctl" data-for="bars treemap"><span>Group by</span><div class="seg" id="bgroup"><button data-v="c" aria-pressed="true">Countries</button><button data-v="r" aria-pressed="false">Regions</button><button data-v="g" aria-pressed="false">Income groups</button></div></div>
+        <div class="ctl" data-for="sankey bars treemap"><span>Regions by</span><select id="bscheme" aria-label="Region definition for the chart"><option value="un">UN regions (M49)</option><option value="unsub">UN sub-regions (M49)</option><option value="wb">World Bank regions</option><option value="oecd">OECD / non-OECD</option></select></div>
+        <div class="ctl" data-for="sankey bars treemap"><span>Whose figures</span><div class="seg" id="bview"><button data-v="0" aria-pressed="true">Exporters'</button><button data-v="1" aria-pressed="false">Importers'</button><button data-v="2" aria-pressed="false">Resolved</button></div></div>
+        <div class="ctl" data-for="sankey bars treemap scatter"><span>Measure</span><div class="seg" id="bmeasure"><button data-v="t" aria-pressed="true">Tonnes</button><button data-v="usd" aria-pressed="false">US$</button><button data-v="ppt" aria-pressed="false" data-only="bars">US$/t</button></div></div>
+        <div class="ctl" data-for="sankey bars treemap"><label class="lab" for="btopn">How many on each side</label><div class="topn"><input type="number" id="btopn" min="1" max="200" value="15" aria-label="How many to show"><input type="range" id="btopr" min="1" max="60" value="15" aria-label="How many to show, slider"></div></div>
+        <div class="ctl" data-for="sankey bars treemap"><span>Filters</span><div class="chk" style="flex-direction:column;align-items:flex-start">
+          <label><input type="checkbox" id="bnointra"> <span>Leave out trade within the same region</span></label>
+          <label><input type="checkbox" id="bfocus"> <span>Only trade involving <b id="bfocusname">the selected country</b></span></label></div></div>
+      </div>
+      <div class="cstage">
+        <div class="chd"><div><h3 id="ctitle"></h3><div class="cnote" id="cnote"></div></div><button class="btn ghost sm" data-open-design>Chart design</button></div>
+        <div class="chartbox"><svg id="chart" role="img" aria-label="Chart"></svg></div>
+        <div class="cleg" id="cleg"></div>
+        <div class="bar" style="margin-top:auto"><span></span>
+          <span class="save"><span class="lab">Save chart</span><button data-save="chart" data-fmt="png">PNG</button><button data-save="chart" data-fmt="svg">SVG</button><button data-save="chart" data-fmt="csv">CSV</button><button data-save="chart" data-fmt="json">JSON</button></span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="rankings">
+    <div class="hd"><div><h2>Countries</h2></div>
+      <div class="seg" id="rankmode"><button data-r="exp" aria-pressed="true">Exporters</button><button data-r="imp" aria-pressed="false">Importers</button></div></div>
+    <div class="card"><div class="tbl"><table id="rank"><thead></thead><tbody></tbody></table></div>
+      <div class="bar"><span></span><span class="save"><span class="lab">Save table</span><button data-save="table" data-fmt="csv">CSV</button><button data-save="table" data-fmt="json">JSON</button></span></div></div>
+  </section>
+
+  <section class="block" id="getdata">
+    <div class="hd"><div><h2>Get the data</h2></div></div>
+    <div class="card dl">
+      <div class="opts">
+        <div class="dlrow">
+        <div class="ctl"><span>Whose figures</span><div class="chk">
+          <label><input type="checkbox" id="dlx" checked> Exporters'</label>
+          <label><input type="checkbox" id="dlm"> Importers'</label>
+          <label><input type="checkbox" id="dlr"> Resolved</label></div></div>
+        <div class="ctl"><span>Countries</span><div class="chk">
+          <label><input type="radio" name="dlc" id="dlc-all" value="all" checked> All</label>
+          <label><input type="radio" name="dlc" id="dlc-map" value="map"> Current map filters</label>
+          <label><input type="radio" name="dlc" id="dlc-sel" value="sel"> Selected country only <em class="note" id="dlselname"></em></label></div></div>
+        <div class="ctl"><span>Format</span><div class="seg" id="dlfmt"><button data-f="csv" aria-pressed="true">CSV</button><button data-f="json" aria-pressed="false">JSON</button></div></div>
+        </div>
+        <div class="ctl"><span>Columns</span><div class="dlcols" id="dlcols"></div></div>
+      </div>
+      <div class="prev">
+        <div class="actions"><button class="btn" id="dlgo">Download</button><button class="btn ghost" id="dlcopy">Copy to clipboard</button><span class="count" id="dlcount"></span></div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<aside class="drawer" id="drawer" hidden aria-label="Design settings">
+  <header><h2>Design</h2><button class="x" id="dclose" aria-label="Close design settings">×</button></header>
+  <div class="body">
+    <div class="ctl"><span>Colour presets</span><div class="presets" id="presets"></div></div>
+    <label class="f">Sent / exports colour <input type="color" id="c-out"></label>
+    <label class="f">Received / imports colour <input type="color" id="c-in"></label>
+    <label class="f">Resolved colour <input type="color" id="c-res"></label>
+    <h3>Map</h3>
+    <label class="f">Routes drawn <output id="o-maxr"></output><input type="range" id="d-maxr" min="10" max="300" step="5"></label>
+    <label class="f">Line thickness <output id="o-line"></output><input type="range" id="d-line" min="0.3" max="3" step="0.1"></label>
+    <label class="f">Labels <select id="d-lab"><option value="both">Name and value</option><option value="net">Value only</option><option value="name">Names only</option><option value="none">No labels</option></select></label>
+    <label class="f">Label position <select id="d-lpos"><option value="auto">Beside the dot, centred when zoomed in</option><option value="centre">Always centred</option><option value="offset">Always beside the dot</option></select></label>
+    <label class="f">How many labels <output id="o-ldens"></output><input type="range" id="d-ldens" min="1" max="5" step="1"></label>
+    <label class="f">Map label size <output id="o-lsize"></output><input type="range" id="d-lsize" min="8" max="16" step="1"></label>
+    <label class="f">Moving flow lines <input type="checkbox" id="d-anim"></label>
+    <label class="f">Shade countries by size <input type="checkbox" id="d-choro"></label>
+    <h3>Charts</h3>
+    <label class="f">Label size <output id="o-font"></output><input type="range" id="d-font" min="9" max="18" step="1"></label>
+    <label class="f">Show values on labels <input type="checkbox" id="d-vals"></label>
+    <label class="f">Sankey bar width <output id="o-nodew"></output><input type="range" id="d-nodew" min="4" max="40" step="1"></label>
+    <label class="f">Sankey gap <output id="o-gap"></output><input type="range" id="d-gap" min="2" max="40" step="1"></label>
+    <label class="f">Flow opacity <output id="o-op"></output><input type="range" id="d-op" min="0.1" max="0.9" step="0.05"></label>
+    <label class="f">Colour flows by <select id="d-lcol"><option value="source">Sender</option><option value="target">Receiver</option><option value="grey">Plain grey</option></select></label>
+    <label class="f">Chart height <output id="o-h"></output><input type="range" id="d-h" min="0.6" max="2" step="0.1"></label>
+    <button class="btn ghost sm" id="dreset">Reset all design settings</button>
+  </div>
+</aside>
+<div class="tip" id="tip" hidden></div>
+<div class="toast" id="toast" hidden></div>
+
+<script src="vendor/d3-7.8.5.min.js"></script>
+<script src="vendor/topojson-client.min.js"></script>
+<script src="vendor/d3-sankey-0.12.3.min.js"></script>
+<script>
+(async function(){
+const $=s=>document.querySelector(s);
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const INC={HIC:"High income",UMC:"Upper-middle income",LMC:"Lower-middle income",LIC:"Low income",NS:"Not classified"};
+const GORDER=["HIC","UMC","LMC","LIC","NS"];
+const gcol=g=>css("--g-"+(g||"NS").toLowerCase());
+const LOWER=new Set(["UMC","LMC","LIC"]);
+const VIEWS=["exporters' reports","importers' reports","resolved figures"];
+const VCOL=["--out","--in","--res"];
+const SCHEMES={un:"UN regions",unsub:"UN sub-regions",wb:"World Bank regions",oecd:"OECD groups"};
+const RMETH={mean:"average where both report",imp:"importer's figure preferred",exp:"exporter's figure preferred",max:"larger figure"};
+let VERSION="UN Comtrade";
+const HS={
+  fibre:{n:"Synthetic fibre waste",codes:"HS 5505.10",f:100,shape:true,src:"Assumption: synthetic fibre is plastic."},
+  clothing:{n:"Worn clothing",codes:"HS 6309",f:65,shape:true,src:"Source: Textile Exchange, Materials Market Report 2023, p10 (synthetic share of global fibre production, 2022)."},
+  rags:{n:"Rags, twine and rope",codes:"HS 6310",f:65,shape:true,src:"Assumption, using Textile Exchange, Materials Market Report 2023, p10 (synthetic share of global fibre production, 2022)."},
+  weee:{n:"E-waste assemblies and boards",codes:"HS 8549.31, 8549.39",f:24.7,shape:true,src:"Source: OECD Global Plastics Outlook 2022 (e-waste plastics, 2022) ÷ Global E-waste Monitor 2024, Table A2.2 (e-waste, 2022)."},
+  weeeo:{n:"Other e-waste",codes:"HS 8549.91, 8549.99",f:24.7,shape:false,src:"Assumption, using OECD Global Plastics Outlook 2022 (e-waste plastics, 2022) ÷ Global E-waste Monitor 2024, Table A2.2 (e-waste, 2022)."},
+  rdf:{n:"Refuse-derived fuel and mixed waste",codes:"HS 3825.10",f:33.25,shape:true,src:"Source: Gerassimidou et al. 2020, Waste Management & Research 38(9), Table 1 (30% plastic, 5% textiles × 65% synthetic)."},
+  paper:{n:"Paper bales: plastic contamination",codes:"HS 4707",f:2,shape:false,src:"Assumption, for illustration."}};
+const HSCOL={scrap:"#0f7f86",fibre:"#b07aa1",clothing:"#e15759",rags:"#ff9da7",weee:"#4e79a7",weeeo:"#a0cbe8",rdf:"#9c755f",paper:"#edc948"};
+const HDEF=k=>({on:false,f:HS[k].f,w:100,byInc:false,inc:{HIC:HS[k].f,UMC:HS[k].f,LMC:HS[k].f,LIC:HS[k].f},usrc:""});
+const isDef=k=>!HON[k].byInc&&+HON[k].f===+HS[k].f;
+const HON={};for(const k in HS)HON[k]=HDEF(k);
+try{const sv=JSON.parse(localStorage.getItem("gwt-assumptions")||"null");if(sv&&sv.streams)for(const k in HS)if(sv.streams[k])HON[k]=sanitiseH(k,sv.streams[k])}catch(e){}
+function sanitiseH(k,o){const c=v=>Math.max(0,Math.min(100,+v));const d=HDEF(k),n=x=>x!=null&&isFinite(+x);
+  return{on:!!o.on,usrc:typeof o.usrc==="string"?o.usrc.slice(0,300):typeof o.source==="string"&&o.source!==HS[k].src?o.source.slice(0,300):"",f:n(o.f)?c(o.f):d.f,w:100,byInc:!!o.byInc,inc:Object.fromEntries(["HIC","UMC","LMC","LIC"].map(g=>[g,o.inc&&n(o.inc[g])?c(o.inc[g]):d.inc[g]]))}}
+const shareOf=(k,e)=>{const h=HON[k],g=C[e]?C[e][2]:"NS";return (h.byInc&&h.inc[g]!=null?h.inc[g]:h.f)/100*h.w/100};
+const S={scrap:true,fdir:"both",fgrp:"c",view:0,measure:"t",incf:"all",sel:null,region:null,rdir:"both",scheme:"un",mapMode:"routes",hl:"none",resolve:"mean",rank:"exp",rankSort:null,fmt:"csv"};
+const B={type:"sankey",from:"c",to:"c",side:"ex",group:"c",scheme:"un",view:0,measure:"t",top:15,focus:false,nointra:false};
+const DDEF={preset:"container",out:null,in:null,res:null,maxr:45,line:1,lab:"both",lval:"net",globe:"trade",lpos:"auto",ldens:3,lsize:11,anim:true,choro:false,font:12,vals:true,nodew:12,gap:10,op:.35,lcol:"source",h:1};
+let D={...DDEF};try{const s=JSON.parse(localStorage.getItem("gwt-design-v6")||"null");if(s)D={...DDEF,...s}}catch(e){}
+
+let data,world;
+try{const ok=r=>{if(!r.ok)throw new Error(r.status);return r.json()};const man=await fetch("data/manifest.json").then(ok);[data,world]=await Promise.all([fetch(`data/plastic_${man.latest}.json`).then(ok),fetch("data/world-110m.json").then(ok)]);}
+catch(e){$("#maptitle").textContent="The data could not load. Refresh the page to try again.";$("#side").innerHTML="";return;}
+
+const C=data.countries,SCH=data.schemes,YEAR=data.meta.year,CODE=data.meta.code;
+VERSION=`UN Comtrade ${YEAR}, ${CODE}`+(data.meta.built?` · built ${data.meta.built}`:"");
+$("#srcline").textContent=`UN Comtrade ${YEAR} · ${CODE} · ${data.meta.desc}`;
+const BASE=data.routes.map(r=>({v:r[0],ex:String(r[1]),rc:String(r[2]),t:r[3],usd:r[4],est:r[5],basis:r[0]===0?"exporter report":"importer report"}));
+const HTOT={};for(const k in HS)HTOT[k]=d3.sum(data.hidden[k]||[],x=>x[2]);
+const ALIAS=data.aliases||{};
+let R=[];
+const hidOn=()=>Object.keys(HS).filter(k=>{const h=HON[k];return h.on&&h.w>0&&(h.byInc?Object.values(h.inc).some(v=>v>0):h.f>0)});
+function resolve(){
+  const RAW=S.scrap?BASE:[];
+  const m=new Map();for(const r of RAW){const k=r.ex+">"+r.rc;if(!m.has(k))m.set(k,[null,null]);m.get(k)[r.v]=r}
+  const out=[];
+  for(const [k,[x,i]] of m){
+    let t,usd,est,basis;
+    if(x&&i){basis="both reported";
+      if(S.resolve==="mean"){t=(x.t+i.t)/2;usd=(x.usd+i.usd)/2;est=x.est&&i.est}
+      else{const pick=S.resolve==="imp"?i:S.resolve==="exp"?x:(x.t>=i.t?x:i);t=pick.t;usd=pick.usd;est=pick.est}}
+    else if(x){t=x.t;usd=x.usd;est=x.est;basis="exporter only"}
+    else{t=i.t;usd=i.usd;est=i.est;basis="importer only"}
+    const s=x||i;out.push({v:2,ex:s.ex,rc:s.rc,t:Math.round(t*100)/100,usd:Math.round(usd),est,basis});
+  }
+  const rows=RAW.map(r=>({...r,hid:0,hu:0,hs:null})).concat(out.map(r=>({...r,hid:0,hu:0,hs:null})));
+  const on=hidOn();
+  if(on.length){
+    const idx=new Map();for(const r of rows)idx.set(r.v+"|"+r.ex+"|"+r.rc,r);
+    for(const k of on){
+      for(const [e,i,t,usd] of data.hidden[k]||[]){const ex=String(e),rc=String(i);if(!C[ex]||!C[rc])continue;const f=shareOf(k,ex);
+        for(const v of [0,1,2]){const key=v+"|"+ex+"|"+rc;let r=idx.get(key);
+          if(!r){r={v,ex,rc,t:0,usd:0,est:false,basis:"hidden plastic only (BACI)",hid:0,hu:0,hs:null};rows.push(r);idx.set(key,r)}
+          const tt=t*f,uu=usd*f;r.t+=tt;r.usd+=uu;r.hid+=tt;r.hu+=uu;(r.hs||(r.hs={}))[k]=(r.hs[k]||0)+tt}}}
+  }
+  R=rows;
+}
+const PW=()=>{const h=hidOn().length;return !h?"plastic waste":S.scrap?"plastic waste and hidden plastic":"hidden plastic"};
+const aggS=rs=>{let t=0,usd=0,est=0;for(const r of rs){t+=r.t-(r.hid||0);usd+=r.usd-(r.hu||0);if(r.est)est+=r.t-(r.hid||0)}return{t,usd,est,n:rs.length}};
+const hDesc=k=>{const h=HON[k];return HS[k].n+" "+(h.byInc?"HIC "+h.inc.HIC+"/UMC "+h.inc.UMC+"/LMC "+h.inc.LMC+"/LIC "+h.inc.LIC+"% plastic":h.f+"% plastic")+(isDef(k)?"":" (user value"+(h.usrc.trim()?"; source: "+h.usrc.trim():", no source given")+")")};
+function hpNote(){const on=hidOn();return on.length?" · hidden plastic: "+on.map(hDesc).join(", ")+" (BACI 2023)"+(S.scrap?"":" · plastic scrap left out"):""}
+resolve();
+const name=c=>C[c]?C[c][1]:c, iso=c=>C[c]?C[c][0]:c, inc=c=>C[c]?C[c][2]:"NS";
+const regOf=(c,sch=S.scheme)=>(SCH[sch]&&SCH[sch][c])||null;
+const regionNames=sch=>[...new Set(Object.values(SCH[sch]))].sort();
+const REGPAL=["#4e79a7","#f28e2b","#59a14f","#e15759","#76b7b2","#edc948","#b07aa1","#ff9da7","#9c755f","#8cd17d","#499894","#d37295","#a0cbe8","#bab0ac","#86bcb6","#f1ce63"];
+const rcol=(r,sch=S.scheme)=>{const L=regionNames(sch);const i=L.indexOf(r);return i<0?css("--g-ns"):REGPAL[i%REGPAL.length]};
+
+// ---------- measures ----------
+const agg=rs=>{let t=0,usd=0,est=0;for(const r of rs){t+=r.t;usd+=r.usd;if(r.est)est+=r.t}return{t,usd,est,n:rs.length}};
+const mval=(a,m)=>m==="t"?a.t:m==="usd"?a.usd:(a.t>=50?a.usd/a.t:null);
+const fT=v=>v>=1e6?(v/1e6).toFixed(2)+" Mt":v>=1e3?d3.format(",.0f")(v/1e3)+" kt":d3.format(",.0f")(v)+" t";
+const fU=v=>v>=1e9?"$"+(v/1e9).toFixed(2)+"bn":v>=1e6?"$"+(v/1e6).toFixed(1)+"m":v>=1e3?"$"+d3.format(",.0f")(v/1e3)+"k":"$"+d3.format(",.0f")(v);
+const fP=v=>v==null?"—":"$"+d3.format(",.0f")(v)+"/t";
+const fmt=(v,m)=>v==null?"—":m==="t"?fT(v):m==="usd"?fU(v):fP(v);
+const mlabel=m=>m==="t"?"tonnes":m==="usd"?"US$":"US$ per tonne";
+
+// ---------- design ----------
+const PRESETS={container:{n:"Container",out:null,in:null,res:null},ocean:{n:"Ocean",out:"#1d4e89",in:"#00a6a6",res:"#f49f0a"},cb:{n:"Colour-blind safe",out:"#d55e00",in:"#0072b2",res:"#009e73"},forest:{n:"Forest",out:"#b5562f",in:"#3c6e47",res:"#7d5ba6"},mono:{n:"Ink",out:"#1f2a33",in:"#7d8b94",res:"#4a6fa5"},neon:{n:"Signal",out:"#ff2e63",in:"#08d9d6",res:"#f9c74f"}};
+function applyDesign(){
+  const rs=document.documentElement.style;
+  for(const [k,v] of [["--out",D.out],["--in",D.in],["--res",D.res]]){if(v)rs.setProperty(k,v);else rs.removeProperty(k)}
+  $("#c-out").value=toHex(css("--out"));$("#c-in").value=toHex(css("--in"));$("#c-res").value=toHex(css("--res"));
+  for(const [id,k,f] of [["ldens","ldens",v=>["","Few","Fewer","Normal","More","Lots"][v]],["lsize","lsize",v=>v+" px"],["maxr","maxr",v=>v],["line","line",v=>v+"×"],["font","font",v=>v+" px"],["nodew","nodew",v=>v+" px"],["gap","gap",v=>v+" px"],["op","op",v=>Math.round(v*100)+"%"],["h","h",v=>v+"×"]]){$("#d-"+id).value=D[k];$("#o-"+id).textContent=f(D[k])}
+  for(const [id,f] of [["maxr",v=>v],["line",v=>v+"×"],["lsize",v=>v+" px"],["ldens",v=>["","Few","Fewer","Normal","More","Lots"][v]]]){$("#m-"+id).value=D[id];$("#mo-"+id).textContent=f(D[id])}
+  pressed("#lval","v",D.lab==="none"?"none":D.lval);pressed("#globe","v",D.globe);
+  $("#d-lab").value=D.lab;$("#d-lpos").value=D.lpos;$("#d-anim").checked=D.anim;$("#d-choro").checked=D.choro;$("#d-vals").checked=D.vals;$("#d-lcol").value=D.lcol;
+  document.querySelectorAll("#presets button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.p===D.preset));
+  try{localStorage.setItem("gwt-design-v6",JSON.stringify(D))}catch(e){}
+}
+function pressed(sel,attr,val){document.querySelectorAll(sel+" button").forEach(b=>b.setAttribute("aria-pressed",b.dataset[attr]===String(val)?"true":"false"))}
+function toHex(c){const x=d3.color(c);return x?x.formatHex():"#000000"}
+$("#presets").innerHTML=Object.entries(PRESETS).map(([k,p])=>`<button data-p="${k}" aria-pressed="false"><i style="background:${p.out||"#e0531f"}"></i><i style="background:${p.in||"#0f7f86"}"></i>${p.n}</button>`).join("");
+$("#presets").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;const p=PRESETS[b.dataset.p];D.preset=b.dataset.p;D.out=p.out;D.in=p.in;D.res=p.res;applyDesign();render()});
+for(const k of ["out","in","res"])$("#c-"+k).addEventListener("input",e=>{D[k]=e.target.value;D.preset="custom";applyDesign();render()});
+for(const [id,k] of [["maxr","maxr"],["line","line"],["font","font"],["nodew","nodew"],["gap","gap"],["op","op"],["h","h"]])$("#d-"+id).addEventListener("input",e=>{D[k]=+e.target.value;applyDesign();if(["maxr","line"].includes(k))drawMap();else drawChart()});
+for(const id of ["maxr","line","lsize","ldens"])$("#m-"+id).addEventListener("input",e=>{D[id]=+e.target.value;applyDesign();if(id==="maxr"||id==="line")drawMap();else rescale()});
+for(const k of ["lab","lpos"])$("#d-"+k).onchange=e=>{D[k]=e.target.value;applyDesign();rescale()};
+for(const k of ["ldens","lsize"])$("#d-"+k).addEventListener("input",e=>{D[k]=+e.target.value;applyDesign();rescale()});
+$("#d-anim").onchange=e=>{D.anim=e.target.checked;applyDesign();drawMap()};
+$("#d-choro").onchange=e=>{D.choro=e.target.checked;applyDesign();drawMap()};
+$("#d-vals").onchange=e=>{D.vals=e.target.checked;applyDesign();drawChart()};
+$("#d-lcol").onchange=e=>{D.lcol=e.target.value;applyDesign();drawChart()};
+$("#dreset").onclick=()=>{D={...DDEF};applyDesign();render()};
+document.querySelectorAll("[data-open-design]").forEach(b=>b.addEventListener("click",()=>{$("#drawer").hidden=false;$("#dclose").focus()}));
+$("#dclose").onclick=()=>{$("#drawer").hidden=true};
+applyDesign();
+
+// ---------- geometry ----------
+const feats=topojson.feature(world,world.objects.countries).features;
+let proj,path;
+const TRADE_BOX={type:"MultiPoint",coordinates:(()=>{const c=[];for(let la=-56;la<=76;la+=4){c.push([-128,la],[179.9,la])}for(let lo=-128;lo<=180;lo+=6){c.push([lo,-56],[Math.min(lo,179.9),76])}return c})()};
+function setProj(){proj=D.globe==="full"?d3.geoNaturalEarth1().fitExtent([[6,40],[954,494]],{type:"Sphere"}):d3.geoNaturalEarth1().rotate([-26,0]).fitExtent([[6,44],[954,496]],TRADE_BOX);path=d3.geoPath(proj)}
+setProj();
+const byMap={};feats.forEach(f=>byMap[f.id]=f);
+const pos={},mapToCode={},area={};
+function placeCountries(){
+for(const [code,c] of Object.entries(C)){
+  if(c[3]&&byMap[c[3]]){mapToCode[c[3]]=code;
+    let g=byMap[c[3]].geometry;
+    if(g.type==="MultiPolygon"){let best=null,ba=-1;for(const p of g.coordinates){const a=d3.geoArea({type:"Polygon",coordinates:p});if(a>ba){ba=a;best=p}}g={type:"Polygon",coordinates:best}}
+    pos[code]=proj(d3.geoCentroid({type:"Feature",geometry:g}));area[code]=d3.geoArea({type:"Feature",geometry:g});
+  }else if(c.length>=6&&c[4]!=null){pos[code]=proj([c[4],c[5]]);area[code]=1e-5}
+}}
+placeCountries();
+let anchorCache={};
+function anchors(sch){if(anchorCache[sch])return anchorCache[sch];const a={};
+  for(const r of regionNames(sch)){const mem=Object.keys(SCH[sch]).filter(c=>SCH[sch][c]===r&&pos[c]&&!["RUS","USA","CAN","GRL"].includes(iso(c))||(SCH[sch][c]===r&&pos[c]&&Object.keys(SCH[sch]).filter(x=>SCH[sch][x]===r).every(x=>["RUS","USA","CAN","GRL"].includes(iso(x))||!pos[x])));
+    const w=mem.map(c=>Math.sqrt(area[c]||0));const sw=d3.sum(w)||1;a[r]=[d3.sum(mem,(c,i)=>pos[c][0]*w[i])/sw,d3.sum(mem,(c,i)=>pos[c][1]*w[i])/sw];
+    if(mem.length===0){const all=Object.keys(SCH[sch]).filter(c=>SCH[sch][c]===r&&pos[c]);a[r]=[d3.mean(all,c=>pos[c][0]),d3.mean(all,c=>pos[c][1])]}}
+  if(sch==="wb"&&a["North America"])a["North America"]=proj([-98,42]);
+  if((sch==="unsub")&&a["Northern America"])a["Northern America"]=proj([-98,42]);
+  if(sch==="oecd"&&a["OECD Americas"])a["OECD Americas"]=proj([-100,38]);
+  if(sch==="un"&&a["Americas"])a["Americas"]=proj([-85,15]);
+  if(sch==="un"&&a["Europe"])a["Europe"]=proj([15,50]);
+  return anchorCache[sch]=a}
+
+// ---------- tooltip / toast ----------
+const tip=$("#tip");
+function showTip(e,html){tip.innerHTML=html;tip.hidden=false;let x=e.clientX+14,y=e.clientY+14;if(x>innerWidth-290)x=e.clientX-290;if(y>innerHeight-100)y=e.clientY-90;tip.style.left=x+"px";tip.style.top=y+"px"}
+function hideTip(){tip.hidden=true}
+let toastT;function toast(m){const t=$("#toast");t.textContent=m;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,3400)}
+
+// ---------- filters ----------
+const passInc=r=>S.incf==="all"||(inc(r.ex)==="HIC"&&LOWER.has(inc(r.rc)));
+const passReg=r=>{if(!S.region)return true;const a=regOf(r.ex)===S.region,b=regOf(r.rc)===S.region;return S.rdir==="out"?a:S.rdir==="in"?b:S.rdir==="within"?a&&b:a||b};
+const pass=r=>passInc(r)&&passReg(r);
+const routes=(view=S.view)=>R.filter(r=>r.v===view&&pass(r));
+const isL=c=>LOWER.has(inc(c)),isH=c=>inc(c)==="HIC";
+const hlOn=c=>S.hl==="lmic"?isL(c):S.hl==="hic"?isH(c):true;
+
+// ---------- MAP ----------
+const svg=d3.select("#map");
+const zg=svg.append("g");
+const sphereP=zg.append("path").attr("d",path({type:"Sphere"})).attr("fill","var(--sea)");
+const gratP=zg.append("path").attr("d",path(d3.geoGraticule10())).attr("vector-effect","non-scaling-stroke").attr("fill","none").attr("stroke","var(--border)").attr("stroke-width",.3).attr("opacity",.6);
+const gC=zg.append("g"),gA=zg.append("g"),gN=zg.append("g"),gLL=zg.append("g"),gL=zg.append("g"),gR=zg.append("g");
+const countries=gC.selectAll("path").data(feats).join("path").attr("class","country").attr("d",path).attr("display",f=>D.globe!=="full"&&f.id==="010"?"none":null).attr("vector-effect","non-scaling-stroke")
+  .on("click",(e,f)=>{const c=mapToCode[f.id];if(!c)return;if(S.mapMode==="regions"){const r=regOf(c);if(r){setRegion(r)}}else select(c)})
+  .on("mousemove",(e,f)=>{const c=mapToCode[f.id];showTip(e,c?`<b>${esc(name(c))}</b> <span style="opacity:.7">${INC[inc(c)]} · ${esc(regOf(c)||"")}</span><br>${tipLine(c)}`:`<b>${esc(f.properties.name)}</b><br>No plastic waste trade recorded`)})
+  .on("mouseleave",hideTip);
+function tipLine(c){const rs=routes();const o=agg(rs.filter(r=>r.ex===c)),i=agg(rs.filter(r=>r.rc===c));return `Sent ${fT(o.t)} · ${fU(o.usd)}<br>Received ${fT(i.t)} · ${fU(i.usd)}`}
+// zoom
+let K=1;
+const zoom=d3.zoom().scaleExtent([1,14]).translateExtent([[0,0],[960,500]])
+  .filter(e=>e.type==="wheel"?(e.ctrlKey||e.metaKey):!e.button)
+  .on("zoom",e=>{zg.attr("transform",e.transform);K=e.transform.k;rescale()});
+svg.call(zoom).on("dblclick.zoom",null);
+let hintT=0;svg.on("wheel.hint",e=>{if(!(e.ctrlKey||e.metaKey)&&Date.now()-hintT>8000){hintT=Date.now();toast("Hold Ctrl (⌘ on a Mac) and scroll to zoom the map.")}});
+$("#zin").onclick=()=>svg.transition().duration(350).call(zoom.scaleBy,1.8);
+$("#zout").onclick=()=>svg.transition().duration(350).call(zoom.scaleBy,1/1.8);
+$("#zreset").onclick=()=>svg.transition().duration(600).call(zoom.transform,d3.zoomIdentity);
+function zoomToPts(pts,max=6){pts=pts.filter(Boolean);if(!pts.length)return;
+  let [x0,x1]=d3.extent(pts,p=>p[0]),[y0,y1]=d3.extent(pts,p=>p[1]);const pad=40;x0-=pad;x1+=pad;y0-=pad;y1+=pad;
+  const k=Math.max(1,Math.min(max,.95/Math.max((x1-x0)/960,(y1-y0)/500)));
+  svg.transition().duration(750).call(zoom.transform,d3.zoomIdentity.translate(480,270).scale(k).translate(-(x0+x1)/2,-(y0+y1)/2))}
+// ---------- LABELS ----------
+// Each label: {id,x,y,r,pri,l1,l1s,l2,c2,force,kind}. Rules, applied on every zoom:
+// 1. Biggest first (selected country always). 2. Skip labels below a share of the biggest that falls as you zoom in
+//    (Design > How many labels). 3. Size grows with importance. 4. Beside the dot when zoomed out, centred when zoomed in;
+//    try right, left, above, below, centre and drop the label if every spot overlaps one already placed. 5. Only what is on screen.
+let LAB=[];
+let ARCIDX=new Map(),ARCMAXW=0;const CELL=8;
+function buildArcIndex(){ARCIDX=new Map();ARCMAXW=0;
+  gA.selectAll("path").each(function(d){if(!d||!d.__ab)return;const [[x1,y1],[x2,y2]]=d.__ab,dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy);if(!L)return;
+    const cx=(x1+x2)/2-dy*.25,cy=(y1+y2)/2+dx*.25-L*.05,n=Math.max(8,Math.ceil(L*1.3/2.5));ARCMAXW=Math.max(ARCMAXW,d.sw||1);
+    for(let i=0;i<=n;i++){const t=i/n,u=1-t,x=u*u*x1+2*u*t*cx+t*t*x2,y=u*u*y1+2*u*t*cy+t*t*y2,key=Math.floor(x/CELL)+","+Math.floor(y/CELL);
+      let a=ARCIDX.get(key);if(!a){a=[];ARCIDX.set(key,a)}a.push([x,y,d.sw||1])}})}
+function setLabels(items){LAB=items;buildArcIndex();
+  gL.selectAll("text.clabel").data(LAB,d=>d.id).join("text").attr("class",d=>"clabel"+(d.kind==="reg"?" reg":""))}
+function rescale(){
+  gN.selectAll("circle").attr("r",d=>d.r/Math.sqrt(K)).attr("stroke-width",1/K);
+  gA.selectAll("path").attr("stroke-width",d=>d.sw*Math.pow(K,.25));
+  placeLabels();
+}
+const effPri=it=>it.dyn?(D.lval==="in"?it.vin:D.lval==="out"?it.vout:it.vin+it.vout):it.pri;
+function labLines(it,k,col){const L=[],nm=k<2.5&&it.l1s?it.l1s:it.l1,showName=D.lab!=="net"||it.kind==="mid"||(!it.dyn&&!it.l2),showVal=D.lab!=="name";
+  if(showName&&nm)L.push({t:nm,cls:"l1"});
+  if(showVal){if(it.dyn){const m=it.m,vi=it.vin,vo=it.vout;
+      if(D.lval==="in"){if(vi>0)L.push({t:"in "+fmt(vi,m),col:col.in})}
+      else if(D.lval==="out"){if(vo>0)L.push({t:"out "+fmt(vo,m),col:col.out})}
+      else if(D.lval==="both"){if(vi>0)L.push({t:"in "+fmt(vi,m),col:col.in});if(vo>0)L.push({t:"out "+fmt(vo,m),col:col.out})}
+      else{const n=vi-vo;L.push({t:netLine(n,m),col:n>=0?col.in:col.out})}}
+    else if(it.l2)L.push({t:it.l2,col:it.c2})}
+  if(L.length===1&&L[0].cls==="l1"&&showVal&&it.dyn&&D.lval!=="net")return [];
+  return L}
+// Label rules: biggest first (the selected country always); a label is skipped when it is small compared with the
+// biggest, a limit that relaxes as you zoom in; size grows with importance; each label tries 8 spots beside its dot,
+// then 8 spots further out with a leader line, and takes the first that clears other labels, dots and flow lines.
+// The ten biggest may sit over a line if nothing else fits; anything else that does not fit is left out.
+function placeLabels(){
+  const t=d3.zoomTransform(svg.node()),k=t.k,sel=gL.selectAll("text.clabel");
+  gLL.selectAll("*").remove();
+  if(D.lab==="none"){sel.attr("display","none");return}
+  const col={in:css("--in"),out:css("--out")};
+  const vx0=-t.x/k,vy0=(42-t.y)/k,vx1=(960-t.x)/k,vy1=(500-t.y)/k;
+  const items=LAB.map(it=>({it,p:it.force?Infinity:effPri(it)})).sort((a,b)=>b.p-a.p);
+  const maxP=d3.max(items,d=>isFinite(d.p)?d.p:0)||1,dens=[0,2,6,20,80,400][D.ldens]||20,pad=2/k;
+  const centre=D.lpos==="centre"||(D.lpos==="auto"&&k>=3);
+  const dots=[];gN.selectAll("circle").each(function(){dots.push([+this.getAttribute("cx"),+this.getAttribute("cy"),+this.getAttribute("r")||0])});
+  const placed=[],boxHit=b=>placed.some(q=>b[0]<q[2]+pad&&b[2]>q[0]-pad&&b[1]<q[3]+pad&&b[3]>q[1]-pad);
+  const dotHit=(b,ox,oy)=>dots.some(([x,y,r])=>!(Math.abs(x-ox)<.01&&Math.abs(y-oy)<.01)&&x>b[0]-r&&x<b[2]+r&&y>b[1]-r&&y<b[3]+r);
+  const kw=Math.pow(k,.25)/2/k,mw=ARCMAXW*kw+1/k;
+  const lineHit=b=>{const c0=Math.floor((b[0]-mw)/CELL),c1=Math.floor((b[2]+mw)/CELL),r0=Math.floor((b[1]-mw)/CELL),r1=Math.floor((b[3]+mw)/CELL);
+    for(let i=c0;i<=c1;i++)for(let j=r0;j<=r1;j++){const a=ARCIDX.get(i+","+j);if(!a)continue;for(const [x,y,sw] of a){const h=sw*kw+.5/k;if(x>b[0]-h&&x<b[2]+h&&y>b[1]-h&&y<b[3]+h)return true}}return false};
+  const DIRS=[[1,0],[-1,0],[0,-1],[0,1],[.75,-.75],[-.75,-.75],[.75,.75],[-.75,.75]];
+  const res=new Map();let rank=0;
+  for(const {it,p} of items){
+    if(!it.force&&(!(p>0)||p<maxP/(dens*k*k)))continue;
+    const x=it.x,y=it.y;if(x<vx0||x>vx1||y<vy0||y>vy1)continue;
+    const lines=labLines(it,k,col);if(!lines.length)continue;
+    const fsPx=D.lsize*(it.force?1.2:(.85+.45*Math.sqrt(Math.min(1,p/maxP))))*(it.kind==="reg"?1.15:1);
+    const fs=fsPx/k,w=d3.max(lines,l=>l.t.length)*fs*.58,h=lines.length*fs*1.15,r=(it.r||0)/Math.sqrt(k);
+    const cands=[];
+    if(centre||!it.r)cands.push({dx:0,dy:0,d:0});
+    for(const [dx,dy] of DIRS)cands.push({dx,dy,d:r+2/k});
+    for(const [dx,dy] of DIRS)cands.push({dx,dy,d:r+20/k,lead:true});
+    if(it.force||rank<10)for(const [dx,dy] of DIRS)cands.push({dx,dy,d:r+42/k,lead:true});
+    const box=c=>{const px=x+c.dx*c.d,py=y+c.dy*c.d,bx=c.dx>0.1?px:c.dx<-0.1?px-w:px-w/2,by=c.dy>0.1?py:c.dy<-0.1?py-h:py-h/2;return[bx,by,bx+w,by+h]};
+    const inView=b=>b[0]>=vx0&&b[2]<=vx1&&b[1]>=vy0&&b[3]<=vy1;
+    let ok=null;
+    for(const c of cands){const b=box(c);if(inView(b)&&!boxHit(b)&&!dotHit(b,x,y)&&!lineHit(b)){ok={c,b};break}}
+    if(!ok&&(it.force||it.kind==="mid"||it.kind==="reg"||rank<10))for(const c of cands){const b=box(c);if(inView(b)&&!boxHit(b)&&!dotHit(b,x,y)){ok={c,b};break}}
+    if(!ok&&it.force){const c={dx:0,dy:0,d:0};ok={c,b:box(c)}}
+    if(!ok)continue;
+    rank++;placed.push(ok.b);if(it.r)placed.push([x-r,y-r,x+r,y+r]);
+    res.set(it.id,{...ok,fs,lines});
+    if(ok.c.lead){const b=ok.b,ex=Math.max(b[0],Math.min(x,b[2])),ey=Math.max(b[1],Math.min(y,b[3]));
+      gLL.append("line").attr("class","leader").attr("x1",x+ok.c.dx*r).attr("y1",y+ok.c.dy*r).attr("x2",ex).attr("y2",ey).attr("stroke-width",.8/k)}
+  }
+  sel.each(function(it){const p=res.get(it.id),el=d3.select(this);if(!p){el.attr("display","none");return}
+    const [bx,by,bx2]=p.b,anchor=p.c.dx>0.1?"start":p.c.dx<-0.1?"end":"middle",ax=anchor==="start"?bx:anchor==="end"?bx2:(bx+bx2)/2;
+    el.attr("display",null).attr("font-size",p.fs).attr("stroke-width",3/k).attr("text-anchor",anchor);
+    el.selectAll("tspan").data(p.lines.map((l,i)=>({...l,i}))).join("tspan")
+      .attr("class",d=>d.cls||"l2").attr("x",ax).attr("y",d=>by+p.fs*(.92+d.i*1.15)).attr("fill",d=>d.col||null).text(d=>d.t);
+  });
+}
+const shortName=c=>{const n=name(c);return n.length>14?iso(c):n};
+const netLine=(n,m)=>`net ${n>=0?"in":"out"} ${fmt(Math.abs(n),m)}`;
+const dirCol=n=>n>=0?css("--in"):css("--out");
+function arcMid(a,b){const [x1,y1]=a,[x2,y2]=b,dx=x2-x1,dy=y2-y1,d=Math.hypot(dx,dy),cx=(x1+x2)/2-dy*.25,cy=(y1+y2)/2+dx*.25-d*.05;return[.25*x1+.5*cx+.25*x2,.25*y1+.5*cy+.25*y2]}
+function arcD(d,a,b){d.__ab=[a,b];return arcPath(a,b)}
+function arcPath(a,b){const [x1,y1]=a,[x2,y2]=b;const dx=x2-x1,dy=y2-y1,d=Math.hypot(dx,dy);return `M${x1},${y1}Q${(x1+x2)/2-dy*.25},${(y1+y2)/2+dx*.25-d*.05} ${x2},${y2}`}
+let partnerVals=new Map(),partnerMax=1,mapRows=[];
+const vc=()=>css(VCOL[S.view]);
+
+function drawMap(){
+  gR.selectAll("*").remove();
+  if(S.mapMode==="regions")return drawRegionMap();
+  $("#focusbox").hidden=$("#fgrpbox").hidden=!S.sel;
+  const rs=routes(),c=vc(),m=S.measure,w=m==="ppt"?"t":m;
+  let ramp=null,metric=new Map();
+  if(!S.sel&&S.hl==="none"&&D.choro){
+    const by=d3.group(rs,r=>r.ex);for(const [k,v] of by){const x=mval(agg(v),m);if(x!=null&&x>0)metric.set(k,x)}
+    const vals=[...metric.values()].sort(d3.ascending);
+    if(m==="ppt"){ramp=d3.scaleSequential(t=>d3.interpolateRgb(css("--land"),c)(.15+.85*t)).domain([d3.quantile(vals,.05),d3.quantile(vals,.95)]).clamp(true)}
+    else{const mx=d3.max(vals)||1;ramp=d3.scaleSequentialLog(t=>d3.interpolateRgb(css("--land"),c)(t)).domain([Math.max(1,mx/1e4),mx]).clamp(true)}
+  }
+  countries.classed("sel",f=>S.sel&&mapToCode[f.id]===S.sel).classed("dim",f=>!!S.region&&regOf(mapToCode[f.id])!==S.region).style("fill",f=>{const code=mapToCode[f.id];
+    if(S.sel){if(code===S.sel)return css("--ink");const p=partnerVals.get(code);if(p)return d3.interpolateRgb(css("--land"),p.dir==="out"?css("--out"):css("--in"))(.25+.6*Math.sqrt(p.v/partnerMax));return null}
+    if(S.hl!=="none"){if(!code)return null;return hlOn(code)?d3.interpolateRgb(css("--land"),gcol(inc(code)))(.75):null}
+    const v=metric.get(code);return v&&ramp?ramp(v):null});
+  if(S.sel&&S.fgrp==="r")return drawFocusRegions(rs,w);
+  let list=S.sel?rs.filter(r=>(S.fdir!=="in"&&r.ex===S.sel)||(S.fdir!=="out"&&r.rc===S.sel)):rs.slice();
+  list=list.sort((a,b)=>b[w]-a[w]).slice(0,S.sel?Math.max(40,D.maxr):D.maxr).filter(r=>pos[r.ex]&&pos[r.rc]&&r.ex!==r.rc);
+  mapRows=list;
+  const mx=(S.sel?d3.max(rs,r=>(r.ex===S.sel||r.rc===S.sel)&&r.ex!==r.rc&&pos[r.ex]&&pos[r.rc]?r[w]:0):d3.max(list,r=>r[w]))||1,sw=d3.scaleSqrt().domain([0,mx]).range([.6*D.line,(S.sel?9:8)*D.line]);
+  gA.selectAll("path").data(list,r=>r.v+"-"+r.ex+"-"+r.rc).join(en=>en.append("path"))
+    .attr("class",r=>"arc"+(D.anim?" flow":"")+(S.hl!=="none"&&!(hlOn(r.ex)||hlOn(r.rc))?" faded":""))
+    .each(r=>r.sw=sw(r[w])).attr("vector-effect","non-scaling-stroke").attr("d",r=>arcD(r,pos[r.ex],pos[r.rc]))
+    .attr("stroke",r=>S.sel?(r.ex===S.sel?css("--out"):css("--in")):S.hl!=="none"?(hlOn(r.rc)&&hlOn(r.ex)?c:hlOn(r.rc)?css("--in"):hlOn(r.ex)?css("--out"):c):c)
+    .attr("stroke-width",r=>r.sw*Math.pow(K,.25))
+    .on("mousemove",(e,r)=>showTip(e,`<b>${esc(name(r.ex))} → ${esc(name(r.rc))}</b><br>${fT(r.t)} · ${fU(r.usd)} · ${fP(r.t>=50?r.usd/r.t:null)}${r.v===2?`<br><em>Resolved: ${esc(r.basis)}</em>`:""}${r.est?"<br><em>Weight estimated by reporter</em>":""}`))
+    .on("mouseleave",hideTip).on("click",(e,r)=>select(S.sel===r.ex?r.rc:r.ex));
+  const inM=new Map(),outM=new Map();for(const r of rs){outM.set(r.ex,(outM.get(r.ex)||0)+r[w]);inM.set(r.rc,(inM.get(r.rc)||0)+r[w])}
+  const gross=k=>(inM.get(k)||0)+(outM.get(k)||0),net=k=>(inM.get(k)||0)-(outM.get(k)||0);
+  const ends=new Set();for(const r of list){ends.add(r.ex);ends.add(r.rc)}
+  const pv=new Map();if(S.sel)for(const r of list){const p=r.ex===S.sel?r.rc:r.ex,dir=r.ex===S.sel?"out":"in";const o=pv.get(p)||{v:0,out:0,in:0};o.v+=r[w];o[dir]+=r[w];pv.set(p,o)}
+  const pvTot=d3.sum([...pv.values()],d=>d.v)||1,gmax=S.sel?(d3.max([...pv.values()],d=>d.v)||1):(d3.max([...ends],gross)||1);
+  const nodeR=new Map();
+  gN.selectAll("circle").data([...ends].filter(k=>pos[k]),d=>d).join("circle").attr("class","node")
+    .each(function(d){const v=S.sel?(d===S.sel?gmax*1.4:(pv.get(d)||{v:0}).v):gross(d);this.__r=(2+Math.sqrt(v/gmax)*(S.sel?5:6))*Math.sqrt(D.line);nodeR.set(d,this.__r)})
+    .datum(function(d){return Object.assign(new String(d),{r:this.__r,k:d})}).attr("cx",d=>pos[d.k][0]).attr("cy",d=>pos[d.k][1])
+    .attr("fill",d=>{const k=d.k;if(S.sel){if(k===S.sel)return css("--ink");const o=pv.get(k);return o&&o.out>=o.in?css("--out"):css("--in")}if(S.hl!=="none"&&!hlOn(k))return css("--g-ns");return dirCol(net(k))});
+  if(S.sel){
+    const n=net(S.sel);
+    setLabels([{id:"sel",force:true,x:pos[S.sel][0],y:pos[S.sel][1],r:nodeR.get(S.sel)||6,pri:1e18,l1:name(S.sel),l2:S.fdir==="in"?`receives ${fmt(inM.get(S.sel)||0,w)}`:S.fdir==="out"?`sends ${fmt(outM.get(S.sel)||0,w)}`:netLine(n,w),c2:S.fdir==="in"?css("--in"):S.fdir==="out"?css("--out"):dirCol(n)},
+      ...[...pv].filter(([k])=>pos[k]).map(([k,o])=>({id:k,x:pos[k][0],y:pos[k][1],r:nodeR.get(k)||0,pri:o.v,l1:name(k),l1s:shortName(k),l2:`${fmt(o.v,w)} · ${d3.format(".0%")(o.v/pvTot)}`,c2:o.out>=o.in?css("--out"):css("--in")}))]);
+  }else{
+    setLabels([...new Set([...inM.keys(),...outM.keys()])].filter(k=>pos[k]&&(S.hl==="none"||hlOn(k))).map(k=>({id:k,dyn:true,m:w,vin:inM.get(k)||0,vout:outM.get(k)||0,x:pos[k][0],y:pos[k][1],r:nodeR.get(k)||0,pri:gross(k),l1:name(k),l1s:shortName(k)})));
+  }
+  rescale();
+  const tot=agg(rs);
+  const lm=S.hl!=="none"?(()=>{const a=agg(rs.filter(r=>hlOn(r.ex))),b=agg(rs.filter(r=>hlOn(r.rc)));return{a,b}})():null;
+  $("#maptitle").textContent=S.sel?(S.fdir==="in"?`Where ${name(S.sel)}'s ${PW()} comes from, ${YEAR}`:S.fdir==="out"?`Where ${name(S.sel)}'s ${PW()} goes, ${YEAR}`:`${name(S.sel)}: its ${list.length} largest ${PW()} routes, ${YEAR}`)
+    :lm?`${S.hl==="lmic"?"Low & middle income":"High income"} countries sent ${fmt(mval(lm.a,w),w)} and received ${fmt(mval(lm.b,w),w)} of ${PW()} in ${YEAR}`
+    :m==="ppt"?`${PW()[0].toUpperCase()+PW().slice(1)} sold for ${fP(mval(tot,"ppt"))} on average in ${YEAR}`
+    :S.region?`${S.region}: ${fmt(mval(tot,m),m)} of ${PW()} ${({both:"traded in and out",out:"leaving",in:"arriving",within:"traded within the region"})[S.rdir]}, ${YEAR}`
+    :S.incf==="hl"?`${fmt(mval(tot,m),m)} of ${PW()} went from high-income to lower-income countries in ${YEAR}`:`${fmt(mval(tot,m),m)} of ${PW()} crossed borders in ${YEAR}`;
+  $("#legend").innerHTML=S.sel?`<span><span class="dot" style="background:var(--out)"></span>sent by ${esc(name(S.sel))}</span><span><span class="dot" style="background:var(--in)"></span>sent to ${esc(name(S.sel))}</span>`
+    :S.hl!=="none"?(S.hl==="lmic"?["UMC","LMC","LIC"]:["HIC"]).map(g=>`<span><span class="dot" style="background:var(--g-${g.toLowerCase()})"></span>${INC[g]}</span>`).join("")+`<span><span class="dot" style="background:var(--out)"></span>leaving them</span><span><span class="dot" style="background:var(--in)"></span>arriving</span>`
+    :D.choro?`<span><span class="dot" style="background:var(--out)"></span>net exporter</span><span><span class="dot" style="background:var(--in)"></span>net importer</span><span>${m==="ppt"?"Export price":"Exports"}, ${VIEWS[S.view]}</span><span class="ramp" style="background:linear-gradient(90deg,var(--land),${c})"></span><span>${m==="ppt"?"dearer":"more"}</span>`:`<span><span class="dot" style="background:${c}"></span>lines: ${VIEWS[S.view]}</span>`+(D.lab!=="none"&&D.lval==="net"?`<span><span class="dot" style="background:var(--out)"></span>net exporter</span><span><span class="dot" style="background:var(--in)"></span>net importer</span>`:"");
+  $("#mapnote").textContent=S.sel?"Line width shows the amount. Labels give each partner's share. Try Group partners: By region.":`Lines show the ${list.length} largest routes by ${w==="t"?"tonnes":"value"}. Change the number in Map design. Click any country to see all of its trade.`;
+  $("#reset").hidden=!S.sel;
+}
+function drawFocusRegions(rs,w){
+  const c0=S.sel,P=pos[c0],sch=S.scheme,g=new Map();
+  for(const r of rs){if(!(r.ex===c0||r.rc===c0)||r.ex===r.rc)continue;const dir=r.ex===c0?"out":"in",p=dir==="out"?r.rc:r.ex,reg=regOf(p,sch)||"Unallocated",k=dir+"|"+reg;
+    if(!g.has(k))g.set(k,{dir,reg,t:0,usd:0,sx:0,sy:0,sw:0,n:0});const o=g.get(k);o.t+=r.t;o.usd+=r.usd;o.n++;if(pos[p]){const v=Math.max(r[w],1e-9);o.sx+=pos[p][0]*v;o.sy+=pos[p][1]*v;o.sw+=v}}
+  const mxAll=d3.max([...g.values()].filter(f=>f.sw>0),f=>f[w])||1;
+  let flows=[...g.values()].filter(f=>f.sw>0&&f[w]>0&&(S.fdir==="both"||f.dir===S.fdir)).map(f=>{let a=[f.sx/f.sw,f.sy/f.sw];const dx=a[0]-P[0],dy=a[1]-P[1],d=Math.hypot(dx,dy);if(d<40){const u=d>0.1?[dx/d,dy/d]:[0,-1];a=[P[0]+u[0]*40,P[1]+u[1]*40]}return{...f,a}});
+  flows.sort((x,y)=>y[w]-x[w]);mapRows=flows;
+  const tot={in:d3.sum(flows.filter(f=>f.dir==="in"),f=>f[w])||1,out:d3.sum(flows.filter(f=>f.dir==="out"),f=>f[w])||1};
+  const pr=new Map(),prA=new Map();for(const r of rs){if(r.rc===c0){prA.set(r.ex,(prA.get(r.ex)||0)+r[w]);if(S.fdir!=="out")pr.set(r.ex,(pr.get(r.ex)||0)+r[w])}if(r.ex===c0){prA.set(r.rc,(prA.get(r.rc)||0)+r[w]);if(S.fdir!=="in")pr.set(r.rc,(pr.get(r.rc)||0)+r[w])}}
+  const prMax=d3.max(prA.values())||1;
+  countries.classed("sel",f=>mapToCode[f.id]===c0).classed("dim",false).style("fill",f=>{const k=mapToCode[f.id];if(k===c0)return css("--ink");const v=pr.get(k);if(!v)return null;return d3.interpolateRgb(css("--land"),rcol(regOf(k,sch),sch))(.25+.6*Math.sqrt(v/prMax))});
+  const mx=mxAll,sw=d3.scaleSqrt().domain([0,mx]).range([1*D.line,18*D.line]);
+  gA.selectAll("path").data(flows,f=>f.dir+f.reg).join(en=>en.append("path")).attr("class","arc"+(D.anim?" flow":"")).each(f=>f.sw=sw(f[w])).attr("vector-effect","non-scaling-stroke")
+    .attr("d",f=>f.dir==="in"?arcD(f,f.a,P):arcD(f,P,f.a)).attr("stroke",f=>rcol(f.reg,sch)).attr("stroke-width",f=>f.sw*Math.pow(K,.25))
+    .on("mousemove",(e,f)=>showTip(e,`<b>${f.dir==="in"?esc(f.reg)+" → "+esc(name(c0)):esc(name(c0))+" → "+esc(f.reg)}</b><br>${fT(f.t)} · ${fU(f.usd)} · ${f.n} partner countr${f.n>1?"ies":"y"}<br>${d3.format(".1%")(f[w]/tot[f.dir])} of ${f.dir==="in"?"what arrives":"what leaves"}`)).on("mouseleave",hideTip);
+  const nd=[...flows.map(f=>({k:f.dir+f.reg,x:f.a[0],y:f.a[1],r:3+Math.sqrt(f[w]/mx)*7,col:rcol(f.reg,sch)})),{k:"sel",x:P[0],y:P[1],r:9,col:css("--ink")}];
+  gN.selectAll("circle").data(nd,d=>d.k).join("circle").attr("class","node").attr("cx",d=>d.x).attr("cy",d=>d.y).attr("fill",d=>d.col);
+  const both=S.fdir==="both";
+  setLabels([{id:"sel",force:true,x:P[0],y:P[1],r:9,pri:1e18,l1:name(c0),l2:S.fdir==="in"?`receives ${fmt(tot.in,w)}`:S.fdir==="out"?`sends ${fmt(tot.out,w)}`:`in ${fmt(tot.in,w)} · out ${fmt(tot.out,w)}`,c2:S.fdir==="out"?css("--out"):css("--in")},
+    ...flows.map(f=>{const m=f.dir==="in"?arcMid(f.a,P):arcMid(P,f.a);return{id:f.dir+f.reg,kind:"mid",x:m[0],y:m[1],pri:f[w],l1:(both?(f.dir==="in"?"from ":"to "):"")+f.reg,l2:`${fmt(f[w],w)} · ${d3.format(".0%")(f[w]/tot[f.dir])}`,c2:rcol(f.reg,sch)}})]);
+  rescale();
+  $("#maptitle").textContent=S.fdir==="in"?`Where ${name(c0)}'s ${PW()} comes from, by ${SCHEMES[sch].replace(/s$/,"")}, ${YEAR}`:S.fdir==="out"?`Where ${name(c0)}'s ${PW()} goes, by ${SCHEMES[sch].replace(/s$/,"")}, ${YEAR}`:`${name(c0)}'s ${PW()} trade by ${SCHEMES[sch].replace(/s$/,"")}, ${YEAR}`;
+  $("#legend").innerHTML=[...new Set(flows.map(f=>f.reg))].map(r=>`<span><span class="dot" style="background:${rcol(r,sch)}"></span>${esc(r)}</span>`).join("");
+  $("#mapnote").textContent=`Each line joins ${name(c0)} to the weighted centre of its partners in one region. Labels give the amount and share. Change the region definition above.`;
+  $("#reset").hidden=false;
+}
+function regionFlows(sch,rs){const f=new Map();for(const r of rs){const a=regOf(r.ex,sch),b=regOf(r.rc,sch);if(!a||!b||a===b)continue;const k=a+">"+b;if(!f.has(k))f.set(k,{a,b,t:0,usd:0});const o=f.get(k);o.t+=r.t;o.usd+=r.usd}return[...f.values()]}
+function drawRegionMap(){
+  $("#focusbox").hidden=$("#fgrpbox").hidden=true;
+  const sch=S.scheme,A=anchors(sch),rs=R.filter(r=>r.v===S.view&&passInc(r)),m=S.measure==="ppt"?"t":S.measure;
+  let flows=regionFlows(sch,rs);
+  if(S.region)flows=flows.filter(f=>S.rdir==="out"?f.a===S.region:S.rdir==="in"?f.b===S.region:S.rdir==="within"?false:(f.a===S.region||f.b===S.region));
+  flows.sort((x,y)=>y[m]-x[m]);mapRows=flows;
+  countries.classed("sel",false).classed("dim",f=>!!S.region&&regOf(mapToCode[f.id],sch)!==S.region).style("fill",f=>{const r=regOf(mapToCode[f.id],sch);return r?d3.interpolateRgb(css("--land"),rcol(r,sch))(.55):null});
+  const mx=d3.max(flows,f=>f[m])||1,sw=d3.scaleSqrt().domain([0,mx]).range([.8*D.line,16*D.line]);
+  const shown=flows.slice(0,Math.min(D.maxr,120));
+  gA.selectAll("path").data(shown,f=>f.a+">"+f.b).join(en=>en.append("path")).attr("class","arc"+(D.anim?" flow":""))
+    .each(f=>f.sw=sw(f[m])).attr("vector-effect","non-scaling-stroke").attr("d",f=>arcD(f,A[f.a],A[f.b])).attr("stroke",f=>rcol(f.a,sch)).attr("stroke-width",f=>f.sw*Math.pow(K,.25))
+    .on("mousemove",(e,f)=>showTip(e,`<b>${esc(f.a)} → ${esc(f.b)}</b><br>${fT(f.t)} · ${fU(f.usd)} · ${fP(f.t>=50?f.usd/f.t:null)}`)).on("mouseleave",hideTip).on("click",(e,f)=>setRegion(f.a));
+  const outT=d3.rollup(flows,v=>d3.sum(v,f=>f[m]),f=>f.a),inT=d3.rollup(flows,v=>d3.sum(v,f=>f[m]),f=>f.b);
+  const nodes=regionNames(sch).filter(r=>A[r]&&!isNaN(A[r][0]));
+  const gr=r=>(outT.get(r)||0)+(inT.get(r)||0),gmx=d3.max(nodes,gr)||1;
+  gN.selectAll("circle").data(nodes.map(r=>[r,gr(r)]),d=>d[0]).join("circle").attr("class","node")
+    .each(d=>d.r=4+Math.sqrt(d[1]/gmx)*10).attr("cx",d=>A[d[0]][0]).attr("cy",d=>A[d[0]][1]).attr("fill",d=>rcol(d[0],sch)).style("cursor","pointer").on("click",(e,d)=>setRegion(d[0]));
+  setLabels(nodes.map(r=>({id:"R"+r,kind:"reg",dyn:true,m,vin:inT.get(r)||0,vout:outT.get(r)||0,x:A[r][0],y:A[r][1],r:4+Math.sqrt(gr(r)/gmx)*10,pri:gr(r),force:S.region===r,l1:r})));
+  rescale();
+  const total=d3.sum(flows,f=>f[m]),all=d3.sum(rs,r=>r[m]);
+  $("#maptitle").textContent=`${fmt(total,m)} of ${PW()} crossed between ${SCHEMES[sch]}, ${YEAR} (${d3.format(".0%")(total/all)} of all trade)`;
+  $("#legend").innerHTML=nodes.map(r=>`<span><span class="dot" style="background:${rcol(r,sch)}"></span>${esc(r)}</span>`).join("");
+  $("#mapnote").textContent="Trade between countries in the same region is left out. Click a region to focus on it.";
+  $("#reset").hidden=true;
+}
+
+// ---------- SIDE PANEL ----------
+function bars(arr,color,m,lab=name){const vals=arr.map(d=>d[1]).filter(v=>v!=null);const mx=d3.max(vals)||1;return arr.map(([k,v])=>`<div class="row" data-c="${esc(k)}" role="button" tabindex="0"><span class="nm">${esc(lab(k))}</span><span class="v">${fmt(v,m)}</span><span class="b" style="width:${v==null?0:Math.max(2,v/mx*100)}%;background:${typeof color==="function"?color(k):color}"></span></div>`).join("")}
+function topBy(rs,key,m,n){const g=d3.rollups(rs,v=>agg(v),r=>r[key]).map(([k,a])=>[k,mval(a,m),a]).filter(d=>d[1]!=null);
+  if(m==="ppt")g.sort((a,b)=>b[2].t-a[2].t);else g.sort((a,b)=>b[1]-a[1]);return g.slice(0,n).map(d=>[d[0],d[1]])}
+function ledger(){const v=S.view;if(v===2){const rs=routes(2);const b=d3.rollup(rs,x=>d3.sum(x,r=>r.t),r=>r.basis);const t=d3.sum(rs,r=>r.t)||1;
+  return `Resolved by ${RMETH[S.resolve]}. ${d3.format(".0%")((b.get("both reported")||0)/t)} of the tonnage is reported by both sides, ${d3.format(".0%")((b.get("exporter only")||0)/t)} by the exporter only and ${d3.format(".0%")((b.get("importer only")||0)/t)} by the importer only.`}
+  const o=agg(R.filter(r=>r.v===1-v&&pass(r))),r2=agg(routes(2));return `The other side of the ledger: ${v===0?"importers":"exporters"} report <b>${fT(o.t)}</b> and <b>${fU(o.usd)}</b> for the same trade. Resolved figure: <b style="color:var(--res)">${fT(r2.t)}</b>.`}
+function hidBars(rs,lab="Where the plastic is"){if(!hidOn().length)return "";const sums=[];if(S.scrap)sums.push(["scrap",d3.sum(rs,r=>r.t-(r.hid||0))]);for(const k of hidOn())sums.push([k,d3.sum(rs,r=>r.hs&&r.hs[k]||0)]);sums.sort((a,b)=>b[1]-a[1]);
+  return `<div><h4>${lab}</h4><div class="bars">${bars(sums,k=>HSCOL[k],"t",k=>klabel("s:"+k))}</div></div>`}
+function side(){
+  const el=$("#side"),m=S.measure;
+  if(S.mapMode==="regions"){
+    const sch=S.scheme,rs=R.filter(r=>r.v===S.view&&passInc(r)),mm=m==="ppt"?"t":m,fl=regionFlows(sch,rs);
+    const out=d3.rollups(fl,v=>d3.sum(v,f=>f[mm]),f=>f.a).sort((a,b)=>b[1]-a[1]),inn=d3.rollups(fl,v=>d3.sum(v,f=>f[mm]),f=>f.b).sort((a,b)=>b[1]-a[1]);
+    const top=fl.slice().sort((a,b)=>b[mm]-a[mm]).slice(0,8).map(f=>[f.a+" → "+f.b,f[mm]]);
+    el.innerHTML=`<div class="col"><div><span class="pill">${SCHEMES[sch]} · ${YEAR} · ${VIEWS[S.view]}</span><h3 style="margin-top:8px">${fmt(d3.sum(fl,f=>f[mm]),mm)}</h3><div class="sub">traded between regions, with trade inside each region left out</div></div>
+      <div><h4>Biggest region-to-region flows</h4><div class="bars">${bars(top,css("--out"),mm,k=>k)}</div></div></div>
+      <div><h4>Exports to other regions</h4><div class="bars">${bars(out,k=>rcol(k,sch),mm,k=>k)}</div></div>
+      <div><h4>Imports from other regions</h4><div class="bars">${bars(inn,k=>rcol(k,sch),mm,k=>k)}</div></div>`;
+    el.querySelectorAll(".row[data-c]").forEach(r=>r.onclick=()=>{if(regionNames(sch).includes(r.dataset.c))setRegion(r.dataset.c)});
+    return;
+  }
+  if(!S.sel){
+    const rs=routes(),tot=agg(rs);
+    el.innerHTML=`<div class="col"><div><span class="pill">${esc(S.region||"World")} · ${YEAR} · ${VIEWS[S.view]}</span><h3 style="margin-top:8px">${fmt(mval(tot,m),m)}</h3><div class="sub">${S.incf==="hl"?"high-income to lower-income routes":PW()+" traded"}, ${d3.format(",")(rs.length)} country-to-country records</div></div>
+    <div class="kpis"><div class="kpi"><span>Weight</span><b>${fT(tot.t)}</b></div><div class="kpi"><span>Value</span><b>${fU(tot.usd)}</b><em>${fP(mval(tot,"ppt"))} average</em></div></div>
+    <div class="mirror">${ledger()} ${tot.t?d3.format(".0%")(tot.est/tot.t)+" of the tonnage here is an estimated weight.":""}</div>${hidBars(rs)}</div>
+    <div><h4>Biggest senders ${m==="ppt"?"(price, largest by weight)":""}</h4><div class="bars">${bars(topBy(rs,"ex",m,10),css("--out"),m)}</div></div>
+    <div><h4>Biggest receivers ${m==="ppt"?"(price, largest by weight)":""}</h4><div class="bars">${bars(topBy(rs,"rc",m,10),css("--in"),m)}</div></div>`;
+  }else{
+    const c=S.sel,me=C[c],rs=routes();
+    const out=agg(rs.filter(r=>r.ex===c)),inn=agg(rs.filter(r=>r.rc===c));
+    let outP=topBy(rs.filter(r=>r.ex===c),"rc",m,999),inP=topBy(rs.filter(r=>r.rc===c),"ex",m,999);
+    const byReg=S.fgrp==="r";
+    if(byReg){const mm2=m==="ppt"?"t":m,gr=(arr,sd)=>d3.rollups(arr,v=>mval(agg(v),mm2),r=>regOf(r[sd])||"Unallocated").sort((a,b)=>b[1]-a[1]);outP=gr(rs.filter(r=>r.ex===c),"rc");inP=gr(rs.filter(r=>r.rc===c),"ex")}
+    partnerVals=new Map();
+    if(S.fdir!=="in")for(const [k,a] of d3.rollups(rs.filter(r=>r.ex===c),v=>d3.sum(v,r=>r.t),r=>r.rc))partnerVals.set(k,{v:a,dir:"out"});
+    if(S.fdir!=="out")for(const [k,a] of d3.rollups(rs.filter(r=>r.rc===c),v=>d3.sum(v,r=>r.t),r=>r.ex))if(!partnerVals.has(k)||partnerVals.get(k).v<a)partnerVals.set(k,{v:a,dir:"in"});
+    partnerMax=Math.max(d3.max(d3.rollups(rs.filter(r=>r.ex===c),v=>d3.sum(v,r=>r.t),r=>r.rc),d=>d[1])||0,d3.max(d3.rollups(rs.filter(r=>r.rc===c),v=>d3.sum(v,r=>r.t),r=>r.ex),d=>d[1])||0)||1;
+    const mm=m==="ppt"?"t":m,ag=v=>aggS(R.filter(r=>r.v===v&&r.ex===c&&pass(r)));
+    const self=ag(0),mir=ag(1),res=ag(2),sv=mval(self,mm),mv=mval(mir,mm),rv=mval(res,mm),ratio=sv>0?mv/sv:null;
+    const flag=ratio==null?`<span class="flag warn">No export report from ${esc(me[1])}</span>`:(ratio>0.67&&ratio<1.5)?`<span class="flag ok">Figures broadly agree</span>`:`<span class="flag warn">Figures disagree, check before use</span>`;
+    const mx=Math.max(sv,mv,rv)||1;
+    el.innerHTML=`<div class="col"><div><span class="pill">${INC[me[2]]||me[2]} · ${esc(regOf(c)||"")}</span><h3 style="margin-top:8px">${esc(me[1])}</h3><div class="sub">${esc(me[0])} · ${PW()} · ${YEAR} · ${VIEWS[S.view]}</div></div>
+    <div class="kpis"><div class="kpi out"><span>Sent abroad</span><b>${fT(out.t)}</b><em>${fU(out.usd)} · ${fP(mval(out,"ppt"))}</em></div>
+      <div class="kpi in"><span>Received</span><b>${fT(inn.t)}</b><em>${fU(inn.usd)} · ${fP(mval(inn,"ppt"))}</em></div></div>
+    <div class="mirror"><b>Exports: three ways to count.</b> ${flag}
+      <div class="bar2"><span>${esc(me[0])} says</span><span class="track"><i style="width:${sv/mx*100}%;background:var(--out)"></i></span><span>${fmt(sv,mm)}</span></div>
+      <div class="bar2"><span>Partners say</span><span class="track"><i style="width:${mv/mx*100}%;background:var(--in)"></i></span><span>${fmt(mv,mm)}</span></div>
+      <div class="bar2"><span>Resolved</span><span class="track"><i style="width:${rv/mx*100}%;background:var(--res)"></i></span><span>${fmt(rv,mm)}</span></div>
+      ${hidOn().length?`<div class="note" style="margin-top:6px">These three bars compare plastic scrap only. Hidden plastic adds ${fT(d3.sum(rs.filter(r=>r.ex===c),r=>r.hid||0))} to exports in this view.</div>`:""}
+      ${self.t>0&&self.est/self.t>0.005?`<div class="note" style="margin-top:6px">${d3.format(".0%")(self.est/self.t)} of ${esc(me[0])}'s reported export weight is estimated.</div>`:""}</div></div>
+    <div><h4>Where it goes${byReg?" (by region)":""}</h4><div class="bars">${outP.length?bars(outP.slice(0,10),byReg?k=>rcol(k):css("--out"),byReg&&m==="ppt"?"t":m,byReg?k=>k:name):'<div class="note">No exports recorded in this view.</div>'}</div></div>
+    <div><h4>Where it comes from${byReg?" (by region)":""}</h4><div class="bars">${inP.length?bars(inP.slice(0,10),byReg?k=>rcol(k):css("--in"),byReg&&m==="ppt"?"t":m,byReg?k=>k:name):'<div class="note">No imports recorded in this view.</div>'}</div>
+    <div class="actions" style="margin-top:12px"><button class="btn ghost sm" id="sidechart">Chart ${esc(me[0])}'s flows</button><button class="btn ghost sm" id="sidedl">Get ${esc(me[0])}'s data</button></div></div>`;
+    $("#sidedl").onclick=()=>{$("#dlc-sel").checked=true;buildDL();$("#getdata").scrollIntoView()};
+    $("#sidechart").onclick=()=>{B.focus=true;$("#bfocus").checked=true;setType("sankey");$("#build").scrollIntoView()};
+  }
+  el.querySelectorAll(".row[data-c]").forEach(r=>r.onclick=()=>{if(C[r.dataset.c])select(r.dataset.c)});
+}
+
+// ---------- CHART BUILDER ----------
+const chart=d3.select("#chart");let chartRows=[],chartCols=[];
+function bRoutes(){let rs=R.filter(r=>r.v===B.view&&pass(r));if(B.focus&&S.sel)rs=rs.filter(r=>r.ex===S.sel||r.rc===S.sel);if(B.nointra)rs=rs.filter(r=>{const a=regOf(r.ex,B.scheme),b=regOf(r.rc,B.scheme);return !(a&&a===b)});return rs}
+function key(r,side,grp){if(grp==="s")return "s:"+r.s;const c=r[side];return grp==="g"?"g:"+inc(c):grp==="r"?"r:"+(regOf(c,B.scheme)||"Unallocated"):c}
+const klabel=k=>k==="other"?"Everyone else":k==="s:scrap"?"Plastic scrap":k.startsWith("s:")?HS[k.slice(2)].n:k.startsWith("g:")?INC[k.slice(2)]:k.startsWith("r:")?k.slice(2):name(k);
+const kcolor=(k,fallback)=>k.startsWith("s:")?HSCOL[k.slice(2)]:k.startsWith("g:")?gcol(k.slice(2)):k.startsWith("r:")?rcol(k.slice(2),B.scheme):k==="other"?css("--g-ns"):fallback;
+function setType(t){B.type=t;document.querySelectorAll("#btype button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.t===t));
+  document.querySelectorAll(".bopts .ctl[data-for]").forEach(d=>d.hidden=!d.dataset.for.split(" ").includes(t));
+  document.querySelectorAll(".bopts [data-only]").forEach(b=>{const ok=b.dataset.only===t;b.disabled=!ok;if(!ok&&b.getAttribute("aria-pressed")==="true"){b.parentNode.querySelector("button").click()}});
+  drawChart()}
+function legendFor(kind){if(kind==="s")return ["scrap",...hidOn()].filter(k=>k!=="scrap"||S.scrap).map(k=>`<span><span class="dot" style="background:${HSCOL[k]}"></span>${esc(klabel("s:"+k))}</span>`).join("");if(kind==="g")return GORDER.map(g=>`<span><span class="dot" style="background:var(--g-${g.toLowerCase()})"></span>${INC[g]}</span>`).join("");
+  if(kind==="r")return regionNames(B.scheme).map(r=>`<span><span class="dot" style="background:${rcol(r,B.scheme)}"></span>${esc(r)}</span>`).join("");return ""}
+function drawChart(){
+  chart.selectAll("*").remove();$("#cleg").innerHTML="";
+  $("#bfocusname").textContent=S.sel?name(S.sel):"the selected country (pick one on the map)";
+  $("#bfocus").disabled=!S.sel;
+  const m=B.measure,who=VIEWS[B.view],scope=(B.focus&&S.sel?` involving ${name(S.sel)}`:"")+(S.region?` · ${S.region}`:"");
+  if(B.type==="sankey")sankey(m,who,scope);else if(B.type==="bars")barChart(m,who,scope);else if(B.type==="treemap")treemap(m,who,scope);else scatter(m);
+}
+const FS=()=>D.font;
+function sankey(m,who,scope){
+  if(m==="ppt")m="t";
+  let rs=bRoutes();const N=B.top;
+  if(B.from==="s"){const x=[];for(const r of rs){const sc=r.t-(r.hid||0);if(sc>1e-6)x.push({...r,s:"scrap",t:sc,usd:r.usd-(r.hu||0)});if(r.hs)for(const [k,v] of Object.entries(r.hs))x.push({...r,s:k,t:v,usd:r.t>0?r.usd*v/r.t:0})}rs=x}
+  const L=d3.rollups(rs,v=>d3.sum(v,r=>r[m]),r=>key(r,"ex",B.from)).sort((a,b)=>b[1]-a[1]),Rt=d3.rollups(rs,v=>d3.sum(v,r=>r[m]),r=>key(r,"rc",B.to)).sort((a,b)=>b[1]-a[1]);
+  const keepL=new Set(L.slice(0,N).map(d=>d[0])),keepR=new Set(Rt.slice(0,N).map(d=>d[0]));
+  const links=new Map();
+  for(const r of rs){let a=key(r,"ex",B.from),b=key(r,"rc",B.to);if(!keepL.has(a))a="other";if(!keepR.has(b))b="other";const k="L|"+a+"→R|"+b;links.set(k,(links.get(k)||0)+r[m])}
+  const nodes=new Map(),lk=[];
+  for(const [k,v] of links){if(v<=0)continue;const [a,b]=k.split("→");for(const n of [a,b])if(!nodes.has(n))nodes.set(n,{id:n});lk.push({source:a,target:b,value:v})}
+  const perSide=Math.max(keepL.size,keepR.size)+1;
+  const H=Math.round(Math.max(380,Math.min(2400,perSide*(D.gap+FS()+6)+60))*D.h),W=960,lw=Math.min(260,60+FS()*14);
+  chart.attr("viewBox",`0 0 ${W} ${H}`);
+  if(!lk.length){emptyChart(W,H);return}
+  const sk=d3.sankey().nodeId(d=>d.id).nodeWidth(D.nodew).nodePadding(Math.max(1,Math.min(D.gap,(H-40)/perSide*.6))).nodeSort((a,b)=>(a.id.endsWith("other")?1:0)-(b.id.endsWith("other")?1:0)||b.value-a.value).extent([[lw,10],[W-lw,H-10]]);
+  const g=sk({nodes:[...nodes.values()].map(d=>({...d})),links:lk.map(d=>({...d}))});
+  const nodeKey=id=>id.slice(2),side=id=>id[0];
+  const ncol=d=>kcolor(nodeKey(d.id),side(d.id)==="L"?css("--out"):css("--in"));
+  const lc=d=>D.lcol==="grey"?css("--muted"):ncol(D.lcol==="target"?d.target:d.source);
+  chart.append("g").selectAll("path").data(g.links).join("path").attr("class","lnk").attr("d",d3.sankeyLinkHorizontal())
+    .attr("stroke",lc).attr("stroke-opacity",D.op).attr("stroke-width",d=>Math.max(1,d.width))
+    .on("mouseenter",function(){d3.select(this).attr("stroke-opacity",Math.min(1,D.op+.35))}).on("mouseleave",function(){d3.select(this).attr("stroke-opacity",D.op);hideTip()})
+    .on("mousemove",(e,d)=>showTip(e,`<b>${esc(klabel(nodeKey(d.source.id)))} → ${esc(klabel(nodeKey(d.target.id)))}</b><br>${fmt(d.value,m)}`));
+  const ng=chart.append("g").selectAll("g").data(g.nodes).join("g");
+  ng.append("rect").attr("x",d=>d.x0).attr("y",d=>d.y0).attr("width",d=>d.x1-d.x0).attr("height",d=>Math.max(1,d.y1-d.y0)).attr("fill",ncol).style("cursor","pointer")
+    .on("mousemove",(e,d)=>showTip(e,`<b>${esc(klabel(nodeKey(d.id)))}</b><br>${side(d.id)==="L"?"Sent":"Received"} ${fmt(d.value,m)}`)).on("mouseleave",hideTip)
+    .on("click",(e,d)=>{const k=nodeKey(d.id);if(C[k])select(k)});
+  const maxc=Math.floor(lw/(FS()*.62))-(D.vals?8:1);
+  ng.filter(d=>d.y1-d.y0>=FS()*.55||g.nodes.length<60).append("text").attr("x",d=>side(d.id)==="L"?d.x0-6:d.x1+6).attr("y",d=>(d.y0+d.y1)/2).attr("dy","0.35em").attr("text-anchor",d=>side(d.id)==="L"?"end":"start")
+    .attr("font-size",FS()).attr("font-family","IBM Plex Sans, system-ui, sans-serif").attr("fill","var(--ink)").text(d=>{const l=klabel(nodeKey(d.id));return (l.length>maxc?l.slice(0,maxc-1)+"…":l)+(D.vals?"  "+fmt(d.value,m):"")});
+  chartRows=g.links.map(d=>({from:klabel(nodeKey(d.source.id)),to:klabel(nodeKey(d.target.id)),[mlabel(m)]:Math.round(d.value)}));chartCols=["from","to",mlabel(m)];
+  $("#ctitle").textContent=`Where ${PW()} flows, ${mlabel(m)}, ${YEAR}${scope}`;
+  $("#cnote").textContent=`Top ${N} on each side; the rest are grouped as "Everyone else". Based on ${who}${B.nointra?`; trade within the same ${SCHEMES[B.scheme].replace(/s$/,"")} left out`:""}.${hpNote()}`;
+  $("#cleg").innerHTML=[...new Set([B.from,B.to])].map(legendFor).join("");
+}
+function barChart(m,who,scope){
+  const rs=bRoutes(),N=B.top;let items;
+  if(B.side==="rt")items=d3.rollups(rs,agg,r=>r.ex+">"+r.rc).map(([k,a])=>{const [x,y]=k.split(">");return{k,label:`${name(x)} → ${name(y)}`,a,col:css(VCOL[B.view]),link:x}});
+  else items=d3.rollups(rs,agg,r=>key(r,B.side,B.group)).map(([k,a])=>({k,label:klabel(k),a,col:kcolor(k,B.side==="ex"?css("--out"):css("--in")),link:k}));
+  items.forEach(d=>d.v=mval(d.a,m));items=items.filter(d=>d.v!=null);
+  if(m==="ppt"){items.sort((a,b)=>b.a.t-a.a.t);items=items.slice(0,N).sort((a,b)=>b.v-a.v)}else items=items.sort((a,b)=>b.v-a.v).slice(0,N);
+  const W=960,rowH=Math.round((FS()+12)*D.h),H=items.length*rowH+40,lw=Math.min(380,(B.side==="rt"?24:16)*FS()*.62+20);
+  chart.attr("viewBox",`0 0 ${W} ${H}`);if(!items.length){emptyChart(W,300);return}
+  const x=d3.scaleLinear().domain([0,d3.max(items,d=>d.v)]).nice().range([lw,W-110]);
+  chart.append("g").selectAll("line").data(x.ticks(6)).join("line").attr("x1",x).attr("x2",x).attr("y1",4).attr("y2",H-24).attr("stroke","var(--border)").attr("stroke-width",.5);
+  chart.append("g").attr("transform",`translate(0,${H-24})`).call(d3.axisBottom(x).ticks(6).tickFormat(v=>fmt(v,m).replace(/\.00 /," "))).call(g=>{g.selectAll("text").attr("fill","var(--muted)").attr("font-size",11);g.selectAll("line,path").attr("stroke","var(--border)")});
+  const row=chart.append("g").selectAll("g").data(items).join("g").attr("transform",(d,i)=>`translate(0,${8+i*rowH})`).style("cursor","pointer")
+    .on("mousemove",(e,d)=>showTip(e,`<b>${esc(d.label)}</b><br>${fT(d.a.t)} · ${fU(d.a.usd)} · ${fP(mval(d.a,"ppt"))}`)).on("mouseleave",hideTip).on("click",(e,d)=>{if(C[d.link])select(d.link)});
+  const maxc=Math.floor((lw-12)/(FS()*.58));
+  row.append("text").attr("x",lw-8).attr("y",rowH/2-2).attr("dy","0.35em").attr("text-anchor","end").attr("font-size",FS()).attr("fill","var(--ink)").text(d=>d.label.length>maxc?d.label.slice(0,maxc-1)+"…":d.label);
+  row.append("rect").attr("x",lw).attr("y",3).attr("height",Math.max(4,rowH-9)).attr("rx",2).attr("width",d=>Math.max(1,x(d.v)-lw)).attr("fill",d=>d.col);
+  if(D.vals)row.append("text").attr("x",d=>x(d.v)+6).attr("y",rowH/2-2).attr("dy","0.35em").attr("font-size",FS()-1).attr("font-family","IBM Plex Mono, monospace").attr("fill","var(--muted)").text(d=>fmt(d.v,m));
+  chartRows=items.map(d=>({name:d.label,tonnes:Math.round(d.a.t),usd:Math.round(d.a.usd),usd_per_tonne:d.a.t>=50?Math.round(d.a.usd/d.a.t):""}));chartCols=["name","tonnes","usd","usd_per_tonne"];
+  const what=B.side==="rt"?"routes":B.group==="g"?"income groups":B.group==="r"?"regions":(B.side==="ex"?"senders":"receivers");
+  $("#ctitle").textContent=m==="ppt"?`Price paid per tonne: the ${N} largest ${what}${scope}`:`Top ${N} ${what} of ${PW()} by ${mlabel(m)}, ${YEAR}${scope}`;
+  $("#cnote").textContent=`Based on ${who}.${m==="ppt"?" Price is value ÷ weight; shown for the largest by weight, minimum 50 t.":""}${B.side!=="rt"&&B.group!=="c"?` Grouped by where they ${B.side==="ex"?"send from":"receive"}.`:""}`;
+  if(B.side!=="rt")$("#cleg").innerHTML=legendFor(B.group);
+}
+function treemap(m,who,scope){
+  if(m==="ppt")m="t";
+  const rs=bRoutes();let items=d3.rollups(rs,v=>d3.sum(v,r=>r[m]),r=>key(r,B.side==="rt"?"ex":B.side,B.group)).sort((a,b)=>b[1]-a[1]);
+  const top=items.slice(0,B.top),rest=d3.sum(items.slice(B.top),d=>d[1]);if(rest>0)top.push(["other",rest]);
+  const W=960,H=Math.round(520*D.h);chart.attr("viewBox",`0 0 ${W} ${H}`);if(!top.length){emptyChart(W,H);return}
+  const total=d3.sum(top,d=>d[1]);
+  const root=d3.hierarchy({children:top.map(([k,v])=>({k,v}))}).sum(d=>d.v).sort((a,b)=>b.value-a.value);
+  d3.treemap().size([W,H]).paddingInner(2).round(true)(root);
+  const sideCol=B.side==="rc"?css("--in"):css("--out");
+  const cell=chart.append("g").selectAll("g").data(root.leaves()).join("g").attr("transform",d=>`translate(${d.x0},${d.y0})`).style("cursor","pointer")
+    .on("mousemove",(e,d)=>showTip(e,`<b>${esc(klabel(d.data.k))}</b><br>${fmt(d.value,m)} · ${d3.format(".1%")(d.value/total)}`)).on("mouseleave",hideTip).on("click",(e,d)=>{if(C[d.data.k])select(d.data.k)});
+  const shade=d3.scaleLinear().domain([0,top[0][1]]).range([.45,1]);
+  const grouped=k=>k.startsWith("g:")||k.startsWith("r:")||k==="other";
+  cell.append("rect").attr("width",d=>d.x1-d.x0).attr("height",d=>d.y1-d.y0).attr("rx",3).attr("fill",d=>kcolor(d.data.k,sideCol)).attr("fill-opacity",d=>grouped(d.data.k)?.92:shade(d.value));
+  cell.filter(d=>d.x1-d.x0>70&&d.y1-d.y0>FS()*2.6).append("text").attr("x",8).attr("y",FS()+8).attr("font-size",FS()+1).attr("font-weight",600).attr("fill","#fff").text(d=>{const l=klabel(d.data.k);const max=Math.floor((d.x1-d.x0-12)/(FS()*.62));return l.length>max?l.slice(0,max-1)+"…":l});
+  if(D.vals)cell.filter(d=>d.x1-d.x0>70&&d.y1-d.y0>FS()*4).append("text").attr("x",8).attr("y",FS()*2+12).attr("font-size",FS()).attr("fill","#fff").attr("opacity",.9).text(d=>`${fmt(d.value,m)} · ${d3.format(".0%")(d.value/total)}`);
+  chartRows=top.map(([k,v])=>({name:klabel(k),[mlabel(m)]:Math.round(v),share:+(v/total).toFixed(4)}));chartCols=["name",mlabel(m),"share"];
+  $("#ctitle").textContent=`Who ${B.side==="rc"?"receives":"sends"} ${PW()}: shares of ${mlabel(m)}, ${YEAR}${scope}`;
+  $("#cnote").textContent=`Top ${B.top}, then everyone else. Based on ${who}.`;
+  $("#cleg").innerHTML=legendFor(B.group);
+}
+function scatter(m){
+  if(m==="ppt")m="t";
+  const k=B.side==="rc"?"rc":"ex",own=k==="ex"?0:1;
+  const items=[];
+  for(const code of Object.keys(C)){const a=aggS(R.filter(r=>r.v===own&&r[k]===code&&pass(r))),b=aggS(R.filter(r=>r.v===1-own&&r[k]===code&&pass(r)));const x=a[m],y=b[m];if(x>=1&&y>=1)items.push({code,x,y,ratio:y/x})}
+  const W=960,H=Math.round(560*D.h),ml=70,mb=50;chart.attr("viewBox",`0 0 ${W} ${H}`);if(!items.length){emptyChart(W,H);return}
+  const lo=Math.max(1,d3.min(items,d=>Math.min(d.x,d.y))),hi=d3.max(items,d=>Math.max(d.x,d.y));
+  const x=d3.scaleLog().domain([lo,hi]).range([ml,W-20]).nice(),y=d3.scaleLog().domain([lo,hi]).range([H-mb,14]).nice();
+  const d0=x.domain();
+  chart.append("path").attr("d",`M${x(d0[0])},${y(d0[0]*1.5)}L${x(d0[1]/1.5)},${y(d0[1])}L${x(d0[1])},${y(d0[1])}L${x(d0[1])},${y(d0[1]/1.5)}L${x(d0[0]*1.5)},${y(d0[0])}L${x(d0[0])},${y(d0[0])}Z`).attr("fill","var(--ok)").attr("opacity",.08);
+  chart.append("line").attr("x1",x(d0[0])).attr("y1",y(d0[0])).attr("x2",x(d0[1])).attr("y2",y(d0[1])).attr("stroke","var(--muted)").attr("stroke-dasharray","4 4");
+  const ax=g=>{g.selectAll("text").attr("fill","var(--muted)").attr("font-size",11);g.selectAll("line,path").attr("stroke","var(--border)")};
+  const tf=v=>{const s=Math.log10(v);return Number.isInteger(Math.round(s*1e6)/1e6)?fmt(v,m).replace(/\.00 /," "):""};
+  chart.append("g").attr("transform",`translate(0,${H-mb})`).call(d3.axisBottom(x).ticks(8,tf)).call(ax);
+  chart.append("g").attr("transform",`translate(${ml},0)`).call(d3.axisLeft(y).ticks(8,tf)).call(ax);
+  chart.append("text").attr("x",W-20).attr("y",H-12).attr("text-anchor","end").attr("font-size",12).attr("fill","var(--muted)").text(`What the country itself reports (${k==="ex"?"exports":"imports"})`);
+  chart.append("text").attr("transform",`translate(16,14) rotate(90)`).attr("font-size",12).attr("fill","var(--muted)").text(`What its trading partners report`);
+  chart.append("text").attr("x",x(d0[1])-8).attr("y",y(d0[1])+18).attr("text-anchor","end").attr("font-size",11).attr("fill","var(--ok)").text("Green band: within ±50%");
+  chart.append("g").selectAll("circle").data(items).join("circle").attr("cx",d=>x(d.x)).attr("cy",d=>y(d.y)).attr("r",d=>d.code===S.sel?8:5)
+    .attr("fill",d=>gcol(inc(d.code))).attr("stroke",d=>d.code===S.sel?"var(--ink)":"var(--panel)").attr("stroke-width",d=>d.code===S.sel?2:1).attr("opacity",.9).style("cursor","pointer")
+    .on("mousemove",(e,d)=>showTip(e,`<b>${esc(name(d.code))}</b><br>Own report ${fmt(d.x,m)}<br>Partners report ${fmt(d.y,m)}<br>Mirror ratio ${d.ratio.toFixed(2)}`)).on("mouseleave",hideTip).on("click",(e,d)=>select(d.code));
+  const big=items.filter(d=>(d.x>hi/40||d.y>hi/40)&&(d.ratio<0.5||d.ratio>2||d.x>hi/6)||d.code===S.sel);
+  chart.append("g").selectAll("text").data(big).join("text").attr("x",d=>x(d.x)+8).attr("y",d=>y(d.y)+4).attr("font-size",FS()-1).attr("fill","var(--ink)").text(d=>iso(d.code));
+  chartRows=items.map(d=>({country:name(d.code),iso3:iso(d.code),income:inc(d.code),own_report:Math.round(d.x),partners_report:Math.round(d.y),mirror_ratio:+d.ratio.toFixed(3)}));chartCols=["country","iso3","income","own_report","partners_report","mirror_ratio"];
+  $("#ctitle").textContent=`Do the two sets of figures agree? ${k==="ex"?"Exports":"Imports"} by country, ${mlabel(m)}, ${YEAR}${S.region?" · "+S.region:""}`;
+  $("#cnote").textContent="Each dot is a country. On the dashed line both sides report the same amount. Log scales.";
+  $("#cleg").innerHTML=legendFor("g");
+}
+function emptyChart(W,H){chart.attr("viewBox",`0 0 ${W} ${H}`).append("text").attr("x",W/2).attr("y",H/2).attr("text-anchor","middle").attr("fill","var(--muted)").attr("font-size",14).text("Nothing matches these choices. Try fewer filters.");chartRows=[];$("#ctitle").textContent="No trade matches";$("#cnote").textContent=""}
+
+// ---------- RANKINGS ----------
+let rankRows=[];
+function rank(){
+  const k=S.rank==="exp",side=k?"ex":"rc",own=k?0:1,rows=[];
+  const by=d3.group(R.filter(pass),r=>r[side]);
+  for(const [code,A] of by){
+    const a=aggS(A.filter(r=>r.v===own)),b=aggS(A.filter(r=>r.v===1-own)),c=agg(A.filter(r=>r.v===2)),h=d3.sum(A.filter(r=>r.v===2),r=>r.hid||0);
+    if(!a.t&&!b.t&&!c.t)continue;
+    rows.push({code,name:name(code),iso:iso(code),inc:inc(code),region:regOf(code)||"",own:a.t,mir:b.t,ratio:a.t>0&&b.t>0?b.t/a.t:null,res:c.t,usd:c.usd,ppt:c.t>=50?c.usd/c.t:null,np:new Set(A.filter(r=>r.v===2).map(r=>k?r.rc:r.ex)).size,est:a.t>0?a.est/a.t:0,hid:h});
+  }
+  const sort=S.rankSort||{k:"res",d:-1};
+  rows.sort((x,y)=>{const a=x[sort.k],b=y[sort.k];if(a==null)return 1;if(b==null)return -1;return(a>b?1:a<b?-1:0)*sort.d});
+  rankRows=rows;
+  const cols=[["name","Country"],["inc","Income"],["region",SCHEMES[S.scheme].replace(/s$/,"")],["own",k?"Exports, own report":"Imports, own report",1],["mir","Partners' reports",1],["ratio","Mirror ratio",1],["res","Resolved",1],...(hidOn().length?[["hid","of which hidden plastic",1]]:[]),["usd","Value (resolved)",1],["ppt","US$ per tonne",1],["np",k?"Destinations":"Origins",1],["est","Estimated weight",1]];
+  $("#rank thead").innerHTML="<tr>"+cols.map(([key,l,n])=>`<th class="${n?"n":""}" data-k="${key}" ${sort.k===key?`aria-sort="${sort.d>0?"ascending":"descending"}"`:""}>${esc(l)}</th>`).join("")+"</tr>";
+  const m=d3.max(rows,r=>r.res)||1;
+  $("#rank tbody").innerHTML=rows.map(r=>`<tr data-c="${esc(r.code)}"><td>${esc(r.name)}</td><td><span class="inc" style="background:var(--g-${r.inc.toLowerCase()})">${r.inc}</span></td><td>${esc(r.region)}</td><td class="n">${r.own?fT(r.own):"—"}</td><td class="n">${r.mir?fT(r.mir):"—"}</td><td class="n"><span class="ratio ${r.ratio!=null&&(r.ratio<0.67||r.ratio>1.5)?"warn":""}">${r.ratio==null?"—":r.ratio.toFixed(2)}</span></td><td class="n res">${fT(r.res)}<span class="spark" style="width:${r.res/m*50}px;background:var(--res)"></span></td>${hidOn().length?`<td class="n">${r.hid?fT(r.hid):"—"}</td>`:""}<td class="n">${r.usd?fU(r.usd):"—"}</td><td class="n">${fP(r.ppt)}</td><td class="n">${r.np||"—"}</td><td class="n">${r.est>0.005?d3.format(".0%")(r.est):"—"}</td></tr>`).join("");
+  $("#rank thead").querySelectorAll("th").forEach(th=>th.onclick=()=>{const kk=th.dataset.k;S.rankSort={k:kk,d:(S.rankSort&&S.rankSort.k===kk)?-S.rankSort.d:(["name","inc","region"].includes(kk)?1:-1)};rank()});
+  $("#rank tbody").querySelectorAll("tr").forEach(tr=>tr.onclick=()=>{select(tr.dataset.c);$("#explore").scrollIntoView()});
+}
+
+// ---------- DATA BUILDER ----------
+const DLCOLS=[["year","Year",1],["view","Figures",1],["basis","Resolved basis",0],["exporter_iso","Exporter ISO3",1],["exporter","Exporter",1],["exporter_income","Exporter income",0],["exporter_region","Exporter region",0],["recipient_iso","Recipient ISO3",1],["recipient","Recipient",1],["recipient_income","Recipient income",0],["recipient_region","Recipient region",0],["net_weight_t","Net weight (t)",1],["value_usd","Value (US$)",1],["usd_per_tonne","US$ per tonne",0],["weight_estimated","Weight estimated",0],["plastic_scrap_t","Plastic scrap (t)",0],["hidden_plastic_t","Plastic in other materials (t)",0],["hidden_detail","Plastic in other materials, by stream",0],["code","Commodity code",0],["source","Source and version",0]];
+const DLGRP=[["Record",["year","view","basis","code","source"]],["Exporter",["exporter","exporter_iso","exporter_income","exporter_region"]],["Recipient",["recipient","recipient_iso","recipient_income","recipient_region"]],["Amounts",["net_weight_t","value_usd","usd_per_tonne","weight_estimated"]],["Plastic",["plastic_scrap_t","hidden_plastic_t","hidden_detail"]]];
+{const L=Object.fromEntries(DLCOLS.map(c=>[c[0],c])),short=(g,l)=>g==="Exporter"||g==="Recipient"?(l.replace(g,"").trim()||"Name").replace(/^./,c=>c.toUpperCase()):l;
+$("#dlcols").innerHTML=DLGRP.map(([g,ks])=>`<fieldset><legend>${g}</legend>${ks.map(k=>{const [,l,on]=L[k];return `<label><input type="checkbox" id="col-${k}" ${on?"checked":""}> ${short(g,l)}</label>`}).join("")}</fieldset>`).join("")}
+function dlRows(){
+  const views=[[0,"#dlx"],[1,"#dlm"],[2,"#dlr"]].filter(([v,id])=>$(id).checked).map(d=>d[0]),mode=document.querySelector("input[name=dlc]:checked").value;
+  return R.filter(r=>views.includes(r.v)&&(mode==="all"||(mode==="map"&&pass(r))||(mode==="sel"&&S.sel&&(r.ex===S.sel||r.rc===S.sel))))
+   .sort((a,b)=>b.t-a.t).map(r=>({year:YEAR,view:["exporter","importer","resolved"][r.v],basis:r.v===2?r.basis+(r.basis==="both reported"?` (${RMETH[S.resolve]})`:""):r.basis,exporter_iso:iso(r.ex),exporter:name(r.ex),exporter_income:inc(r.ex),exporter_region:regOf(r.ex)||"",recipient_iso:iso(r.rc),recipient:name(r.rc),recipient_income:inc(r.rc),recipient_region:regOf(r.rc)||"",net_weight_t:+r.t.toFixed(2),value_usd:Math.round(r.usd),usd_per_tonne:r.t>0?Math.round(r.usd/r.t):"",weight_estimated:!!r.est,plastic_scrap_t:+(r.t-(r.hid||0)).toFixed(2),hidden_plastic_t:+(r.hid||0).toFixed(2),hidden_detail:r.hs?Object.entries(r.hs).map(([k,v])=>k+":"+v.toFixed(1)).join(";"):"",code:(S.scrap?CODE:"")+(r.hs?(S.scrap?" + ":"")+Object.keys(r.hs).map(k=>HS[k].codes).join(" + "):""),source:VERSION+" · regions: "+SCHEMES[S.scheme]+hpNote()}));
+}
+const csvCell=v=>{v=v==null?"":String(v);return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
+const toCSV=(rows,keys)=>[keys.join(","),...rows.map(r=>keys.map(k=>csvCell(r[k])).join(","))].join("\n");
+const toJSON=(rows,keys,pretty)=>JSON.stringify(rows.map(r=>Object.fromEntries(keys.map(k=>[k,r[k]]))),null,pretty?1:0);
+const dlKeys=()=>DLCOLS.map(c=>c[0]).filter(k=>$("#col-"+k).checked);
+function buildDL(){
+  $("#dlselname").textContent=S.sel?`(${name(S.sel)})`:"(click a country first)";
+  const rows=dlRows(),keys=dlKeys();$("#dlcount").textContent=`${d3.format(",")(rows.length)} rows`;
+  if($("#dlpre"))$("#dlpre").textContent=rows.length?(S.fmt==="json"?toJSON(rows.slice(0,6),keys,1):toCSV(rows.slice(0,8),keys))+(rows.length>8?"\n…":""):"No rows match. Tick at least one set of figures, or select a country on the map.";
+}
+document.querySelectorAll("#getdata input").forEach(i=>i.addEventListener("change",buildDL));
+
+// ---------- SAVING ----------
+let dlCap=null;
+async function saveFile(filename,data){
+  const type=filename.endsWith(".json")?"application/json":filename.endsWith(".csv")?"text/csv":filename.endsWith(".svg")?"image/svg+xml":filename.endsWith(".png")?"image/png":"application/octet-stream";
+  const blob=data instanceof Blob?data:new Blob([data],{type:type+(typeof data==="string"?";charset=utf-8":"")});
+  const url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),4000);toast(`Saved ${filename}`);
+}
+const slug=s=>s.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,60);
+function standaloneSVG(svgEl,title,note){
+  const vb=svgEl.viewBox.baseVal,W=vb.width,H=vb.height,top=54,bot=34;
+  const clone=svgEl.cloneNode(true),orig=svgEl.querySelectorAll("*"),cl=clone.querySelectorAll("*");
+  const props=["fill","stroke","stroke-width","stroke-opacity","fill-opacity","opacity","font-size","font-weight","font-family","stroke-dasharray","display","paint-order","stroke-linejoin"];
+  orig.forEach((el,i)=>{const cs=getComputedStyle(el),t=cl[i];for(const p of props){let v=cs.getPropertyValue(p);if(p==="stroke-dasharray"&&el.classList.contains("flow"))v="none";if(v)t.setAttribute(p,v)}t.removeAttribute("class");t.style.cssText=""});
+  const ns="http://www.w3.org/2000/svg",out=document.createElementNS(ns,"svg");
+  out.setAttribute("xmlns",ns);out.setAttribute("viewBox",`0 0 ${W} ${H+top+bot}`);out.setAttribute("width",W);out.setAttribute("height",H+top+bot);
+  const bg=document.createElementNS(ns,"rect");bg.setAttribute("width",W);bg.setAttribute("height",H+top+bot);bg.setAttribute("fill",css("--panel"));out.appendChild(bg);
+  const tx=(s,y,size,col,w)=>{const t=document.createElementNS(ns,"text");t.setAttribute("x",16);t.setAttribute("y",y);t.setAttribute("font-size",size);t.setAttribute("fill",col);t.setAttribute("font-family","Archivo, Arial, sans-serif");if(w)t.setAttribute("font-weight",w);t.textContent=s;out.appendChild(t)};
+  tx(title,28,20,css("--ink"),700);if(note)tx(note,46,12,css("--muted"));
+  const inner=document.createElementNS(ns,"svg");inner.setAttribute("x",0);inner.setAttribute("y",top);inner.setAttribute("width",W);inner.setAttribute("height",H);inner.setAttribute("viewBox",`0 0 ${W} ${H}`);
+  while(clone.firstChild)inner.appendChild(clone.firstChild);out.appendChild(inner);
+  tx("Global Waste Trade · globalwastetrade.org · "+VERSION,H+top+22,11,css("--muted"));
+  return new XMLSerializer().serializeToString(out);
+}
+function svgToPNG(str){return new Promise((res,rej)=>{const img=new Image();img.onload=()=>{const s=2,c=document.createElement("canvas");c.width=img.width*s;c.height=img.height*s;const x=c.getContext("2d");x.scale(s,s);x.drawImage(img,0,0);c.toBlob(b=>b?res(b):rej(new Error("png")),"image/png")};img.onerror=rej;img.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(str)})}
+document.addEventListener("click",async e=>{
+  const b=e.target.closest("[data-save]");if(!b)return;
+  const what=b.dataset.save,f=b.dataset.fmt;
+  try{
+    if(what==="map"){
+      const title=$("#maptitle").textContent,base="gwt-map-"+slug(S.mapMode==="regions"?SCHEMES[S.scheme]:S.sel?name(S.sel):S.region||"world")+"-2023";
+      if(f==="csv"){const rows=S.sel&&S.fgrp==="r"&&S.mapMode!=="regions"?mapRows.map(r=>({country:name(S.sel),direction:r.dir==="in"?"imports from":"exports to",partner_region:r.reg,region_definition:SCHEMES[S.scheme],partner_countries:r.n,net_weight_t:Math.round(r.t),value_usd:Math.round(r.usd),figures:VIEWS[S.view],source:VERSION+hpNote()})):S.mapMode==="regions"?mapRows.map(r=>({from_region:r.a,to_region:r.b,net_weight_t:Math.round(r.t),value_usd:Math.round(r.usd),figures:VIEWS[S.view],source:VERSION})):mapRows.map(r=>({exporter:name(r.ex),recipient:name(r.rc),net_weight_t:r.t,value_usd:r.usd,figures:VIEWS[r.v],source:VERSION}));return saveFile(base+".csv",toCSV(rows,Object.keys(rows[0]||{exporter:1})))}
+      const s=standaloneSVG($("#map"),title,`${PW()}, ${VIEWS[S.view]}${S.view===2?" ("+RMETH[S.resolve]+")":""}${hpNote()}`);
+      return f==="svg"?saveFile(base+".svg",s):saveFile(base+".png",await svgToPNG(s));
+    }
+    if(what==="chart"){
+      const base="gwt-"+B.type+"-"+slug($("#ctitle").textContent);
+      if(f==="csv")return saveFile(base+".csv",toCSV(chartRows,chartCols)+"\n\n"+csvCell("Source: "+VERSION));
+      if(f==="json")return saveFile(base+".json",JSON.stringify({title:$("#ctitle").textContent,note:$("#cnote").textContent,source:VERSION,rows:chartRows},null,1));
+      const s=standaloneSVG($("#chart"),$("#ctitle").textContent,$("#cnote").textContent);
+      return f==="svg"?saveFile(base+".svg",s):saveFile(base+".png",await svgToPNG(s));
+    }
+    if(what==="table"){
+      const keys=["name","iso","inc","region","own","mir","ratio","res",...(hidOn().length?["hid"]:[]),"usd","ppt","np","est"];
+      const rows=rankRows.map(r=>({...r,own:Math.round(r.own),mir:Math.round(r.mir),res:Math.round(r.res),hid:Math.round(r.hid),usd:Math.round(r.usd),ppt:r.ppt==null?"":Math.round(r.ppt),ratio:r.ratio==null?"":+r.ratio.toFixed(3),est:+r.est.toFixed(3)}));
+      const base=`gwt-countries-${S.rank==="exp"?"exporters":"importers"}-${YEAR}`;
+      return f==="csv"?saveFile(base+".csv",toCSV(rows,keys)):saveFile(base+".json",toJSON(rows,keys));
+    }
+  }catch(err){toast("Couldn't build that file. Try another format.")}
+});
+$("#dlgo").onclick=()=>{const rows=dlRows();if(!rows.length){toast("No rows to save yet.");return}const keys=dlKeys();saveFile(`gwt-${hidOn().length?"plastic-incl-hidden":"plastic-waste"}-${YEAR}-${rows.length}-rows.${S.fmt}`,S.fmt==="json"?toJSON(rows,keys):toCSV(rows,keys))};
+$("#dlcopy").onclick=async()=>{const rows=dlRows(),keys=dlKeys(),txt=S.fmt==="json"?toJSON(rows,keys):toCSV(rows,keys);try{await navigator.clipboard.writeText(txt);toast(`Copied ${d3.format(",")(rows.length)} rows.`)}catch(e){toast("Copying was blocked by the browser.")}};
+
+// ---------- CONTROLS ----------
+function segment(sel,attr,fn){const btns=[...document.querySelectorAll(sel+" button")];btns.forEach(b=>b.addEventListener("click",()=>{if(b.disabled||b.dataset[attr]===undefined)return;btns.forEach(x=>x.setAttribute("aria-pressed",x===b?"true":"false"));fn(b.dataset[attr])}))}
+segment("#view","v",v=>{S.view=+v;$("#resmethodbox").hidden=S.view!==2;B.view=S.view;pressed("#bview","v",B.view);render()});
+$("#resmethod").onchange=e=>{S.resolve=e.target.value;resolve();render()};
+segment("#measure","m",v=>{S.measure=v;render()});
+segment("#incf","f",v=>{S.incf=v;render()});
+segment("#mapmode","v",v=>{S.mapMode=v;S.sel=null;partnerVals=new Map();$("#hlbox").hidden=v==="regions";render()});
+segment("#hl","v",v=>{S.hl=v;render()});
+const fitFocus=()=>{if(S.sel&&S.fgrp==="r"&&mapRows.length)zoomToPts(mapRows.map(f=>f.a).concat([pos[S.sel]]),4)};
+segment("#globe","v",v=>{D.globe=v;applyDesign();setProj();placeCountries();anchorCache={};sphereP.attr("d",path({type:"Sphere"}));gratP.attr("d",path(d3.geoGraticule10()));
+  countries.attr("d",path).attr("display",f=>D.globe!=="full"&&f.id==="010"?"none":null);svg.call(zoom.transform,d3.zoomIdentity);render()});
+segment("#lval","v",v=>{if(v==="none"){D.lab="none"}else{D.lval=v;if(D.lab==="none")D.lab="both"}applyDesign();drawMap()});
+segment("#fdir","v",v=>{S.fdir=v;render()});
+segment("#fgrp","v",v=>{S.fgrp=v;render();fitFocus()});
+// ---------- hidden plastics ----------
+const SCRAPT=d3.sum(BASE.filter(r=>r.v===0),r=>r.t);
+function hpUI(){
+  const num=(attr,k,v,lab)=>`<input type="number" min="0" max="100" step="0.25" value="${v}" ${attr}="${k}" aria-label="${lab}">`;
+  $("#hpgrid").innerHTML=`<div class="hpc ${S.scrap?"on":""}" data-k="scrap"><label class="t"><input type="checkbox" id="hp-scrap" ${S.scrap?"checked":""}> <span>Plastic scrap</span></label><small>${esc(CODE)} · ${fT(SCRAPT)} by exporters' reports</small><div class="f">Counted in full</div><small class="src">The main series, from UN Comtrade.</small></div>`+
+    Object.entries(HS).map(([k,h])=>{const o=HON[k],L=esc(h.n);return `<div class="hpc ${o.on?"on":""}" data-k="${k}"><label class="t"><input type="checkbox" data-k="${k}" ${o.on?"checked":""}> <span>${L}</span></label><small>${h.codes} · ${fT(HTOT[k])} traded in ${YEAR}</small>
+      <div class="f" ${o.byInc?"hidden":""}><span class="fl">Plastic share</span><input type="range" min="0" max="100" step="0.25" value="${o.f}" data-kf="${k}" list="hpd-${k}" aria-label="Plastic share of ${L}"><datalist id="hpd-${k}"><option value="${h.f}"></option></datalist>${num("data-kn",k,o.f,"Plastic share of "+L+", per cent")}%</div>
+      <div class="incg" ${o.byInc?"":"hidden"}>${["HIC","UMC","LMC","LIC"].map(g=>`<label>${g}${num("data-ki-"+g.toLowerCase(),k,o.inc[g],"Plastic share for "+INC[g]+" exporters")}</label>`).join("")}</div>
+      <label class="sm"><input type="checkbox" data-kb="${k}" ${o.byInc?"checked":""}> Plastic share varies by exporter's income group</label>
+      <div class="srcbox" id="hps-${k}"></div><div class="add" id="hpa-${k}"></div></div>`}).join("");
+  for(const k in HS)hpSrc(k,true);
+  hpRefresh();
+}
+function hpSrc(k,force){const box=$("#hps-"+k),d=isDef(k);if(!force&&box.dataset.d===String(d))return;box.dataset.d=d;const h=HS[k],o=HON[k];
+  box.innerHTML=d?`<small class="src">${esc(h.src)}</small>`:`<label class="usl"><span>Source for your value</span><input type="text" maxlength="300" class="usrc ${o.usrc.trim()?"":"need"}" data-ks="${k}" value="${esc(o.usrc)}" placeholder="Add a source" aria-label="Source for your ${esc(h.n)} plastic share"></label><small class="src def">Default ${h.f}%. ${esc(h.src)} <button type="button" class="relnk" data-kr="${k}">Use default</button></small>`}
+const addOf=k=>{let s=0;for(const [e,i,t] of data.hidden[k]||[]){const ex=String(e);if(C[ex]&&C[String(i)])s+=t*shareOf(k,ex)}return s};
+function hpRefresh(){
+  const on=hidOn(),adds={};for(const k in HS)adds[k]=addOf(k);const add=d3.sum(on,k=>adds[k]);
+  for(const k in HS){hpSrc(k);$("#hpa-"+k).textContent=(HON[k].on?"Adds ":"Would add ")+fT(adds[k])+" of plastic";$(`.hpc[data-k="${k}"]`).classList.toggle("on",HON[k].on)}
+  $(`.hpc[data-k="scrap"]`).classList.toggle("on",S.scrap);
+  $("#hpsum").innerHTML=on.length?`<b>${on.length} stream${on.length>1?"s":""} on</b>, adding ${fT(add)} of plastic${S.scrap?` to ${fT(SCRAPT)} of plastic scrap (+${d3.format(".0%")(add/SCRAPT)})`:", plastic scrap left out"}`:S.scrap?"":"Nothing selected.";
+  $("#hptot").textContent=on.length?`Total: ${fT(add+(S.scrap?SCRAPT:0))} of plastic on exporters' figures.`:"";
+  try{localStorage.setItem("gwt-assumptions",JSON.stringify({streams:HON}))}catch(e){}
+}
+let hpT=0;const hpApply=()=>{cancelAnimationFrame(hpT);hpT=requestAnimationFrame(()=>{resolve();render();hpRefresh()})};
+const turnOn=k=>{if(!HON[k].on){HON[k].on=true;const c=$(`input[data-k="${k}"]`);if(c)c.checked=true}};
+$("#hpgrid").addEventListener("change",e=>{const t=e.target;
+  if(t.id==="hp-scrap"){S.scrap=t.checked;hpApply()}
+  else if(t.dataset.k){HON[t.dataset.k].on=t.checked;hpApply()}
+  else if(t.dataset.kb){const k=t.dataset.kb;HON[k].byInc=t.checked;if(t.checked)for(const g in HON[k].inc)HON[k].inc[g]=HON[k].f;turnOn(k);hpUI();hpApply()}});
+$("#hpgrid").addEventListener("input",e=>{const t=e.target,ds=t.dataset;if(ds.ks){HON[ds.ks].usrc=t.value.slice(0,300);t.classList.toggle("need",!t.value.trim());hpRefresh();return}const v=Math.max(0,Math.min(100,+t.value||0));let k=null;
+  if(ds.kf||ds.kn){k=ds.kf||ds.kn;HON[k].f=v;const o=ds.kf?$(`[data-kn="${k}"]`):$(`[data-kf="${k}"]`);o.value=v}
+  else for(const g of ["HIC","UMC","LMC","LIC"]){const kk=t.getAttribute("data-ki-"+g.toLowerCase());if(kk){k=kk;HON[k].inc[g]=v}}
+  if(!k)return;turnOn(k);hpApply()});
+$("#hpgrid").addEventListener("click",e=>{const b=e.target.closest("[data-kr]");if(!b)return;const k=b.dataset.kr,on=HON[k].on;HON[k]=HDEF(k);HON[k].on=on;hpUI();hpApply()});
+$("#hpshape").onclick=()=>{for(const k in HS){HON[k].on=HS[k].shape}S.scrap=true;hpUI();hpApply()};
+$("#hpoff").onclick=()=>{for(const k in HS)HON[k].on=false;S.scrap=true;hpUI();hpApply()};
+$("#hpreset").onclick=()=>{for(const k in HS){const on=HON[k].on;HON[k]=HDEF(k);HON[k].on=on}hpUI();hpApply()};
+$("#hpsave").onclick=()=>saveFile("gwt-hidden-plastic-assumptions.json",JSON.stringify({about:"Global Waste Trade hidden-plastic assumptions. f = plastic share %, source = source for the value used, inc = plastic share % by exporter income group (used when byInc is true), ",version:VERSION,streams:Object.fromEntries(Object.entries(HON).map(([k,o])=>[k,{name:HS[k].n,codes:HS[k].codes,...o,default_f:HS[k].f,source:isDef(k)?HS[k].src:o.usrc.trim()||"No source given"}]))},null,1));
+$("#hpload").onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const j=JSON.parse(await f.text());if(!j||!j.streams)throw 0;let n=0;for(const k in HS)if(j.streams[k]){HON[k]=sanitiseH(k,j.streams[k]);n++}hpUI();hpApply();toast(`Loaded assumptions for ${n} stream${n===1?"":"s"}.`)}catch(err){toast("That file isn't a set of assumptions from this site.")}e.target.value=""};
+hpUI();
+function fillRegions(){const sel=$("#region");sel.innerHTML=`<option value="">Whole world</option>`+regionNames(S.scheme).map(r=>`<option>${esc(r)}</option>`).join("");sel.value=S.region||""}
+$("#scheme").onchange=e=>{S.scheme=e.target.value;B.scheme=S.scheme;$("#bscheme").value=B.scheme;S.region=null;$("#rdirbox").hidden=true;fillRegions();render();svg.transition().duration(600).call(zoom.transform,d3.zoomIdentity)};
+$("#region").onchange=e=>setRegion(e.target.value||null);
+function setRegion(r){S.region=r;$("#region").value=r||"";$("#rdirbox").hidden=!r;S.sel=null;partnerVals=new Map();render();
+  if(r){const mem=Object.keys(C).filter(c=>regOf(c)===r&&pos[c]);const big=mem.filter(c=>!["RUS","USA","CAN","GRL","FRA","NOR"].includes(iso(c)));zoomToPts((big.length?big:mem).map(c=>pos[c]),5)}else svg.transition().duration(600).call(zoom.transform,d3.zoomIdentity)}
+segment("#rdir","d",v=>{S.rdir=v;render()});
+segment("#rankmode","r",v=>{S.rank=v;S.rankSort=null;rank()});
+segment("#dlfmt","f",v=>{S.fmt=v;buildDL()});
+segment("#bfrom","v",v=>{B.from=v;drawChart()});
+segment("#bto","v",v=>{B.to=v;drawChart()});
+segment("#bside","v",v=>{B.side=v;drawChart()});
+segment("#bgroup","v",v=>{B.group=v;drawChart()});
+segment("#bview","v",v=>{B.view=+v;drawChart()});
+segment("#bmeasure","v",v=>{B.measure=v;drawChart()});
+$("#bscheme").onchange=e=>{B.scheme=e.target.value;drawChart()};
+const setTop=v=>{v=Math.max(1,Math.min(200,Math.round(+v||1)));B.top=v;$("#btopn").value=v;$("#btopr").value=Math.min(60,v);drawChart()};
+$("#btopn").addEventListener("change",e=>setTop(e.target.value));
+$("#btopr").addEventListener("input",e=>setTop(e.target.value));
+document.querySelectorAll("#btype button").forEach(b=>b.onclick=()=>setType(b.dataset.t));
+$("#bfocus").onchange=e=>{B.focus=e.target.checked;drawChart()};
+$("#bnointra").onchange=e=>{B.nointra=e.target.checked;drawChart()};
+$("#reset").onclick=()=>select(null);
+$("#clist").innerHTML=Object.values(C).filter(c=>c[3]||c[4]!=null).sort((a,b)=>a[1].localeCompare(b[1])).map(c=>`<option value="${esc(c[1])}">`).join("");
+$("#find").addEventListener("change",e=>{const q=e.target.value.trim().toLowerCase();if(!q)return;const E=Object.entries(C);const hit=E.find(([k,c])=>c[1].toLowerCase()===q)||E.find(([k,c])=>c[0].toLowerCase()===q)||E.find(([k,c])=>(ALIAS[k]||"").toLowerCase().includes(q))||E.find(([k,c])=>c[1].toLowerCase().includes(q));
+  if(hit){if(S.mapMode==="regions"){S.mapMode="routes";pressed("#mapmode","v","routes");$("#hlbox").hidden=false}select(hit[0]);zoomToPts([pos[hit[0]]],3)}else toast(`No country matches "${e.target.value}".`)});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){if(!$("#drawer").hidden){$("#drawer").hidden=true;return}if(S.sel)select(null)}if(e.key==="Enter"&&e.target.matches(".row[data-c]"))e.target.click()});
+
+function select(c){if(!c){S.fgrp="c";pressed("#fgrp","v","c")}S.sel=c;if(!c){partnerVals=new Map();B.focus=false;$("#bfocus").checked=false}render()}
+function render(){hideTip();side();drawMap();drawChart();rank();buildDL()}
+fillRegions();setType("sankey");render();
+})();
+</script>
+</body>
+</html>

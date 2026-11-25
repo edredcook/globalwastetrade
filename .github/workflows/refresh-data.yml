@@ -1,0 +1,61 @@
+name: Refresh Comtrade data
+on:
+  workflow_dispatch:
+    inputs:
+      year:
+        description: Year to download
+        default: "2023"
+        required: true
+  schedule:
+    - cron: "0 6 1 * *" # 06:00 UTC on the 1st of each month
+permissions:
+  contents: write
+  pull-requests: write
+concurrency:
+  group: refresh-data
+  cancel-in-progress: false
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    env:
+      YEAR: ${{ github.event.inputs.year || '2023' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Download from UN Comtrade
+        env:
+          COMTRADE_API_KEY: ${{ secrets.COMTRADE_API_KEY }}
+        run: python pipeline/fetch_comtrade.py --year "$YEAR"
+      - name: Build site data and check report
+        run: python pipeline/build_site_data.py --year "$YEAR"
+      - name: Keep the check report even if the build stopped
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: comtrade-${{ env.YEAR }}
+          path: |
+            pipeline/reports/
+            pipeline/raw/
+          retention-days: 30
+      - name: Tests
+        run: python -m unittest discover -s pipeline/tests -v
+      - name: Open a pull request with the new data
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if git diff --quiet -- site/data pipeline/reports; then
+            echo "No change in the data."; exit 0
+          fi
+          BR="data/refresh-${YEAR}-$(date -u +%Y%m%d)"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BR"
+          git add site/data pipeline/reports
+          git commit -m "Refresh ${YEAR} HS 3915 data from UN Comtrade"
+          git push -u origin "$BR"
+          gh pr create --draft --base main --head "$BR" \
+            --title "Data refresh: ${YEAR} plastic waste (HS 3915)" \
+            --body-file "pipeline/reports/hs3915_${YEAR}.md" \
+            || echo "::warning::Branch $BR pushed, but the PR could not be opened. Allow Actions to create pull requests in Settings > Actions > General, or open it by hand."

@@ -1,0 +1,23 @@
+# Render Blueprint: a free static site served from ./site
+services:
+  - type: web
+    name: globalwastetrade
+    runtime: static
+    buildCommand: echo "No build step; site/ is served as is"
+    staticPublishPath: ./site
+    headers:
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: Referrer-Policy
+        value: strict-origin-when-cross-origin
+      - path: /data/*
+        name: Cache-Control
+        value: public, max-age=3600
+      - path: /vendor/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+    domains:
+      - globalwastetrade.org
+      - www.globalwastetrade.org
