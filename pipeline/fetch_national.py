@@ -36,7 +36,7 @@ RAW = HERE / "raw" / "national"
 CODES = json.loads((HERE / "reference" / "national_codes.json").read_text(encoding="utf-8"))
 # Plastic waste plus every waste stream the site shows, and tyres. HS4 or HS6 prefixes.
 WASTE_CODES = ["3915", "550510", "6309", "6310", "854931", "854939", "854991", "854999",
-               "382510", "4707", "401220", "400400"]
+               "382510", "4707", "401220", "400400", "401700"]
 HS4 = os.environ.get("NATIONAL_CODES", ",".join(WASTE_CODES)).split(",")
 # Comext is asked for HS6 subheadings; these expand the four-digit codes.
 HS6_OF = {"3915": ["391510", "391520", "391530", "391590"], "6309": ["630900"],
