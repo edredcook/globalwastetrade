@@ -30,7 +30,7 @@ const hideTip=()=>tip.hidden=true;
 $("#waste").innerHTML=WASTES.map(([k,n])=>`<option value="${k}" ${k===W0?"selected":""}>${n}</option>`).join("");
 document.querySelectorAll("#view button").forEach(b=>b.setAttribute("aria-pressed",String(+b.dataset.v===V)));
 
-async function load(k){if(!cache[k]){const r=await fetch(k==="plastic"?"data/trends.json":`data/trends_${k}.json`);if(!r.ok)throw new Error(r.status);cache[k]=await r.json()}return cache[k]}
+async function load(k){if(!cache[k]){const r=await fetch(k==="plastic"?"data/trends.json":`data/trends_${k}.json`,{cache:"no-cache"});if(!r.ok)throw new Error(r.status);cache[k]=await r.json()}return cache[k]}
 
 // Years with any trade in either view, so e-waste starts in 2022.
 function span(t){const idx=t.years.map((y,i)=>i).filter(i=>t.world["0"].t[i]>0||t.world["1"].t[i]>0);return idx.length?[idx[0],idx.at(-1)]:[0,t.years.length-1]}
@@ -146,7 +146,7 @@ function chartG(){const el=$("#cG");el.innerHTML="";const ia=Y.indexOf(YA),ib=Y.
 
 function yearPickers(){const opts=Y.map(y=>`<option value="${y}">${y}</option>`).join("");$("#ya").innerHTML=opts;$("#yb").innerHTML=opts;
   if(!Y.includes(YA))YA=Y.includes(2016)?2016:Y[0];if(!Y.includes(YB))YB=LAST;if(YA===YB)YA=Y[0];$("#ya").value=YA;$("#yb").value=YB}
-function draw(){hideTip();chartA();chartB();chartC();chartE();chartF();chartG()}
+function draw(){hideTip();for(const f of [chartA,chartB,chartC,chartE,chartF,chartG]){try{f()}catch(e){console.error(e)}}}
 async function setWaste(k){try{T=await load(k)}catch(e){$("#grid").innerHTML=`<div class="empty">The data could not load. Refresh the page to try again.</div>`;return}
   W0=k;[I0,I1]=span(T);Y=sl(T.years);N=Y.length;LAST=Y[N-1];yearPickers();draw();
   const u=new URL(location.href);if(k==="plastic")u.searchParams.delete("w");else u.searchParams.set("w",k);if(V)u.searchParams.set("v","1");else u.searchParams.delete("v");history.replaceState(null,"",u)}
