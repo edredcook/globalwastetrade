@@ -31,10 +31,10 @@ const NONC=/nes$|^Areas|^Special Categories|^Free Zones|^Bunkers/;
 const q=new URLSearchParams(location.search);
 const toks=s=>(s||"").split(",").filter(t=>/^(c|g|r):/.test(t));
 const pick=(v,ok,d)=>ok.includes(v)?v:d;
-const DEF={count:"whole",v:0,m:"t",sch:"wb",xr:false,xi:false,ts:0,tr:0,from:[],to:[],split:"rg",bmode:"t",hdir:"in",hrows:20,gdir:"out",gsort:"total",gshow:1,gmin:0,gscale:"own",cdir:"in",cgrp:"c",csort:"b",cn:12,cchart:"dumb",cscale:"lin"};
+const DEF={imp:"1",count:"whole",v:0,m:"t",sch:"wb",xr:false,xi:false,ts:0,tr:0,from:[],to:[],split:"rg",bmode:"t",hdir:"in",hrows:20,gdir:"out",gsort:"total",gshow:1,gmin:0,gscale:"own",cdir:"in",cgrp:"c",csort:"b",cn:12,cchart:"dumb",cscale:"lin"};
 const S={...DEF,
   mats:(()=>{const m=(q.get("w")||"plastic").split(",").filter(k=>MATL[k]);return m.includes("all")?["all"]:m.length?m:["plastic"]})(),
-  count:q.get("count")==="plastic"?"plastic":"whole",
+  count:q.get("count")==="plastic"?"plastic":"whole", imp:q.get("imp")==="0"?"0":"1",
   v:q.get("v")==="1"?1:0, m:pick(q.get("m"),["t","usd"],"t"), sch:pick(q.get("sch"),Object.keys(SCHEMES),"wb"),
   xr:q.get("xr")==="1", xi:q.get("xi")==="1",
   ts:Math.max(0,TOPS.indexOf(+q.get("ts"))), tr:Math.max(0,TOPS.indexOf(+q.get("tr"))),
@@ -59,12 +59,13 @@ const sent=()=>S.v?"received":"sent";
 
 // ---------- data ----------
 // Each material file has its own country list; all are mapped onto one shared index.
-const D={codes:[],idx:new Map(),names:[],inc:[],regions:{},years:null,mats:{},nc:0,span:[0,0]};
+const D={codes:[],idx:new Map(),names:[],inc:[],regions:{},years:null,mats:{},nc:0,span:[0,0],modelled:[]};
 async function load(k){if(D.mats[k])return;const r=await fetch(k==="plastic"?"data/flows.json":`data/flows_${k}.json`,{cache:"no-cache"});if(!r.ok)throw new Error(r.status);const d=await r.json();
-  if(!D.years)D.years=d.years;
+  if(!D.years){D.years=d.years;D.modelled=d.modelled||[]}
   const map=d.codes.map((c,j)=>{let g=D.idx.get(c);if(g==null){g=D.codes.length;D.codes.push(c);D.idx.set(c,g);D.names.push(d.names[j]);D.inc.push(d.inc[j]);for(const sch in d.regions)(D.regions[sch]||(D.regions[sch]=[]))[g]=d.regions[sch][j]}return g});
-  const F=[0,1].map(v=>d.flows[String(v)].map(a=>{const o=Float64Array.from(a);for(let p=0;p<o.length;p+=4){o[p]=map[o[p]];o[p+1]=map[o[p+1]]}return o}));
-  D.mats[k]={F};
+  const remap=fl=>[0,1].map(v=>fl[String(v)].map(a=>{const o=Float64Array.from(a);for(let p=0;p<o.length;p+=4){o[p]=map[o[p]];o[p+1]=map[o[p+1]]}return o}));
+  const F=remap(d.flows),FI=d.imputed?remap(d.imputed):[0,1].map(()=>d.years.map(()=>new Float64Array(0)));
+  D.mats[k]={F,FI};
   D.nc=D.codes.length;D.nm=D.names.map(n=>n[1]);D.real=D.nm.map(n=>!NONC.test(n));D.incY=D.years.map((y,i)=>D.inc.map(s=>s[i]));
   const o=D.regions.oecd||[];D.regions.oecd2=D.codes.map((c,j)=>o[j]?(o[j].startsWith("OECD")?"OECD members":"Non-OECD"):"")}
 // Selected materials as [key, weight]: "all" = every stream at its plastic share.
@@ -87,21 +88,21 @@ function mask(tokens,i){if(!tokens.length)return null;const m=new Uint8Array(D.n
 
 // One pass over the routes of view v with every filter applied.
 function agg(v,lim){const NY=D.years.length,nc=D.nc,R=D.regions[S.sch],usd=S.m==="usd",sk=S.split;
-  const tot=new Float64Array(NY),out=new Float64Array(nc*NY),inn=new Float64Array(nc*NY),hl=new Float64Array(NY),hAll=new Float64Array(NY),split=new Map();
+  const tot=new Float64Array(NY),ti=new Float64Array(NY),out=new Float64Array(nc*NY),inn=new Float64Array(nc*NY),hl=new Float64Array(NY),hAll=new Float64Array(NY),split=new Map();
   const ml=matList();
   for(let i=I0;i<=I1;i++){const fm=mask(S.from,i),tm=mask(S.to,i),inc=D.incY[i];
-   for(const [mk,w] of ml){const a=D.mats[mk].F[v][i];
+   for(const [mk,w] of ml)for(const im of S.imp==="1"?[0,1]:[0]){const a=D.mats[mk][im?"FI":"F"][v][i];
     for(let p=0;p<a.length;p+=4){const e=a[p],r=a[p+1];
       if(fm&&!fm[e]||tm&&!tm[r])continue;
       if(lim&&(lim.ex&&!lim.ex[e]||lim.rc&&!lim.rc[r]))continue;
       if(S.xr&&R[e]&&R[e]===R[r])continue;
       if(S.xi&&inc[e]===inc[r])continue;
       const val=(usd?a[p+3]*1000:a[p+2])*w;if(!val)continue;
-      tot[i]+=val;out[e*NY+i]+=val;inn[r*NY+i]+=val;
+      tot[i]+=val;if(im)ti[i]+=val;out[e*NY+i]+=val;inn[r*NY+i]+=val;
       if(inc[e]==="H"){hAll[i]+=val;if(inc[r]==="U"||inc[r]==="M"||inc[r]==="L")hl[i]+=val}
       const key=sk==="mt"?mk:sk==="rg"?inc[r]:sk==="sg"?inc[e]:sk==="rr"?(R[r]||"Other"):(R[e]||"Other");
       let s=split.get(key);if(!s){s=new Float64Array(NY);split.set(key,s)}s[i]+=val}}}
-  return {tot,out,inn,hl,hAll,split}}
+  return {tot,ti,out,inn,hl,hAll,split}}
 const series=(arr,j)=>{const NY=D.years.length;return Array.from(arr.slice(j*NY+I0,j*NY+I1+1))};
 function limits(){if(!S.ts&&!S.tr)return null;const base=agg(S.v,null),NY=D.years.length;
   const top=(arr,n)=>{const s=[];for(let j=0;j<D.nc;j++){if(!D.real[j])continue;let t=0;for(let i=I0;i<=I1;i++)t+=arr[j*NY+i];if(t>0)s.push([j,t])}
@@ -121,12 +122,18 @@ function axes(f,y,fmt){const {svg,W,H,m,x}=f;
   svg.append("g").attr("class","ax").attr("transform",`translate(0,${H-m.b})`).call(d3.axisBottom(x).tickValues(xticks(W)).tickFormat(d3.format("d")).tickSizeOuter(0));
   svg.append("g").attr("class","ax").attr("transform",`translate(${m.l},0)`).call(d3.axisLeft(y).ticks(5).tickFormat(fmt).tickSize(0).tickPadding(6)).select(".domain").remove()}
 function marks(f){const {svg,H,m,x}=f;const g=svg.append("g").attr("class","note");
+  const md=D.modelled.filter(y=>y>=Y[0]&&y<=LAST);
+  if(md.length){const a=x(Math.max(Y[0],md[0]-.5)),b=x(LAST);ensureHatch(svg);
+    g.append("rect").attr("x",a).attr("y",m.t).attr("width",Math.max(0,b-a)).attr("height",H-m.t-m.b).attr("fill","url(#mhatch)").attr("stroke","none");
+    g.append("text").attr("x",(a+b)/2).attr("y",H-m.b-6).attr("text-anchor","middle").text("Modelled")}
   events().forEach(([yr,l],k)=>{if(yr<Y[0]||yr>LAST)return;g.append("line").attr("x1",x(yr)).attr("x2",x(yr)).attr("y1",m.t).attr("y2",H-m.b);
     g.append("text").attr("x",x(yr)+(k?4:-4)).attr("text-anchor",k?"start":"end").attr("y",m.t-6).text(f.W<600?l.split(" ")[0]:l)})}
 function hover(f,fn){const {svg,W,H,m,x}=f;const guide=svg.append("line").attr("stroke",css("--muted")).attr("y1",m.t).attr("y2",H-m.b).attr("opacity",0);
   svg.append("rect").attr("x",m.l).attr("y",m.t).attr("width",Math.max(0,W-m.l-m.r)).attr("height",H-m.t-m.b).attr("fill","transparent")
    .on("mousemove",e=>{const [px]=d3.pointer(e);const yr=Math.round(x.invert(px)),i=Y.indexOf(yr);if(i<0)return;guide.attr("x1",x(yr)).attr("x2",x(yr)).attr("opacity",.6);showTip(e,fn(i))})
    .on("mouseleave",()=>{guide.attr("opacity",0);hideTip()})}
+function ensureHatch(svg){if(svg.select("#mhatch").size())return;
+  svg.append("defs").html(`<pattern id="mhatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" style="stroke:var(--muted)" stroke-width=".8" opacity=".35"/></pattern>`)}
 const empty=(el,lg)=>{el.innerHTML=`<div class="empty">No trade for this selection.</div>`;if(lg)lg.innerHTML=""};
 
 // ---------- overview ----------
@@ -135,6 +142,8 @@ function chartA(){const el=$("#cA");const w0=sl(A[0].tot),w1=sl(A[1].tot);
   const f=frame(el,300,{l:62,r:120,t:30,b:28});const {svg,x}=f;
   const y=d3.scaleLinear().domain([0,(d3.max([...w0,...w1])||1)*1.08]).nice().range([300-28,30]);
   axes(f,y,fAx);marks(f);
+  if(S.imp==="1"){const s=S.v?w1:w0,ti=sl(A[S.v].ti);ensureHatch(svg);
+    svg.append("path").attr("fill","url(#mhatch)").attr("stroke","none").attr("d",d3.area().x((d,i)=>x(Y[i])).y0((d,i)=>y(s[i]-ti[i])).y1(d=>y(d)).curve(d3.curveMonotoneX)(s))}
   [[0,w0,"--out"],[1,w1,"--in"]].forEach(([v,s,c])=>{
     svg.append("path").attr("fill","none").attr("stroke",css(c)).attr("stroke-width",v===S.v?3:1.6).attr("opacity",v===S.v?1:.6).attr("stroke-dasharray",v===1?"5 4":null)
       .attr("d",d3.line().x((d,i)=>x(Y[i])).y(d=>y(d)).curve(d3.curveMonotoneX)(s));
@@ -142,7 +151,8 @@ function chartA(){const el=$("#cA");const w0=sl(A[0].tot),w1=sl(A[1].tot);
     svg.append("text").attr("class","lbl").attr("x",x(LAST)+8).attr("y",y(s[N-1])+(s[N-1]>=(v?w0:w1)[N-1]?-4:12)).attr("fill",css(c)).text(v===0?"Exporters' reports":"Importers' reports")});
   const s=S.v?w1:w0,pk=d3.maxIndex(s);
   if(N>2&&s[pk])svg.append("text").attr("class","lbl").attr("x",Math.min(x(Y[pk]),f.W-200)).attr("y",y(s[pk])-10).attr("text-anchor","middle").attr("fill",css("--ink")).text("Peak "+fV(s[pk])+", "+Y[pk]);
-  hover(f,i=>`<b>${Y[i]}</b><br>Exporters' reports ${fV(w0[i])}<br>Importers' reports ${fV(w1[i])}`)}
+  const t0=sl(A[0].ti),t1=sl(A[1].ti),im=i=>S.imp==="1"?[t0,t1][S.v][i]:0;
+  hover(f,i=>`<b>${Y[i]}${D.modelled.includes(Y[i])?" (modelled)":""}</b><br>Exporters' reports ${fV(w0[i])}<br>Importers' reports ${fV(w1[i])}${im(i)?`<br>of which imputed ${fV(im(i))}`:""}`)}
 
 const BTITLE={rg:"Where it goes",sg:"Where it comes from",rr:"Where it goes",sr:"Where it comes from",mt:"By material"};
 function chartB(){const el=$("#cB");$("#hB").textContent=BTITLE[S.split];const sp=cur().split,inc=S.split[1]==="g",mt=S.split==="mt";
@@ -361,7 +371,7 @@ function syncUI(){$$(".seg[data-k]").forEach(s=>s.querySelectorAll("button").for
   $$(".tabs button").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.tab===S.tab)));
   ["overview","glance","compare"].forEach(t=>$("#p-"+t).hidden=t!==S.tab)}
 function syncURL(){const u=new URL(location.href),p=u.searchParams;const set=(k,v,d)=>{if(v===d||v===""||v==null)p.delete(k);else p.set(k,v)};
-  set("w",S.mats.join(","),"plastic");set("count",S.count,"whole");set("v",S.v?"1":"","");set("m",S.m,"t");set("sch",S.sch,"wb");set("xr",S.xr?"1":"","");set("xi",S.xi?"1":"","");
+  set("imp",S.imp,"1");set("w",S.mats.join(","),"plastic");set("count",S.count,"whole");set("v",S.v?"1":"","");set("m",S.m,"t");set("sch",S.sch,"wb");set("xr",S.xr?"1":"","");set("xi",S.xi?"1":"","");
   set("ts",S.ts?TOPS[S.ts]:"","");set("tr",S.tr?TOPS[S.tr]:"","");set("from",S.from.join(","),"");set("to",S.to.join(","),"");
   set("y0",I0!==D.span[0]?Y[0]:"","");set("y1",I1!==D.span[1]?LAST:"","");set("tab",S.tab,"overview");
   set("split",S.split,"rg");set("cgrp",S.cgrp,"c");set("cdir",S.cdir,"in");set("gdir",S.gdir,"out");
@@ -377,13 +387,13 @@ async function setMats(){matUI();const need=S.mats.includes("all")?STREAMS:S.mat
 
 // ---------- wiring ----------
 $$(".seg[data-k]").forEach(s=>s.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;const k=s.dataset.k,v=b.dataset.v;S[k]=k==="v"?+v:v;
-  if(k==="count"){setSpan();update()}else if(["v","m"].includes(k))update();else{syncUI();drawTab();syncURL()}}));
+  if(k==="count"){setSpan();update()}else if(["v","m","imp"].includes(k))update();else{syncUI();drawTab();syncURL()}}));
 $("#xr").onclick=()=>{S.xr=!S.xr;update()};$("#xi").onclick=()=>{S.xi=!S.xi;update()};
 $("#sch").onchange=e=>{S.sch=e.target.value;options();update()};
 $("#ts").oninput=e=>{S.ts=+e.target.value;update()};$("#tr").oninput=e=>{S.tr=+e.target.value;update()};
 const yr=()=>{let a=+$("#y0").value,b=+$("#y1").value;if(a>b)[a,b]=[b,a];S.y0=a;S.y1=b;update()};
 $("#y0").oninput=yr;$("#y1").oninput=yr;
-$("#reset").onclick=()=>{Object.assign(S,{...DEF,from:[],to:[],mats:S.mats,count:S.count,tab:S.tab,y0:0,y1:0,ya:0,yb:0,gq:""});update()};
+$("#reset").onclick=()=>{Object.assign(S,{...DEF,from:[],to:[],mats:S.mats,count:S.count,imp:S.imp,tab:S.tab,y0:0,y1:0,ya:0,yb:0,gq:""});update()};
 $$(".tabs button").forEach(b=>b.onclick=()=>{S.tab=b.dataset.tab;syncUI();drawTab();syncURL()});
 $("#split").onchange=e=>{S.split=e.target.value;compute();chartB();syncURL()};
 $("#hrows").oninput=e=>{S.hrows=+e.target.value;chartE()};

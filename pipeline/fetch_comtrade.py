@@ -6,6 +6,7 @@ Needs a subscription key in the COMTRADE_API_KEY environment variable
 or --key-from-proxy where a network proxy adds the Ocp-Apim-Subscription-Key header.
 
     python pipeline/fetch_comtrade.py --year 2023
+    python pipeline/fetch_comtrade.py --year 2026 --monthly   # every month published so far
 """
 import argparse
 import datetime as dt
@@ -19,6 +20,7 @@ import urllib.request
 from pathlib import Path
 
 API = "https://comtradeapi.un.org/data/v1/get/C/A/HS"
+API_M = "https://comtradeapi.un.org/data/v1/get/C/M/HS"
 REPORTERS = "https://comtradeapi.un.org/files/v1/app/reference/Reporters.json"
 MAX_RECORDS = 100_000
 BATCH = 15  # reporters per call when one call would hit the record cap
@@ -27,7 +29,7 @@ KEEP = [
     "partnerCode", "partnerISO", "partnerDesc", "partner2Code",
     "customsCode", "mosCode", "motCode", "cmdCode",
     "netWgt", "isNetWgtEstimated", "qty", "qtyUnitAbbr",
-    "primaryValue", "isReported", "isAggregate",
+    "primaryValue", "isReported", "isAggregate", "period",
 ]
 RAW = Path(__file__).resolve().parent / "raw"
 
@@ -53,7 +55,7 @@ def get_json(url, key=None, tries=5):
             raise
 
 
-def call(key, year, cmd, flow, reporters=None):
+def call(key, year, cmd, flow, reporters=None, api=API):
     params = {
         "period": str(year), "cmdCode": cmd, "flowCode": flow,
         "breakdownMode": "plus", "includeDesc": "true",
@@ -61,7 +63,7 @@ def call(key, year, cmd, flow, reporters=None):
     }
     if reporters:
         params["reporterCode"] = ",".join(str(r) for r in reporters)
-    res = get_json(API + "?" + urllib.parse.urlencode(params), key)
+    res = get_json(api + "?" + urllib.parse.urlencode(params), key)
     if res.get("error"):
         raise SystemExit(f"Comtrade error: {res['error']}")
     time.sleep(1.5)  # stay well inside the free tier's rate limit
@@ -74,16 +76,16 @@ def reporter_codes():
     return sorted({int(r["id"]) for r in rows if not r.get("isGroup") and int(r["id"]) > 0})
 
 
-def fetch(key, year, cmd):
+def fetch(key, year, cmd, api=API):
     out = []
     for flow in ("X", "M"):
-        rows = call(key, year, cmd, flow)
+        rows = call(key, year, cmd, flow, api=api)
         if len(rows) >= MAX_RECORDS:
             print(f"{flow}: hit the {MAX_RECORDS:,} record cap, fetching by reporter", file=sys.stderr)
             rows = []
             codes = reporter_codes()
             for i in range(0, len(codes), BATCH):
-                part = call(key, year, cmd, flow, codes[i:i + BATCH])
+                part = call(key, year, cmd, flow, codes[i:i + BATCH], api=api)
                 if len(part) >= MAX_RECORDS:
                     raise SystemExit("A reporter batch still hit the record cap; lower BATCH.")
                 rows += part
@@ -97,19 +99,32 @@ def main():
     ap.add_argument("--year", type=int, required=True)
     ap.add_argument("--cmd", default="3915", help="HS code, or several separated by commas (default 3915, plastic waste)")
     ap.add_argument("--name", help="file name part instead of hs<cmd>, e.g. mixed")
+    ap.add_argument("--monthly", action="store_true",
+                    help="fetch each month of the year (one period per call) into ..._<year>_monthly.json")
     ap.add_argument("--key-from-proxy", action="store_true",
                     help="send no key; a network proxy adds the subscription header")
     a = ap.parse_args()
     key = os.environ.get("COMTRADE_API_KEY", "").strip()
     if not key and not a.key_from_proxy:
         raise SystemExit("Set COMTRADE_API_KEY first, or pass --key-from-proxy.")
-    rows = fetch(key, a.year, a.cmd)
+    if a.monthly:
+        rows, months = [], []
+        for m in range(1, 13):
+            print(f"{a.year}-{m:02d}", file=sys.stderr)
+            part = fetch(key, f"{a.year}{m:02d}", a.cmd, API_M)
+            if part:
+                months.append(m)
+                rows += part
+    else:
+        rows = fetch(key, a.year, a.cmd)
     if not rows:
         raise SystemExit("Comtrade returned no records.")
     RAW.mkdir(exist_ok=True)
-    path = RAW / f"comtrade_{a.name or 'hs' + a.cmd}_{a.year}.json"
+    path = RAW / f"comtrade_{a.name or 'hs' + a.cmd}_{a.year}{'_monthly' if a.monthly else ''}.json"
     meta = {"downloaded": dt.date.today().isoformat(), "year": a.year, "cmd": a.cmd,
-            "endpoint": API, "breakdownMode": "plus", "records": len(rows)}
+            "endpoint": API_M if a.monthly else API, "breakdownMode": "plus", "records": len(rows)}
+    if a.monthly:
+        meta["months"] = months
     with open(path, "w", encoding="utf-8") as f:
         json.dump({"meta": meta, "data": rows}, f, separators=(",", ":"))
     print(f"Wrote {path} ({len(rows):,} records)")

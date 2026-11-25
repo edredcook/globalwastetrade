@@ -41,6 +41,19 @@ jobs:
             fi
             python pipeline/build_site_data.py --year "$y" || echo "$y: build stopped, see the report" >> failed.txt
           done
+          # Last year and the current year: annual returns where filed, the rest modelled
+          # from the months published so far (each needs the year before's months too).
+          Y=$(date -u +%Y)
+          for y in $((Y-2)) $((Y-1)) $Y; do
+            python pipeline/fetch_comtrade.py --year "$y" --monthly || echo "$y: no monthly download" >> failed.txt
+          done
+          for y in $((Y-1)) $Y; do
+            if python pipeline/model_part_year.py --year "$y"; then
+              python pipeline/build_site_data.py --year "$y" || echo "$y (modelled): build stopped, see the report" >> failed.txt
+            else
+              echo "$y (modelled): not modelled" >> failed.txt
+            fi
+          done
           python pipeline/build_trends.py
       - name: Keep the check report even if the build stopped
         if: always()

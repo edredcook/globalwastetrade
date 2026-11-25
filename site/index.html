@@ -317,6 +317,8 @@ footer b{color:var(--ink);font-weight:600}
         <button data-v="1" aria-pressed="false"><span class="dot" style="background:var(--in)"></span>Importers'</button>
         <button data-v="2" aria-pressed="false"><span class="dot" style="background:var(--res)"></span>Resolved</button>
       </div></div>
+    <div class="ctl" id="impbox"><span>Gaps</span>
+      <div class="seg" id="imp"><button data-i="1" aria-pressed="true">Imputed</button><button data-i="0" aria-pressed="false">As reported</button></div></div>
     <div class="ctl" id="resmethodbox" hidden><span>Resolve by</span>
       <select id="resmethod" aria-label="How to resolve the two sets of figures">
         <option value="mean">Average where both report</option>
@@ -433,7 +435,7 @@ footer b{color:var(--ink);font-weight:600}
         <div class="ctl"><span>Columns</span><div class="dlcols" id="dlcols"></div></div>
       </div>
       <div class="prev">
-        <div class="actions"><button class="btn" id="dlgo">Download</button><button class="btn ghost" id="dlcopy">Copy to clipboard</button><a class="btn ghost" href="data/completeness.csv" download="gwt-who-reported-hs3915-2008-2024.csv" style="text-decoration:none">Who reported, all years (CSV)</a><span class="count" id="dlcount"></span></div>
+        <div class="actions"><button class="btn" id="dlgo">Download</button><button class="btn ghost" id="dlcopy">Copy to clipboard</button><a class="btn ghost" href="data/completeness.csv" download="gwt-who-reported-hs3915.csv" style="text-decoration:none">Who reported, all years (CSV)</a><span class="count" id="dlcount"></span></div>
       </div>
     </div>
   </section>
@@ -520,23 +522,27 @@ try{const sv=JSON.parse(localStorage.getItem("gwt-assumptions")||"null");if(sv&&
 function sanitiseH(k,o){const c=v=>Math.max(0,Math.min(100,+v));const d=HDEF(k),n=x=>x!=null&&isFinite(+x);
   return{on:!!o.on,usrc:typeof o.usrc==="string"?o.usrc.slice(0,300):typeof o.source==="string"&&o.source!==HS[k].src?o.source.slice(0,300):"",f:n(o.f)?c(o.f):d.f,w:100,byInc:!!o.byInc,inc:Object.fromEntries(["HIC","UMC","LMC","LIC"].map(g=>[g,o.inc&&n(o.inc[g])?c(o.inc[g]):d.inc[g]]))}}
 const shareOf=(k,e)=>{const h=HON[k],g=C[e]?C[e][2]:"NS";return (h.byInc&&h.inc[g]!=null?h.inc[g]:h.f)/100*h.w/100};
-const S={hatch:true,scrap:true,fdir:"both",fgrp:"c",view:0,measure:"t",incf:"all",sel:null,region:null,rdir:"both",scheme:"wb",mapMode:"routes",hl:"none",resolve:"mean",rank:"exp",rankSort:null,fmt:"csv"};
+const S={imp:new URLSearchParams(location.search).get("imp")!=="0",hatch:true,scrap:true,fdir:"both",fgrp:"c",view:0,measure:"t",incf:"all",sel:null,region:null,rdir:"both",scheme:"wb",mapMode:"routes",hl:"none",resolve:"mean",rank:"exp",rankSort:null,fmt:"csv"};
 const B={type:"sankey",from:"c",to:"c",side:"ex",group:"c",scheme:"wb",view:0,measure:"t",top:15,focus:false,nointra:false};
 const DDEF={preset:"container",out:null,in:null,res:null,maxr:45,line:1,lab:"both",lval:"net",globe:"trade",lpos:"auto",ldens:3,lsize:11,anim:true,choro:false,font:12,vals:true,nodew:12,gap:10,op:.35,lcol:"source",h:1};
 let D={...DDEF};try{const s=JSON.parse(localStorage.getItem("gwt-design-v6")||"null");if(s)D={...DDEF,...s}}catch(e){}
 
-let data,world,TR=null,MAN=null;
-try{const ok=r=>{if(!r.ok)throw new Error(r.status);return r.json()};MAN=await fetch("data/manifest.json",{cache:"no-cache"}).then(ok);const qy=+new URLSearchParams(location.search).get("year");const yr=MAN.years.includes(qy)?qy:MAN.latest;[data,world,TR]=await Promise.all([fetch(`data/plastic_${yr}.json`,{cache:"no-cache"}).then(ok),fetch("data/world-110m.json").then(ok),fetch("data/trends.json",{cache:"no-cache"}).then(ok).catch(()=>null)]);}
+let data,world,TR=null,MAN=null,IMP=null;
+try{const ok=r=>{if(!r.ok)throw new Error(r.status);return r.json()};MAN=await fetch("data/manifest.json",{cache:"no-cache"}).then(ok);const qy=+new URLSearchParams(location.search).get("year");const yr=MAN.years.includes(qy)?qy:(MAN.default||MAN.latest);[data,world,TR,IMP]=await Promise.all([fetch(`data/plastic_${yr}.json`,{cache:"no-cache"}).then(ok),fetch("data/world-110m.json").then(ok),fetch("data/trends.json",{cache:"no-cache"}).then(ok).catch(()=>null),fetch(`data/imputed_${yr}.json`,{cache:"no-cache"}).then(ok).catch(()=>null)]);}
 catch(e){$("#maptitle").textContent="The data could not load. Refresh the page to try again.";$("#side").innerHTML="";return;}
 
-const C=data.countries,SCH=data.schemes,YEAR=data.meta.year,CODE=data.meta.code;
-$("#year").innerHTML=MAN.years.slice().reverse().map(y=>`<option value="${y}" ${y===YEAR?"selected":""}>${y}</option>`).join("");
-const goYear=y=>{const u=new URL(location.href);u.searchParams.set("year",y);if(S.sel)u.searchParams.set("c",S.sel);else u.searchParams.delete("c");location.href=u.toString()};
+const MODY=new Set(MAN.modelled||[]),PMODY=new Set(MAN.part_modelled||[]),ylab=y=>y+(MODY.has(y)?" (modelled)":PMODY.has(y)?" (part modelled)":"");
+const C=data.countries,SCH=data.schemes,YEAR=data.meta.year,CODE=data.meta.code,MOD=!!data.meta.modelled,YL=MOD?ylab(YEAR).replace(/^\d+$/,YEAR+" (modelled)"):String(YEAR);
+$("#year").innerHTML=MAN.years.slice().reverse().map(y=>`<option value="${y}" ${y===YEAR?"selected":""}>${ylab(y)}</option>`).join("");
+const goYear=y=>{const u=new URL(location.href);u.searchParams.set("year",y);if(S.sel)u.searchParams.set("c",S.sel);else u.searchParams.delete("c");if(!S.imp)u.searchParams.set("imp","0");else u.searchParams.delete("imp");location.href=u.toString()};
 $("#year").onchange=e=>goYear(e.target.value);
-VERSION=`UN Comtrade ${YEAR}, ${CODE}`+(data.meta.built?` · built ${data.meta.built}`:"");
-$("#srcline").textContent=`UN Comtrade ${YEAR} · ${CODE} · ${data.meta.desc}`;
+VERSION=`UN Comtrade ${YL}, ${CODE}`+(data.meta.built?` · built ${data.meta.built}`:"");
+$("#srcline").textContent=`UN Comtrade ${YL} · ${CODE} · ${data.meta.desc}`;
 const BASE=data.routes.map(r=>({v:r[0],ex:String(r[1]),rc:String(r[2]),t:r[3],usd:r[4],est:r[5],basis:r[0]===0?"exporter report":"importer report"}));
 const HROWS={};for(const k in HS)HROWS[k]=(data.hidden[k]||[]).map(r=>({v:r[0],ex:String(r[1]),rc:String(r[2]),t:r[3],usd:r[4],est:r[5]})).filter(r=>C[r.ex]&&C[r.rc]);
+const IMPHOW={1:"from partner reports",2:"straight line between reported years",3:"trend from nearest reported year"};
+const impRows=k=>((IMP&&IMP[k])||[]).map(r=>({v:r[0],ex:String(r[1]),rc:String(r[2]),t:r[3],usd:r[4],est:0,imp:r[5],basis:"imputed, "+IMPHOW[r[5]]})).filter(r=>C[r.ex]&&C[r.rc]);
+const BASEI=impRows("plastic"),HIMP={};for(const k in HS)HIMP[k]=impRows(k);
 const ALIAS=data.aliases||{};
 let R=[];
 const HAS_HID=Object.values(HROWS).some(x=>x.length);if(!HAS_HID)$("#hp").hidden=true;
@@ -555,11 +561,11 @@ function pairUp(RAW){
   }
   return out;
 }
-const hViews=k=>{const rs=HROWS[k];return rs.concat(pairUp(rs))};
+const hViews=k=>{const rs=HROWS[k];return rs.concat(S.imp?HIMP[k]:[],pairUp(rs))};
 const hTot=(k,v)=>d3.sum(hViews(k),r=>r.v===v?r.t:0);
 function resolve(){
   const RAW=S.scrap?BASE:[],out=pairUp(RAW);
-  const rows=RAW.map(r=>({...r,hid:0,hu:0,hs:null})).concat(out.map(r=>({...r,hid:0,hu:0,hs:null})));
+  const rows=RAW.concat(S.scrap&&S.imp?BASEI:[]).map(r=>({...r,hid:0,hu:0,hs:null})).concat(out.map(r=>({...r,hid:0,hu:0,hs:null})));
   const on=hidOn();
   if(on.length){
     const idx=new Map();for(const r of rows)idx.set(r.v+"|"+r.ex+"|"+r.rc,r);
@@ -682,7 +688,7 @@ const gratP=zg.append("path").attr("d",path(d3.geoGraticule10())).attr("vector-e
 const gC=zg.append("g"),gH=zg.append("g").attr("pointer-events","none"),gA=zg.append("g"),gN=zg.append("g"),gLL=zg.append("g"),gL=zg.append("g"),gR=zg.append("g");
 const countries=gC.selectAll("path").data(feats).join("path").attr("class","country").attr("d",path).attr("display",f=>D.globe!=="full"&&f.id==="010"?"none":null).attr("vector-effect","non-scaling-stroke")
   .on("click",(e,f)=>{const c=mapToCode[f.id];if(!c)return;if(S.mapMode==="regions"){const r=regOf(c);if(r){setRegion(r)}}else select(c)})
-  .on("mousemove",(e,f)=>{const c=mapToCode[f.id],u=uCode(f.id),nr=u&&noRep(u)?`<br><span style="opacity:.8">${noRepText()} for ${YEAR}</span>`:"";showTip(e,c?`<b>${esc(name(c))}</b> <span style="opacity:.7">${INC[inc(c)]} · ${esc(regOf(c)||"")}</span><br>${tipLine(c)}${nr}`:`<b>${esc(f.properties.name)}</b><br>No plastic waste trade recorded${nr}`)})
+  .on("mousemove",(e,f)=>{const c=mapToCode[f.id],u=uCode(f.id),nr=u&&noRep(u)?`<br><span style="opacity:.8">${noRepText()} for ${YL}</span>`:"";showTip(e,c?`<b>${esc(name(c))}</b> <span style="opacity:.7">${INC[inc(c)]} · ${esc(regOf(c)||"")}</span><br>${tipLine(c)}${nr}`:`<b>${esc(f.properties.name)}</b><br>No plastic waste trade recorded${nr}`)})
   .on("mouseleave",hideTip);
 // Economies with no plastic waste trade report at all for the year: hatched on the map.
 const RP=()=>data.reporting||null;
@@ -825,7 +831,7 @@ function drawMap(){
     .each(r=>r.sw=sw(r[w])).attr("vector-effect","non-scaling-stroke").attr("d",r=>arcD(r,pos[r.ex],pos[r.rc]))
     .attr("stroke",r=>S.sel?(r.ex===S.sel?css("--out"):css("--in")):S.hl!=="none"?(hlOn(r.rc)&&hlOn(r.ex)?c:hlOn(r.rc)?css("--in"):hlOn(r.ex)?css("--out"):c):c)
     .attr("stroke-width",r=>r.sw*Math.pow(K,.25))
-    .on("mousemove",(e,r)=>showTip(e,`<b>${esc(name(r.ex))} → ${esc(name(r.rc))}</b><br>${fT(r.t)} · ${fU(r.usd)} · ${fP(r.t>=50?r.usd/r.t:null)}${r.v===2?`<br><em>Resolved: ${esc(r.basis)}</em>`:""}${r.est===2?"<br><em>Weight re-estimated in cleaning</em>":r.est?"<br><em>Weight estimated by reporter</em>":""}`))
+    .on("mousemove",(e,r)=>showTip(e,`<b>${esc(name(r.ex))} → ${esc(name(r.rc))}</b><br>${fT(r.t)} · ${fU(r.usd)} · ${fP(r.t>=50?r.usd/r.t:null)}${r.v===2?`<br><em>Resolved: ${esc(r.basis)}</em>`:""}${r.imp?`<br><em>Imputed: ${IMPHOW[r.imp]}</em>`:""}${r.est===2?"<br><em>Weight re-estimated in cleaning</em>":r.est?"<br><em>Weight estimated by reporter</em>":""}`))
     .on("mouseleave",hideTip).on("click",(e,r)=>select(S.sel===r.ex?r.rc:r.ex));
   const inM=new Map(),outM=new Map();for(const r of rs){outM.set(r.ex,(outM.get(r.ex)||0)+r[w]);inM.set(r.rc,(inM.get(r.rc)||0)+r[w])}
   const gross=k=>(inM.get(k)||0)+(outM.get(k)||0),net=k=>(inM.get(k)||0)-(outM.get(k)||0);
@@ -847,11 +853,12 @@ function drawMap(){
   rescale();
   const tot=agg(rs);
   const lm=S.hl!=="none"?(()=>{const a=agg(rs.filter(r=>hlOn(r.ex))),b=agg(rs.filter(r=>hlOn(r.rc)));return{a,b}})():null;
-  $("#maptitle").textContent=S.sel?(S.fdir==="in"?`Where ${name(S.sel)}'s ${PW()} comes from, ${YEAR}`:S.fdir==="out"?`Where ${name(S.sel)}'s ${PW()} goes, ${YEAR}`:`${name(S.sel)}: its ${list.length} largest ${PW()} routes, ${YEAR}`)
-    :lm?`${S.hl==="lmic"?"Low & middle income":"High income"} countries sent ${fmt(mval(lm.a,w),w)} and received ${fmt(mval(lm.b,w),w)} of ${PW()} in ${YEAR}`
-    :m==="ppt"?`${PW()[0].toUpperCase()+PW().slice(1)} sold for ${fP(mval(tot,"ppt"))} on average in ${YEAR}`
-    :S.region?`${S.region}: ${fmt(mval(tot,m),m)} of ${PW()} ${({both:"traded in and out",out:"leaving",in:"arriving",within:"traded within the region"})[S.rdir]}, ${YEAR}`
-    :S.incf==="hl"?`${fmt(mval(tot,m),m)} of ${PW()} went from high-income to middle- and low-income countries in ${YEAR}`:`${fmt(mval(tot,m),m)} of ${PW()} crossed borders in ${YEAR}`;
+  $("#maptitle").textContent=S.sel?(S.fdir==="in"?`Where ${name(S.sel)}'s ${PW()} comes from, ${YL}`:S.fdir==="out"?`Where ${name(S.sel)}'s ${PW()} goes, ${YL}`:`${name(S.sel)}: its ${list.length} largest ${PW()} routes, ${YL}`)
+    :lm?`${S.hl==="lmic"?"Low & middle income":"High income"} countries sent ${fmt(mval(lm.a,w),w)} and received ${fmt(mval(lm.b,w),w)} of ${PW()} in ${YL}`
+    :m==="ppt"?`${PW()[0].toUpperCase()+PW().slice(1)} sold for ${fP(mval(tot,"ppt"))} on average in ${YL}`
+    :S.region?`${S.region}: ${fmt(mval(tot,m),m)} of ${PW()} ${({both:"traded in and out",out:"leaving",in:"arriving",within:"traded within the region"})[S.rdir]}, ${YL}`
+    :S.incf==="hl"?`${fmt(mval(tot,m),m)} of ${PW()} went from high-income to middle- and low-income countries in ${YL}`:`${fmt(mval(tot,m),m)} of ${PW()} crossed borders in ${YL}`;
+  if(S.imp&&S.view!==2&&m!=="ppt"){const it=agg(rs.filter(r=>r.imp));if(it.t)$("#maptitle").textContent+=`, ${fmt(mval(it,w),w)} of it imputed`}
   $("#legend").innerHTML=S.sel?`<span><span class="dot" style="background:var(--out)"></span>sent by ${esc(name(S.sel))}</span><span><span class="dot" style="background:var(--in)"></span>sent to ${esc(name(S.sel))}</span>`
     :S.hl!=="none"?(S.hl==="lmic"?["UMC","LMC","LIC"]:["HIC"]).map(g=>`<span><span class="dot" style="background:var(--g-${g.toLowerCase()})"></span>${INC[g]}</span>`).join("")+`<span><span class="dot" style="background:var(--out)"></span>leaving them</span><span><span class="dot" style="background:var(--in)"></span>arriving</span>`
     :D.choro?`<span><span class="dot" style="background:var(--out)"></span>net exporter</span><span><span class="dot" style="background:var(--in)"></span>net importer</span><span>${m==="ppt"?"Export price":"Exports"}, ${VIEWS[S.view]}</span><span class="ramp" style="background:linear-gradient(90deg,var(--land),${c})"></span><span>${m==="ppt"?"dearer":"more"}</span>`:`<span><span class="dot" style="background:${c}"></span>lines: ${VIEWS[S.view]}</span>`+(D.lab!=="none"&&D.lval==="net"?`<span><span class="dot" style="background:var(--out)"></span>net exporter</span><span><span class="dot" style="background:var(--in)"></span>net importer</span>`:"");
@@ -880,7 +887,7 @@ function drawFocusRegions(rs,w){
   setLabels([{id:"sel",force:true,x:P[0],y:P[1],r:9,pri:1e18,l1:name(c0),l2:S.fdir==="in"?`receives ${fmt(tot.in,w)}`:S.fdir==="out"?`sends ${fmt(tot.out,w)}`:`in ${fmt(tot.in,w)} · out ${fmt(tot.out,w)}`,c2:S.fdir==="out"?css("--out"):css("--in")},
     ...flows.map(f=>{const m=f.dir==="in"?arcMid(f.a,P):arcMid(P,f.a);return{id:f.dir+f.reg,kind:"mid",x:m[0],y:m[1],pri:f[w],l1:(both?(f.dir==="in"?"from ":"to "):"")+f.reg,l2:`${fmt(f[w],w)} · ${d3.format(".0%")(f[w]/tot[f.dir])}`,c2:rcol(f.reg,sch)}})]);
   rescale();
-  $("#maptitle").textContent=S.fdir==="in"?`Where ${name(c0)}'s ${PW()} comes from, by ${SCHEMES[sch].replace(/s$/,"")}, ${YEAR}`:S.fdir==="out"?`Where ${name(c0)}'s ${PW()} goes, by ${SCHEMES[sch].replace(/s$/,"")}, ${YEAR}`:`${name(c0)}'s ${PW()} trade by ${SCHEMES[sch].replace(/s$/,"")}, ${YEAR}`;
+  $("#maptitle").textContent=S.fdir==="in"?`Where ${name(c0)}'s ${PW()} comes from, by ${SCHEMES[sch].replace(/s$/,"")}, ${YL}`:S.fdir==="out"?`Where ${name(c0)}'s ${PW()} goes, by ${SCHEMES[sch].replace(/s$/,"")}, ${YL}`:`${name(c0)}'s ${PW()} trade by ${SCHEMES[sch].replace(/s$/,"")}, ${YL}`;
   $("#legend").innerHTML=[...new Set(flows.map(f=>f.reg))].map(r=>`<span><span class="dot" style="background:${rcol(r,sch)}"></span>${esc(r)}</span>`).join("");
   $("#mapnote").textContent=`Each line joins ${name(c0)} to the weighted centre of its partners in one region. Labels give the amount and share. Change the region definition above.`;
   $("#reset").hidden=false;
@@ -906,7 +913,7 @@ function drawRegionMap(){
   setLabels(nodes.map(r=>({id:"R"+r,kind:"reg",dyn:true,m,vin:inT.get(r)||0,vout:outT.get(r)||0,x:A[r][0],y:A[r][1],r:4+Math.sqrt(gr(r)/gmx)*10,pri:gr(r),force:S.region===r,l1:r})));
   rescale();
   const total=d3.sum(flows,f=>f[m]),all=d3.sum(rs,r=>r[m]);
-  $("#maptitle").textContent=`${fmt(total,m)} of ${PW()} crossed between ${SCHEMES[sch]}, ${YEAR} (${d3.format(".0%")(total/all)} of all trade)`;
+  $("#maptitle").textContent=`${fmt(total,m)} of ${PW()} crossed between ${SCHEMES[sch]}, ${YL} (${d3.format(".0%")(total/all)} of all trade)`;
   $("#legend").innerHTML=nodes.map(r=>`<span><span class="dot" style="background:${rcol(r,sch)}"></span>${esc(r)}</span>`).join("");
   $("#mapnote").textContent="Trade between countries in the same region is left out. Click a region to focus on it.";
   $("#reset").hidden=true;
@@ -927,7 +934,7 @@ function side(){
     const sch=S.scheme,rs=R.filter(r=>r.v===S.view&&passInc(r)),mm=m==="ppt"?"t":m,fl=regionFlows(sch,rs);
     const out=d3.rollups(fl,v=>d3.sum(v,f=>f[mm]),f=>f.a).sort((a,b)=>b[1]-a[1]),inn=d3.rollups(fl,v=>d3.sum(v,f=>f[mm]),f=>f.b).sort((a,b)=>b[1]-a[1]);
     const top=fl.slice().sort((a,b)=>b[mm]-a[mm]).slice(0,8).map(f=>[f.a+" → "+f.b,f[mm]]);
-    el.innerHTML=`<div class="col"><div><span class="pill">${SCHEMES[sch]} · ${YEAR} · ${VIEWS[S.view]}</span><h3 style="margin-top:8px">${fmt(d3.sum(fl,f=>f[mm]),mm)}</h3><div class="sub">traded between regions, with trade inside each region left out</div></div>
+    el.innerHTML=`<div class="col"><div><span class="pill">${SCHEMES[sch]} · ${YL} · ${VIEWS[S.view]}</span><h3 style="margin-top:8px">${fmt(d3.sum(fl,f=>f[mm]),mm)}</h3><div class="sub">traded between regions, with trade inside each region left out</div></div>
       <div><h4>Biggest region-to-region flows</h4><div class="bars">${bars(top,css("--out"),mm,k=>k)}</div></div></div>
       <div><h4>Exports to other regions</h4><div class="bars">${bars(out,k=>rcol(k,sch),mm,k=>k)}</div></div>
       <div><h4>Imports from other regions</h4><div class="bars">${bars(inn,k=>rcol(k,sch),mm,k=>k)}</div></div>`;
@@ -936,7 +943,7 @@ function side(){
   }
   if(!S.sel){
     const rs=routes(),tot=agg(rs);
-    el.innerHTML=`<div class="col"><div><span class="pill">${esc(S.region||"World")} · ${YEAR} · ${VIEWS[S.view]}</span><h3 style="margin-top:8px">${fmt(mval(tot,m),m)}</h3><div class="sub">${S.incf==="hl"?"high-income to middle- and low-income routes":PW()+" traded"}, ${d3.format(",")(rs.length)} country-to-country records</div></div>
+    el.innerHTML=`<div class="col"><div><span class="pill">${esc(S.region||"World")} · ${YL} · ${VIEWS[S.view]}</span><h3 style="margin-top:8px">${fmt(mval(tot,m),m)}</h3><div class="sub">${S.incf==="hl"?"high-income to middle- and low-income routes":PW()+" traded"}, ${d3.format(",")(rs.length)} country-to-country records</div></div>
     <div class="kpis"><div class="kpi"><span>Weight</span><b>${fT(tot.t)}</b></div><div class="kpi"><span>Value</span><b>${fU(tot.usd)}</b><em>${fP(mval(tot,"ppt"))} average</em></div></div>
     <div class="trend" id="trend"></div>
     <div class="mirror">${ledger()} ${tot.t?d3.format(".0%")(tot.est/tot.t)+" of the tonnage here is an estimated weight.":""}</div>${hidBars(rs)}</div>
@@ -956,7 +963,7 @@ function side(){
     const self=ag(0),mir=ag(1),res=ag(2),sv=mval(self,mm),mv=mval(mir,mm),rv=mval(res,mm),ratio=sv>0?mv/sv:null;
     const flag=ratio==null?`<span class="flag warn">No export report from ${esc(me[1])}</span>`:(ratio>0.67&&ratio<1.5)?`<span class="flag ok">Figures broadly agree</span>`:`<span class="flag warn">Figures disagree, check before use</span>`;
     const mx=Math.max(sv,mv,rv)||1;
-    el.innerHTML=`<div class="col"><div><span class="pill">${INC[me[2]]||me[2]} · ${esc(regOf(c)||"")}</span><h3 style="margin-top:8px">${esc(me[1])}</h3><div class="sub">${esc(me[0])} · ${PW()} · ${YEAR} · ${VIEWS[S.view]}</div></div>
+    el.innerHTML=`<div class="col"><div><span class="pill">${INC[me[2]]||me[2]} · ${esc(regOf(c)||"")}</span><h3 style="margin-top:8px">${esc(me[1])}</h3><div class="sub">${esc(me[0])} · ${PW()} · ${YL} · ${VIEWS[S.view]}</div></div>
     <div class="kpis"><div class="kpi out"><span>Sent abroad</span><b>${fT(out.t)}</b><em>${fU(out.usd)} · ${fP(mval(out,"ppt"))}</em></div>
       <div class="kpi in"><span>Received</span><b>${fT(inn.t)}</b><em>${fU(inn.usd)} · ${fP(mval(inn,"ppt"))}</em></div></div>
     <div class="trend" id="trend"></div>
@@ -1056,7 +1063,7 @@ function sankey(m,who,scope){
   ng.filter(d=>d.y1-d.y0>=FS()*.55||g.nodes.length<60).append("text").attr("x",d=>side(d.id)==="L"?d.x0-6:d.x1+6).attr("y",d=>(d.y0+d.y1)/2).attr("dy","0.35em").attr("text-anchor",d=>side(d.id)==="L"?"end":"start")
     .attr("font-size",FS()).attr("font-family","IBM Plex Sans, system-ui, sans-serif").attr("fill","var(--ink)").text(d=>{const l=klabel(nodeKey(d.id));return (l.length>maxc?l.slice(0,maxc-1)+"…":l)+(D.vals?"  "+fmt(d.value,m):"")});
   chartRows=g.links.map(d=>({from:klabel(nodeKey(d.source.id)),to:klabel(nodeKey(d.target.id)),[mlabel(m)]:Math.round(d.value)}));chartCols=["from","to",mlabel(m)];
-  $("#ctitle").textContent=`Where ${PW()} flows, ${mlabel(m)}, ${YEAR}${scope}`;
+  $("#ctitle").textContent=`Where ${PW()} flows, ${mlabel(m)}, ${YL}${scope}`;
   $("#cnote").textContent=`Top ${N} on each side; the rest are grouped as "Everyone else". Based on ${who}${B.nointra?`; trade within the same ${SCHEMES[B.scheme].replace(/s$/,"")} left out`:""}.${hpNote()}`;
   $("#cleg").innerHTML=[...new Set([B.from,B.to])].map(legendFor).join("");
 }
@@ -1079,7 +1086,7 @@ function barChart(m,who,scope){
   if(D.vals)row.append("text").attr("x",d=>x(d.v)+6).attr("y",rowH/2-2).attr("dy","0.35em").attr("font-size",FS()-1).attr("font-family","IBM Plex Mono, monospace").attr("fill","var(--muted)").text(d=>fmt(d.v,m));
   chartRows=items.map(d=>({name:d.label,tonnes:Math.round(d.a.t),usd:Math.round(d.a.usd),usd_per_tonne:d.a.t>=50?Math.round(d.a.usd/d.a.t):""}));chartCols=["name","tonnes","usd","usd_per_tonne"];
   const what=B.side==="rt"?"routes":B.group==="g"?"income groups":B.group==="r"?"regions":(B.side==="ex"?"senders":"receivers");
-  $("#ctitle").textContent=m==="ppt"?`Price paid per tonne: the ${N} largest ${what}${scope}`:`Top ${N} ${what} of ${PW()} by ${mlabel(m)}, ${YEAR}${scope}`;
+  $("#ctitle").textContent=m==="ppt"?`Price paid per tonne: the ${N} largest ${what}${scope}`:`Top ${N} ${what} of ${PW()} by ${mlabel(m)}, ${YL}${scope}`;
   $("#cnote").textContent=`Based on ${who}.${m==="ppt"?" Price is value ÷ weight; shown for the largest by weight, minimum 50 t.":""}${B.side!=="rt"&&B.group!=="c"?` Grouped by where they ${B.side==="ex"?"send from":"receive"}.`:""}`;
   if(B.side!=="rt")$("#cleg").innerHTML=legendFor(B.group);
 }
@@ -1100,7 +1107,7 @@ function treemap(m,who,scope){
   cell.filter(d=>d.x1-d.x0>70&&d.y1-d.y0>FS()*2.6).append("text").attr("x",8).attr("y",FS()+8).attr("font-size",FS()+1).attr("font-weight",600).attr("fill","#fff").text(d=>{const l=klabel(d.data.k);const max=Math.floor((d.x1-d.x0-12)/(FS()*.62));return l.length>max?l.slice(0,max-1)+"…":l});
   if(D.vals)cell.filter(d=>d.x1-d.x0>70&&d.y1-d.y0>FS()*4).append("text").attr("x",8).attr("y",FS()*2+12).attr("font-size",FS()).attr("fill","#fff").attr("opacity",.9).text(d=>`${fmt(d.value,m)} · ${d3.format(".0%")(d.value/total)}`);
   chartRows=top.map(([k,v])=>({name:klabel(k),[mlabel(m)]:Math.round(v),share:+(v/total).toFixed(4)}));chartCols=["name",mlabel(m),"share"];
-  $("#ctitle").textContent=`Who ${B.side==="rc"?"receives":"sends"} ${PW()}: shares of ${mlabel(m)}, ${YEAR}${scope}`;
+  $("#ctitle").textContent=`Who ${B.side==="rc"?"receives":"sends"} ${PW()}: shares of ${mlabel(m)}, ${YL}${scope}`;
   $("#cnote").textContent=`Top ${B.top}, then everyone else. Based on ${who}.`;
   $("#cleg").innerHTML=legendFor(B.group);
 }
@@ -1128,7 +1135,7 @@ function scatter(m){
   const big=items.filter(d=>(d.x>hi/40||d.y>hi/40)&&(d.ratio<0.5||d.ratio>2||d.x>hi/6)||d.code===S.sel);
   chart.append("g").selectAll("text").data(big).join("text").attr("x",d=>x(d.x)+8).attr("y",d=>y(d.y)+4).attr("font-size",FS()-1).attr("fill","var(--ink)").text(d=>iso(d.code));
   chartRows=items.map(d=>({country:name(d.code),iso3:iso(d.code),income:inc(d.code),own_report:Math.round(d.x),partners_report:Math.round(d.y),mirror_ratio:+d.ratio.toFixed(3)}));chartCols=["country","iso3","income","own_report","partners_report","mirror_ratio"];
-  $("#ctitle").textContent=`Do the two sets of figures agree? ${k==="ex"?"Exports":"Imports"} by country, ${mlabel(m)}, ${YEAR}${S.region?" · "+S.region:""}`;
+  $("#ctitle").textContent=`Do the two sets of figures agree? ${k==="ex"?"Exports":"Imports"} by country, ${mlabel(m)}, ${YL}${S.region?" · "+S.region:""}`;
   $("#cnote").textContent="Each dot is a country. On the dashed line both sides report the same amount. Log scales.";
   $("#cleg").innerHTML=legendFor("g");
 }
@@ -1138,7 +1145,7 @@ function emptyChart(W,H){chart.attr("viewBox",`0 0 ${W} ${H}`).append("text").at
 let rankRows=[];
 function rank(){
   const k=S.rank==="exp",side=k?"ex":"rc",own=k?0:1,rows=[];
-  const by=d3.group(R.filter(pass),r=>r[side]);
+  const by=d3.group(R.filter(r=>!r.imp&&pass(r)),r=>r[side]);
   for(const [code,A] of by){
     const a=aggS(A.filter(r=>r.v===own)),b=aggS(A.filter(r=>r.v===1-own)),c=agg(A.filter(r=>r.v===2)),h=d3.sum(A.filter(r=>r.v===2),r=>r.hid||0);
     if(!a.t&&!b.t&&!c.t)continue;
@@ -1156,14 +1163,14 @@ function rank(){
 }
 
 // ---------- DATA BUILDER ----------
-const DLCOLS=[["year","Year",1],["view","Figures",1],["basis","Resolved basis",0],["exporter_iso","Exporter ISO3",1],["exporter","Exporter",1],["exporter_income","Exporter income",0],["exporter_region","Exporter region",0],["recipient_iso","Recipient ISO3",1],["recipient","Recipient",1],["recipient_income","Recipient income",0],["recipient_region","Recipient region",0],["net_weight_t","Net weight (t)",1],["value_usd","Value (US$)",1],["usd_per_tonne","US$ per tonne",0],["weight_estimated","Weight estimated",0],["plastic_scrap_t","Plastic scrap (t)",0],["hidden_plastic_t","Plastic in other materials (t)",0],["hidden_detail","Plastic in other materials, by stream",0],["code","Commodity code",0],["source","Source and version",0]];
-const DLGRP=[["Record",["year","view","basis","code","source"]],["Exporter",["exporter","exporter_iso","exporter_income","exporter_region"]],["Recipient",["recipient","recipient_iso","recipient_income","recipient_region"]],["Amounts",["net_weight_t","value_usd","usd_per_tonne","weight_estimated"]],["Plastic",["plastic_scrap_t","hidden_plastic_t","hidden_detail"]]];
+const DLCOLS=[["year","Year",1],["view","Figures",1],["basis","Resolved basis",0],["exporter_iso","Exporter ISO3",1],["exporter","Exporter",1],["exporter_income","Exporter income",0],["exporter_region","Exporter region",0],["recipient_iso","Recipient ISO3",1],["recipient","Recipient",1],["recipient_income","Recipient income",0],["recipient_region","Recipient region",0],["net_weight_t","Net weight (t)",1],["value_usd","Value (US$)",1],["usd_per_tonne","US$ per tonne",0],["weight_estimated","Weight estimated",0],["imputed","Imputed",1],["plastic_scrap_t","Plastic scrap (t)",0],["hidden_plastic_t","Plastic in other materials (t)",0],["hidden_detail","Plastic in other materials, by stream",0],["code","Commodity code",0],["source","Source and version",0]];
+const DLGRP=[["Record",["year","view","basis","code","source"]],["Exporter",["exporter","exporter_iso","exporter_income","exporter_region"]],["Recipient",["recipient","recipient_iso","recipient_income","recipient_region"]],["Amounts",["net_weight_t","value_usd","usd_per_tonne","weight_estimated","imputed"]],["Plastic",["plastic_scrap_t","hidden_plastic_t","hidden_detail"]]];
 {const L=Object.fromEntries(DLCOLS.map(c=>[c[0],c])),short=(g,l)=>g==="Exporter"||g==="Recipient"?(l.replace(g,"").trim()||"Name").replace(/^./,c=>c.toUpperCase()):l;
 $("#dlcols").innerHTML=DLGRP.map(([g,ks])=>`<fieldset><legend>${g}</legend>${ks.map(k=>{const [,l,on]=L[k];return `<label><input type="checkbox" id="col-${k}" ${on?"checked":""}> ${short(g,l)}</label>`}).join("")}</fieldset>`).join("")}
 function dlRows(){
   const views=[[0,"#dlx"],[1,"#dlm"],[2,"#dlr"]].filter(([v,id])=>$(id).checked).map(d=>d[0]),mode=document.querySelector("input[name=dlc]:checked").value;
   return R.filter(r=>views.includes(r.v)&&(mode==="all"||(mode==="map"&&pass(r))||(mode==="sel"&&S.sel&&(r.ex===S.sel||r.rc===S.sel))))
-   .sort((a,b)=>b.t-a.t).map(r=>({year:YEAR,view:["exporter","importer","resolved"][r.v],basis:r.v===2?r.basis+(r.basis==="both reported"?` (${RMETH[S.resolve]})`:""):r.basis,exporter_iso:iso(r.ex),exporter:name(r.ex),exporter_income:inc(r.ex),exporter_region:regOf(r.ex)||"",recipient_iso:iso(r.rc),recipient:name(r.rc),recipient_income:inc(r.rc),recipient_region:regOf(r.rc)||"",net_weight_t:+r.t.toFixed(2),value_usd:Math.round(r.usd),usd_per_tonne:r.t>0?Math.round(r.usd/r.t):"",weight_estimated:r.est===2?"cleaning":r.est?"reporter":"",plastic_scrap_t:+(r.t-(r.hid||0)).toFixed(2),hidden_plastic_t:+(r.hid||0).toFixed(2),hidden_detail:r.hs?Object.entries(r.hs).map(([k,v])=>k+":"+v.toFixed(1)).join(";"):"",code:(S.scrap?CODE:"")+(r.hs?(S.scrap?" + ":"")+Object.keys(r.hs).map(k=>HS[k].codes).join(" + "):""),source:VERSION+" · regions: "+SCHEMES[S.scheme]+hpNote()}));
+   .sort((a,b)=>b.t-a.t).map(r=>({year:YEAR,view:["exporter","importer","resolved"][r.v],basis:r.v===2?r.basis+(r.basis==="both reported"?` (${RMETH[S.resolve]})`:""):r.basis,exporter_iso:iso(r.ex),exporter:name(r.ex),exporter_income:inc(r.ex),exporter_region:regOf(r.ex)||"",recipient_iso:iso(r.rc),recipient:name(r.rc),recipient_income:inc(r.rc),recipient_region:regOf(r.rc)||"",net_weight_t:+r.t.toFixed(2),value_usd:Math.round(r.usd),usd_per_tonne:r.t>0?Math.round(r.usd/r.t):"",weight_estimated:r.est===2?"cleaning":r.est?"reporter":"",imputed:r.imp?IMPHOW[r.imp]:MODY.has(YEAR)?"modelled year":"",plastic_scrap_t:+(r.t-(r.hid||0)).toFixed(2),hidden_plastic_t:+(r.hid||0).toFixed(2),hidden_detail:r.hs?Object.entries(r.hs).map(([k,v])=>k+":"+v.toFixed(1)).join(";"):"",code:(S.scrap?CODE:"")+(r.hs?(S.scrap?" + ":"")+Object.keys(r.hs).map(k=>HS[k].codes).join(" + "):""),source:VERSION+" · regions: "+SCHEMES[S.scheme]+hpNote()}));
 }
 const csvCell=v=>{v=v==null?"":String(v);return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
 const toCSV=(rows,keys)=>[keys.join(","),...rows.map(r=>keys.map(k=>csvCell(r[k])).join(","))].join("\n");
@@ -1221,17 +1228,19 @@ document.addEventListener("click",async e=>{
     if(what==="table"){
       const keys=["name","iso","inc","region","own","mir","ratio","res",...(hidOn().length?["hid"]:[]),"usd","ppt","np","est"];
       const rows=rankRows.map(r=>({...r,own:Math.round(r.own),mir:Math.round(r.mir),res:Math.round(r.res),hid:Math.round(r.hid),usd:Math.round(r.usd),ppt:r.ppt==null?"":Math.round(r.ppt),ratio:r.ratio==null?"":+r.ratio.toFixed(3),est:+r.est.toFixed(3)}));
-      const base=`gwt-countries-${S.rank==="exp"?"exporters":"importers"}-${YEAR}`;
+      const base=`gwt-countries-${S.rank==="exp"?"exporters":"importers"}-${YL}`;
       return f==="csv"?saveFile(base+".csv",toCSV(rows,keys)):saveFile(base+".json",toJSON(rows,keys));
     }
   }catch(err){toast("Couldn't build that file. Try another format.")}
 });
-$("#dlgo").onclick=()=>{const rows=dlRows();if(!rows.length){toast("No rows to save yet.");return}const keys=dlKeys();saveFile(`gwt-${hidOn().length?"plastic-incl-hidden":"plastic-waste"}-${YEAR}-${rows.length}-rows.${S.fmt}`,S.fmt==="json"?toJSON(rows,keys):toCSV(rows,keys))};
+$("#dlgo").onclick=()=>{const rows=dlRows();if(!rows.length){toast("No rows to save yet.");return}const keys=dlKeys();saveFile(`gwt-${hidOn().length?"plastic-incl-hidden":"plastic-waste"}-${YL}-${rows.length}-rows.${S.fmt}`,S.fmt==="json"?toJSON(rows,keys):toCSV(rows,keys))};
 $("#dlcopy").onclick=async()=>{const rows=dlRows(),keys=dlKeys(),txt=S.fmt==="json"?toJSON(rows,keys):toCSV(rows,keys);try{await navigator.clipboard.writeText(txt);toast(`Copied ${d3.format(",")(rows.length)} rows.`)}catch(e){toast("Copying was blocked by the browser.")}};
 
 // ---------- CONTROLS ----------
 function segment(sel,attr,fn){const btns=[...document.querySelectorAll(sel+" button")];btns.forEach(b=>b.addEventListener("click",()=>{if(b.disabled||b.dataset[attr]===undefined)return;btns.forEach(x=>x.setAttribute("aria-pressed",x===b?"true":"false"));fn(b.dataset[attr])}))}
-segment("#view","v",v=>{S.view=+v;$("#resmethodbox").hidden=S.view!==2;B.view=S.view;pressed("#bview","v",B.view);render();if(HAS_HID)hpUI()});
+segment("#imp","i",v=>{S.imp=v==="1";const u=new URL(location.href);if(!S.imp)u.searchParams.set("imp","0");else u.searchParams.delete("imp");history.replaceState(null,"",u);resolve();render();if(HAS_HID)hpUI()});
+pressed("#imp","i",S.imp?"1":"0");if(!IMP)$("#impbox").hidden=true;
+segment("#view","v",v=>{S.view=+v;$("#resmethodbox").hidden=S.view!==2;$("#impbox").hidden=S.view===2||!IMP;B.view=S.view;pressed("#bview","v",B.view);render();if(HAS_HID)hpUI()});
 $("#resmethod").onchange=e=>{S.resolve=e.target.value;resolve();render();if(HAS_HID)hpUI()};
 segment("#measure","m",v=>{S.measure=v;render()});
 segment("#incf","f",v=>{S.incf=v;render()});
@@ -1249,7 +1258,7 @@ const SCRAPV=v=>v===2?d3.sum(pairUp(BASE),r=>r.t):d3.sum(BASE,r=>r.v===v?r.t:0);
 function hpUI(){
   const num=(attr,k,v,lab)=>`<input type="number" min="0" max="100" step="0.25" value="${v}" ${attr}="${k}" aria-label="${lab}">`;
   $("#hpgrid").innerHTML=`<div class="hpc ${S.scrap?"on":""}" data-k="scrap"><label class="t"><input type="checkbox" id="hp-scrap" ${S.scrap?"checked":""}> <span>Plastic scrap</span></label><small>${esc(CODE)} · ${fT(SCRAPV(S.view))}, ${VIEWS[S.view]}</small><div class="f">Counted in full</div><small class="src">The main series, from UN Comtrade.</small></div>`+
-    Object.entries(HS).filter(([k])=>HROWS[k].length).map(([k,h])=>{const o=HON[k],L=esc(h.n);return `<div class="hpc ${o.on?"on":""}" data-k="${k}"><label class="t"><input type="checkbox" data-k="${k}" ${o.on?"checked":""}> <span>${L}</span></label><small>${h.codes} · ${fT(hTot(k,S.view))} traded in ${YEAR}</small>
+    Object.entries(HS).filter(([k])=>HROWS[k].length).map(([k,h])=>{const o=HON[k],L=esc(h.n);return `<div class="hpc ${o.on?"on":""}" data-k="${k}"><label class="t"><input type="checkbox" data-k="${k}" ${o.on?"checked":""}> <span>${L}</span></label><small>${h.codes} · ${fT(hTot(k,S.view))} traded in ${YL}</small>
       <div class="f" ${o.byInc?"hidden":""}><span class="fl">Plastic share</span><input type="range" min="0" max="100" step="0.25" value="${o.f}" data-kf="${k}" list="hpd-${k}" aria-label="Plastic share of ${L}"><datalist id="hpd-${k}"><option value="${h.f}"></option></datalist>${num("data-kn",k,o.f,"Plastic share of "+L+", per cent")}%</div>
       <div class="incg" ${o.byInc?"":"hidden"}>${["HIC","UMC","LMC","LIC"].map(g=>`<label>${g}${num("data-ki-"+g.toLowerCase(),k,o.inc[g],"Plastic share for "+INC[g]+" exporters")}</label>`).join("")}</div>
       <label class="sm"><input type="checkbox" data-kb="${k}" ${o.byInc?"checked":""}> Plastic share varies by exporter's income group</label>
