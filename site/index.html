@@ -513,8 +513,10 @@ const HS={
   weee:{n:"E-waste assemblies and boards",codes:"HS 8549.31, 8549.39",f:24.7,shape:true,src:"Source: OECD Global Plastics Outlook 2022 (e-waste plastics, 2022) ÷ Global E-waste Monitor 2024, Table A2.2 (e-waste, 2022)."},
   weeeo:{n:"Other e-waste",codes:"HS 8549.91, 8549.99",f:24.7,shape:false,src:"Assumption, using OECD Global Plastics Outlook 2022 (e-waste plastics, 2022) ÷ Global E-waste Monitor 2024, Table A2.2 (e-waste, 2022)."},
   rdf:{n:"Refuse-derived fuel and mixed waste",codes:"HS 3825.10",f:33.25,shape:true,src:"Source: Gerassimidou et al. 2020, Waste Management & Research 38(9), Table 1 (30% plastic, 5% textiles × 65% synthetic)."},
+  tyres:{n:"Used tyres: synthetic rubber",codes:"HS 4012.20",f:20.5,shape:false,src:"Source: Continental, Tyre mixture (rubber 41% of a passenger car tyre), with natural and synthetic rubber in roughly equal amounts (Notman, Chemistry World)."},
+  rubber:{n:"Rubber waste: synthetic rubber",codes:"HS 4004",f:20.5,shape:false,src:"Assumption, using the used tyres share (Continental, Tyre mixture; Notman, Chemistry World), as much of this waste is shredded tyres."},
   paper:{n:"Paper bales: plastic contamination",codes:"HS 4707",f:2,shape:false,src:"Assumption, for illustration."}};
-const HSCOL={scrap:"#0f7f86",fibre:"#b07aa1",clothing:"#e15759",rags:"#ff9da7",weee:"#4e79a7",weeeo:"#a0cbe8",rdf:"#9c755f",paper:"#edc948"};
+const HSCOL={scrap:"#0f7f86",fibre:"#b07aa1",clothing:"#e15759",rags:"#ff9da7",weee:"#4e79a7",weeeo:"#a0cbe8",rdf:"#9c755f",tyres:"#3d3d3d",rubber:"#8a8a8a",paper:"#edc948"};
 const HDEF=k=>({on:false,f:HS[k].f,w:100,byInc:false,inc:{HIC:HS[k].f,UMC:HS[k].f,LMC:HS[k].f,LIC:HS[k].f},usrc:""});
 const isDef=k=>!HON[k].byInc&&+HON[k].f===+HS[k].f;
 const HON={};for(const k in HS)HON[k]=HDEF(k);

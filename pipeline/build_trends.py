@@ -127,7 +127,7 @@ def completeness(years, data):
     record, and one CSV row per economy."""
     out = {"years": years, "universe": [], "both": [], "x_only": [], "m_only": [], "none": [],
            "partner_only_t": {"0": [], "1": []}, "total_t": {"0": [], "1": []}, "nonreporters": {"0": [], "1": []},
-           "names": {}}
+           "nonrep": {"0": [], "1": []}, "names": {}}
     rows = []
     for y, d in zip(years, data):
         rp = d.get("reporting")
@@ -138,6 +138,7 @@ def completeness(years, data):
                 out["partner_only_t"][v].append(None)
                 out["total_t"][v].append(None)
                 out["nonreporters"][v].append([])
+                out["nonrep"][v].append([])
             continue
         U, X, M = rp["universe"], set(rp["X"]), set(rp["M"])
         out["universe"].append(len(U))
@@ -170,8 +171,14 @@ def completeness(years, data):
         out["nonreporters"]["0"].append(sorted((c for c in U if c not in X), key=int))
         out["nonreporters"]["1"].append(sorted((c for c in U if c not in M), key=int))
         inc = d["countries"]
+        wb = d.get("schemes", {}).get("wb", {})
+        letter = lambda c: INC_CODE.get((inc.get(c) or [None, None, "NS"])[2], "N")
+        # Per view, each non-reporter with its World Bank group and what partners recorded with it.
+        for v, seen, rep in (("0", sent, X), ("1", recv, M)):
+            out["nonrep"][v].append(sorted(([c, round(seen[c]), letter(c)] for c in U if c not in rep),
+                                           key=lambda e: (-e[1], U[e[0]][1])))
         for c, (iso, name, _) in U.items():
-            out["names"][c] = [iso, name]
+            out["names"][c] = [iso, name, wb.get(c, "")]
             rows.append([y, c, iso, name, (inc.get(c) or [None, None, ""])[2],
                          "yes" if c in X else "no", "yes" if c in M else "no",
                          round(own_x[c]), round(own_m[c]), round(sent[c]), round(recv[c])])
