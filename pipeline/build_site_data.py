@@ -198,6 +198,7 @@ STREAMS = {
     "paper": ["4707"],
     "tyres": ["401220"],
     "rubber": ["4004"],
+    "hardrubber": ["401700"],
 }
 
 
