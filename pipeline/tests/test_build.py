@@ -159,6 +159,22 @@ class SiteData(unittest.TestCase):
                 for i, m in enumerate(flows):
                     self.assertAlmostEqual(sum(map(sum, m)), t["world"][v]["t"][i], delta=len(t["groups"]) ** 2)
 
+    def test_flow_files_match_trend_totals(self):
+        data = ROOT / "site" / "data"
+        for f in data.glob("flows*.json"):
+            fl = json.load(open(f))
+            tr = json.load(open(data / f.name.replace("flows", "trends")))
+            self.assertEqual(fl["years"], tr["years"])
+            self.assertEqual(len(fl["codes"]), len(fl["names"]))
+            self.assertTrue(all(len(s) == len(fl["years"]) for s in fl["inc"]))
+            for k, regs in fl["regions"].items():
+                self.assertEqual(len(regs), len(fl["codes"]))
+            for v in ("0", "1"):
+                for i, a in enumerate(fl["flows"][v]):
+                    self.assertEqual(len(a) % 4, 0)
+                    n = len(a) // 4
+                    self.assertAlmostEqual(sum(a[2::4]), tr["world"][v]["t"][i], delta=n * 0.5 + 1)
+
 
 if __name__ == "__main__":
     unittest.main()
