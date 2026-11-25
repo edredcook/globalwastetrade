@@ -6,7 +6,7 @@ Source for [globalwastetrade.org](https://globalwastetrade.org): an explorer for
 
 | Path | What it is |
 |---|---|
-| `site/` | The website. One static page, served as is. No build step. |
+| `site/` | The website: the explorer (`index.html`) and an About page (`about.html`), served as is. No build step. |
 | `site/data/` | The data the page loads: `manifest.json` lists the years, `plastic_<year>.json` holds each year's trade records, `trends.json` the yearly totals for the trend charts. |
 | `site/vendor/` | d3 7.8.5, d3-sankey 0.12.3 and topojson-client 3.1.0, kept locally. |
 | `pipeline/fetch_comtrade.py` | Downloads one year of HS 3915 records from the Comtrade API, or with `--name mixed` the wastes that carry plastic amongst other materials. |
