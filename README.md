@@ -20,6 +20,10 @@ Source for [globalwastetrade.org](https://globalwastetrade.org): an explorer for
 - One record per reporter, flow and partner. Use the partner-2 World total where the reporter gives one, otherwise sum the partner-2 detail.
 - Customs procedure and transport mode totals only (C00, mode 0).
 - Trade with World, and a country's trade with itself, are left out.
+- Cleaning, with every change listed in the check report:
+  - A record with a value but no weight takes the partner's weight. If there is no usable partner report, the weight is the value divided by the median US$ per tonne.
+  - A record whose US$ per tonne is more than 10 times above or below the median takes the partner's weight, if the partner's report is in range. Otherwise it is left as reported and listed.
+  - Re-estimated weights are marked as such on the page and in downloads.
 - The build stops without changing the site if either view's tonnes fall below 60% of the previous file, or if a view has fewer than 300 routes.
 
 ## Refreshing the data

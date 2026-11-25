@@ -52,6 +52,49 @@ class Selection(unittest.TestCase):
         self.assertAlmostEqual(b.select([r])[(826, "X", 458)]["t"], 2.5)
 
 
+def sel(t, usd, est=False):
+    return {"t": t, "usd": usd, "est": est, "basis": "partner2 World"}
+
+
+class Cleaning(unittest.TestCase):
+    def base(self):
+        # Twenty ordinary routes at 500 US$/t in each direction set the medians.
+        s = {}
+        for i in range(20):
+            s[(100 + i, "X", 900)] = sel(10, 5000)
+            s[(100 + i, "M", 901)] = sel(10, 5000)
+        return s
+
+    def test_missing_weight_uses_partner_then_median(self):
+        s = self.base()
+        s[(1, "X", 2)] = sel(0, 10000)
+        s[(2, "M", 1)] = sel(30, 15000)
+        s[(3, "X", 4)] = sel(0, 10000)
+        changes, med = b.clean(s)
+        self.assertEqual(s[(1, "X", 2)]["t"], 30)
+        self.assertAlmostEqual(s[(3, "X", 4)]["t"], 20)
+        self.assertEqual(s[(3, "X", 4)]["est"], 2)
+        self.assertEqual(sorted(c["rule"] for c in changes), ["A", "A"])
+
+    def test_out_of_range_takes_partner_weight_only_if_partner_in_range(self):
+        s = self.base()
+        s[(1, "X", 2)] = sel(10000, 50000)   # 5 US$/t
+        s[(2, "M", 1)] = sel(100, 52000)     # in range
+        s[(3, "X", 4)] = sel(10000, 50000)   # 5 US$/t, no partner report
+        changes, _ = b.clean(s)
+        self.assertEqual(s[(1, "X", 2)]["t"], 100)
+        self.assertEqual(s[(1, "X", 2)]["usd"], 50000)
+        self.assertEqual(s[(3, "X", 4)]["t"], 10000)
+        self.assertEqual({c["key"]: c["rule"] for c in changes}, {(1, "X", 2): "B", (3, "X", 4): "C"})
+
+    def test_in_range_records_untouched(self):
+        s = self.base()
+        before = {k: dict(v) for k, v in s.items()}
+        changes, _ = b.clean(s)
+        self.assertEqual(changes, [])
+        self.assertEqual(s, before)
+
+
 class SiteData(unittest.TestCase):
     def test_published_files_have_expected_shape(self):
         man = json.load(open(ROOT / "site" / "data" / "manifest.json"))

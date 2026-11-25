@@ -757,7 +757,7 @@ function drawMap(){
     .each(r=>r.sw=sw(r[w])).attr("vector-effect","non-scaling-stroke").attr("d",r=>arcD(r,pos[r.ex],pos[r.rc]))
     .attr("stroke",r=>S.sel?(r.ex===S.sel?css("--out"):css("--in")):S.hl!=="none"?(hlOn(r.rc)&&hlOn(r.ex)?c:hlOn(r.rc)?css("--in"):hlOn(r.ex)?css("--out"):c):c)
     .attr("stroke-width",r=>r.sw*Math.pow(K,.25))
-    .on("mousemove",(e,r)=>showTip(e,`<b>${esc(name(r.ex))} → ${esc(name(r.rc))}</b><br>${fT(r.t)} · ${fU(r.usd)} · ${fP(r.t>=50?r.usd/r.t:null)}${r.v===2?`<br><em>Resolved: ${esc(r.basis)}</em>`:""}${r.est?"<br><em>Weight estimated by reporter</em>":""}`))
+    .on("mousemove",(e,r)=>showTip(e,`<b>${esc(name(r.ex))} → ${esc(name(r.rc))}</b><br>${fT(r.t)} · ${fU(r.usd)} · ${fP(r.t>=50?r.usd/r.t:null)}${r.v===2?`<br><em>Resolved: ${esc(r.basis)}</em>`:""}${r.est===2?"<br><em>Weight re-estimated in cleaning</em>":r.est?"<br><em>Weight estimated by reporter</em>":""}`))
     .on("mouseleave",hideTip).on("click",(e,r)=>select(S.sel===r.ex?r.rc:r.ex));
   const inM=new Map(),outM=new Map();for(const r of rs){outM.set(r.ex,(outM.get(r.ex)||0)+r[w]);inM.set(r.rc,(inM.get(r.rc)||0)+r[w])}
   const gross=k=>(inM.get(k)||0)+(outM.get(k)||0),net=k=>(inM.get(k)||0)-(outM.get(k)||0);
@@ -1062,7 +1062,7 @@ $("#dlcols").innerHTML=DLGRP.map(([g,ks])=>`<fieldset><legend>${g}</legend>${ks.
 function dlRows(){
   const views=[[0,"#dlx"],[1,"#dlm"],[2,"#dlr"]].filter(([v,id])=>$(id).checked).map(d=>d[0]),mode=document.querySelector("input[name=dlc]:checked").value;
   return R.filter(r=>views.includes(r.v)&&(mode==="all"||(mode==="map"&&pass(r))||(mode==="sel"&&S.sel&&(r.ex===S.sel||r.rc===S.sel))))
-   .sort((a,b)=>b.t-a.t).map(r=>({year:YEAR,view:["exporter","importer","resolved"][r.v],basis:r.v===2?r.basis+(r.basis==="both reported"?` (${RMETH[S.resolve]})`:""):r.basis,exporter_iso:iso(r.ex),exporter:name(r.ex),exporter_income:inc(r.ex),exporter_region:regOf(r.ex)||"",recipient_iso:iso(r.rc),recipient:name(r.rc),recipient_income:inc(r.rc),recipient_region:regOf(r.rc)||"",net_weight_t:+r.t.toFixed(2),value_usd:Math.round(r.usd),usd_per_tonne:r.t>0?Math.round(r.usd/r.t):"",weight_estimated:!!r.est,plastic_scrap_t:+(r.t-(r.hid||0)).toFixed(2),hidden_plastic_t:+(r.hid||0).toFixed(2),hidden_detail:r.hs?Object.entries(r.hs).map(([k,v])=>k+":"+v.toFixed(1)).join(";"):"",code:(S.scrap?CODE:"")+(r.hs?(S.scrap?" + ":"")+Object.keys(r.hs).map(k=>HS[k].codes).join(" + "):""),source:VERSION+" · regions: "+SCHEMES[S.scheme]+hpNote()}));
+   .sort((a,b)=>b.t-a.t).map(r=>({year:YEAR,view:["exporter","importer","resolved"][r.v],basis:r.v===2?r.basis+(r.basis==="both reported"?` (${RMETH[S.resolve]})`:""):r.basis,exporter_iso:iso(r.ex),exporter:name(r.ex),exporter_income:inc(r.ex),exporter_region:regOf(r.ex)||"",recipient_iso:iso(r.rc),recipient:name(r.rc),recipient_income:inc(r.rc),recipient_region:regOf(r.rc)||"",net_weight_t:+r.t.toFixed(2),value_usd:Math.round(r.usd),usd_per_tonne:r.t>0?Math.round(r.usd/r.t):"",weight_estimated:r.est===2?"cleaning":r.est?"reporter":"",plastic_scrap_t:+(r.t-(r.hid||0)).toFixed(2),hidden_plastic_t:+(r.hid||0).toFixed(2),hidden_detail:r.hs?Object.entries(r.hs).map(([k,v])=>k+":"+v.toFixed(1)).join(";"):"",code:(S.scrap?CODE:"")+(r.hs?(S.scrap?" + ":"")+Object.keys(r.hs).map(k=>HS[k].codes).join(" + "):""),source:VERSION+" · regions: "+SCHEMES[S.scheme]+hpNote()}));
 }
 const csvCell=v=>{v=v==null?"":String(v);return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
 const toCSV=(rows,keys)=>[keys.join(","),...rows.map(r=>keys.map(k=>csvCell(r[k])).join(","))].join("\n");

@@ -77,12 +77,63 @@ def select(rows):
     return out
 
 
+def view_medians(selected):
+    """Median US$ per tonne for each flow, from records with both weight and value."""
+    med = {}
+    for flow in ("X", "M"):
+        uv = sorted(v["usd"] / v["t"] for (r, f, p), v in selected.items() if f == flow and v["t"] > 0 and v["usd"] > 0)
+        med[flow] = uv[len(uv) // 2] if uv else None
+    return med
+
+
+def clean(selected, factor=10.0):
+    """Repair weights in place. Returns a list of changes for the check report.
+
+    A. No weight but a value: take the partner's weight if its mirror report is in
+       range, otherwise weight = value / that flow's median US$ per tonne.
+    B. US$ per tonne more than `factor` times away from the flow's median, and the
+       partner's mirror report of the same route is within range: take the
+       partner's weight. The value stays as reported.
+    C. Other out-of-range records are left as reported and listed.
+    Re-estimated weights are marked est = 2 (1 means the reporter estimated it).
+    """
+    med = view_medians(selected)
+    changes = []
+
+    def in_range(v, flow):
+        m = med[flow]
+        return m and v["t"] > 0 and v["usd"] > 0 and m / factor <= v["usd"] / v["t"] <= m * factor
+
+    for (rep, flow, par), v in selected.items():
+        m = med[flow]
+        if not m:
+            continue
+        mflow = "M" if flow == "X" else "X"
+        mirror = selected.get((par, mflow, rep))
+        if v["t"] <= 0 and v["usd"] > 0:
+            if mirror and in_range(mirror, mflow):
+                new, how = mirror["t"], "weight from partner's report"
+            else:
+                new, how = v["usd"] / m, "weight estimated from value"
+            changes.append({"rule": "A", "key": (rep, flow, par), "old_t": v["t"], "new_t": new, "usd": v["usd"]})
+            v.update(t=new, est=2, cleaned=how)
+            continue
+        if v["t"] <= 0 or v["usd"] <= 0 or in_range(v, flow):
+            continue
+        if mirror and in_range(mirror, mflow):
+            changes.append({"rule": "B", "key": (rep, flow, par), "old_t": v["t"], "new_t": mirror["t"], "usd": v["usd"]})
+            v.update(t=mirror["t"], est=2, cleaned="weight from partner's report")
+        else:
+            changes.append({"rule": "C", "key": (rep, flow, par), "old_t": v["t"], "new_t": v["t"], "usd": v["usd"]})
+    return changes, med
+
+
 def routes_from(selected):
     """Site format: [view, exporter, recipient, tonnes, usd, estimated]."""
     routes = []
     for (rep, flow, par), v in selected.items():
         view, ex, rc = (0, rep, par) if flow == "X" else (1, par, rep)
-        routes.append([view, ex, rc, round(v["t"], 2), round(v["usd"]), 1 if v["est"] else 0])
+        routes.append([view, ex, rc, round(v["t"], 2), round(v["usd"]), int(v["est"])])
     routes.sort(key=lambda r: (r[0], -r[3]))
     return routes
 
@@ -115,7 +166,34 @@ def totals(routes):
     return t
 
 
-def report(year, raw_meta, rows, selected, routes, countries, new, prev, warn):
+def cleaning_section(changes, med, factor, names):
+    flows = {"X": "exporters' reports", "M": "importers' reports"}
+    rules = {"A": "No weight given: partner's weight, or value at the median US$ per tonne",
+             "B": "US$ per tonne out of range: weight taken from the partner's report",
+             "C": "US$ per tonne out of range, no usable partner report: left as reported"}
+    lines = ["## Cleaning", "",
+             "Median US$ per tonne: " + ", ".join(f"{flows[f]} {m:,.0f}" for f, m in med.items() if m) +
+             f". Out of range means more than {factor:g} times above or below the median.", "",
+             "| Rule | Records | Tonnes before | Tonnes after |", "|---|---:|---:|---:|"]
+    for k, label in rules.items():
+        cs = [c for c in changes if c["rule"] == k]
+        lines.append(f"| {label} | {len(cs):,} | {sum(c['old_t'] for c in cs):,.0f} | {sum(c['new_t'] for c in cs):,.0f} |")
+    lines.append("")
+    for k in ("B", "C"):
+        cs = sorted((c for c in changes if c["rule"] == k), key=lambda c: -max(c["old_t"], c["new_t"], c["usd"] / 1e4))[:25]
+        if not cs:
+            continue
+        lines += [f"### Rule {k}, largest 25", "", "| Reporter | Flow | Partner | Tonnes before | Tonnes after | US$ | US$ per tonne as reported |",
+                  "|---|---|---|---:|---:|---:|---:|"]
+        for c in cs:
+            rep, flow, par = c["key"]
+            uv = c["usd"] / c["old_t"] if c["old_t"] else 0
+            lines.append(f"| {names.get(str(rep), rep)} | {flow} | {names.get(str(par), par)} | {c['old_t']:,.1f} | {c['new_t']:,.1f} | {c['usd']:,.0f} | {uv:,.0f} |")
+        lines.append("")
+    return lines
+
+
+def report(year, raw_meta, rows, selected, routes, countries, new, prev, warn, changes=(), med=None, factor=10.0):
     t = totals(routes)
     names = {k: v[1] for k, v in countries.items()}
     views = {0: "Exporters' reports", 1: "Importers' reports"}
@@ -134,6 +212,8 @@ def report(year, raw_meta, rows, selected, routes, countries, new, prev, warn):
             ch = f"{(w / prev[v] - 1):+.1%}" if prev[v] else ""
         lines.append(f"| {views[v]} | {n:,} | {w:,.0f} | {usd:,.0f} | {est:,} | {ch} |")
     lines += ["", f"Records built from partner-2 detail (no World total given): {detail:,}.", ""]
+    if med:
+        lines += cleaning_section(changes, med, factor, names)
     if new:
         lines += ["## Countries not in the reference list", "",
                   "These get no income group or region until added to pipeline/reference.", ""]
@@ -155,6 +235,8 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--year", type=int, required=True)
     ap.add_argument("--cmd", default="3915")
+    ap.add_argument("--outlier-factor", type=float, default=10.0,
+                    help="US$ per tonne this many times above or below the median counts as out of range")
     ap.add_argument("--min-ratio", type=float, default=0.6,
                     help="stop if a view's tonnes fall below this share of the previous file")
     a = ap.parse_args()
@@ -168,6 +250,7 @@ def main():
     map_ids = {g.get("id") for g in world["objects"]["countries"]["geometries"]}
 
     selected = select(rows)
+    changes, med = clean(selected, a.outlier_factor)
     routes = routes_from(selected)
     countries, new = countries_for(routes, rows, ref, map_ids)
 
@@ -207,7 +290,7 @@ def main():
         data["hidden"] = b["streams"]
 
     REPORTS.mkdir(exist_ok=True)
-    rep = report(a.year, raw["meta"], rows, selected, routes, countries, new, prev, warn)
+    rep = report(a.year, raw["meta"], rows, selected, routes, countries, new, prev, warn, changes, med, a.outlier_factor)
     (REPORTS / f"hs{a.cmd}_{a.year}.md").write_text(rep, encoding="utf-8")
     if warn:
         print("\n".join(warn), file=sys.stderr)
