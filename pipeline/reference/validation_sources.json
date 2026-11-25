@@ -103,7 +103,7 @@
     "from": "*",
     "to": "*"
    },
-   "why": "Exporters' figures are 8% higher. Importers' figures are higher still because Comtrade now holds its own estimate of China's 2016 import weight."
+   "why": "Within 8% of exporters' figures. Comtrade's own estimate of China's 2016 import weight is replaced by partners' weights."
   },
   {
    "group": "World",
@@ -213,7 +213,7 @@
      156
     ]
    },
-   "why": "Comtrade has replaced China's reported 2016 weight with its own estimate of 8.80 Mt. Exporters' reports to China are within 6% of China's figure."
+   "why": "Comtrade had replaced China's reported 2016 weight with its own estimate of 8.80 Mt. The site now uses partners' weights for those routes instead."
   },
   {
    "group": "China and Hong Kong",
@@ -270,7 +270,7 @@
      156
     ]
    },
-   "why": "Matches Hong Kong's own reports. China records half as much from Hong Kong, because it books most of these shipments to the country of origin."
+   "why": "Within 3% of Hong Kong's own reports. China records half as much from Hong Kong, because it books most of these shipments to the country of origin."
   },
   {
    "group": "OECD",
@@ -686,13 +686,13 @@
  "findings": [
   {
    "title": "China's 2016 imports",
-   "status": "Raised. Left as in Comtrade.",
-   "text": "Comtrade now holds its own estimate of China's 2016 import weight (8.80 Mt), flagged as estimated, in place of the 7.35 Mt China reported. This lifts the importers' world total for 2016 by about 1.45 Mt. China's own figures for 2008 to 2015 are as reported."
+   "status": "Fixed: partners' weights used.",
+   "text": "Comtrade had replaced China's 2016 import weight with its own estimate (8.80 Mt at US$420 a tonne), against the 7.35 Mt China reported. The site now takes each partner's reported weight for those routes, which gives 7.95 Mt. China's own figures for 2008 to 2015 are as reported."
   },
   {
    "title": "Hong Kong's 2013 exports",
-   "status": "Raised. Left as in Comtrade.",
-   "text": "Comtrade's estimated weight for Hong Kong's 2013 exports is 1.49 Mt, against about 3 Mt in 2012 and 2014 at similar values. The exporters' world total for 2013 dips by about 1.5 Mt as a result."
+   "status": "Fixed: Hong Kong's usual price used.",
+   "text": "Comtrade's estimated weight for Hong Kong's 2013 exports was 1.49 Mt, against about 3 Mt in 2012 and 2014 at similar values. Partners' reports cannot stand in, because China books most of these shipments to the country of origin, so the site divides each value by Hong Kong's own US$ per tonne in 2012 and 2014. This gives 2.42 Mt."
   },
   {
    "title": "Hong Kong re-exports",

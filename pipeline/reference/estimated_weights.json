@@ -1,0 +1,23 @@
+{
+ "_about": "Reporter, flow and year blocks where UN Comtrade replaced the reporter's own weights with its own estimate (isNetWgtEstimated) and the result is out of line with that reporter's other years and with published figures. build_site_data.py rule E replaces those estimated weights. Agreed by Ed Cook, 25 November 2026. Values are never changed.",
+ "replace": [
+  {
+   "year": 2016,
+   "reporter": 156,
+   "flow": "M",
+   "method": "partner",
+   "reason": "Comtrade holds 8.80 Mt, all estimated, at US$420 per tonne; China reported 7.35 Mt (Brooks et al., 2018) and its own 2015 report is US$569 per tonne. Exporters' reports to China total 7.81 Mt."
+  },
+  {
+   "year": 2013,
+   "reporter": 344,
+   "flow": "X",
+   "method": "own_price",
+   "price_years": [
+    2012,
+    2014
+   ],
+   "reason": "Comtrade holds 1.49 Mt, estimated, at US$512 per tonne, against about 3 Mt at about US$315 per tonne in 2012 and 2014. Partner reports cannot be used: China books most of Hong Kong's re-exports to the country of origin."
+  }
+ ]
+}
