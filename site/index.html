@@ -665,6 +665,15 @@ const hlOn=c=>S.hl==="lmic"?isL(c):S.hl==="hic"?isH(c):true;
 
 // ---------- MAP ----------
 const svg=d3.select("#map");
+// Keep the whole map box (tools, map and bar) within one screen below the sticky header.
+{const el=$("#map"),box=el.closest(".mapbox"),mast=$("header.mast");
+ const fitMap=()=>{const w=el.getBoundingClientRect().width,natural=w*500/960;
+   const chrome=box.getBoundingClientRect().height-el.getBoundingClientRect().height;
+   const avail=innerHeight-(mast?mast.getBoundingClientRect().height:0)-chrome-16;
+   el.style.height=natural>avail?Math.round(Math.max(Math.min(natural,300),avail))+"px":""};
+ addEventListener("resize",fitMap);
+ if(window.ResizeObserver){const ro=new ResizeObserver(()=>requestAnimationFrame(fitMap));box.querySelectorAll(".maptools,.bar").forEach(n=>ro.observe(n))}
+ fitMap()}
 const zg=svg.append("g");
 const sphereP=zg.append("path").attr("d",path({type:"Sphere"})).attr("fill","var(--sea)");
 const gratP=zg.append("path").attr("d",path(d3.geoGraticule10())).attr("vector-effect","non-scaling-stroke").attr("fill","none").attr("stroke","var(--border)").attr("stroke-width",.3).attr("opacity",.6);
