@@ -223,7 +223,7 @@ tbody tr:hover td{background:var(--raise)}
 .dl .prev{padding:16px;display:flex;flex-direction:column;gap:10px;min-width:0}
 .dl pre{margin:0;background:var(--raise);border-radius:8px;padding:10px;font-family:var(--mono);font-size:12px;overflow:auto;max-height:230px;white-space:pre}
 .actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.hatchdot{background:repeating-linear-gradient(45deg,var(--muted) 0 1.2px,transparent 1.2px 4px)!important;border:1px solid var(--border)}
+.hatchdot{background:repeating-linear-gradient(45deg,color-mix(in srgb,var(--muted) 45%,transparent) 0 .8px,transparent .8px 4px)!important;border:1px solid var(--border)}
 .btn{font:inherit;font-size:14px;font-weight:600;border:0;border-radius:8px;padding:9px 16px;cursor:pointer;background:var(--out);color:#fff}
 .btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--border);font-weight:500}
 .btn.sm{font-size:13px;padding:6px 12px}
@@ -344,7 +344,7 @@ footer b{color:var(--ink);font-weight:600}
     <div class="maptools">
       <div class="ctl"><span>Map shows</span><div class="seg" id="mapmode"><button data-v="routes" aria-pressed="true">Country routes</button><button data-v="regions" aria-pressed="false">Region to region</button></div></div>
       <div class="ctl"><span>Regions by</span><select id="scheme" aria-label="Region definition">
-        <option value="un">UN regions (M49)</option><option value="unsub">UN sub-regions (M49)</option><option value="wb">World Bank regions</option><option value="oecd">OECD / non-OECD</option></select></div>
+        <option value="un">UN regions (M49)</option><option value="unsub">UN sub-regions (M49)</option><option value="wb" selected>World Bank regions</option><option value="oecd">OECD / non-OECD</option></select></div>
       <div class="ctl"><span>Region</span><select id="region" aria-label="Focus on a region"><option value="">Whole world</option></select></div>
       <div class="ctl" id="rdirbox" hidden><span>Trade</span><div class="seg" id="rdir"><button data-d="both" aria-pressed="true">In and out</button><button data-d="out" aria-pressed="false">Leaving</button><button data-d="in" aria-pressed="false">Arriving</button><button data-d="within" aria-pressed="false">Within</button></div></div>
       <div class="ctl" id="hlbox"><span>Highlight</span><div class="seg" id="hl"><button data-v="none" aria-pressed="true">Nothing</button><button data-v="lmic" aria-pressed="false">Low &amp; middle income</button><button data-v="hic" aria-pressed="false">High income</button></div></div>
@@ -390,7 +390,7 @@ footer b{color:var(--ink);font-weight:600}
         <div class="ctl" data-for="sankey"><span>Right side</span><div class="seg" id="bto"><button data-v="c" aria-pressed="true">Countries</button><button data-v="r" aria-pressed="false">Regions</button><button data-v="g" aria-pressed="false">Income groups</button></div></div>
         <div class="ctl" data-for="bars treemap scatter"><span>Show</span><div class="seg" id="bside"><button data-v="ex" aria-pressed="true">Senders</button><button data-v="rc" aria-pressed="false">Receivers</button><button data-v="rt" aria-pressed="false" data-only="bars">Routes</button></div></div>
         <div class="ctl" data-for="bars treemap"><span>Group by</span><div class="seg" id="bgroup"><button data-v="c" aria-pressed="true">Countries</button><button data-v="r" aria-pressed="false">Regions</button><button data-v="g" aria-pressed="false">Income groups</button></div></div>
-        <div class="ctl" data-for="sankey bars treemap"><span>Regions by</span><select id="bscheme" aria-label="Region definition for the chart"><option value="un">UN regions (M49)</option><option value="unsub">UN sub-regions (M49)</option><option value="wb">World Bank regions</option><option value="oecd">OECD / non-OECD</option></select></div>
+        <div class="ctl" data-for="sankey bars treemap"><span>Regions by</span><select id="bscheme" aria-label="Region definition for the chart"><option value="un">UN regions (M49)</option><option value="unsub">UN sub-regions (M49)</option><option value="wb" selected>World Bank regions</option><option value="oecd">OECD / non-OECD</option></select></div>
         <div class="ctl" data-for="sankey bars treemap"><span>Whose figures</span><div class="seg" id="bview"><button data-v="0" aria-pressed="true">Exporters'</button><button data-v="1" aria-pressed="false">Importers'</button><button data-v="2" aria-pressed="false">Resolved</button></div></div>
         <div class="ctl" data-for="sankey bars treemap scatter"><span>Measure</span><div class="seg" id="bmeasure"><button data-v="t" aria-pressed="true">Tonnes</button><button data-v="usd" aria-pressed="false">US$</button><button data-v="ppt" aria-pressed="false" data-only="bars">US$/t</button></div></div>
         <div class="ctl" data-for="sankey bars treemap"><label class="lab" for="btopn">How many on each side</label><div class="topn"><input type="number" id="btopn" min="1" max="200" value="15" aria-label="How many to show"><input type="range" id="btopr" min="1" max="60" value="15" aria-label="How many to show, slider"></div></div>
@@ -520,8 +520,8 @@ try{const sv=JSON.parse(localStorage.getItem("gwt-assumptions")||"null");if(sv&&
 function sanitiseH(k,o){const c=v=>Math.max(0,Math.min(100,+v));const d=HDEF(k),n=x=>x!=null&&isFinite(+x);
   return{on:!!o.on,usrc:typeof o.usrc==="string"?o.usrc.slice(0,300):typeof o.source==="string"&&o.source!==HS[k].src?o.source.slice(0,300):"",f:n(o.f)?c(o.f):d.f,w:100,byInc:!!o.byInc,inc:Object.fromEntries(["HIC","UMC","LMC","LIC"].map(g=>[g,o.inc&&n(o.inc[g])?c(o.inc[g]):d.inc[g]]))}}
 const shareOf=(k,e)=>{const h=HON[k],g=C[e]?C[e][2]:"NS";return (h.byInc&&h.inc[g]!=null?h.inc[g]:h.f)/100*h.w/100};
-const S={hatch:true,scrap:true,fdir:"both",fgrp:"c",view:0,measure:"t",incf:"all",sel:null,region:null,rdir:"both",scheme:"un",mapMode:"routes",hl:"none",resolve:"mean",rank:"exp",rankSort:null,fmt:"csv"};
-const B={type:"sankey",from:"c",to:"c",side:"ex",group:"c",scheme:"un",view:0,measure:"t",top:15,focus:false,nointra:false};
+const S={hatch:true,scrap:true,fdir:"both",fgrp:"c",view:0,measure:"t",incf:"all",sel:null,region:null,rdir:"both",scheme:"wb",mapMode:"routes",hl:"none",resolve:"mean",rank:"exp",rankSort:null,fmt:"csv"};
+const B={type:"sankey",from:"c",to:"c",side:"ex",group:"c",scheme:"wb",view:0,measure:"t",top:15,focus:false,nointra:false};
 const DDEF={preset:"container",out:null,in:null,res:null,maxr:45,line:1,lab:"both",lval:"net",globe:"trade",lpos:"auto",ldens:3,lsize:11,anim:true,choro:false,font:12,vals:true,nodew:12,gap:10,op:.35,lcol:"source",h:1};
 let D={...DDEF};try{const s=JSON.parse(localStorage.getItem("gwt-design-v6")||"null");if(s)D={...DDEF,...s}}catch(e){}
 
@@ -666,7 +666,7 @@ const hlOn=c=>S.hl==="lmic"?isL(c):S.hl==="hic"?isH(c):true;
 
 // ---------- MAP ----------
 const svg=d3.select("#map");
-svg.append("defs").html(`<pattern id="hatch" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="5" style="stroke:var(--muted)" stroke-width="1.2" opacity=".75"/></pattern>`);
+svg.append("defs").html(`<pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" style="stroke:var(--muted)" stroke-width=".6" opacity=".35"/></pattern>`);
 // Keep the whole map box (tools, map and bar) within one screen below the sticky header.
 {const el=$("#map"),box=el.closest(".mapbox"),mast=$("header.mast");
  const fitMap=()=>{const w=el.getBoundingClientRect().width,natural=w*500/960;
@@ -684,13 +684,13 @@ const countries=gC.selectAll("path").data(feats).join("path").attr("class","coun
   .on("click",(e,f)=>{const c=mapToCode[f.id];if(!c)return;if(S.mapMode==="regions"){const r=regOf(c);if(r){setRegion(r)}}else select(c)})
   .on("mousemove",(e,f)=>{const c=mapToCode[f.id],u=uCode(f.id),nr=u&&noRep(u)?`<br><span style="opacity:.8">${noRepText()} for ${YEAR}</span>`:"";showTip(e,c?`<b>${esc(name(c))}</b> <span style="opacity:.7">${INC[inc(c)]} · ${esc(regOf(c)||"")}</span><br>${tipLine(c)}${nr}`:`<b>${esc(f.properties.name)}</b><br>No plastic waste trade recorded${nr}`)})
   .on("mouseleave",hideTip);
-// Non-reporters for the year: hatched on the map in the exporters' and importers' views.
+// Economies with no plastic waste trade report at all for the year: hatched on the map.
 const RP=()=>data.reporting||null;
 let RPX=null,RPM=null,U2C=null;
 function rpSets(){const rp=RP();if(!rp){RPX=RPM=null;U2C={};return}RPX=new Set(rp.X);RPM=new Set(rp.M);U2C={};for(const [c,v] of Object.entries(rp.universe))if(v[2])U2C[v[2]]=c}
 const uCode=id=>{if(!U2C)rpSets();return U2C[id]||null};
-const noRep=c=>{if(!U2C)rpSets();if(!RPX)return false;return S.view===0?!RPX.has(c):S.view===1?!RPM.has(c):!RPX.has(c)&&!RPM.has(c)};
-const noRepText=()=>S.view===0?"No export report":S.view===1?"No import report":"No report";
+const noRep=c=>{if(!U2C)rpSets();if(!RPX)return false;return !RPX.has(c)&&!RPM.has(c)};
+const noRepText=()=>"No trade reported";
 function hatch(){gH.selectAll("*").remove();if(!RP()||S.mapMode==="regions"||!S.hatch)return;
   const fs=Object.entries(RP().universe).filter(([c,v])=>v[2]&&byMap[v[2]]&&noRep(c)).map(([c,v])=>byMap[v[2]]);
   gH.selectAll("path").data(fs).join("path").attr("d",path).attr("fill","url(#hatch)").attr("stroke","none").attr("display",f=>D.globe!=="full"&&f.id==="010"?"none":null)}

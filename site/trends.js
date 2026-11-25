@@ -31,11 +31,11 @@ const NONC=/nes$|^Areas|^Special Categories|^Free Zones|^Bunkers/;
 const q=new URLSearchParams(location.search);
 const toks=s=>(s||"").split(",").filter(t=>/^(c|g|r):/.test(t));
 const pick=(v,ok,d)=>ok.includes(v)?v:d;
-const DEF={count:"whole",v:0,m:"t",sch:"un",xr:false,xi:false,ts:0,tr:0,from:[],to:[],split:"rg",bmode:"t",hdir:"in",hrows:20,gdir:"out",gsort:"total",gshow:1,gmin:0,gscale:"own",cdir:"in",cgrp:"c",csort:"b",cn:12,cchart:"dumb",cscale:"lin"};
+const DEF={count:"whole",v:0,m:"t",sch:"wb",xr:false,xi:false,ts:0,tr:0,from:[],to:[],split:"rg",bmode:"t",hdir:"in",hrows:20,gdir:"out",gsort:"total",gshow:1,gmin:0,gscale:"own",cdir:"in",cgrp:"c",csort:"b",cn:12,cchart:"dumb",cscale:"lin"};
 const S={...DEF,
   mats:(()=>{const m=(q.get("w")||"plastic").split(",").filter(k=>MATL[k]);return m.includes("all")?["all"]:m.length?m:["plastic"]})(),
   count:q.get("count")==="plastic"?"plastic":"whole",
-  v:q.get("v")==="1"?1:0, m:pick(q.get("m"),["t","usd"],"t"), sch:pick(q.get("sch"),Object.keys(SCHEMES),"un"),
+  v:q.get("v")==="1"?1:0, m:pick(q.get("m"),["t","usd"],"t"), sch:pick(q.get("sch"),Object.keys(SCHEMES),"wb"),
   xr:q.get("xr")==="1", xi:q.get("xi")==="1",
   ts:Math.max(0,TOPS.indexOf(+q.get("ts"))), tr:Math.max(0,TOPS.indexOf(+q.get("tr"))),
   from:toks(q.get("from")), to:toks(q.get("to")),
@@ -361,7 +361,7 @@ function syncUI(){$$(".seg[data-k]").forEach(s=>s.querySelectorAll("button").for
   $$(".tabs button").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.tab===S.tab)));
   ["overview","glance","compare"].forEach(t=>$("#p-"+t).hidden=t!==S.tab)}
 function syncURL(){const u=new URL(location.href),p=u.searchParams;const set=(k,v,d)=>{if(v===d||v===""||v==null)p.delete(k);else p.set(k,v)};
-  set("w",S.mats.join(","),"plastic");set("count",S.count,"whole");set("v",S.v?"1":"","");set("m",S.m,"t");set("sch",S.sch,"un");set("xr",S.xr?"1":"","");set("xi",S.xi?"1":"","");
+  set("w",S.mats.join(","),"plastic");set("count",S.count,"whole");set("v",S.v?"1":"","");set("m",S.m,"t");set("sch",S.sch,"wb");set("xr",S.xr?"1":"","");set("xi",S.xi?"1":"","");
   set("ts",S.ts?TOPS[S.ts]:"","");set("tr",S.tr?TOPS[S.tr]:"","");set("from",S.from.join(","),"");set("to",S.to.join(","),"");
   set("y0",I0!==D.span[0]?Y[0]:"","");set("y1",I1!==D.span[1]?LAST:"","");set("tab",S.tab,"overview");
   set("split",S.split,"rg");set("cgrp",S.cgrp,"c");set("cdir",S.cdir,"in");set("gdir",S.gdir,"out");
