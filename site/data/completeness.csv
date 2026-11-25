@@ -156,7 +156,6 @@ year,comtrade_code,iso3,country,income_group,reported_exports,reported_imports,o
 2008,659,KNA,Saint Kitts and Nevis,UMC,no,no,0,0,0,0
 2008,662,LCA,Saint Lucia,UMC,no,yes,0,3,0,3
 2008,670,VCT,Saint Vincent and the Grenadines,UMC,no,yes,0,0,19,2
-2008,674,SMR,San Marino,HIC,no,no,0,0,50,1006
 2008,678,STP,Sao Tome and Principe,LMC,no,yes,0,0,0,0
 2008,682,SAU,Saudi Arabia,HIC,yes,yes,33487,5361,44409,6644
 2008,686,SEN,Senegal,LIC,yes,yes,76,641,16,586
@@ -359,7 +358,6 @@ year,comtrade_code,iso3,country,income_group,reported_exports,reported_imports,o
 2009,659,KNA,Saint Kitts and Nevis,UMC,yes,no,45,0,41,0
 2009,662,LCA,Saint Lucia,UMC,yes,yes,110,2,37,4
 2009,670,VCT,Saint Vincent and the Grenadines,UMC,no,yes,0,1,8,3
-2009,674,SMR,San Marino,HIC,no,no,0,0,43,276
 2009,678,STP,Sao Tome and Principe,LMC,no,yes,0,0,0,0
 2009,682,SAU,Saudi Arabia,HIC,yes,yes,58778,8438,40980,8297
 2009,686,SEN,Senegal,LMC,yes,yes,14,612,0,498
@@ -566,7 +564,6 @@ year,comtrade_code,iso3,country,income_group,reported_exports,reported_imports,o
 2010,659,KNA,Saint Kitts and Nevis,UMC,no,no,0,0,0,0
 2010,662,LCA,Saint Lucia,UMC,no,yes,0,3,52,25
 2010,670,VCT,Saint Vincent and the Grenadines,UMC,yes,yes,24,2,21,2
-2010,674,SMR,San Marino,HIC,no,no,0,0,0,313
 2010,678,STP,Sao Tome and Principe,LMC,no,yes,0,0,0,0
 2010,682,SAU,Saudi Arabia,HIC,yes,yes,89837,11170,69510,10327
 2010,686,SEN,Senegal,LMC,yes,yes,34,58,49,689
@@ -772,7 +769,6 @@ year,comtrade_code,iso3,country,income_group,reported_exports,reported_imports,o
 2011,659,KNA,Saint Kitts and Nevis,HIC,no,no,0,0,0,0
 2011,662,LCA,Saint Lucia,UMC,yes,yes,85,40,66,27
 2011,670,VCT,Saint Vincent and the Grenadines,UMC,yes,yes,18,0,0,2
-2011,674,SMR,San Marino,HIC,no,no,0,0,19,233
 2011,678,STP,Sao Tome and Principe,LMC,no,yes,0,1,0,0
 2011,682,SAU,Saudi Arabia,HIC,yes,yes,94890,16518,84508,8529
 2011,686,SEN,Senegal,LMC,yes,yes,395,26,314,420
@@ -979,7 +975,6 @@ year,comtrade_code,iso3,country,income_group,reported_exports,reported_imports,o
 2012,659,KNA,Saint Kitts and Nevis,HIC,no,no,0,0,0,0
 2012,662,LCA,Saint Lucia,UMC,yes,yes,41,2,41,3
 2012,670,VCT,Saint Vincent and the Grenadines,UMC,yes,yes,0,0,16,1
-2012,674,SMR,San Marino,HIC,no,no,0,0,0,94
 2012,678,STP,Sao Tome and Principe,LMC,no,yes,0,0,0,0
 2012,682,SAU,Saudi Arabia,HIC,yes,yes,104547,17562,82289,13921
 2012,686,SEN,Senegal,LMC,yes,yes,352,46,853,421
@@ -1186,7 +1181,6 @@ year,comtrade_code,iso3,country,income_group,reported_exports,reported_imports,o
 2013,659,KNA,Saint Kitts and Nevis,HIC,no,yes,0,0,0,6
 2013,662,LCA,Saint Lucia,UMC,yes,yes,27,0,13,12
 2013,670,VCT,Saint Vincent and the Grenadines,UMC,yes,yes,37,0,38,0
-2013,674,SMR,San Marino,HIC,no,no,0,0,0,79
 2013,678,STP,Sao Tome and Principe,LMC,no,yes,0,0,0,0
 2013,682,SAU,Saudi Arabia,HIC,yes,yes,90040,16306,88763,13787
 2013,686,SEN,Senegal,LMC,yes,yes,434,32,653,920
@@ -1393,7 +1387,6 @@ year,comtrade_code,iso3,country,income_group,reported_exports,reported_imports,o
 2014,659,KNA,Saint Kitts and Nevis,HIC,no,yes,0,0,71,0
 2014,662,LCA,Saint Lucia,UMC,yes,yes,56,9,0,42
 2014,670,VCT,Saint Vincent and the Grenadines,UMC,yes,no,100,0,77,45
-2014,674,SMR,San Marino,HIC,no,no,0,0,0,24
 2014,678,STP,Sao Tome and Principe,LMC,no,no,0,0,0,0
 2014,682,SAU,Saudi Arabia,HIC,yes,yes,69130,8281,76211,7040
 2014,686,SEN,Senegal,LMC,yes,yes,1380,128,1182,266
@@ -1603,7 +1596,6 @@ year,comtrade_code,iso3,country,income_group,reported_exports,reported_imports,o
 2015,659,KNA,Saint Kitts and Nevis,HIC,no,yes,0,1,0,0
 2015,662,LCA,Saint Lucia,UMC,yes,yes,7,2,59,7
 2015,670,VCT,Saint Vincent and the Grenadines,UMC,yes,yes,91,0,108,4
-2015,674,SMR,San Marino,HIC,no,no,0,0,0,0
 2015,678,STP,Sao Tome and Principe,LMC,no,yes,0,0,0,0
 2015,682,SAU,Saudi Arabia,HIC,yes,yes,72263,21046,70632,12755
 2015,686,SEN,Senegal,LIC,yes,yes,1297,423,1718,636
@@ -1813,7 +1805,6 @@ year,comtrade_code,iso3,country,income_group,reported_exports,reported_imports,o
 2016,659,KNA,Saint Kitts and Nevis,HIC,no,yes,0,5,0,4
 2016,662,LCA,Saint Lucia,UMC,yes,yes,48,0,53,25
 2016,670,VCT,Saint Vincent and the Grenadines,UMC,yes,no,154,0,180,11
-2016,674,SMR,San Marino,HIC,no,no,0,0,0,0
 2016,678,STP,Sao Tome and Principe,LMC,no,no,0,0,0,0
 2016,682,SAU,Saudi Arabia,HIC,yes,yes,87747,20691,78653,14339
 2016,686,SEN,Senegal,LIC,yes,yes,1837,433,2096,402
@@ -2023,7 +2014,6 @@ year,comtrade_code,iso3,country,income_group,reported_exports,reported_imports,o
 2017,659,KNA,Saint Kitts and Nevis,HIC,no,yes,0,0,0,1
 2017,662,LCA,Saint Lucia,UMC,yes,yes,39,2,0,42
 2017,670,VCT,Saint Vincent and the Grenadines,UMC,yes,no,294,0,118,46
-2017,674,SMR,San Marino,HIC,no,no,0,0,0,0
 2017,678,STP,Sao Tome and Principe,LMC,no,yes,0,4,0,0
 2017,682,SAU,Saudi Arabia,HIC,yes,yes,80520,20729,77060,9250
 2017,686,SEN,Senegal,LIC,yes,yes,1822,1337,4243,434
@@ -2233,7 +2223,6 @@ year,comtrade_code,iso3,country,income_group,reported_exports,reported_imports,o
 2018,659,KNA,Saint Kitts and Nevis,HIC,no,no,0,0,0,0
 2018,662,LCA,Saint Lucia,UMC,yes,yes,45,13,14,79
 2018,670,VCT,Saint Vincent and the Grenadines,UMC,yes,yes,206,1,53,102
-2018,674,SMR,San Marino,HIC,no,no,0,0,0,0
 2018,678,STP,Sao Tome and Principe,LMC,yes,yes,0,1,0,0
 2018,682,SAU,Saudi Arabia,HIC,yes,yes,48230,17612,52253,7959
 2018,686,SEN,Senegal,LMC,yes,yes,2496,1975,4184,518
@@ -2443,7 +2432,6 @@ year,comtrade_code,iso3,country,income_group,reported_exports,reported_imports,o
 2019,659,KNA,Saint Kitts and Nevis,HIC,no,no,0,0,40,0
 2019,662,LCA,Saint Lucia,UMC,no,yes,0,10,0,7
 2019,670,VCT,Saint Vincent and the Grenadines,UMC,yes,yes,133,0,53,12
-2019,674,SMR,San Marino,HIC,no,no,0,0,0,0
 2019,678,STP,Sao Tome and Principe,LMC,no,yes,0,15,0,0
 2019,682,SAU,Saudi Arabia,HIC,yes,yes,40073,27773,21105,8978
 2019,686,SEN,Senegal,LMC,yes,yes,3755,4910,4039,8775
@@ -2653,7 +2641,6 @@ year,comtrade_code,iso3,country,income_group,reported_exports,reported_imports,o
 2020,659,KNA,Saint Kitts and Nevis,HIC,no,no,0,0,0,0
 2020,662,LCA,Saint Lucia,UMC,yes,yes,15,7,0,11
 2020,670,VCT,Saint Vincent and the Grenadines,UMC,yes,yes,174,1,0,8
-2020,674,SMR,San Marino,HIC,no,no,0,0,9,0
 2020,678,STP,Sao Tome and Principe,LMC,no,no,0,0,0,0
 2020,682,SAU,Saudi Arabia,HIC,yes,yes,24000,28774,12313,7795
 2020,686,SEN,Senegal,LMC,yes,yes,4594,1086,2817,1363
@@ -2862,7 +2849,6 @@ year,comtrade_code,iso3,country,income_group,reported_exports,reported_imports,o
 2021,659,KNA,Saint Kitts and Nevis,HIC,no,no,0,0,177,0
 2021,662,LCA,Saint Lucia,UMC,no,no,0,0,0,8
 2021,670,VCT,Saint Vincent and the Grenadines,UMC,yes,no,228,0,0,1
-2021,674,SMR,San Marino,HIC,no,no,0,0,0,0
 2021,678,STP,Sao Tome and Principe,LMC,no,yes,0,0,0,0
 2021,682,SAU,Saudi Arabia,HIC,yes,yes,31599,16666,17295,5509
 2021,686,SEN,Senegal,LMC,yes,yes,3099,660,3625,582
@@ -3071,7 +3057,6 @@ year,comtrade_code,iso3,country,income_group,reported_exports,reported_imports,o
 2022,659,KNA,Saint Kitts and Nevis,HIC,no,no,0,0,16,0
 2022,662,LCA,Saint Lucia,UMC,no,no,0,0,0,0
 2022,670,VCT,Saint Vincent and the Grenadines,UMC,yes,yes,90,9,0,9
-2022,674,SMR,San Marino,HIC,no,no,0,0,0,0
 2022,678,STP,Sao Tome and Principe,LMC,no,yes,0,0,0,0
 2022,682,SAU,Saudi Arabia,HIC,yes,yes,67701,23612,17079,14967
 2022,686,SEN,Senegal,LMC,yes,yes,5108,372,3989,471
@@ -3280,7 +3265,6 @@ year,comtrade_code,iso3,country,income_group,reported_exports,reported_imports,o
 2023,659,KNA,Saint Kitts and Nevis,HIC,no,no,0,0,17,0
 2023,662,LCA,Saint Lucia,UMC,no,no,0,0,0,0
 2023,670,VCT,Saint Vincent and the Grenadines,UMC,yes,yes,140,5,0,12
-2023,674,SMR,San Marino,HIC,no,no,0,0,0,0
 2023,678,STP,Sao Tome and Principe,LMC,no,no,0,0,0,0
 2023,682,SAU,Saudi Arabia,HIC,yes,yes,64602,27963,14844,18623
 2023,686,SEN,Senegal,LMC,yes,yes,708,263,2459,1014
@@ -3488,7 +3472,6 @@ year,comtrade_code,iso3,country,income_group,reported_exports,reported_imports,o
 2024,659,KNA,Saint Kitts and Nevis,HIC,no,no,0,0,78,4
 2024,662,LCA,Saint Lucia,UMC,no,no,0,0,16,0
 2024,670,VCT,Saint Vincent and the Grenadines,UMC,no,no,0,0,80,5
-2024,674,SMR,San Marino,HIC,no,no,0,0,0,0
 2024,678,STP,Sao Tome and Principe,LMC,no,yes,0,0,0,0
 2024,682,SAU,Saudi Arabia,HIC,yes,yes,25779,26260,12775,18693
 2024,686,SEN,Senegal,LMC,yes,yes,1026,660,3445,735
@@ -3535,3 +3518,421 @@ year,comtrade_code,iso3,country,income_group,reported_exports,reported_imports,o
 2024,882,WSM,Samoa,UMC,yes,yes,7,35,0,0
 2024,887,YEM,Yemen,LIC,yes,yes,100668,12092,25422,4631
 2024,894,ZMB,Zambia,LMC,yes,yes,130,42,30,96
+2025,4,AFG,Afghanistan,LIC,no,no,0,0,188,10964
+2025,8,ALB,Albania,UMC,no,no,0,0,392,0
+2025,12,DZA,Algeria,UMC,no,no,0,0,14527,42
+2025,16,ASM,American Samoa,HIC,no,no,0,0,0,0
+2025,20,AND,Andorra,HIC,yes,no,921,0,0,0
+2025,24,AGO,Angola,LMC,yes,yes,1,222,0,100
+2025,28,ATG,Antigua and Barbuda,HIC,no,no,0,0,16,34
+2025,31,AZE,Azerbaijan,UMC,yes,yes,82,27244,145,549
+2025,32,ARG,Argentina,UMC,no,yes,0,1000,12,1449
+2025,36,AUS,Australia,HIC,yes,yes,14482,10638,20565,16215
+2025,40,AUT,Austria,HIC,yes,yes,172876,203853,99834,145840
+2025,44,BHS,Bahamas,HIC,no,yes,0,16,0,7
+2025,48,BHR,Bahrain,HIC,no,no,0,0,1074,594
+2025,50,BGD,Bangladesh,LMC,no,no,0,0,851,3445
+2025,51,ARM,Armenia,UMC,yes,yes,149,162,33,0
+2025,52,BRB,Barbados,HIC,yes,yes,1948,3,599,4
+2025,56,BEL,Belgium,HIC,yes,yes,336857,351210,353062,253495
+2025,60,BMU,Bermuda,HIC,no,yes,0,0,0,9
+2025,64,BTN,Bhutan,LMC,yes,yes,354,2,0,2
+2025,68,BOL,Bolivia,LMC,yes,yes,644,1428,434,2373
+2025,70,BIH,Bosnia and Herzegovina,UMC,yes,yes,1279,2272,1432,2141
+2025,72,BWA,Botswana,UMC,no,no,0,0,1731,3
+2025,76,BRA,Brazil,UMC,yes,yes,11972,1351,11743,4349
+2025,84,BLZ,Belize,UMC,yes,yes,47,0,33,0
+2025,90,SLB,Solomon Islands,LMC,no,no,0,0,0,0
+2025,92,VGB,Br. Virgin Islands,HIC,no,no,0,0,0,1
+2025,96,BRN,Brunei,HIC,yes,yes,22,6,0,3
+2025,100,BGR,Bulgaria,HIC,yes,yes,12829,68538,14529,63740
+2025,104,MMR,Myanmar,LMC,yes,yes,1128,8922,0,15018
+2025,108,BDI,Burundi,LIC,no,no,0,0,37,20
+2025,112,BLR,Belarus,UMC,no,no,0,0,649,42
+2025,116,KHM,Cambodia,LMC,yes,yes,177,212,98,491
+2025,120,CMR,Cameroon,LMC,no,no,0,0,15,210
+2025,124,CAN,Canada,HIC,yes,yes,185048,157487,196733,149850
+2025,132,CPV,Cabo Verde,UMC,no,yes,0,0,0,0
+2025,136,CYM,Cayman Islands,HIC,no,no,0,0,18,0
+2025,140,CAF,Central African Republic,LIC,no,no,0,0,0,0
+2025,144,LKA,Sri Lanka,UMC,yes,yes,1455,6147,341,6204
+2025,148,TCD,Chad,LIC,no,no,0,0,0,0
+2025,152,CHL,Chile,HIC,yes,yes,5095,3355,4011,1992
+2025,156,CHN,China,UMC,yes,no,80032,0,61359,45360
+2025,170,COL,Colombia,UMC,yes,yes,6381,6820,895,4318
+2025,174,COM,Comoros,LMC,yes,yes,23,2,23,0
+2025,178,COG,Congo,LMC,no,no,0,0,41,146
+2025,180,COD,DR Congo,LIC,yes,yes,24,247,20,111
+2025,188,CRI,Costa Rica,HIC,yes,yes,6985,2257,6035,1805
+2025,191,HRV,Croatia,HIC,yes,yes,39848,54123,51338,34008
+2025,192,CUB,Cuba,UMC,no,no,0,0,28,8
+2025,196,CYP,Cyprus,HIC,yes,yes,8493,9895,12021,11937
+2025,203,CZE,Czechia,HIC,yes,yes,88117,167745,74418,64639
+2025,204,BEN,Benin,LMC,no,no,0,0,77,0
+2025,208,DNK,Denmark,HIC,yes,yes,83660,53813,77710,38231
+2025,212,DMA,Dominica,UMC,no,no,0,0,20,0
+2025,214,DOM,Dominican Republic,UMC,yes,yes,22946,3419,10597,3195
+2025,218,ECU,Ecuador,UMC,yes,no,4542,0,3765,2858
+2025,222,SLV,El Salvador,UMC,yes,yes,8306,6422,2528,5502
+2025,226,GNQ,Equatorial Guinea,UMC,no,no,0,0,0,15
+2025,231,ETH,Ethiopia,LIC,no,no,0,0,194,460
+2025,232,ERI,Eritrea,LIC,no,no,0,0,0,0
+2025,233,EST,Estonia,HIC,yes,yes,20109,5106,18159,10642
+2025,234,FRO,Faroe Islands,HIC,yes,yes,744,21,387,1
+2025,242,FJI,Fiji,UMC,yes,yes,407,5,59,0
+2025,246,FIN,Finland,HIC,yes,yes,29204,10942,21590,12795
+2025,251,FRA,France,HIC,yes,yes,404046,138807,416562,160503
+2025,258,PYF,French Polynesia,HIC,no,no,0,0,88,0
+2025,262,DJI,Djibouti,LMC,no,no,0,0,0,3382
+2025,266,GAB,Gabon,UMC,no,no,0,0,17,0
+2025,268,GEO,Georgia,UMC,yes,yes,738,118,707,1
+2025,270,GMB,Gambia,LIC,no,no,0,0,0,5
+2025,275,PSE,State of Palestine,LMC,no,no,0,0,0,0
+2025,276,DEU,Germany,HIC,yes,yes,814168,581209,904966,502971
+2025,288,GHA,Ghana,LMC,yes,yes,5368,8187,2373,7418
+2025,292,GIB,Gibraltar,HIC,no,no,0,0,351,2
+2025,296,KIR,Kiribati,LMC,no,no,0,0,0,0
+2025,300,GRC,Greece,HIC,yes,yes,66103,36088,58882,22706
+2025,304,GRL,Greenland,HIC,no,no,0,0,0,0
+2025,308,GRD,Grenada,UMC,no,no,0,0,0,0
+2025,316,GUM,Guam,HIC,no,no,0,0,0,0
+2025,320,GTM,Guatemala,UMC,yes,yes,8417,14324,4067,15885
+2025,324,GIN,Guinea,LMC,no,no,0,0,0,122
+2025,328,GUY,Guyana,HIC,no,yes,0,1,17,49
+2025,332,HTI,Haiti,LMC,no,no,0,0,110,5
+2025,340,HND,Honduras,LMC,no,no,0,0,5584,26941
+2025,344,HKG,Hong Kong,HIC,yes,yes,8339,6283,2111,10081
+2025,348,HUN,Hungary,HIC,yes,yes,64713,29715,48306,27137
+2025,352,ISL,Iceland,HIC,yes,yes,3570,29,11019,15
+2025,360,IDN,Indonesia,UMC,yes,yes,17742,271838,14054,307588
+2025,364,IRN,Iran,UMC,no,no,0,0,23670,94
+2025,368,IRQ,Iraq,UMC,no,no,0,0,7664,34
+2025,372,IRL,Ireland,HIC,yes,yes,88402,31510,94275,23298
+2025,376,ISR,Israel,HIC,yes,yes,13170,2628,14412,2032
+2025,380,ITA,Italy,HIC,yes,yes,222110,190599,262117,182221
+2025,384,CIV,Côte d'Ivoire,LMC,yes,no,980,0,630,252
+2025,388,JAM,Jamaica,UMC,yes,yes,7378,38,1104,84
+2025,392,JPN,Japan,HIC,yes,yes,533000,2566,58068,2892
+2025,398,KAZ,Kazakhstan,UMC,yes,yes,21680,490,7353,64
+2025,400,JOR,Jordan,UMC,no,no,0,0,456,119
+2025,404,KEN,Kenya,LMC,yes,yes,5840,8919,2004,10467
+2025,408,PRK,North Korea,LIC,no,no,0,0,0,403
+2025,410,KOR,South Korea,HIC,yes,yes,52350,20500,8076,43531
+2025,414,KWT,Kuwait,HIC,yes,yes,4870,753,432,0
+2025,417,KGZ,Kyrgyzstan,LMC,yes,yes,640,2927,258,2010
+2025,418,LAO,Laos,LMC,no,no,0,0,0,4819
+2025,422,LBN,Lebanon,LMC,no,no,0,0,4026,121
+2025,426,LSO,Lesotho,LMC,no,no,0,0,543,3
+2025,428,LVA,Latvia,HIC,yes,yes,23132,26179,19844,66409
+2025,430,LBR,Liberia,LIC,yes,yes,0,1,23,3
+2025,434,LBY,Libya,UMC,no,no,0,0,9292,51
+2025,440,LTU,Lithuania,HIC,yes,yes,32512,94871,45586,87872
+2025,442,LUX,Luxembourg,HIC,yes,yes,9651,12741,20749,37519
+2025,446,MAC,Macao,HIC,yes,no,223,0,653,2
+2025,450,MDG,Madagascar,LIC,yes,yes,1450,9154,58,1258
+2025,454,MWI,Malawi,LIC,yes,yes,119,667,0,798
+2025,458,MYS,Malaysia,UMC,yes,yes,15587,457844,6194,613793
+2025,462,MDV,Maldives,UMC,yes,no,329,0,0,1
+2025,466,MLI,Mali,LIC,no,no,0,0,292,3205
+2025,470,MLT,Malta,HIC,yes,yes,5101,25,6607,47
+2025,478,MRT,Mauritania,LMC,yes,yes,3575,71,0,20
+2025,480,MUS,Mauritius,UMC,yes,yes,1178,1,1347,109
+2025,484,MEX,Mexico,UMC,yes,yes,77605,77220,76942,78386
+2025,490,S19,Taiwan,HIC,no,no,0,0,9766,96461
+2025,496,MNG,Mongolia,UMC,no,no,0,0,0,0
+2025,498,MDA,Moldova,UMC,yes,no,364,0,104,20
+2025,499,MNE,Montenegro,UMC,yes,yes,700,9,604,7
+2025,504,MAR,Morocco,LMC,yes,yes,8060,4881,1941,6054
+2025,508,MOZ,Mozambique,LIC,yes,yes,925,577,945,1813
+2025,512,OMN,Oman,HIC,yes,yes,461,6261,789,9271
+2025,516,NAM,Namibia,LMC,yes,yes,2792,14,2993,61
+2025,520,NRU,Nauru,HIC,no,no,0,0,0,0
+2025,524,NPL,Nepal,LMC,no,no,0,0,0,45
+2025,528,NLD,Netherlands,HIC,yes,yes,487274,538392,443876,462431
+2025,531,CUW,Curaçao,HIC,no,no,0,0,13,1
+2025,533,ABW,Aruba,HIC,no,no,0,0,12,0
+2025,534,SXM,Sint Maarten,HIC,no,no,0,0,40,1
+2025,540,NCL,New Caledonia,HIC,no,no,0,0,0,2
+2025,548,VUT,Vanuatu,LMC,no,no,0,0,0,3
+2025,554,NZL,New Zealand,HIC,yes,yes,27048,258,13602,3876
+2025,558,NIC,Nicaragua,LMC,yes,yes,5169,547,3902,239
+2025,562,NER,Niger,LIC,yes,yes,62,150,15,40
+2025,566,NGA,Nigeria,LMC,yes,yes,4655,11563,24739,4073
+2025,579,NOR,Norway,HIC,yes,yes,65524,6104,135054,7321
+2025,580,MNP,Northern Mariana Islands,HIC,no,no,0,0,0,0
+2025,583,FSM,Micronesia,UMC,no,no,0,0,0,0
+2025,584,MHL,Marshall Islands,UMC,no,no,0,0,0,0
+2025,585,PLW,Palau,HIC,no,no,0,0,0,0
+2025,586,PAK,Pakistan,LMC,yes,yes,13294,59644,134,22360
+2025,591,PAN,Panama,HIC,yes,yes,5234,64,3642,344
+2025,598,PNG,Papua New Guinea,LMC,no,no,0,0,0,5
+2025,600,PRY,Paraguay,UMC,yes,yes,1068,11468,807,10832
+2025,604,PER,Peru,UMC,yes,yes,495,12802,117,8036
+2025,608,PHL,Philippines,UMC,yes,yes,68077,7085,3097,18888
+2025,616,POL,Poland,HIC,yes,yes,141094,136353,203162,225719
+2025,620,PRT,Portugal,HIC,yes,yes,50110,62981,28499,69862
+2025,624,GNB,Guinea-Bissau,LIC,no,no,0,0,0,0
+2025,626,TLS,Timor-Leste,LMC,no,no,0,0,0,0
+2025,634,QAT,Qatar,HIC,no,no,0,0,12106,1651
+2025,642,ROU,Romania,HIC,yes,yes,57141,49366,74667,35206
+2025,643,RUS,Russia,HIC,no,no,0,0,22692,19105
+2025,646,RWA,Rwanda,LIC,yes,yes,688,61,429,1
+2025,659,KNA,Saint Kitts and Nevis,HIC,no,no,0,0,46,3
+2025,662,LCA,Saint Lucia,UMC,no,no,0,0,0,22
+2025,670,VCT,Saint Vincent and the Grenadines,UMC,no,no,0,0,20,0
+2025,678,STP,Sao Tome and Principe,LMC,no,yes,0,0,0,0
+2025,682,SAU,Saudi Arabia,HIC,yes,yes,39350,10871,17343,16135
+2025,686,SEN,Senegal,LMC,yes,yes,1846,2429,2614,1775
+2025,688,SRB,Serbia,UMC,yes,yes,3231,10717,3994,13068
+2025,690,SYC,Seychelles,HIC,no,yes,0,18,108,17
+2025,694,SLE,Sierra Leone,LIC,no,no,0,0,59,1
+2025,699,IND,India,LMC,yes,yes,3704,53464,5763,104411
+2025,702,SGP,Singapore,HIC,yes,yes,13036,1272,17611,2704
+2025,703,SVK,Slovakia,HIC,yes,yes,60290,59292,49087,67472
+2025,704,VNM,Vietnam,UMC,no,no,0,0,9688,383816
+2025,705,SVN,Slovenia,HIC,yes,yes,92613,95699,208074,131033
+2025,706,SOM,Somalia,LIC,no,no,0,0,0,0
+2025,710,ZAF,South Africa,UMC,yes,yes,8349,19752,6356,21482
+2025,716,ZWE,Zimbabwe,LMC,yes,yes,5874,3091,5297,3024
+2025,724,ESP,Spain,HIC,yes,yes,288943,251342,183894,276318
+2025,728,SSD,South Sudan,LIC,yes,yes,865,24,865,24
+2025,729,SDN,Sudan,LIC,no,no,0,0,744,0
+2025,740,SUR,Suriname,UMC,no,yes,0,20,35,0
+2025,748,SWZ,Eswatini,LMC,no,no,0,0,744,2
+2025,752,SWE,Sweden,HIC,yes,yes,139886,198108,109394,82365
+2025,757,CHE,Switzerland,HIC,yes,yes,82199,93695,83528,83348
+2025,760,SYR,Syria,LIC,no,no,0,0,1934,205
+2025,762,TJK,Tajikistan,LMC,no,no,0,0,4695,381
+2025,764,THA,Thailand,UMC,yes,no,96871,0,21998,21806
+2025,768,TGO,Togo,LMC,yes,yes,1477,432,799,434
+2025,776,TON,Tonga,UMC,no,yes,0,3,0,0
+2025,780,TTO,Trinidad and Tobago,HIC,yes,yes,1812,105,89,66
+2025,784,ARE,United Arab Emirates,HIC,no,no,0,0,24222,14000
+2025,788,TUN,Tunisia,LMC,no,no,0,0,21229,53
+2025,792,TUR,Turkey,UMC,yes,yes,9811,698917,7327,615185
+2025,795,TKM,Turkmenistan,UMC,no,no,0,0,23,250
+2025,796,TCA,Turks and Caicos Islands,HIC,no,no,0,0,0,253
+2025,798,TUV,Tuvalu,UMC,no,no,0,0,0,0
+2025,800,UGA,Uganda,LIC,yes,yes,15653,5681,708,3314
+2025,804,UKR,Ukraine,UMC,no,no,0,0,1442,12612
+2025,807,MKD,North Macedonia,UMC,yes,yes,3614,508,1450,303
+2025,818,EGY,Egypt,LMC,yes,yes,307,35358,87,23633
+2025,826,GBR,United Kingdom,HIC,yes,yes,677637,113043,604118,115136
+2025,834,TZA,Tanzania,LMC,yes,yes,32867,1558,5843,1382
+2025,842,USA,United States,HIC,yes,yes,388103,307450,430775,368987
+2025,854,BFA,Burkina Faso,LIC,yes,yes,4296,1285,1761,571
+2025,858,URY,Uruguay,HIC,yes,yes,824,143,738,689
+2025,860,UZB,Uzbekistan,LMC,yes,yes,1339,29360,15,6825
+2025,862,VEN,Venezuela,LMC,no,no,0,0,45,642
+2025,882,WSM,Samoa,UMC,yes,yes,0,1,0,0
+2025,887,YEM,Yemen,LIC,no,no,0,0,36093,17129
+2025,894,ZMB,Zambia,LMC,yes,yes,318,71,322,57
+2026,4,AFG,Afghanistan,LIC,no,no,0,0,0,0
+2026,8,ALB,Albania,UMC,no,no,0,0,0,4
+2026,12,DZA,Algeria,UMC,no,no,0,0,10915,21
+2026,16,ASM,American Samoa,HIC,no,no,0,0,0,0
+2026,20,AND,Andorra,HIC,yes,yes,1918,0,0,0
+2026,24,AGO,Angola,LMC,no,yes,0,1941,0,13
+2026,28,ATG,Antigua and Barbuda,HIC,no,no,0,0,0,24
+2026,31,AZE,Azerbaijan,UMC,yes,yes,599,42133,402,386
+2026,32,ARG,Argentina,UMC,no,yes,0,3804,15,2542
+2026,36,AUS,Australia,HIC,yes,yes,14516,7111,8074,6648
+2026,40,AUT,Austria,HIC,no,no,0,0,114792,150694
+2026,44,BHS,Bahamas,HIC,no,no,0,0,0,1
+2026,48,BHR,Bahrain,HIC,no,no,0,0,1735,26
+2026,50,BGD,Bangladesh,LMC,no,no,0,0,6950,3348
+2026,51,ARM,Armenia,UMC,yes,yes,357,9,125,10
+2026,52,BRB,Barbados,HIC,yes,yes,1263,4,527,0
+2026,56,BEL,Belgium,HIC,yes,yes,283077,228682,260392,189666
+2026,60,BMU,Bermuda,HIC,no,yes,0,1,0,0
+2026,64,BTN,Bhutan,LMC,no,no,0,0,0,18
+2026,68,BOL,Bolivia,LMC,yes,yes,523,233,435,479
+2026,70,BIH,Bosnia and Herzegovina,UMC,yes,yes,843,4098,1067,3358
+2026,72,BWA,Botswana,UMC,no,no,0,0,977,90
+2026,76,BRA,Brazil,UMC,yes,yes,15256,3784,11965,3830
+2026,84,BLZ,Belize,UMC,no,no,0,0,5,1
+2026,90,SLB,Solomon Islands,LMC,no,no,0,0,0,0
+2026,92,VGB,Br. Virgin Islands,HIC,no,no,0,0,0,22
+2026,96,BRN,Brunei,HIC,no,no,0,0,0,11
+2026,100,BGR,Bulgaria,HIC,yes,yes,10414,91610,15341,62844
+2026,104,MMR,Myanmar,LMC,no,no,0,0,0,12544
+2026,108,BDI,Burundi,LIC,no,no,0,0,0,0
+2026,112,BLR,Belarus,UMC,no,no,0,0,1407,0
+2026,116,KHM,Cambodia,LMC,no,no,0,0,1940,101
+2026,120,CMR,Cameroon,LMC,no,no,0,0,0,0
+2026,124,CAN,Canada,HIC,yes,yes,181309,155229,158964,150853
+2026,132,CPV,Cabo Verde,UMC,no,no,0,0,0,0
+2026,136,CYM,Cayman Islands,HIC,no,no,0,0,25,0
+2026,140,CAF,Central African Republic,LIC,no,no,0,0,0,0
+2026,144,LKA,Sri Lanka,UMC,no,no,0,0,728,2234
+2026,148,TCD,Chad,LIC,no,no,0,0,0,0
+2026,152,CHL,Chile,HIC,yes,yes,4177,3789,686,2966
+2026,156,CHN,China,UMC,no,no,0,0,44482,30773
+2026,170,COL,Colombia,UMC,yes,yes,10220,15245,751,4459
+2026,174,COM,Comoros,LMC,no,no,0,0,0,0
+2026,178,COG,Congo,LMC,no,no,0,0,0,0
+2026,180,COD,DR Congo,LIC,no,no,0,0,1661,0
+2026,188,CRI,Costa Rica,HIC,no,no,0,0,1987,1435
+2026,191,HRV,Croatia,HIC,yes,yes,42092,41755,50343,27031
+2026,192,CUB,Cuba,UMC,no,no,0,0,0,0
+2026,196,CYP,Cyprus,HIC,no,no,0,0,10210,2122
+2026,203,CZE,Czechia,HIC,yes,yes,94319,185430,60681,52787
+2026,204,BEN,Benin,LMC,no,no,0,0,329,0
+2026,208,DNK,Denmark,HIC,yes,yes,75808,77464,70959,21490
+2026,212,DMA,Dominica,UMC,no,no,0,0,0,0
+2026,214,DOM,Dominican Republic,UMC,yes,yes,16750,2186,3798,1922
+2026,218,ECU,Ecuador,UMC,yes,yes,5875,0,59,4660
+2026,222,SLV,El Salvador,UMC,yes,yes,7034,7878,2280,3461
+2026,226,GNQ,Equatorial Guinea,UMC,no,no,0,0,0,0
+2026,231,ETH,Ethiopia,LIC,no,no,0,0,501,415
+2026,232,ERI,Eritrea,LIC,no,no,0,0,0,0
+2026,233,EST,Estonia,HIC,yes,yes,16575,3747,17031,8343
+2026,234,FRO,Faroe Islands,HIC,yes,yes,528,2,108,21
+2026,242,FJI,Fiji,UMC,yes,yes,450,0,73,0
+2026,246,FIN,Finland,HIC,yes,yes,32093,23809,23791,11154
+2026,251,FRA,France,HIC,no,no,0,0,380045,153216
+2026,258,PYF,French Polynesia,HIC,no,no,0,0,0,0
+2026,262,DJI,Djibouti,LMC,no,no,0,0,0,281
+2026,266,GAB,Gabon,UMC,no,no,0,0,0,0
+2026,268,GEO,Georgia,UMC,yes,yes,697,247,849,0
+2026,270,GMB,Gambia,LIC,no,no,0,0,0,2
+2026,275,PSE,State of Palestine,LMC,no,no,0,0,0,0
+2026,276,DEU,Germany,HIC,yes,yes,668044,584034,651853,386546
+2026,288,GHA,Ghana,LMC,yes,yes,1887,9665,1053,6776
+2026,292,GIB,Gibraltar,HIC,no,no,0,0,468,3
+2026,296,KIR,Kiribati,LMC,no,no,0,0,0,0
+2026,300,GRC,Greece,HIC,yes,yes,62389,51846,49465,21164
+2026,304,GRL,Greenland,HIC,no,no,0,0,41,1
+2026,308,GRD,Grenada,UMC,no,yes,0,8,0,0
+2026,316,GUM,Guam,HIC,no,no,0,0,0,0
+2026,320,GTM,Guatemala,UMC,yes,yes,9504,16830,1555,5923
+2026,324,GIN,Guinea,LMC,no,no,0,0,0,0
+2026,328,GUY,Guyana,HIC,no,yes,0,4,0,84
+2026,332,HTI,Haiti,LMC,no,no,0,0,35,0
+2026,340,HND,Honduras,LMC,no,no,0,0,2780,13469
+2026,344,HKG,Hong Kong,HIC,yes,yes,10164,9639,297,9557
+2026,348,HUN,Hungary,HIC,yes,yes,93563,37176,50370,14303
+2026,352,ISL,Iceland,HIC,yes,yes,2165,24,2036,9
+2026,360,IDN,Indonesia,UMC,yes,yes,13078,148487,8742,163175
+2026,364,IRN,Iran,UMC,no,no,0,0,26337,92
+2026,368,IRQ,Iraq,UMC,no,no,0,0,23676,183
+2026,372,IRL,Ireland,HIC,yes,yes,69264,23012,61183,19757
+2026,376,ISR,Israel,HIC,yes,yes,12003,2830,18666,1237
+2026,380,ITA,Italy,HIC,yes,yes,160197,151252,186670,115003
+2026,384,CIV,Côte d'Ivoire,LMC,yes,no,1085,0,113,261
+2026,388,JAM,Jamaica,UMC,no,no,0,0,296,2
+2026,392,JPN,Japan,HIC,yes,yes,564060,8775,49029,1390
+2026,398,KAZ,Kazakhstan,UMC,yes,yes,14150,1387,8734,1
+2026,400,JOR,Jordan,UMC,no,no,0,0,674,33
+2026,404,KEN,Kenya,LMC,no,no,0,0,267,5014
+2026,408,PRK,North Korea,LIC,no,no,0,0,0,0
+2026,410,KOR,South Korea,HIC,no,no,0,0,9668,42326
+2026,414,KWT,Kuwait,HIC,no,no,0,0,244,2
+2026,417,KGZ,Kyrgyzstan,LMC,yes,yes,662,1168,512,6
+2026,418,LAO,Laos,LMC,no,no,0,0,857,7996
+2026,422,LBN,Lebanon,LMC,no,no,0,0,4181,571
+2026,426,LSO,Lesotho,LMC,no,no,0,0,217,0
+2026,428,LVA,Latvia,HIC,yes,yes,18244,32571,17094,76122
+2026,430,LBR,Liberia,LIC,no,no,0,0,0,0
+2026,434,LBY,Libya,UMC,no,no,0,0,13635,110
+2026,440,LTU,Lithuania,HIC,yes,yes,43950,79571,53210,90006
+2026,442,LUX,Luxembourg,HIC,yes,yes,8074,12757,17867,34547
+2026,446,MAC,Macao,HIC,no,no,0,0,747,0
+2026,450,MDG,Madagascar,LIC,no,no,0,0,0,361
+2026,454,MWI,Malawi,LIC,no,no,0,0,0,522
+2026,458,MYS,Malaysia,UMC,yes,yes,15453,82675,3869,547553
+2026,462,MDV,Maldives,UMC,no,no,0,0,222,6
+2026,466,MLI,Mali,LIC,no,no,0,0,6,108
+2026,470,MLT,Malta,HIC,no,no,0,0,5300,21
+2026,478,MRT,Mauritania,LMC,no,no,0,0,0,0
+2026,480,MUS,Mauritius,UMC,yes,no,1408,0,1399,216
+2026,484,MEX,Mexico,UMC,yes,yes,47491,151142,51359,91159
+2026,490,S19,Taiwan,HIC,no,no,0,0,4474,104950
+2026,496,MNG,Mongolia,UMC,no,no,0,0,0,0
+2026,498,MDA,Moldova,UMC,yes,no,314,0,49,31
+2026,499,MNE,Montenegro,UMC,no,no,0,0,813,26
+2026,504,MAR,Morocco,LMC,no,no,0,0,1016,669
+2026,508,MOZ,Mozambique,LIC,no,no,0,0,2146,163
+2026,512,OMN,Oman,HIC,no,yes,0,12132,1830,3488
+2026,516,NAM,Namibia,LMC,no,no,0,0,5671,15
+2026,520,NRU,Nauru,HIC,no,no,0,0,0,0
+2026,524,NPL,Nepal,LMC,no,no,0,0,0,22
+2026,528,NLD,Netherlands,HIC,yes,yes,454869,490893,351951,364290
+2026,531,CUW,Curaçao,HIC,no,no,0,0,284,0
+2026,533,ABW,Aruba,HIC,no,no,0,0,0,0
+2026,534,SXM,Sint Maarten,HIC,no,no,0,0,0,0
+2026,540,NCL,New Caledonia,HIC,no,no,0,0,0,0
+2026,548,VUT,Vanuatu,LMC,no,no,0,0,13,0
+2026,554,NZL,New Zealand,HIC,yes,yes,20648,1112,6415,2474
+2026,558,NIC,Nicaragua,LMC,no,no,0,0,4383,461
+2026,562,NER,Niger,LIC,no,no,0,0,0,0
+2026,566,NGA,Nigeria,LMC,no,no,0,0,34490,2141
+2026,579,NOR,Norway,HIC,yes,yes,63907,13158,87835,17077
+2026,580,MNP,Northern Mariana Islands,HIC,no,no,0,0,0,0
+2026,583,FSM,Micronesia,UMC,no,no,0,0,0,0
+2026,584,MHL,Marshall Islands,UMC,no,no,0,0,0,0
+2026,585,PLW,Palau,HIC,no,no,0,0,0,0
+2026,586,PAK,Pakistan,LMC,yes,yes,6241,98462,98,21360
+2026,591,PAN,Panama,HIC,yes,yes,7570,42,1785,901
+2026,598,PNG,Papua New Guinea,LMC,no,no,0,0,0,2
+2026,600,PRY,Paraguay,UMC,no,yes,0,11391,544,13019
+2026,604,PER,Peru,UMC,no,no,0,0,36,7335
+2026,608,PHL,Philippines,UMC,yes,yes,62738,34687,1463,35038
+2026,616,POL,Poland,HIC,yes,yes,119870,122491,152255,232145
+2026,620,PRT,Portugal,HIC,yes,yes,50178,35062,28521,39649
+2026,624,GNB,Guinea-Bissau,LIC,no,no,0,0,0,0
+2026,626,TLS,Timor-Leste,LMC,no,no,0,0,0,0
+2026,634,QAT,Qatar,HIC,no,no,0,0,10476,6
+2026,642,ROU,Romania,HIC,yes,yes,55184,55688,47877,38321
+2026,643,RUS,Russia,HIC,no,no,0,0,47431,7983
+2026,646,RWA,Rwanda,LIC,no,no,0,0,0,0
+2026,659,KNA,Saint Kitts and Nevis,HIC,no,no,0,0,0,0
+2026,662,LCA,Saint Lucia,UMC,no,no,0,0,0,32
+2026,670,VCT,Saint Vincent and the Grenadines,UMC,no,no,0,0,31,0
+2026,678,STP,Sao Tome and Principe,LMC,no,no,0,0,0,0
+2026,682,SAU,Saudi Arabia,HIC,yes,yes,19799,1553,14084,2521
+2026,686,SEN,Senegal,LMC,no,no,0,0,1477,1397
+2026,688,SRB,Serbia,UMC,yes,yes,4040,14508,4837,19532
+2026,690,SYC,Seychelles,HIC,no,no,0,0,0,0
+2026,694,SLE,Sierra Leone,LIC,no,no,0,0,57,1
+2026,699,IND,India,LMC,yes,yes,1993,64287,3066,69613
+2026,702,SGP,Singapore,HIC,yes,yes,1941,298,14444,747
+2026,703,SVK,Slovakia,HIC,yes,yes,47334,62333,47629,55728
+2026,704,VNM,Vietnam,UMC,no,no,0,0,8494,288604
+2026,705,SVN,Slovenia,HIC,yes,yes,55022,74790,42630,66754
+2026,706,SOM,Somalia,LIC,no,no,0,0,0,0
+2026,710,ZAF,South Africa,UMC,yes,yes,9079,29412,4973,2007
+2026,716,ZWE,Zimbabwe,LMC,no,no,0,0,6601,4873
+2026,724,ESP,Spain,HIC,yes,yes,263962,221957,108191,138434
+2026,728,SSD,South Sudan,LIC,yes,no,1198,0,0,0
+2026,729,SDN,Sudan,LIC,no,no,0,0,286,85
+2026,740,SUR,Suriname,UMC,no,no,0,0,0,1
+2026,748,SWZ,Eswatini,LMC,no,no,0,0,800,3
+2026,752,SWE,Sweden,HIC,yes,yes,147892,111852,110729,54340
+2026,757,CHE,Switzerland,HIC,yes,yes,74370,85606,57062,56416
+2026,760,SYR,Syria,LIC,no,no,0,0,4074,562
+2026,762,TJK,Tajikistan,LMC,no,no,0,0,4886,165
+2026,764,THA,Thailand,UMC,yes,no,102595,0,8090,18802
+2026,768,TGO,Togo,LMC,yes,yes,2851,961,628,0
+2026,776,TON,Tonga,UMC,no,no,0,0,0,0
+2026,780,TTO,Trinidad and Tobago,HIC,no,no,0,0,361,17
+2026,784,ARE,United Arab Emirates,HIC,no,no,0,0,37732,1646
+2026,788,TUN,Tunisia,LMC,no,no,0,0,26847,10
+2026,792,TUR,Turkey,UMC,yes,yes,5883,754153,7586,476874
+2026,795,TKM,Turkmenistan,UMC,no,no,0,0,47,0
+2026,796,TCA,Turks and Caicos Islands,HIC,no,no,0,0,0,2
+2026,798,TUV,Tuvalu,UMC,no,no,0,0,0,2
+2026,800,UGA,Uganda,LIC,no,no,0,0,0,1572
+2026,804,UKR,Ukraine,UMC,no,no,0,0,900,13432
+2026,807,MKD,North Macedonia,UMC,yes,yes,4944,240,2522,0
+2026,818,EGY,Egypt,LMC,yes,yes,1383,37734,1122,46941
+2026,826,GBR,United Kingdom,HIC,yes,yes,552637,97874,531266,88858
+2026,834,TZA,Tanzania,LMC,no,no,0,0,6667,58
+2026,842,USA,United States,HIC,yes,yes,449638,219302,486306,308862
+2026,854,BFA,Burkina Faso,LIC,no,no,0,0,1548,102
+2026,858,URY,Uruguay,HIC,no,no,0,0,600,1374
+2026,860,UZB,Uzbekistan,LMC,yes,yes,235,45193,28,7947
+2026,862,VEN,Venezuela,LMC,no,no,0,0,305,490
+2026,882,WSM,Samoa,UMC,no,no,0,0,0,0
+2026,887,YEM,Yemen,LIC,no,no,0,0,30269,6783
+2026,894,ZMB,Zambia,LMC,no,no,0,0,0,500

@@ -7,7 +7,7 @@ Source for [globalwastetrade.org](https://globalwastetrade.org): an explorer for
 | Path | What it is |
 |---|---|
 | `site/` | The website: the explorer (`index.html`), Trends (`trends.html`, `trends.js`) and About (`about.html`), served as is. No build step. |
-| `site/data/` | The data the page loads: `manifest.json` lists the years, `plastic_<year>.json` holds each year's trade records, `trends.json` and `trends_<stream>.json` the yearly totals (used by the explorer's side panel), and `flows.json` and `flows_<stream>.json` every route for every year, per view, which the Trends page filters by country, region and income group. `completeness.json` and `completeness.csv` say who reported HS 3915 exports and imports each year, and each `plastic_<year>.json` carries a `reporting` block used to hatch non-reporters on the map. |
+| `site/data/` | The data the page loads: `manifest.json` lists the years, `plastic_<year>.json` holds each year's trade records, `trends.json` and `trends_<stream>.json` the yearly totals (used by the explorer's side panel), and `flows.json` and `flows_<stream>.json` every route for every year, per view, which the Trends page filters by country, region and income group. `completeness.json` and `completeness.csv` say who reported HS 3915 exports and imports each year, and each `plastic_<year>.json` carries a `reporting` block used to hatch non-reporters on the map. `imputed_<year>.json` (and `imputed` in each flows file) holds the routes filled in for non-reporters by `pipeline/impute.py`, shown only when "Imputed" is switched on. `manifest.json` also names the `default` year (the most recent with normal coverage) and the `modelled` years. |
 | `site/vendor/` | d3 7.8.5, d3-sankey 0.12.3 and topojson-client 3.1.0, kept locally. |
 | `pipeline/fetch_comtrade.py` | Downloads one year of HS 3915 records from the Comtrade API, or with `--name mixed` the wastes that carry plastic amongst other materials. |
 | `pipeline/build_site_data.py` | Applies the data rules, writes `site/data/` and a check report in `pipeline/reports/`. |
@@ -56,3 +56,10 @@ Render serves `site/` as a static site (see `render.yaml`). Every merge to `main
 ## Licence
 
 The site's text, charts and processed data are CC BY 4.0; see [LICENSE.md](LICENSE.md). Sources and the "Please cite as" line are on the About page.
+
+## Modelled current year
+
+`pipeline/fetch_comtrade.py --year <y> --monthly` downloads the monthly returns published so far, and
+`pipeline/model_part_year.py --year <y>` turns them into a full-year raw file (annual returns where filed,
+the rest scaled from the months so far by each reporter's pattern the year before). Then run
+`build_site_data.py` and `build_trends.py` as usual. The monthly workflow does this for last year and the current year.

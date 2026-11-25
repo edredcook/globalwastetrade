@@ -151,6 +151,7 @@ input[type=range]{accent-color:var(--out);width:180px;max-width:100%}
     <div class="ctl"><span>Materials</span><details class="dd" id="mats"><summary id="matsum">Plastic waste and scrap (HS 3915)</summary><div class="ddm" id="matmenu"></div></details></div>
     <div class="ctl" id="countctl" hidden><span>Count</span><div class="seg" data-k="count"><button data-v="whole">Whole material</button><button data-v="plastic">Plastic content</button></div></div>
     <div class="ctl"><span>Figures</span><div class="seg" data-k="v"><button data-v="0">Exporters' reports</button><button data-v="1">Importers' reports</button></div></div>
+    <div class="ctl"><span>Gaps</span><div class="seg" data-k="imp"><button data-v="1">Imputed</button><button data-v="0">As reported</button></div></div>
     <div class="ctl"><span>Measure</span><div class="seg" data-k="m"><button data-v="t">Tonnes</button><button data-v="usd">US$</button></div></div>
   </div>
   <section class="card filters" aria-label="Filters">
@@ -176,7 +177,7 @@ input[type=range]{accent-color:var(--out);width:180px;max-width:100%}
       <div class="chart" id="cC"></div><div class="legend" id="lC"></div></section>
     <section class="card wide"><div class="hd"><h2 id="hE">Receivers year by year</h2><div class="cbar"><div class="seg" data-k="hdir"><button data-v="in">Receivers</button><button data-v="out">Senders</button></div><label class="ctl"><span>Rows<b id="hrv"></b></span><input type="range" id="hrows" min="5" max="60" step="5"></label></div></div>
       <div class="chart scroll" id="cE"></div><div class="legend" id="lE"></div></section>
-    <section class="card wide"><div class="hd"><h2>Who reported plastic waste trade</h2><a class="dl" href="data/completeness.csv" download="gwt-who-reported-hs3915-2008-2024.csv">Download CSV</a></div>
+    <section class="card wide"><div class="hd"><h2>Who reported plastic waste trade</h2><a class="dl" href="data/completeness.csv" download="gwt-who-reported-hs3915.csv">Download CSV</a></div>
       <div class="chart" id="cW"></div><div class="legend" id="lW"></div><div class="nrlist" id="wlist"></div></section>
   </div>
   <div id="p-glance" hidden>
@@ -208,6 +209,6 @@ input[type=range]{accent-color:var(--out);width:180px;max-width:100%}
 
 <div class="tip" id="tip" hidden></div>
 <script src="vendor/d3-7.8.5.min.js"></script>
-<script src="trends.js?v=6"></script>
+<script src="trends.js?v=7"></script>
 </body>
 </html>

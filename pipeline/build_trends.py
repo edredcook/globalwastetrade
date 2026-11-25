@@ -14,12 +14,17 @@ It also writes site/data/completeness.json and completeness.csv: for HS 3915, wh
 reported exports and imports each year, and what partners recorded with those who did not.
 
 It also writes site/data/flows.json and flows_<stream>.json: every route for every
-year, per view, so the Trends page can filter by country, region and income group.
+year, per view, so the Trends page can filter by country, region and income group,
+with the imputed routes for economies that did not report (see impute.py) kept apart
+under "imputed". site/data/imputed_<year>.json holds the same imputed routes for the
+explorer, and manifest.json gets "default": the most recent year with normal coverage.
 """
 import csv
 import json
 from collections import defaultdict
 from pathlib import Path
+
+from impute import impute
 
 GROUPS = ["HIC", "UMC", "LMC", "LIC", "NS"]
 SITE_DATA = Path(__file__).resolve().parent.parent / "site" / "data"
@@ -63,7 +68,7 @@ def summarise(years, per_year):
 INC_CODE = {"HIC": "H", "UMC": "U", "LMC": "M", "LIC": "L", "NS": "N"}
 
 
-def flows(years, per_year, schemes):
+def flows(years, per_year, schemes, imputed=None, modelled=()):
     """Compact route table. flows[view][i] is a flat list [ex, rc, tonnes, kUS$, ...] for
     year i, with ex and rc as indexes into codes. inc[k] holds one letter per year
     (H, U, M, L, N) for that year's World Bank group."""
@@ -75,22 +80,46 @@ def flows(years, per_year, schemes):
             if c in idx:
                 names[c] = v[:2]
                 inc[c][i] = INC_CODE.get(v[2], "N")
-    out = {str(v): [[] for _ in years] for v in (0, 1)}
-    for i, (routes, _) in enumerate(per_year):
-        for v, ex, rc, t, usd, est in routes:
-            ex, rc = str(ex), str(rc)
-            if ex == rc or (round(t) == 0 and round(usd / 1000) == 0):
-                continue
-            out[str(v)][i] += [idx[ex], idx[rc], round(t), round(usd / 1000)]
-    return {
+    def pack(all_routes):
+        out = {str(v): [[] for _ in years] for v in (0, 1)}
+        for i, routes in enumerate(all_routes):
+            for v, ex, rc, t, usd, *_ in routes:
+                ex, rc = str(ex), str(rc)
+                if ex == rc or (round(t) == 0 and round(usd / 1000) == 0):
+                    continue
+                out[str(v)][i] += [idx[ex], idx[rc], round(t), round(usd / 1000)]
+        return out
+    res = {
         "years": years,
         "groups": GROUPS,
         "codes": codes,
         "names": [names.get(c, [c, "Code " + c]) for c in codes],
         "inc": ["".join(inc[c]) for c in codes],
         "regions": {k: [m.get(c, "") for c in codes] for k, m in schemes.items()},
-        "flows": out,
+        "modelled": list(modelled),
+        "flows": pack([r for r, _ in per_year]),
     }
+    if imputed is not None:
+        res["imputed"] = pack(imputed)
+    return res
+
+
+def default_year(comp):
+    """The most recent year with normal coverage: no more economies without any
+    report than 1.2 times the median of the five years before, and partner-only
+    tonnes under 5% of world trade in both views."""
+    best = None
+    for i, y in enumerate(comp["years"]):
+        none = comp["none"][i]
+        if none is None:
+            continue
+        prev = sorted(x for x in comp["none"][max(0, i - 5):i] if x is not None)
+        ok_n = not prev or none <= 1.2 * prev[len(prev) // 2]
+        ok_t = all(comp["total_t"][v][i] and comp["partner_only_t"][v][i] <= 0.05 * comp["total_t"][v][i]
+                   for v in ("0", "1"))
+        if ok_n and ok_t:
+            best = y
+    return best or comp["years"][-1]
 
 
 def completeness(years, data):
@@ -167,18 +196,34 @@ def main():
     schemes = data[-1]["schemes"]
     per = [(d["routes"], d["countries"]) for d in data]
     write("trends.json", summarise(years, per))
-    write("flows.json", flows(years, per, schemes))
+    universes = [set((d.get("reporting") or {}).get("universe", {})) for d in data]
+    imp = impute(years, [d["routes"] for d in data], universes)
     comp, rows = completeness(years, data)
+    comp["imputed_t"] = {str(v): [round(sum(r[3] for r in rs if r[0] == v)) for rs in imp] for v in (0, 1)}
+    comp["default"] = default_year(comp)
     write("completeness.json", comp)
+    # "modelled": mostly modelled from monthly returns; "part_modelled": some reporters modelled.
+    modelled = [y for y, d in zip(years, data) if d["meta"].get("modelled") and d["meta"].get("modelled_share", 1) >= 0.5]
+    part = [y for y, d in zip(years, data) if d["meta"].get("modelled") and y not in modelled]
+    write("manifest.json", {"latest": years[-1], "default": comp["default"], "years": years,
+                            "modelled": modelled, "part_modelled": part})
     with open(SITE_DATA / "completeness.csv", "w", encoding="utf-8", newline="") as f:
         w = csv.writer(f)
         w.writerow(CSV_HEAD)
         w.writerows(rows)
+    write("flows.json", flows(years, per, schemes, imp, modelled))
+    by_year = [{"plastic": rs} for rs in imp]
     streams = sorted({k for d in data for k in d.get("hidden", {})})
     for k in streams:
         per = [(d.get("hidden", {}).get(k, []), d["countries"]) for d in data]
+        imk = impute(years, [r for r, _ in per], universes)
         write(f"trends_{k}.json", summarise(years, per))
-        write(f"flows_{k}.json", flows(years, per, schemes))
+        write(f"flows_{k}.json", flows(years, per, schemes, imk, modelled))
+        for i, rs in enumerate(imk):
+            if rs:
+                by_year[i][k] = rs
+    for y, d in zip(years, by_year):
+        write(f"imputed_{y}.json", d)
     print(f"Wrote trends for {len(years)} years: plastic and {len(streams)} mixed streams ({', '.join(streams)}).")
 
 

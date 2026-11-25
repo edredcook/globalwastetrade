@@ -208,6 +208,9 @@ def mixed_streams(rows, factor=10.0):
 
 
 WB_ISO = {"S19": "TWN"}  # Comtrade's code for Taiwan
+# Economies inside another reporter's customs figures: left out of the reporting count.
+# (Puerto Rico, the US Virgin Islands, Monaco and Liechtenstein have no Comtrade code.)
+COVERED = {"674": "380"}  # San Marino, in Italy's figures
 
 
 def apply_income(countries, history, year):
@@ -245,6 +248,8 @@ def reporting(rows, ref, history, year):
     universe = {}
     for c, v in ref.items():
         g = history["groups"].get(WB_ISO.get(v[0], v[0]), {}).get(yr)
+        if c in COVERED and c not in rep["X"] and c not in rep["M"]:
+            continue
         if g in ("HIC", "UMC", "LMC", "LIC") or c in rep["X"] or c in rep["M"]:
             universe[c] = [v[0], v[1], v[3]]
     return {"X": sorted(rep["X"] & universe.keys(), key=int), "M": sorted(rep["M"] & universe.keys(), key=int),
@@ -419,11 +424,16 @@ def main():
         "hidden": {},
         "reporting": reporting(rows, ref, income, a.year),
     }
+    if raw["meta"].get("modelled"):
+        data["meta"]["modelled"] = True
+        data["meta"]["months"] = raw["meta"].get("months")
+        data["meta"]["modelled_share"] = raw["meta"].get("modelled_share", 1.0)
+        data["meta"]["source"] += "; modelled: " + raw["meta"]["method"]
     if mixed_meta:
         data["meta"]["hidden_source"] = (f"UN Comtrade API, downloaded {mixed_meta.get('downloaded')}; "
                                          "same selection and cleaning as HS 3915")
         data["hidden"] = {k: v for k, v in mixed.items() if v}
-    elif a.year >= 2019:
+    elif a.year >= 2019 and not raw["meta"].get("modelled"):
         warn.append("No mixed-stream download (comtrade_mixed_<year>.json); run fetch_comtrade.py --name mixed.")
 
     REPORTS.mkdir(exist_ok=True)
