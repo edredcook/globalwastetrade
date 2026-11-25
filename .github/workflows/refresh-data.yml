@@ -36,7 +36,7 @@ jobs:
               echo "$y: no download" >> failed.txt; continue
             fi
             if ! python pipeline/fetch_comtrade.py --year "$y" --name mixed \
-                 --cmd 550510,6309,6310,854931,854939,854991,854999,382510,4707; then
+                 --cmd 550510,6309,6310,854931,854939,854991,854999,382510,4707,401220,4004; then
               echo "$y: no download of the mixed streams" >> failed.txt; continue
             fi
             python pipeline/build_site_data.py --year "$y" || echo "$y: build stopped, see the report" >> failed.txt

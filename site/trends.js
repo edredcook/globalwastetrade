@@ -9,13 +9,14 @@ const MATS=[
   ["Textiles",[["clothing","Worn clothing (HS 6309)"],["rags","Rags, twine and rope (HS 6310)"],["fibre","Synthetic fibre waste (HS 5505.10)"]]],
   ["E-waste",[["weee","E-waste assemblies and boards (HS 8549.31, 8549.39)"],["weeeo","Other e-waste (HS 8549.91, 8549.99)"]]],
   ["Mixed waste",[["rdf","Refuse-derived fuel and mixed waste (HS 3825.10)"]]],
+  ["Rubber",[["tyres","Used tyres (HS 4012.20)"],["rubber","Rubber waste and scrap (HS 4004)"]]],
   ["Paper",[["paper","Recovered paper (HS 4707)"]]]];
-const MATN={all:"All plastic",plastic:"Plastic waste and scrap",clothing:"Worn clothing",rags:"Rags, twine and rope",fibre:"Synthetic fibre waste",weee:"E-waste assemblies and boards",weeeo:"Other e-waste",rdf:"Refuse-derived fuel",paper:"Recovered paper"};
+const MATN={all:"All plastic",plastic:"Plastic waste and scrap",clothing:"Worn clothing",rags:"Rags, twine and rope",fibre:"Synthetic fibre waste",weee:"E-waste assemblies and boards",weeeo:"Other e-waste",rdf:"Refuse-derived fuel",tyres:"Used tyres",rubber:"Rubber waste",paper:"Recovered paper"};
 const MATL=Object.fromEntries(MATS.flatMap(g=>g[1]));
-const STREAMS=["plastic","clothing","rags","fibre","weee","weeeo","rdf","paper"];
+const STREAMS=["plastic","clothing","rags","fibre","weee","weeeo","rdf","tyres","rubber","paper"];
 // Plastic shares, as on the explorer's "Plastics traded amongst other materials" panel (sources on the About page).
-const SHARE={plastic:1,clothing:.65,rags:.65,fibre:1,weee:.247,weeeo:.247,rdf:.3325,paper:.02};
-const MATCOL={plastic:"#e0531f",clothing:"#4e79a7",rags:"#76b7b2",fibre:"#b07aa1",weee:"#59a14f",weeeo:"#8cd17d",rdf:"#9c755f",paper:"#edc948"};
+const SHARE={plastic:1,clothing:.65,rags:.65,fibre:1,weee:.247,weeeo:.247,rdf:.3325,tyres:.205,rubber:.205,paper:.02};
+const MATCOL={plastic:"#e0531f",clothing:"#4e79a7",rags:"#76b7b2",fibre:"#b07aa1",weee:"#59a14f",weeeo:"#8cd17d",rdf:"#9c755f",tyres:"#3d3d3d",rubber:"#8a8a8a",paper:"#edc948"};
 const GL=["H","U","M","L","N"],GKEY={HIC:"H",UMC:"U",LMC:"M",LIC:"L",NS:"N"};
 const GC={H:"--g-hic",U:"--g-umc",M:"--g-lmc",L:"--g-lic",N:"--g-ns"};
 const GN={H:"High income",U:"Upper-middle income",M:"Lower-middle income",L:"Low income",N:"Not classified"};
@@ -234,8 +235,28 @@ function chartW(){const el=$("#cW");if(!WR){loadWR().then(chartW).catch(()=>empt
   svg.append("path").attr("fill","none").attr("stroke",css("--in")).attr("stroke-width",2).attr("pointer-events","none").attr("d",d3.line().x(y=>x(y)+bw/2).y(y=>ys(share(y)))(yrs));
   svg.append("g").attr("pointer-events","none").selectAll("circle").data(yrs).join("circle").attr("cx",y=>x(y)+bw/2).attr("cy",y=>ys(share(y))).attr("r",2.5).attr("fill",css("--in"));
   $("#lW").innerHTML=`<span><i style="background:var(--muted);opacity:.6"></i>Reported exports and imports</span><span><i style="background:var(--muted);opacity:.25"></i>One flow only</span><span><i style="background:var(--out)"></i>Reported nothing</span><span><i style="background:var(--in);height:3px"></i>Seen only in partners' reports, ${VN[S.v]} (right)</span>`;
-  const i=ix(WY),ids=W0.nonreporters[v][i]||[],nm=ids.map(c=>(W0.names[c]||[c,c])[1]).sort((a,b)=>a.localeCompare(b));
-  $("#wlist").innerHTML=`<b>No ${S.v?"import":"export"} report, ${WY} (${ids.length}):</b> ${nm.map(esc).join(", ")}`}
+  nrList()}
+
+// Non-reporters for the chosen year: largest first, or grouped by World Bank region.
+let NRM="top",NRALL=false,NRQ="";
+function nrList(){const W0=WR,el=$("#wlist");if(!W0||!W0.nonrep)return;const v=String(S.v),i=W0.years.indexOf(WY);
+  const all=(W0.nonrep[v][i]||[]).map(([c,t,g])=>{const n=W0.names[c]||[c,c,""];return {c,t,g,nm:n[1],rg:n[2]||"Other"}});
+  const q=NRQ.trim().toLowerCase(),L=q?all.filter(d=>d.nm.toLowerCase().includes(q)||d.rg.toLowerCase().includes(q)):all;
+  const tot=d3.sum(all,d=>d.t),mx=d3.max(all,d=>d.t)||1,dot=g=>`<i class="nrdot" style="background:var(${GC[g]||"--g-ns"})" title="${GN[g]||""}"></i>`;
+  const val=t=>t?fTn(t):"—";
+  let body;
+  if(NRM==="top"){const rows=NRALL||q?L:L.slice(0,12);
+    body=`<table class="nrt"><thead><tr><th>Economy</th><th class="rg">Region</th><th class="n">Recorded by partners</th></tr></thead><tbody>${rows.map(d=>`<tr><td>${dot(d.g)}${esc(d.nm)}</td><td class="rg">${esc(d.rg)}</td><td class="n"><span class="nrbar" style="width:${Math.max(1,d.t/mx*90)}px"></span>${val(d.t)}</td></tr>`).join("")}</tbody></table>`+
+      (!q&&L.length>12?`<button class="nrmore">${NRALL?"Show the largest 12":`Show all ${L.length}`}</button>`:"")}
+  else{const g=d3.groups(L,d=>d.rg).sort((a,b)=>d3.sum(b[1],d=>d.t)-d3.sum(a[1],d=>d.t)||a[0].localeCompare(b[0]));
+    body=`<div class="nrg">${g.map(([r,ds])=>`<div><h4>${esc(r)} <span>${ds.length}</span></h4><ul>${ds.map(d=>`<li>${dot(d.g)}<span>${esc(d.nm)}</span><em>${d.t?val(d.t):""}</em></li>`).join("")}</ul></div>`).join("")}</div>`}
+  el.innerHTML=`<div class="nrhd"><b>No ${S.v?"import":"export"} report, ${WY}</b><span>${all.length} economies · partners recorded ${fTn(tot)} with them</span>
+    <div class="seg sm" id="nrm"><button data-m="top" aria-pressed="${NRM==="top"}">Largest first</button><button data-m="reg" aria-pressed="${NRM==="reg"}">By region</button></div>
+    <input id="nrq" type="search" placeholder="Find a country or region" value="${esc(NRQ)}" aria-label="Find a country or region"></div>${body||""}
+    <div class="nrleg">${["H","U","M","L"].map(g=>`<span>${dot(g)}${GN[g]}</span>`).join("")}</div>`;
+  el.querySelectorAll("#nrm button").forEach(b=>b.onclick=()=>{NRM=b.dataset.m;nrList()});
+  const qi=el.querySelector("#nrq");qi.oninput=()=>{NRQ=qi.value;const p=qi.selectionStart;nrList();const n=$("#nrq");n.focus();n.setSelectionRange(p,p)};
+  const mb=el.querySelector(".nrmore");if(mb)mb.onclick=()=>{NRALL=!NRALL;nrList()}}
 
 // ---------- at a glance ----------
 function chartF(){const el=$("#cF");el.innerHTML="";const out=S.gdir==="out",arr=out?cur().out:cur().inn,c=css(out?"--out":"--in"),verb=out?"sent":"received";
