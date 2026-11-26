@@ -463,12 +463,17 @@ $$(".pickbox").forEach(box=>{const inp=box.querySelector("input"),menu=box.query
 function matUI(){let par="";
   $("#matmenu").innerHTML=MATS.map(([hd,its,p])=>{let h="";if((p||"")!==par){par=p||"";if(p)h+=`<div class="mh">${esc(p)}</div>`}
     h+=`<div class="${p?"msh":"mh"}">${esc(hd)}</div>`;
-    return h+its.map(([k])=>`<label${p?' class="sub"':""}><input type="checkbox" value="${k}" ${S.mats.includes(k)?"checked":""}>${k==="all"?"":`<i style="background:${MATCOL[k]}"></i>`}<span>${esc(nm(k))}</span>${MATC[k]?`<small>${MATC[k]}</small>`:""}</label>`).join("")}).join("");
+    return h+its.map(([k])=>`<label${p?' class="sub"':""}><input type="checkbox" value="${k}" ${S.mats.includes(k)||S.mats[0]==="all"?"checked":""}>${k==="all"?"":`<i style="background:${MATCOL[k]}"></i>`}<span>${nm2(nm(k))}</span>${MATC[k]?`<small>${MATC[k]}</small>`:""}</label>`).join("")}).join("");
   $("#matsum").textContent=matShort(true);
   $("#countctl").hidden=S.mats.includes("all")||S.mats.every(k=>k==="plastic")}
+// As on the explorer: a bracket such as "(plastic fraction)" sits on its own line.
+const nm2=n=>{const m=n.match(/^(.*?) (\(.*\))$/);return m?`${esc(m[1])}<small>${esc(m[2])}</small>`:esc(n)};
 const matShort=code=>S.mats[0]==="all"?"All plastic":S.mats.length===1?nm(S.mats[0])+(code&&MATC[S.mats[0]]?` (${MATC[S.mats[0]]})`:""):`${S.mats.length} materials: `+S.mats.map(nm).join(", ");
-$("#matmenu").addEventListener("change",e=>{const k=e.target.value;let m=S.mats.filter(x=>x!=="all");
-  if(k==="all")m=e.target.checked?["all"]:["plastic"];else if(e.target.checked)m.push(k);else m=m.filter(x=>x!==k);
+// "All plastic" ticks every stream; unticking one leaves the rest at their plastic shares,
+// and ticking every stream again counts as "All plastic".
+$("#matmenu").addEventListener("change",e=>{const k=e.target.value;let m=S.mats[0]==="all"?STREAMS.slice():S.mats.slice();
+  if(k==="all")m=e.target.checked?["all"]:["plastic"];
+  else{if(S.mats[0]==="all")S.count="plastic";if(e.target.checked)m.push(k);else m=m.filter(x=>x!==k);if(STREAMS.every(x=>m.includes(x)))m=["all"]}
   if(!m.length)m=["plastic"];const before=S.mats.length;S.mats=STREAMS.concat("all").filter(x=>m.includes(x));
   if((S.mats.length>1||S.mats[0]==="all")&&before<2&&S.split!=="mt")S.split="mt";
   setMats()});
