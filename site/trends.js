@@ -6,12 +6,12 @@
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const MATS=[
   ["Plastic",[["all","All plastic, in every stream below"],["plastic","Plastic waste and scrap (HS 3915)"]]],
-  ["Textiles",[["clothing","Worn clothing (HS 6309)"],["rags","Rags, twine and rope (HS 6310)"],["fibre","Synthetic fibre waste (HS 5505.10)"]]],
-  ["E-waste",[["weee","E-waste assemblies and boards (HS 8549.31, 8549.39)"],["weeeo","Other e-waste (HS 8549.91, 8549.99)"]]],
-  ["Mixed waste",[["rdf","Refuse-derived fuel and mixed waste (HS 3825.10)"]]],
-  ["Rubber",[["tyres","Used tyres (HS 4012.20)"],["rubber","Rubber waste and scrap (HS 4004)"],["hardrubber","Hard rubber, including waste (HS 4017)"]]],
-  ["Paper",[["paper","Recovered paper (HS 4707)"]]]];
-const MATN={all:"All plastic",plastic:"Plastic waste and scrap",clothing:"Worn clothing",rags:"Rags, twine and rope",fibre:"Synthetic fibre waste",weee:"E-waste assemblies and boards",weeeo:"Other e-waste",rdf:"Refuse-derived fuel",tyres:"Used tyres",rubber:"Rubber waste",hardrubber:"Hard rubber",paper:"Recovered paper"};
+  ["Textiles",[["clothing","Used clothing (HS 6309)"],["rags","Rags, twine and rope (HS 6310)"],["fibre","Synthetic fibres (HS 5505.10)"]]],
+  ["E-waste",[["weee","Electronic waste (HS 8549.31, 8549.39)"],["weeeo","Electrical waste (HS 8549.91, 8549.99)"]]],
+  ["Refuse-derived fuel",[["rdf","Refuse-derived fuel (HS 3825.10)"]]],
+  ["Rubber and tyres",[["tyres","Used tyres (HS 4012.20)"],["rubber","Rubber waste and scrap (HS 4004)"],["hardrubber","Hard rubber (HS 4017)"]]],
+  ["Paper and card",[["paper","Paper and card (HS 4707)"]]]];
+const MATN={all:"All plastic",plastic:"Plastic waste and scrap",clothing:"Used clothing",rags:"Rags, twine and rope",fibre:"Synthetic fibres",weee:"Electronic waste",weeeo:"Electrical waste",rdf:"Refuse-derived fuel",tyres:"Used tyres",rubber:"Rubber waste",hardrubber:"Hard rubber",paper:"Paper and card"};
 const MATL=Object.fromEntries(MATS.flatMap(g=>g[1]));
 const STREAMS=["plastic","clothing","rags","fibre","weee","weeeo","rdf","tyres","rubber","hardrubber","paper"];
 // Plastic shares, as in the explorer's Plastics group (sources on the About page).

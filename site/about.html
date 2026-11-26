@@ -133,22 +133,22 @@ h1{margin:0 0 16px;font-family:var(--display);font-stretch:85%;font-weight:800;f
       <li><b>Imputed.</b> Shown by default, with "As reported" to switch it off. Where a country filed no report for a year, its trade is filled in each view separately: first from what its partners recorded, scaled by the gap between its own and its partners' figures in its nearest reporting years (limited to between half and double); then, for a gap of one or two years inside a run of its own reports, on a straight line between the years either side; and last, from its nearest own report up to three years away, moved by the change among countries that reported in both years. Each imputed route says which of these it came from. Territories inside another country's customs figures (such as San Marino in Italy's) are not counted as missing.</li>
       <li><b>Modelled years.</b> The current year is shown before annual returns exist: each country's monthly returns so far (UN Comtrade monthly data) are scaled to a full year by its own pattern in the previous year, then gaps are imputed as above. Months that EU members and the UK have not yet sent to UN Comtrade are taken from Eurostat and HM Revenue &amp; Customs, converted to US dollars at the rate implied by months both sources hold. These figures are provisional. The site opens on the most recent year whose coverage is normal.</li>
       <li><b>Income groups.</b> Each country takes its World Bank income group for the year of the trade, so a country that moved group is counted in the group it was in at the time.</li>
-      <li><b>Plastics traded amongst other materials.</b> Wastes such as worn clothing, e-waste and refuse-derived fuel carry plastic. Their tonnages come from UN Comtrade in the same way, and the plastic in them is estimated with the shares below, which users can change.</li>
+      <li><b>Other and embedded plastics.</b> Wastes such as used clothing, e-waste and refuse-derived fuel carry plastic. Their tonnages come from UN Comtrade in the same way, and the plastic in them is estimated with the shares below, which users can change.</li>
     </ul>
     <h3>Plastic shares</h3>
     <div class="tw"><table class="shares">
       <thead><tr><th>Waste</th><th>Plastic</th><th>Basis</th></tr></thead>
       <tbody>
-        <tr><td>Worn clothing (HS 6309)</td><td>65%</td><td>Synthetic share of global fibre production in 2022 (Textile Exchange, 2023, p. 10)</td></tr>
+        <tr><td>Used clothing (HS 6309)</td><td>65%</td><td>Synthetic share of global fibre production in 2022 (Textile Exchange, 2023, p. 10)</td></tr>
         <tr><td>Rags, twine and rope (HS 6310)</td><td>65%</td><td>Assumption, using the same synthetic share (Textile Exchange, 2023, p. 10)</td></tr>
-        <tr><td>Synthetic fibre waste (HS 5505.10)</td><td>100%</td><td>Assumption: synthetic fibre is plastic</td></tr>
-        <tr><td>E-waste assemblies and boards (HS 8549.31, 8549.39)</td><td>24.7%</td><td>15.30 Mt of plastic in e-waste in 2022 (OECD, 2022) divided by 61.9 Mt of e-waste in 2022 (Baldé <i>et al.</i>, 2024, Table A2.2)</td></tr>
-        <tr><td>Other e-waste (HS 8549.91, 8549.99)</td><td>24.7%</td><td>Assumption, using the same share (OECD, 2022; Baldé <i>et al.</i>, 2024)</td></tr>
-        <tr><td>Refuse-derived fuel and mixed waste (HS 3825.10)</td><td>33.25%</td><td>30% plastic plus 5% textiles at 65% synthetic (Gerassimidou <i>et al.</i>, 2020, Table 1)</td></tr>
+        <tr><td>Synthetic fibres (HS 5505.10)</td><td>100%</td><td>Assumption: synthetic fibre is plastic</td></tr>
+        <tr><td>Electronic waste (HS 8549.31, 8549.39)</td><td>24.7%</td><td>15.30 Mt of plastic in e-waste in 2022 (OECD, 2022) divided by 61.9 Mt of e-waste in 2022 (Baldé <i>et al.</i>, 2024, Table A2.2)</td></tr>
+        <tr><td>Electrical waste (HS 8549.91, 8549.99)</td><td>24.7%</td><td>Assumption, using the same share (OECD, 2022; Baldé <i>et al.</i>, 2024)</td></tr>
+        <tr><td>Refuse-derived fuel (HS 3825.10)</td><td>33.25%</td><td>30% plastic plus 5% textiles at 65% synthetic (Gerassimidou <i>et al.</i>, 2020, Table 1)</td></tr>
         <tr><td>Used tyres (HS 4012.20)</td><td>100%</td><td>Assumption: the whole tyre, including natural and synthetic rubber, fillers, additives and cords, is counted in the plastics family</td></tr>
         <tr><td>Rubber waste and scrap (HS 4004)</td><td>100%</td><td>Assumption: all rubber, natural and synthetic, is counted in the plastics family</td></tr>
-        <tr><td>Hard rubber, including waste (HS 4017)</td><td>100%</td><td>Assumption: as for rubber waste; the code also covers hard rubber articles, all treated as waste</td></tr>
-        <tr><td>Recovered paper (HS 4707)</td><td>2%</td><td>Assumption, for illustration</td></tr>
+        <tr><td>Hard rubber (HS 4017)</td><td>100%</td><td>Assumption: as for rubber waste; the code also covers hard rubber articles, all treated as waste</td></tr>
+        <tr><td>Paper and card (HS 4707)</td><td>2%</td><td>Assumption, for illustration</td></tr>
       </tbody>
     </table></div>
   </section>
