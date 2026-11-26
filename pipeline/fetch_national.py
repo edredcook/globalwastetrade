@@ -25,6 +25,7 @@ import json
 import os
 import sys
 import time
+import unicodedata
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -266,6 +267,10 @@ def estat(month):
             n = c["@name"].lower()
             if mon in n and n.startswith("quantity1"):
                 cols["q"] = c["@code"]
+            elif mon in n and n.startswith("quantity2"):
+                cols["q2"] = c["@code"]
+            elif n == "unit2":
+                cols["u2"] = c["@code"]
             elif mon in n and n.startswith("value"):
                 cols["v"] = c["@code"]
             elif n == "unit1":
@@ -284,23 +289,30 @@ def estat(month):
             for v in _list(data.get("DATA_INF", {}).get("VALUE")):
                 cells[(v["@cat01"], v["@area"])][v["@cat02"]] = v.get("$")
             start = (data.get("RESULT_INF") or {}).get("NEXT_KEY")
-        # The unit is a column of its own and may sit only on some cells of a commodity.
-        unit_of = {}
+        # Units are columns of their own (full-width text, e.g. "ＫＧ") and may sit only on
+        # some cells of a commodity. Japan gives weight as quantity 1 or quantity 2.
+        units = {}
         for (good, area), c in cells.items():
-            u = str(c.get(cols.get("u")) or "").strip().upper()
-            if u and u not in ("-", "***"):
-                unit_of[good] = u
-        seen_units.update(unit_of.values())
+            for k in ("u", "u2"):
+                u = unicodedata.normalize("NFKC", str(c.get(cols.get(k)) or "")).strip().upper()
+                if u and u not in ("-", "***"):
+                    units[(good, k)] = u
+        seen_units.update(units.values())
         for (good, area), c in cells.items():
             def num(x):
                 try:
                     return float(x)
                 except (TypeError, ValueError):
                     return 0.0
-            q, val, unit = num(c.get(cols["q"])), num(c.get(cols["v"])), unit_of.get(good, "")
-            if not q and not val:
+            val = num(c.get(cols["v"]))
+            kg = 0.0
+            for qk, uk in (("q", "u"), ("q2", "u2")):
+                f = {"KG": 1, "MT": 1000, "TNE": 1000}.get(units.get((good, uk)), 0)
+                if f and cols.get(qk):
+                    kg = num(c.get(cols[qk])) * f
+                    break
+            if not kg and not val:
                 continue
-            kg = q * {"KG": 1, "MT": 1000, "TNE": 1000}.get(unit, 0)
             name = areas.get(area, area)
             # Values are published in thousands of yen.
             add(acc, "estat", "JPN", iso3_from_name(name), name, flow, good, period, kg, val * 1000, "JPY")
