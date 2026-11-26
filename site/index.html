@@ -493,7 +493,7 @@ footer b{color:var(--ink);font-weight:600}
         <div class="ctl" data-for="sankey bars treemap"><span>Region type</span><select id="bscheme" aria-label="Region definition for the chart"><option value="un">UN regions (M49)</option><option value="unsub">UN sub-regions (M49)</option><option value="wb" selected>World Bank regions</option><option value="oecd">OECD / non-OECD</option></select></div>
         <div class="ctl" data-for="sankey bars treemap"><span>Reporter type</span><div class="seg" id="bview"><button data-v="0" aria-pressed="true">Exporters'</button><button data-v="1" aria-pressed="false">Importers'</button><button data-v="2" aria-pressed="false">Resolved</button></div></div>
         <div class="ctl" data-for="sankey bars treemap scatter"><span>Measure</span><div class="seg" id="bmeasure"><button data-v="t" aria-pressed="true">Tonnes</button><button data-v="usd" aria-pressed="false">US$</button><button data-v="ppt" aria-pressed="false" data-only="bars">US$/t</button></div></div>
-        <div class="ctl" data-for="sankey bars treemap"><label class="lab" for="btopn">How many on each side</label><div class="topn"><input type="number" id="btopn" min="1" max="200" value="15" aria-label="How many to show"><input type="range" id="btopr" min="1" max="60" value="15" aria-label="How many to show, slider"></div></div>
+        <div class="ctl" data-for="sankey bars treemap"><label class="lab hint" for="btopn" tabindex="0" data-tip="Keeps the largest traders by the chosen measure, biggest first. In Flows this many are kept on each side and the rest are grouped as Everyone else; in Shares the rest are grouped too.">Number of countries</label><div class="topn"><input type="number" id="btopn" min="1" max="200" value="15" aria-label="Number of countries"><input type="range" id="btopr" min="1" max="60" value="15" aria-label="Number of countries, slider"></div></div>
         <div class="ctl" data-for="sankey bars treemap"><span>Filters</span><div class="chk" style="flex-direction:column;align-items:flex-start">
           <label><input type="checkbox" id="bnointra"> <span>Leave out trade within the same region</span></label>
           <label><input type="checkbox" id="bfocus"> <span>Only trade involving <b id="bfocusname">the selected country</b></span></label></div></div>
@@ -1198,6 +1198,9 @@ function drawTrend(){
 // ---------- CHART BUILDER ----------
 const chart=d3.select("#chart");let chartRows=[],chartCols=[];
 function bRoutes(){let rs=R.filter(r=>r.v===B.view&&pass(r));if(B.focus&&S.sel)rs=rs.filter(r=>r.ex===S.sel||r.rc===S.sel);if(B.nointra)rs=rs.filter(r=>{const a=regOf(r.ex,B.scheme),b=regOf(r.rc,B.scheme);return !(a&&a===b)});return rs}
+// Income-group charts leave out records whose partner has no World Bank income group (unspecified "nes" areas,
+// free zones, bunkers and a few territories), so there is no "Not classified" group.
+const dropNS=(rs,sides)=>{sides=sides.filter(Boolean);return sides.length?rs.filter(r=>sides.every(sd=>inc(r[sd])!=="NS")):rs};
 function key(r,side,grp){if(grp==="s")return "s:"+r.s;const c=r[side];return grp==="g"?"g:"+inc(c):grp==="r"?"r:"+(regOf(c,B.scheme)||"Unallocated"):c}
 const klabel=k=>k==="other"?"Everyone else":k==="s:scrap"?"Plastic scrap":k.startsWith("s:")?HS[k.slice(2)].n:k.startsWith("g:")?INC[k.slice(2)]:k.startsWith("r:")?k.slice(2):name(k);
 const kcolor=(k,fallback)=>k.startsWith("s:")?HSCOL[k.slice(2)]:k.startsWith("g:")?gcol(k.slice(2)):k.startsWith("r:")?rcol(k.slice(2),B.scheme):k==="other"?css("--g-ns"):fallback;
@@ -1209,7 +1212,7 @@ let LKN=0;// a small sample route for the map legend: a dotted line from colour 
 function lk(a,b,l1,l2){const id="lkg"+(++LKN);
   return `<span class="lk">${l1?`<b>${esc(l1)}</b>`:""}<svg width="58" height="10" viewBox="0 0 58 10" aria-hidden="true"><defs><linearGradient id="${id}" gradientUnits="userSpaceOnUse" x1="3" y1="5" x2="48" y2="5"><stop offset=".15" style="stop-color:var(${a})"/><stop offset=".85" style="stop-color:var(${b})"/></linearGradient></defs><line x1="3" y1="5" x2="48" y2="5" ${a===b?`style="stroke:var(${a})"`:`stroke="url(#${id})"`} stroke-width="3.2" stroke-linecap="round" class="${D.anim?"mv":""}"/><path d="M48 1.2L55.5 5L48 8.8z" style="fill:var(${b})"/></svg>${l2?`<b>${esc(l2)}</b>`:""}</span>`}
 function pk(a,b){return `<span><span class="dot" style="background:conic-gradient(var(--out) 0 38%,var(--in) 0)"></span><b style="color:var(--out)">${a}</b>and<b style="color:var(--in)">${b}</b></span>`}
-function legendFor(kind){if(kind==="s")return ["scrap",...hidOn()].filter(k=>k!=="scrap"||S.scrap).map(k=>`<span><span class="dot" style="background:${HSCOL[k]}"></span><span>${nm2(klabel("s:"+k))}</span></span>`).join("");if(kind==="g")return GORDER.map(g=>`<span><span class="dot" style="background:var(--g-${g.toLowerCase()})"></span>${INC[g]}</span>`).join("");
+function legendFor(kind){if(kind==="s")return ["scrap",...hidOn()].filter(k=>k!=="scrap"||S.scrap).map(k=>`<span><span class="dot" style="background:${HSCOL[k]}"></span><span>${nm2(klabel("s:"+k))}</span></span>`).join("");if(kind==="g")return GORDER.filter(g=>g!=="NS").map(g=>`<span><span class="dot" style="background:var(--g-${g.toLowerCase()})"></span>${INC[g]}</span>`).join("");
   if(kind==="r")return regionNames(B.scheme).map(r=>`<span><span class="dot" style="background:${rcol(r,B.scheme)}"></span>${esc(r)}</span>`).join("");return ""}
 function drawChart(){
   chart.selectAll("*").remove();$("#cleg").innerHTML="";
@@ -1221,7 +1224,7 @@ function drawChart(){
 const FS=()=>D.font;
 function sankey(m,who,scope){
   if(m==="ppt")m="t";
-  let rs=bRoutes();const N=B.top;
+  let rs=dropNS(bRoutes(),[B.from==="g"&&"ex",B.to==="g"&&"rc"]);const N=B.top;
   if(B.from==="s"){const x=[];for(const r of rs){const sc=r.t-(r.hid||0);if(sc>1e-6)x.push({...r,s:"scrap",t:sc,usd:r.usd-(r.hu||0)});if(r.hs)for(const [k,v] of Object.entries(r.hs))x.push({...r,s:k,t:v,usd:r.t>0?r.usd*v/r.t:0})}rs=x}
   const L=d3.rollups(rs,v=>d3.sum(v,r=>r[m]),r=>key(r,"ex",B.from)).sort((a,b)=>b[1]-a[1]),Rt=d3.rollups(rs,v=>d3.sum(v,r=>r[m]),r=>key(r,"rc",B.to)).sort((a,b)=>b[1]-a[1]);
   const keepL=new Set(L.slice(0,N).map(d=>d[0])),keepR=new Set(Rt.slice(0,N).map(d=>d[0]));
@@ -1258,7 +1261,7 @@ function sankey(m,who,scope){
   $("#cleg").innerHTML=[...new Set([B.from,B.to])].map(legendFor).join("");
 }
 function barChart(m,who,scope){
-  const rs=bRoutes(),N=B.top;let items;
+  const rs=dropNS(bRoutes(),[B.side!=="rt"&&B.group==="g"&&B.side]),N=B.top;let items;
   if(B.side==="rt")items=d3.rollups(rs,agg,r=>r.ex+">"+r.rc).map(([k,a])=>{const [x,y]=k.split(">");return{k,label:`${name(x)} → ${name(y)}`,a,col:css(VCOL[B.view]),link:x}});
   else items=d3.rollups(rs,agg,r=>key(r,B.side,B.group)).map(([k,a])=>({k,label:klabel(k),a,col:kcolor(k,B.side==="ex"?css("--out"):css("--in")),link:k}));
   items.forEach(d=>d.v=mval(d.a,m));items=items.filter(d=>d.v!=null);
@@ -1273,7 +1276,7 @@ function barChart(m,who,scope){
   const maxc=Math.floor((lw-12)/(FS()*.58));
   row.append("text").attr("x",lw-8).attr("y",rowH/2-2).attr("dy","0.35em").attr("text-anchor","end").attr("font-size",FS()).attr("fill","var(--ink)").text(d=>d.label.length>maxc?d.label.slice(0,maxc-1)+"…":d.label);
   row.append("rect").attr("x",lw).attr("y",3).attr("height",Math.max(4,rowH-9)).attr("rx",2).attr("width",d=>Math.max(1,x(d.v)-lw)).attr("fill",d=>d.col);
-  if(D.vals)row.append("text").attr("x",d=>x(d.v)+6).attr("y",rowH/2-2).attr("dy","0.35em").attr("font-size",FS()-1).attr("font-family","IBM Plex Mono, monospace").attr("fill","var(--muted)").text(d=>fmt(d.v,m));
+  if(D.vals)row.append("text").attr("x",d=>x(d.v)+6).attr("y",rowH/2-2).attr("dy","0.35em").attr("font-size",FS()-1).attr("font-family","IBM Plex Mono, monospace").attr("fill","var(--muted)").attr("stroke","var(--panel)").attr("stroke-width",5).attr("stroke-linejoin","round").attr("paint-order","stroke").text(d=>fmt(d.v,m));
   chartRows=items.map(d=>({name:d.label,tonnes:Math.round(d.a.t),usd:Math.round(d.a.usd),usd_per_tonne:d.a.t>=50?Math.round(d.a.usd/d.a.t):""}));chartCols=["name","tonnes","usd","usd_per_tonne"];
   const what=B.side==="rt"?"routes":B.group==="g"?"income groups":B.group==="r"?"regions":(B.side==="ex"?"senders":"receivers");
   $("#ctitle").textContent=m==="ppt"?`Price paid per tonne: the ${N} largest ${what}${scope}`:`Top ${N} ${what} of ${PW()} by ${mlabel(m)}, ${YL}${scope}`;
@@ -1282,7 +1285,7 @@ function barChart(m,who,scope){
 }
 function treemap(m,who,scope){
   if(m==="ppt")m="t";
-  const rs=bRoutes();let items=d3.rollups(rs,v=>d3.sum(v,r=>r[m]),r=>key(r,B.side==="rt"?"ex":B.side,B.group)).sort((a,b)=>b[1]-a[1]);
+  const rs=dropNS(bRoutes(),[B.group==="g"&&(B.side==="rt"?"ex":B.side)]);let items=d3.rollups(rs,v=>d3.sum(v,r=>r[m]),r=>key(r,B.side==="rt"?"ex":B.side,B.group)).sort((a,b)=>b[1]-a[1]);
   const top=items.slice(0,B.top),rest=d3.sum(items.slice(B.top),d=>d[1]);if(rest>0)top.push(["other",rest]);
   const W=960,H=Math.round(520*D.h);chart.attr("viewBox",`0 0 ${W} ${H}`);if(!top.length){emptyChart(W,H);return}
   const total=d3.sum(top,d=>d[1]);
@@ -1294,8 +1297,17 @@ function treemap(m,who,scope){
   const shade=d3.scaleLinear().domain([0,top[0][1]]).range([.45,1]);
   const grouped=k=>k.startsWith("g:")||k.startsWith("r:")||k==="other";
   cell.append("rect").attr("width",d=>d.x1-d.x0).attr("height",d=>d.y1-d.y0).attr("rx",3).attr("fill",d=>kcolor(d.data.k,sideCol)).attr("fill-opacity",d=>grouped(d.data.k)?.92:shade(d.value));
-  cell.filter(d=>d.x1-d.x0>70&&d.y1-d.y0>FS()*2.6).append("text").attr("x",8).attr("y",FS()+8).attr("font-size",FS()+1).attr("font-weight",600).attr("fill","#fff").text(d=>{const l=klabel(d.data.k);const max=Math.floor((d.x1-d.x0-12)/(FS()*.62));return l.length>max?l.slice(0,max-1)+"…":l});
-  if(D.vals)cell.filter(d=>d.x1-d.x0>70&&d.y1-d.y0>FS()*4).append("text").attr("x",8).attr("y",FS()*2+12).attr("font-size",FS()).attr("fill","#fff").attr("opacity",.9).text(d=>`${fmt(d.value,m)} · ${d3.format(".0%")(d.value/total)}`);
+  // Every tile gets a label: the full name at the largest size that fits (turned on its side in tall, thin tiles),
+  // then the short code, then a shortened name; the value goes underneath when there is room.
+  const sizes=[...new Set([FS()+1,FS(),FS()-1,FS()-2,10,9,8,7,6])].filter(f=>f>=6&&f<=FS()+1).sort((a,b)=>b-a);
+  const fit=d=>{const w=d.x1-d.x0-6,h=d.y1-d.y0-4,k=d.data.k,full=klabel(k),short=C[k]?iso(k):full,tw=(t,f)=>t.length*f*.6,ok=(t,f,rot)=>rot?(h>w*1.4&&tw(t,f)<=h&&f*1.15<=w):(tw(t,f)<=w&&f*1.15<=h);
+    for(const t of [full,short])for(const f of sizes.filter(f=>t===full?f>=8:true))for(const rot of [0,1])if(ok(t,f,rot))return{t,f,rot};
+    const f=8,n=Math.floor(Math.max(w,h>w*1.4?h:0)/(f*.6));if(n>=4&&f*1.15<=Math.min(w,h)+4){const rot=h>w*1.4?1:0;return{t:full.slice(0,n-1)+"…",f,rot}}return null};
+  cell.each(function(d){const L=fit(d);if(!L)return;const g=d3.select(this),w=d.x1-d.x0,h=d.y1-d.y0,big=L.f>=FS()-1&&!L.rot;
+    const t=g.append("text").attr("font-size",L.f).attr("font-weight",600).attr("fill","#fff").text(L.t);
+    if(L.rot)t.attr("transform",`translate(${Math.min(w-3,L.f+3)},${h-4}) rotate(-90)`);else t.attr("x",big?8:3).attr("y",(big?8:2)+L.f*.9);
+    const vt=`${fmt(d.value,m)} · ${d3.format(".0%")(d.value/total)}`,vf=Math.max(7,L.f-1);
+    if(D.vals&&!L.rot&&h>=(big?8:2)+L.f*1.15+vf*1.3&&vt.length*vf*.6<=w-6)g.append("text").attr("x",big?8:3).attr("y",(big?8:2)+L.f*.9+vf*1.25).attr("font-size",vf).attr("fill","#fff").attr("opacity",.9).text(vt)});
   chartRows=top.map(([k,v])=>({name:klabel(k),[mlabel(m)]:Math.round(v),share:+(v/total).toFixed(4)}));chartCols=["name",mlabel(m),"share"];
   $("#ctitle").textContent=`Who ${B.side==="rc"?"receives":"sends"} ${PW()}: shares of ${mlabel(m)}, ${YL}${scope}`;
   $("#cnote").textContent=`Top ${B.top}, then everyone else. Based on ${who}.`;
@@ -1305,7 +1317,7 @@ function scatter(m){
   if(m==="ppt")m="t";
   const k=B.side==="rc"?"rc":"ex",own=k==="ex"?0:1;
   const items=[];
-  for(const code of Object.keys(C)){const a=aggS(R.filter(r=>r.v===own&&r[k]===code&&pass(r))),b=aggS(R.filter(r=>r.v===1-own&&r[k]===code&&pass(r)));const x=a[m],y=b[m];if(x>=1&&y>=1)items.push({code,x,y,ratio:y/x})}
+  for(const code of Object.keys(C)){if(inc(code)==="NS")continue;const a=aggS(R.filter(r=>r.v===own&&r[k]===code&&pass(r))),b=aggS(R.filter(r=>r.v===1-own&&r[k]===code&&pass(r)));const x=a[m],y=b[m];if(x>=1&&y>=1)items.push({code,x,y,ratio:y/x})}
   const W=960,H=Math.round(560*D.h),ml=70,mb=50;chart.attr("viewBox",`0 0 ${W} ${H}`);if(!items.length){emptyChart(W,H);return}
   const lo=Math.max(1,d3.min(items,d=>Math.min(d.x,d.y))),hi=d3.max(items,d=>Math.max(d.x,d.y));
   const x=d3.scaleLog().domain([lo,hi]).range([ml,W-20]).nice(),y=d3.scaleLog().domain([lo,hi]).range([H-mb,14]).nice();
@@ -1316,8 +1328,8 @@ function scatter(m){
   const tf=v=>{const s=Math.log10(v);return Number.isInteger(Math.round(s*1e6)/1e6)?fmt(v,m).replace(/\.00 /," "):""};
   chart.append("g").attr("transform",`translate(0,${H-mb})`).call(d3.axisBottom(x).ticks(8,tf)).call(ax);
   chart.append("g").attr("transform",`translate(${ml},0)`).call(d3.axisLeft(y).ticks(8,tf)).call(ax);
-  chart.append("text").attr("x",W-20).attr("y",H-12).attr("text-anchor","end").attr("font-size",12).attr("fill","var(--muted)").text(`What the country itself reports (${k==="ex"?"exports":"imports"})`);
-  chart.append("text").attr("transform",`translate(16,14) rotate(90)`).attr("font-size",12).attr("fill","var(--muted)").text(`What its trading partners report`);
+  chart.append("text").attr("x",(ml+W-20)/2).attr("y",H-10).attr("text-anchor","middle").attr("font-size",12).attr("fill","var(--muted)").text(`Quantity reported by country (${k==="ex"?"exports":"imports"})`);
+  chart.append("text").attr("transform",`translate(16,${(14+H-mb)/2}) rotate(-90)`).attr("text-anchor","middle").attr("font-size",12).attr("fill","var(--muted)").text(`Quantity reported by trading partner`);
   chart.append("text").attr("x",x(d0[1])-8).attr("y",y(d0[1])+18).attr("text-anchor","end").attr("font-size",11).attr("fill","var(--ok)").text("Green band: within ±50%");
   chart.append("g").selectAll("circle").data(items).join("circle").attr("cx",d=>x(d.x)).attr("cy",d=>y(d.y)).attr("r",d=>d.code===S.sel?8:5)
     .attr("fill",d=>gcol(inc(d.code))).attr("stroke",d=>d.code===S.sel?"var(--ink)":"var(--panel)").attr("stroke-width",d=>d.code===S.sel?2:1).attr("opacity",.9).style("cursor","pointer")
