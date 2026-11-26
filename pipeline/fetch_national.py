@@ -254,7 +254,7 @@ def estat(month):
         raise RuntimeError("Japan e-Stat needs ESTAT_APP_ID; register for a free key and add it as a repo secret.")
     period = month.replace("-", "")
     mon = MONTHS[int(month[5:7]) - 1]
-    acc = {}
+    acc, seen_units = {}, set()
     for flow, table in estat_table_ids(app, month).items():
         meta = get(ESTAT + "/getMetaInfo?" + urllib.parse.urlencode(
             {"appId": app, "statsDataId": table, "lang": "E"}))
@@ -284,19 +284,27 @@ def estat(month):
             for v in _list(data.get("DATA_INF", {}).get("VALUE")):
                 cells[(v["@cat01"], v["@area"])][v["@cat02"]] = v.get("$")
             start = (data.get("RESULT_INF") or {}).get("NEXT_KEY")
+        # The unit is a column of its own and may sit only on some cells of a commodity.
+        unit_of = {}
+        for (good, area), c in cells.items():
+            u = str(c.get(cols.get("u")) or "").strip().upper()
+            if u and u not in ("-", "***"):
+                unit_of[good] = u
+        seen_units.update(unit_of.values())
         for (good, area), c in cells.items():
             def num(x):
                 try:
                     return float(x)
                 except (TypeError, ValueError):
                     return 0.0
-            q, val, unit = num(c.get(cols["q"])), num(c.get(cols["v"])), str(c.get(cols.get("u"), "")).upper()
+            q, val, unit = num(c.get(cols["q"])), num(c.get(cols["v"])), unit_of.get(good, "")
             if not q and not val:
                 continue
             kg = q * {"KG": 1, "MT": 1000, "TNE": 1000}.get(unit, 0)
             name = areas.get(area, area)
             # Values are published in thousands of yen.
             add(acc, "estat", "JPN", iso3_from_name(name), name, flow, good, period, kg, val * 1000, "JPY")
+    print(f"e-Stat {month}: quantity units seen {sorted(seen_units)}")
     return rows_from(acc)
 
 
