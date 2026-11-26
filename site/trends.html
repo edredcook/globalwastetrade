@@ -64,7 +64,7 @@ nav.top a[aria-current]{opacity:1;background:rgba(255,255,255,.12)}
 @media (max-width:759px){header.mast>.wrap{gap:6px 10px;padding-block:8px}header.mast .brand{font-size:18px;gap:8px}header.mast nav.top a{padding:4px 8px}#srcline{display:none}}
 @media (min-width:760px){header.mast>.wrap{display:grid;grid-template-columns:1fr auto 1fr}header.mast .brand{justify-self:start}header.mast nav.top{justify-self:end}}
 main.wrap{padding-block:20px 64px}
-.top-row{display:flex;gap:12px 28px;align-items:flex-end;flex-wrap:wrap;margin-bottom:18px}
+.top-row{margin-bottom:12px}
 h1{margin:0;font-family:var(--display);font-stretch:85%;font-weight:800;font-size:28px;line-height:1.1;margin-right:auto}
 .ctl{display:flex;flex-direction:column;gap:5px;min-width:0;max-width:100%}
 .ctl > span{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:600}
@@ -137,9 +137,19 @@ button:focus-visible,select:focus-visible{outline:2px solid var(--out);outline-o
 .nrg li em{font-style:normal;font-family:var(--mono);font-size:12px;color:var(--muted);margin-left:8px;white-space:nowrap}
 .nrleg{display:flex;flex-wrap:wrap;gap:4px 16px;margin-top:10px;font-size:12px;color:var(--muted)}
 @media (max-width:600px){.nrhd input{margin-left:0;width:100%}.nrt .rg{display:none}}
+/* Selectors sit in bordered boxes, as on the Explorer and in its chart builder. */
+.controls{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+.controls>.ctl,.cbar>.ctl{border:1px solid var(--border);border-radius:10px;background:var(--panel);padding:6px 10px 8px;gap:4px;justify-content:flex-start}
+.controls>.ctl{flex:1 1 auto}
+.controls>.pick{flex:1 1 260px;max-width:none}
+.controls .seg button{font-size:13px;padding:4px 10px}
+.controls select{font-size:13px}
+.controls .dd summary{font-size:13px}
 .filters{margin-bottom:16px}
-.frow{display:flex;flex-wrap:wrap;gap:14px 26px;align-items:flex-end}
-.frow + .frow{margin-top:14px}
+.filters .reset{align-self:center;margin-left:0}
+.controls input[type=range]{width:100%;min-width:160px}
+.controls .dual{width:100%;min-width:200px}
+@media (max-width:420px){.controls>.ctl{flex-basis:100%}}
 .ctl > span b{font-weight:600;color:var(--ink);letter-spacing:0;text-transform:none;font-family:var(--mono);margin-left:6px}
 .pick{flex:1 1 260px;max-width:440px}
 .pickbox{position:relative;display:flex;flex-wrap:wrap;gap:4px;align-items:center;border:1px solid var(--border);border-radius:8px;background:var(--panel);padding:4px 6px;min-height:36px}
@@ -162,7 +172,7 @@ input[type=range]{accent-color:var(--out);width:180px;max-width:100%}
 .tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin:0 0 16px;overflow-x:auto}
 .tabs button{font:inherit;font-weight:600;font-size:14.5px;background:none;border:0;border-bottom:3px solid transparent;color:var(--muted);padding:8px 14px;cursor:pointer;white-space:nowrap}
 .tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--out)}
-.cbar{display:flex;flex-wrap:wrap;gap:12px 22px;align-items:flex-end;margin:2px 0 6px}
+.cbar{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch;margin:2px 0 6px}
 .cbar .seg button,.cbar select{font-size:13px;padding:4px 10px}
 .cbar input[type=search]{font:inherit;font-size:13px;padding:5px 9px;border:1px solid var(--border);border-radius:8px;background:var(--panel);color:var(--ink);width:170px;max-width:100%}
 .count{font-size:12px;color:var(--muted);font-family:var(--mono)}
@@ -195,36 +205,32 @@ input[type=range]{accent-color:var(--out);width:180px;max-width:100%}
   </nav>
 </div></header>
 <main class="wrap">
-  <div class="top-row">
-    <h1>Trends</h1>
+  <div class="top-row"><h1>Trends</h1></div>
+  <div class="controls" aria-label="Data">
     <div class="ctl"><span>Material</span><details class="dd" id="mats"><summary id="matsum">Plastic scrap (HS 3915)</summary><div class="ddm" id="matmenu"></div></details></div>
     <div class="ctl" id="countctl" hidden><span class="hint" tabindex="0" data-tip="Plastic content counts each stream at its plastic share, as on the Explorer. Whole material counts the full weight.">Count</span><div class="seg" data-k="count"><button data-v="plastic">Plastic content</button><button data-v="whole">Whole material</button></div></div>
     <div class="ctl"><span class="hint" tabindex="0" data-tip="Each trade is reported twice, by the exporting country and by the importing country, and the two rarely match.">Reporter type</span><div class="seg" data-k="v"><button data-v="0"><span class="dot" style="background:var(--out)"></span>Exporters'</button><button data-v="1"><span class="dot" style="background:var(--in)"></span>Importers'</button></div></div>
     <div class="ctl"><span class="hint" tabindex="0" data-tip="Imputed fills trade that a country did not report, from its partners' reports, the years either side or the trend, and labels it as imputed. As reported shows only what countries filed.">Data gaps</span><div class="seg" data-k="imp"><button data-v="1">Imputed</button><button data-v="0">As reported</button></div></div>
     <div class="ctl"><span class="hint" tabindex="0" data-tip="Weight in tonnes or value in US dollars.">Measure</span><div class="seg" data-k="m"><button data-v="t">Tonnes</button><button data-v="usd">US$</button></div></div>
   </div>
-  <section class="card filters" aria-label="Filters">
-    <div class="frow">
+  <section class="controls filters" aria-label="Filters">
       <div class="ctl pick"><span>From</span><div class="pickbox" data-p="from"><input placeholder="Country, region or income group" aria-label="Add senders" role="combobox" aria-expanded="false" autocomplete="off"><div class="menu" role="listbox" hidden></div></div></div>
       <div class="ctl pick"><span>To</span><div class="pickbox" data-p="to"><input placeholder="Country, region or income group" aria-label="Add receivers" role="combobox" aria-expanded="false" autocomplete="off"><div class="menu" role="listbox" hidden></div></div></div>
       <label class="ctl"><span>Region type</span><select id="sch"><option value="un">UN regions (M49)</option><option value="unsub">UN sub-regions (M49)</option><option value="wb">World Bank regions</option><option value="oecd2">OECD / non-OECD</option><option value="oecd">OECD regions</option></select></label>
-    </div>
-    <div class="frow">
       <div class="ctl"><span>Years<b id="yrs"></b></span><div class="dual"><div class="track"></div><div class="fill" id="yfill"></div><input type="range" id="y0" aria-label="First year"><input type="range" id="y1" aria-label="Last year"></div></div>
       <label class="ctl"><span>Top senders<b id="tsv"></b></span><input type="range" id="ts" min="0" max="8" step="1" value="0"></label>
       <label class="ctl"><span>Top receivers<b id="trv"></b></span><input type="range" id="tr" min="0" max="8" step="1" value="0"></label>
       <div class="ctl"><span class="hint" tabindex="0" data-tip="Leave these flows out of every chart. Income groups are each country's World Bank group in that year, and OECD membership counts from the year a country joined.">Leave out trade</span><div class="seg tog"><button id="xr" aria-pressed="false">Within a region</button><button id="xi" aria-pressed="false">Within an income group</button><button id="xh" aria-pressed="false">High income → middle- and low-income</button><button id="xo" aria-pressed="false">OECD → non-OECD</button></div></div>
       <button class="reset" id="reset">Reset</button>
-    </div>
   </section>
   <div class="tabs" role="tablist"><button role="tab" data-tab="overview" aria-selected="true">Overview</button><button role="tab" data-tab="glance" aria-selected="false">At a glance</button><button role="tab" data-tab="compare" aria-selected="false">Compare two years</button></div>
   <div class="grid" id="p-overview">
     <section class="card wide"><div class="hd"><h2>Total</h2></div><div class="chart" id="cA"></div><div class="sbar"><span class="save"><span class="lab">Save chart</span><button type="button" data-save="A" data-fmt="png">PNG</button><button type="button" data-save="A" data-fmt="svg">SVG</button><button type="button" data-save="A" data-fmt="csv">CSV</button></span></div></section>
-    <section class="card"><div class="hd"><h2 id="hB">Where it goes</h2><div class="cbar"><select id="split" aria-label="Split by"><option value="rg">By recipient's income group</option><option value="sg">By sender's income group</option><option value="rr">By recipient's region</option><option value="sr">By sender's region</option><option value="mt">By material</option></select><div class="seg" data-k="bmode"><button data-v="t">Amount</button><button data-v="s">Share</button></div></div></div>
+    <section class="card"><div class="hd"><h2 id="hB">Where it goes</h2><div class="cbar"><label class="ctl"><span>Split</span><select id="split" aria-label="Split by"><option value="rg">By recipient's income group</option><option value="sg">By sender's income group</option><option value="rr">By recipient's region</option><option value="sr">By sender's region</option><option value="mt">By material</option></select></label><div class="ctl"><span>Show</span><div class="seg" data-k="bmode"><button data-v="t">Amount</button><button data-v="s">Share</button></div></div></div></div>
       <div class="chart" id="cB"></div><div class="legend" id="lB"></div><div class="sbar"><span class="save"><span class="lab">Save chart</span><button type="button" data-save="B" data-fmt="png">PNG</button><button type="button" data-save="B" data-fmt="svg">SVG</button><button type="button" data-save="B" data-fmt="csv">CSV</button></span></div></section>
     <section class="card"><div class="hd"><h2>From high-income to middle- and low-income countries</h2></div>
       <div class="chart" id="cC"></div><div class="legend" id="lC"></div><div class="sbar"><span class="save"><span class="lab">Save chart</span><button type="button" data-save="C" data-fmt="png">PNG</button><button type="button" data-save="C" data-fmt="svg">SVG</button><button type="button" data-save="C" data-fmt="csv">CSV</button></span></div></section>
-    <section class="card wide"><div class="hd"><h2 id="hE">Receivers year by year</h2><div class="cbar"><div class="seg" data-k="hdir"><button data-v="in">Receivers</button><button data-v="out">Senders</button></div><label class="ctl"><span>Rows<b id="hrv"></b></span><input type="range" id="hrows" min="5" max="60" step="5"></label></div></div>
+    <section class="card wide"><div class="hd"><h2 id="hE">Receivers year by year</h2><div class="cbar"><div class="ctl"><span>Direction</span><div class="seg" data-k="hdir"><button data-v="in">Receivers</button><button data-v="out">Senders</button></div></div><label class="ctl"><span>Rows<b id="hrv"></b></span><input type="range" id="hrows" min="5" max="60" step="5"></label></div></div>
       <div class="chart scroll" id="cE"></div><div class="legend" id="lE"></div><div class="sbar"><span class="save"><span class="lab">Save chart</span><button type="button" data-save="E" data-fmt="png">PNG</button><button type="button" data-save="E" data-fmt="svg">SVG</button><button type="button" data-save="E" data-fmt="csv">CSV</button></span></div></section>
     <section class="card wide" id="reported" style="scroll-margin-top:70px"><div class="hd"><h2>Who reported plastic scrap trade</h2></div>
       <div class="chart" id="cW"></div><div class="legend" id="lW"></div><div class="sbar"><span class="save"><span class="lab">Save chart</span><button type="button" data-save="W" data-fmt="png">PNG</button><button type="button" data-save="W" data-fmt="svg">SVG</button><button type="button" data-save="W" data-fmt="csv">CSV</button></span></div><div class="nrlist" id="wlist"></div></section>
@@ -232,7 +238,7 @@ input[type=range]{accent-color:var(--out);width:180px;max-width:100%}
   <div id="p-glance" hidden>
     <section class="card wide"><div class="hd"><h2 id="hF">Senders at a glance</h2><span class="count" id="fcount"></span></div>
       <div class="cbar">
-        <div class="seg" data-k="gdir"><button data-v="out">Senders</button><button data-v="in">Receivers</button></div>
+        <div class="ctl"><span>Direction</span><div class="seg" data-k="gdir"><button data-v="out">Senders</button><button data-v="in">Receivers</button></div></div>
         <label class="ctl"><span>Sort</span><select id="gsort"><option value="total">Largest over the years</option><option value="last">Largest in last year</option><option value="peak">Highest peak</option><option value="rise">Biggest rise</option><option value="fall">Biggest fall</option><option value="name">A to Z</option></select></label>
         <label class="ctl"><span>Show<b id="gshowv"></b></span><input type="range" id="gshow" min="0" max="5" step="1"></label>
         <label class="ctl"><span>At least<b id="gminv"></b></span><input type="range" id="gmin" min="0" max="6" step="1"></label>
@@ -245,7 +251,7 @@ input[type=range]{accent-color:var(--out);width:180px;max-width:100%}
     <section class="card wide"><div class="hd"><h2>Compare two years</h2></div>
       <div class="cbar">
         <div class="ctl"><span>Years</span><div class="pair"><select id="ya" aria-label="First year"></select>and<select id="yb" aria-label="Second year"></select></div></div>
-        <div class="seg" data-k="cdir"><button data-v="in">Receivers</button><button data-v="out">Senders</button></div>
+        <div class="ctl"><span>Direction</span><div class="seg" data-k="cdir"><button data-v="in">Receivers</button><button data-v="out">Senders</button></div></div>
         <div class="ctl"><span>Group</span><div class="seg" data-k="cgrp"><button data-v="c">Countries</button><button data-v="r">Regions</button><button data-v="g">Income groups</button></div></div>
         <label class="ctl"><span>Sort</span><select id="csort"><option value="b">Largest in second year</option><option value="a">Largest in first year</option><option value="chg">Biggest change</option><option value="rise">Biggest rise</option><option value="fall">Biggest fall</option><option value="pct">Biggest % rise</option><option value="pctf">Biggest % fall</option></select></label>
         <label class="ctl"><span>Show<b id="cnv"></b></span><input type="range" id="cn" min="3" max="60" step="1"></label>
@@ -259,6 +265,6 @@ input[type=range]{accent-color:var(--out);width:180px;max-width:100%}
 <div class="tip" id="tip" hidden></div>
 <div class="toast" id="toast" role="status" hidden></div>
 <script src="vendor/d3-7.8.5.min.js"></script>
-<script src="trends.js?v=15"></script>
+<script src="trends.js?v=16"></script>
 </body>
 </html>
