@@ -239,39 +239,54 @@ tbody tr:hover td{background:var(--raise)}
 .btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--border);font-weight:500}
 .btn.sm{font-size:13px;padding:6px 12px}
 .note{font-size:12px;color:var(--muted)}
-.hp{margin:0 0 18px}
-.hp>summary{list-style:none;cursor:pointer;display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;padding:12px 16px}
-.hp>summary::-webkit-details-marker{display:none}
-.hp>summary::before{content:"+";font:600 18px/1 var(--body);width:22px;height:22px;border-radius:6px;display:grid;place-items:center;background:var(--res);color:#fff;flex:none}
-.hp[open]>summary::before{content:"−"}
-.hp .hpt{font-family:var(--display);font-weight:700;font-size:17px}
-.hp #hpsum{font-size:14px;color:var(--muted)}
-.hp #hpsum b{color:var(--res)}
-.hpbody{padding:0 16px 16px;border-top:1px solid var(--border)}
-.hpbody>p{margin:12px 0;font-size:14px;color:var(--muted);max-width:90ch}
-.hpgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
-.hpc{border:1px solid var(--border);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:6px;background:var(--raise)}
-.hpc.on{border-color:var(--res);box-shadow:inset 3px 0 0 var(--res)}
-.hpc label.t{display:flex;gap:8px;align-items:flex-start;font-weight:600;cursor:pointer;font-size:14px}
-.hpc label.t input{margin-top:3px}
-.hpc small{font-size:12px;color:var(--muted)}
-.hpc .f{display:flex;gap:8px;align-items:center;font-size:13px}
-.hpc .f input[type=range]{flex:1;min-width:0;accent-color:var(--res)}
-.hpc .f input[type=number]{width:68px;font:inherit;padding:3px 6px;border:1px solid var(--border);border-radius:6px;background:var(--panel);color:var(--ink)}
-.hpc .add{font-size:13px;font-weight:600;color:var(--res)}
-.hpc .src{font-style:italic}
-.hpc .src.def{font-size:11px}
-.hpc .usl{display:flex;flex-direction:column;gap:3px;font-size:12px;font-weight:600;color:var(--ink)}
-.hpc .usrc{font:inherit;font-weight:400;font-size:13px;padding:4px 8px;border:1px solid var(--border);border-radius:6px;background:var(--panel);color:var(--ink)}
-.hpc .usrc.need{border-color:var(--warn);box-shadow:0 0 0 1px var(--warn)}
-.hpc .relnk{font:inherit;font-style:normal;font-weight:600;background:none;border:0;padding:0;color:var(--res);text-decoration:underline;cursor:pointer}
-.hpc .f{flex-wrap:wrap;row-gap:2px}
-.hpc .f .fl{font-size:12px;color:var(--muted);width:100%}
-.hpc .incg{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;font-size:11px;color:var(--muted)}
-.hpc .incg label{display:flex;flex-direction:column;gap:2px}
-.hpc .incg input{width:100%;font:inherit;font-size:13px;padding:2px 4px;border:1px solid var(--border);border-radius:6px;background:var(--panel);color:var(--ink)}
-.hpc label.sm{font-size:12px;display:flex;gap:6px;align-items:center;color:var(--muted);cursor:pointer}
-.hpfoot{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;margin-top:12px;font-size:14px}
+.mats{margin:18px 0 0;padding:12px 16px 14px}
+.mtabs{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px}
+.mtabs .seg button{font-weight:600}
+#mgplas::after{content:"";width:7px;height:7px;border:solid currentColor;border-width:0 1.5px 1.5px 0;transform:translateY(1px) rotate(-135deg);margin-left:2px}
+#mgplas[aria-expanded="false"]::after{transform:translateY(-2px) rotate(45deg)}
+#hpsum{font-size:13px;color:var(--muted)}
+#hpsum b{color:var(--ink)}
+.macts{margin-left:auto;display:flex;flex-wrap:wrap;gap:4px 12px}
+.macts .linkbtn{color:var(--muted)}
+.mcomp{display:flex;flex-wrap:wrap;gap:10px 22px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
+.msub{display:flex;flex-direction:column;gap:5px;min-width:0}
+.msub>span{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.msub>div{display:flex;flex-wrap:wrap;gap:5px}
+.mc{display:inline-flex;align-items:stretch;border:1px solid var(--border);border-radius:999px;background:var(--panel);font-size:13px;min-width:0}
+.mc.on{border-color:var(--res);background:color-mix(in srgb,var(--res) 9%,var(--panel))}
+.mc label{display:flex;align-items:center;gap:6px;padding:4px 6px 4px 9px;cursor:pointer;white-space:nowrap}
+.mc label:last-child{padding-right:11px}
+.mc input{accent-color:var(--res);margin:0}
+.mc .q{color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums}
+.mc.on .q{color:var(--res);font-weight:600}
+.mc .gear{border:0;border-left:1px solid var(--border);background:none;color:var(--muted);cursor:pointer;padding:0 9px 0 7px;border-radius:0 999px 999px 0;display:grid;place-items:center}
+.mc .gear:hover,.mc .gear[aria-expanded="true"]{color:var(--ink);background:var(--raise)}
+.mc .gear svg{width:14px;height:14px}
+.mc .gear.chg{color:var(--warn)}
+.hpop{position:absolute;z-index:40;width:340px;max-width:calc(100vw - 32px);background:var(--panel);border:1px solid var(--border);border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.18);padding:14px 16px;display:flex;flex-direction:column;gap:9px;font-size:14px}
+.hpop .ph{display:flex;align-items:flex-start;gap:8px}
+.hpop .ph b{font-family:var(--display);font-size:16px;flex:1}
+.hpop .x{border:0;background:none;color:var(--muted);font-size:20px;line-height:1;cursor:pointer;padding:0 2px}
+.hpop small{font-size:12px;color:var(--muted)}
+.hpop .f{display:flex;gap:8px;align-items:center;font-size:13px;flex-wrap:wrap;row-gap:2px}
+.hpop .f .fl{font-size:12px;color:var(--muted);width:100%}
+.hpop .f input[type=range]{flex:1;min-width:0;accent-color:var(--res)}
+.hpop input[type=number]{width:68px;font:inherit;padding:3px 6px;border:1px solid var(--border);border-radius:6px;background:var(--panel);color:var(--ink)}
+.hpop .incg{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;font-size:11px;color:var(--muted)}
+.hpop .incg label{display:flex;flex-direction:column;gap:2px}
+.hpop .incg input{width:100%;font-size:13px;padding:2px 4px}
+.hpop label.sm{font-size:12px;display:flex;gap:6px;align-items:center;color:var(--muted);cursor:pointer}
+.hpop .src{font-style:italic}
+.hpop .src.def{font-size:11px}
+.hpop .usl{display:flex;flex-direction:column;gap:3px;font-size:12px;font-weight:600}
+.hpop .usrc{font:inherit;font-weight:400;font-size:13px;padding:4px 8px;border:1px solid var(--border);border-radius:6px;background:var(--panel);color:var(--ink)}
+.hpop .usrc.need{border-color:var(--warn);box-shadow:0 0 0 1px var(--warn)}
+.hpop .relnk{font:inherit;font-style:normal;font-weight:600;background:none;border:0;padding:0;color:var(--res);text-decoration:underline;cursor:pointer}
+.hpop .add{display:flex;justify-content:space-between;gap:10px;align-items:baseline;border-top:1px solid var(--border);padding-top:9px;font-size:13px}
+.hpop .add b{font-size:18px;color:var(--res);font-variant-numeric:tabular-nums}
+.hpop .incl{display:flex;gap:8px;align-items:center;font-weight:600;cursor:pointer}
+.hpop .incl input{accent-color:var(--res)}
+@media (max-width:640px){.hpop{position:fixed;left:8px!important;right:8px;bottom:8px;top:auto!important;width:auto;max-width:none;max-height:75vh;overflow:auto}.macts{margin-left:0}}
 .count{font-family:var(--mono);font-size:13px}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--panel);padding:8px 14px;border-radius:8px;font-size:14px;z-index:50;max-width:calc(100vw - 32px)}
 
@@ -310,16 +325,23 @@ footer b{color:var(--ink);font-weight:600}
 </div></div>
 
 <main class="wrap">
-  <div class="controls" id="explore" style="scroll-margin-top:64px">
-    <div class="ctl"><span>Material</span>
+  <section class="card mats" id="explore" aria-label="Material" style="scroll-margin-top:64px">
+    <div class="mtabs">
+      <span class="lab">Material</span>
       <div class="seg">
-        <button aria-pressed="true">Plastics</button>
+        <button id="mgplas" aria-pressed="true" aria-expanded="true" aria-controls="hpgrid">Plastics</button>
         <button disabled>Paper &amp; card <small>soon</small></button>
         <button disabled>Metals <small>soon</small></button>
         <button disabled>Textiles <small>soon</small></button>
-        <button disabled>Rubber &amp; tyres <small>soon</small></button>
         <button disabled>E-waste <small>soon</small></button>
-      </div></div>
+      </div>
+      <span id="hpsum"></span>
+      <span class="macts"><button class="linkbtn" id="hpshape">Main streams</button><button class="linkbtn" id="hpoff">Plastic scrap only</button><button class="linkbtn" id="hpreset">Reset values</button><button class="linkbtn" id="hpsave">Save assumptions</button><label class="linkbtn">Load assumptions<input type="file" id="hpload" accept=".json,application/json" hidden></label></span>
+    </div>
+    <div class="mcomp" id="hpgrid"></div>
+  </section>
+  <div class="hpop" id="hpop" role="dialog" aria-modal="false" hidden></div>
+  <div class="controls">
     <div class="ctl"><span>Year</span>
       <select id="year" aria-label="Year"></select></div>
     <div class="ctl"><span>Whose figures</span>
@@ -344,12 +366,6 @@ footer b{color:var(--ink);font-weight:600}
     <div class="ctl"><span>Find a country</span>
       <input type="search" id="find" list="clist" placeholder="e.g. Malaysia" aria-label="Find a country"><datalist id="clist"></datalist></div>
   </div>
-  <details class="card hp" id="hp"><summary><span class="hpt">Plastics traded amongst other materials</span><span id="hpsum"></span></summary>
-    <div class="hpbody">
-      <div class="hpgrid" id="hpgrid"></div>
-      <div class="hpfoot"><button class="btn ghost sm" id="hpshape">Add main streams</button><button class="btn ghost sm" id="hpoff">Plastic scrap only</button><button class="btn ghost sm" id="hpreset">Reset values</button><button class="btn ghost sm" id="hpsave">Save assumptions</button><label class="btn ghost sm" style="cursor:pointer">Load assumptions<input type="file" id="hpload" accept=".json,application/json" hidden></label><span id="hptot"></span></div>
-
-    </div></details>
 </main>
 
 <section class="mapfull">
@@ -359,7 +375,7 @@ footer b{color:var(--ink);font-weight:600}
       <div class="ctl"><span>Regions by</span><select id="scheme" aria-label="Region definition">
         <option value="un">UN regions (M49)</option><option value="unsub">UN sub-regions (M49)</option><option value="wb" selected>World Bank regions</option><option value="oecd">OECD / non-OECD</option></select></div>
       <div class="ctl"><span>Region</span><select id="region" aria-label="Focus on a region"><option value="">Whole world</option></select></div>
-      <div class="ctl" id="rdirbox" hidden><span>Trade</span><div class="seg" id="rdir"><button data-d="both" aria-pressed="true">In and out</button><button data-d="out" aria-pressed="false">Leaving</button><button data-d="in" aria-pressed="false">Arriving</button><button data-d="within" aria-pressed="false">Within</button></div></div>
+      <div class="ctl" id="rdirbox"><span>Trade</span><div class="seg" id="rdir"><button data-d="both" aria-pressed="true">In and out</button><button data-d="out" aria-pressed="false">Leaving</button><button data-d="in" aria-pressed="false">Arriving</button><button data-d="between" aria-pressed="false" hidden>Between regions</button><button data-d="within" aria-pressed="false">Within</button></div></div>
       <div class="ctl" id="hlbox"><span>Highlight</span><div class="seg" id="hl"><button data-v="none" aria-pressed="true">Nothing</button><button data-v="lmic" aria-pressed="false">Low &amp; middle income</button><button data-v="hic" aria-pressed="false">High income</button></div></div>
       <div class="ctl" id="nrbox"><span>Non-reporters</span><div class="seg" id="nrep"><button data-v="on" aria-pressed="true">Hatched</button><button data-v="off" aria-pressed="false">Off</button></div></div>
       <div class="ctl" id="focusbox" hidden><span>Selected country</span><div class="seg" id="fdir"><button data-v="in" aria-pressed="false">Coming in</button><button data-v="out" aria-pressed="false">Going out</button><button data-v="both" aria-pressed="true">Both</button></div></div>
@@ -560,7 +576,7 @@ const impRows=k=>((IMP&&IMP[k])||[]).map(r=>({v:r[0],ex:String(r[1]),rc:String(r
 const BASEI=impRows("plastic"),HIMP={};for(const k in HS)HIMP[k]=impRows(k);
 const ALIAS=data.aliases||{};
 let R=[];
-const HAS_HID=Object.values(HROWS).some(x=>x.length);if(!HAS_HID)$("#hp").hidden=true;
+const HAS_HID=Object.values(HROWS).some(x=>x.length);
 const hidOn=()=>!HAS_HID?[]:Object.keys(HS).filter(k=>{const h=HON[k];return h.on&&h.w>0&&(h.byInc?Object.values(h.inc).some(v=>v>0):h.f>0)});
 function pairUp(RAW){
   const m=new Map();for(const r of RAW){const k=r.ex+">"+r.rc;if(!m.has(k))m.set(k,[null,null]);m.get(k)[r.v]=r}
@@ -679,7 +695,7 @@ let toastT;function toast(m){const t=$("#toast");t.textContent=m;t.hidden=false;
 
 // ---------- filters ----------
 const passInc=r=>S.incf==="all"||(inc(r.ex)==="HIC"&&LOWER.has(inc(r.rc)));
-const passReg=r=>{if(!S.region)return true;const a=regOf(r.ex)===S.region,b=regOf(r.rc)===S.region;return S.rdir==="out"?a:S.rdir==="in"?b:S.rdir==="within"?a&&b:a||b};
+const passReg=r=>{if(!S.region){if(S.rdir!=="within"&&S.rdir!=="between")return true;const a=regOf(r.ex),b=regOf(r.rc);return !!a&&!!b&&(S.rdir==="within"?a===b:a!==b)}const a=regOf(r.ex)===S.region,b=regOf(r.rc)===S.region;return S.rdir==="out"?a:S.rdir==="in"?b:S.rdir==="within"?a&&b:a||b};
 const pass=r=>passInc(r)&&passReg(r);
 const routes=(view=S.view)=>R.filter(r=>r.v===view&&pass(r));
 const isL=c=>LOWER.has(inc(c)),isH=c=>inc(c)==="HIC";
@@ -872,7 +888,9 @@ function drawMap(){
     :lm?`${S.hl==="lmic"?"Low & middle income":"High income"} countries sent ${fmt(mval(lm.a,w),w)} and received ${fmt(mval(lm.b,w),w)} of ${PW()} in ${YL}`
     :m==="ppt"?`${PW()[0].toUpperCase()+PW().slice(1)} sold for ${fP(mval(tot,"ppt"))} on average in ${YL}`
     :S.region?`${S.region}: ${fmt(mval(tot,m),m)} of ${PW()} ${({both:"traded in and out",out:"leaving",in:"arriving",within:"traded within the region"})[S.rdir]}, ${YL}`
-    :S.incf==="hl"?`${fmt(mval(tot,m),m)} of ${PW()} went from high-income to middle- and low-income countries in ${YL}`:`${fmt(mval(tot,m),m)} of ${PW()} crossed borders in ${YL}`;
+    :S.incf==="hl"?`${fmt(mval(tot,m),m)} of ${PW()} went from high-income to middle- and low-income countries${S.rdir==="within"?` within the same ${SCHEMES[S.scheme].replace(/s$/,"")}`:S.rdir==="between"?` in another ${SCHEMES[S.scheme].replace(/s$/,"")}`:""} in ${YL}`
+    :S.rdir==="within"?`${fmt(mval(tot,m),m)} of ${PW()} was traded within ${SCHEMES[S.scheme]} in ${YL}`
+    :S.rdir==="between"?`${fmt(mval(tot,m),m)} of ${PW()} crossed between ${SCHEMES[S.scheme]} in ${YL}`:`${fmt(mval(tot,m),m)} of ${PW()} crossed borders in ${YL}`;
   if(S.imp&&S.view!==2&&m!=="ppt"){const it=agg(rs.filter(r=>r.imp));if(it.t)$("#maptitle").textContent+=`, ${fmt(mval(it,w),w)} of it imputed`}
   $("#legend").innerHTML=S.sel?`<span><span class="dot" style="background:var(--out)"></span>sent by ${esc(name(S.sel))}</span><span><span class="dot" style="background:var(--in)"></span>sent to ${esc(name(S.sel))}</span>`
     :S.hl!=="none"?(S.hl==="lmic"?["UMC","LMC","LIC"]:["HIC"]).map(g=>`<span><span class="dot" style="background:var(--g-${g.toLowerCase()})"></span>${INC[g]}</span>`).join("")+`<span><span class="dot" style="background:var(--out)"></span>leaving them</span><span><span class="dot" style="background:var(--in)"></span>arriving</span>`
@@ -911,7 +929,9 @@ function regionFlows(sch,rs){const f=new Map();for(const r of rs){const a=regOf(
 function drawRegionMap(){
   $("#focusbox").hidden=$("#fgrpbox").hidden=true;
   const sch=S.scheme,A=anchors(sch),rs=R.filter(r=>r.v===S.view&&passInc(r)),m=S.measure==="ppt"?"t":S.measure;
-  let flows=regionFlows(sch,rs);
+  const within=S.rdir==="within";
+  const wm=within?d3.rollup(rs.filter(r=>{const a=regOf(r.ex,sch);return a&&a===regOf(r.rc,sch)&&(!S.region||a===S.region)}),v=>d3.sum(v,r=>r[m]),r=>regOf(r.ex,sch)):null;
+  let flows=within?[]:regionFlows(sch,rs);
   if(S.region)flows=flows.filter(f=>S.rdir==="out"?f.a===S.region:S.rdir==="in"?f.b===S.region:S.rdir==="within"?false:(f.a===S.region||f.b===S.region));
   flows.sort((x,y)=>y[m]-x[m]);mapRows=flows;
   countries.classed("sel",false).classed("dim",f=>!!S.region&&regOf(mapToCode[f.id],sch)!==S.region).style("fill",f=>{const r=regOf(mapToCode[f.id],sch);return r?d3.interpolateRgb(css("--land"),rcol(r,sch))(.55):null});
@@ -922,15 +942,17 @@ function drawRegionMap(){
     .on("mousemove",(e,f)=>showTip(e,`<b>${esc(f.a)} → ${esc(f.b)}</b><br>${fT(f.t)} · ${fU(f.usd)} · ${fP(f.t>=50?f.usd/f.t:null)}`)).on("mouseleave",hideTip).on("click",(e,f)=>setRegion(f.a));
   const outT=d3.rollup(flows,v=>d3.sum(v,f=>f[m]),f=>f.a),inT=d3.rollup(flows,v=>d3.sum(v,f=>f[m]),f=>f.b);
   const nodes=regionNames(sch).filter(r=>A[r]&&!isNaN(A[r][0]));
-  const gr=r=>(outT.get(r)||0)+(inT.get(r)||0),gmx=d3.max(nodes,gr)||1;
+  const gr=r=>within?(wm.get(r)||0):(outT.get(r)||0)+(inT.get(r)||0),gmx=d3.max(nodes,gr)||1;
   gN.selectAll("circle").data(nodes.map(r=>[r,gr(r)]),d=>d[0]).join("circle").attr("class","node")
     .each(d=>d.r=4+Math.sqrt(d[1]/gmx)*10).attr("cx",d=>A[d[0]][0]).attr("cy",d=>A[d[0]][1]).attr("fill",d=>rcol(d[0],sch)).style("cursor","pointer").on("click",(e,d)=>setRegion(d[0]));
-  setLabels(nodes.map(r=>({id:"R"+r,kind:"reg",dyn:true,m,vin:inT.get(r)||0,vout:outT.get(r)||0,x:A[r][0],y:A[r][1],r:4+Math.sqrt(gr(r)/gmx)*10,pri:gr(r),force:S.region===r,l1:r})));
+  setLabels(nodes.map(r=>within?{id:"R"+r,kind:"reg",x:A[r][0],y:A[r][1],r:4+Math.sqrt(gr(r)/gmx)*10,pri:gr(r),force:S.region===r,l1:r,l2:fmt(gr(r),m)+" within",c2:rcol(r,sch)}
+    :{id:"R"+r,kind:"reg",dyn:true,m,vin:inT.get(r)||0,vout:outT.get(r)||0,x:A[r][0],y:A[r][1],r:4+Math.sqrt(gr(r)/gmx)*10,pri:gr(r),force:S.region===r,l1:r}));
   rescale();
-  const total=d3.sum(flows,f=>f[m]),all=d3.sum(rs,r=>r[m]);
-  $("#maptitle").textContent=`${fmt(total,m)} of ${PW()} crossed between ${SCHEMES[sch]}, ${YL} (${d3.format(".0%")(total/all)} of all trade)`;
+  const total=within?d3.sum(nodes,gr):d3.sum(flows,f=>f[m]),all=d3.sum(rs,r=>r[m]);
+  $("#maptitle").textContent=S.region?`${S.region}: ${fmt(total,m)} of ${PW()} ${({both:"traded with other regions",out:"leaving for other regions",in:"arriving from other regions",within:"traded within the region"})[S.rdir]}, ${YL}`
+    :`${fmt(total,m)} of ${PW()} ${within?"was traded within":"crossed between"} ${SCHEMES[sch]}, ${YL} (${d3.format(".0%")(total/all)} of all trade)`;
   $("#legend").innerHTML=nodes.map(r=>`<span><span class="dot" style="background:${rcol(r,sch)}"></span>${esc(r)}</span>`).join("");
-  $("#mapnote").textContent="Trade between countries in the same region is left out. Click a region to focus on it.";
+  $("#mapnote").textContent=within?"Each circle is trade between countries in the same region. Click a region to focus on it.":"Trade between countries in the same region is left out. Click a region to focus on it.";
   $("#reset").hidden=true;
 }
 
@@ -1253,10 +1275,10 @@ $("#dlcopy").onclick=async()=>{const rows=dlRows(),keys=dlKeys(),txt=S.fmt==="js
 
 // ---------- CONTROLS ----------
 function segment(sel,attr,fn){const btns=[...document.querySelectorAll(sel+" button")];btns.forEach(b=>b.addEventListener("click",()=>{if(b.disabled||b.dataset[attr]===undefined)return;btns.forEach(x=>x.setAttribute("aria-pressed",x===b?"true":"false"));fn(b.dataset[attr])}))}
-segment("#imp","i",v=>{S.imp=v==="1";const u=new URL(location.href);if(!S.imp)u.searchParams.set("imp","0");else u.searchParams.delete("imp");history.replaceState(null,"",u);resolve();render();if(HAS_HID)hpUI()});
+segment("#imp","i",v=>{S.imp=v==="1";const u=new URL(location.href);if(!S.imp)u.searchParams.set("imp","0");else u.searchParams.delete("imp");history.replaceState(null,"",u);resolve();render();hpRefresh()});
 pressed("#imp","i",S.imp?"1":"0");if(!IMP)$("#impbox").hidden=true;
-segment("#view","v",v=>{S.view=+v;$("#resmethodbox").hidden=S.view!==2;$("#impbox").hidden=S.view===2||!IMP;B.view=S.view;pressed("#bview","v",B.view);render();if(HAS_HID)hpUI()});
-$("#resmethod").onchange=e=>{S.resolve=e.target.value;resolve();render();if(HAS_HID)hpUI()};
+segment("#view","v",v=>{S.view=+v;$("#resmethodbox").hidden=S.view!==2;$("#impbox").hidden=S.view===2||!IMP;B.view=S.view;pressed("#bview","v",B.view);render();hpRefresh()});
+$("#resmethod").onchange=e=>{S.resolve=e.target.value;resolve();render();hpRefresh()};
 segment("#measure","m",v=>{S.measure=v;render()});
 segment("#incf","f",v=>{S.incf=v;render()});
 segment("#mapmode","v",v=>{S.mapMode=v;S.sel=null;partnerVals=new Map();$("#hlbox").hidden=v==="regions";render()});
@@ -1268,42 +1290,71 @@ segment("#globe","v",v=>{D.globe=v;applyDesign();setProj();placeCountries();anch
 segment("#lval","v",v=>{if(v==="none"){D.lab="none"}else{D.lval=v;if(D.lab==="none")D.lab="both"}applyDesign();drawMap()});
 segment("#fdir","v",v=>{S.fdir=v;render()});
 segment("#fgrp","v",v=>{S.fgrp=v;render();fitFocus()});
-// ---------- hidden plastics ----------
-const SCRAPV=v=>v===2?d3.sum(pairUp(BASE),r=>r.t):d3.sum(BASE,r=>r.v===v?r.t:0);
+// ---------- materials: the Plastics group ----------
+const SCRAPV=v=>v===2?d3.sum(pairUp(BASE),r=>r.t):d3.sum(S.imp?BASE.concat(BASEI):BASE,r=>r.v===v?r.t:0);
+const HGRP=[["Plastic waste",["scrap"]],["Textiles",["clothing","rags","fibre"]],["E-waste",["weee","weeeo"]],["Mixed waste",["rdf"]],["Rubber and tyres",["tyres","rubber","hardrubber"]],["Paper",["paper"]]];
+const GEAR=`<svg viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M2 4h7M13 4h1M2 12h1M7 12h7M2 8h2M8 8h6"/><circle cx="11" cy="4" r="1.8"/><circle cx="5" cy="12" r="1.8"/><circle cx="6" cy="8" r="1.8"/></svg>`;
+const hpop=$("#hpop");document.body.appendChild(hpop);
+let POP=null;
+const mgSet=o=>{$("#mgplas").setAttribute("aria-expanded",o);$("#hpgrid").hidden=!o;$(".macts").hidden=!o||!HAS_HID;if(!o)closePop()};
+$("#mgplas").onclick=()=>mgSet($("#mgplas").getAttribute("aria-expanded")==="false");
+if(matchMedia("(max-width:640px)").matches)mgSet(false);
+const addOf=k=>{let s=0;for(const h of hViews(k))if(h.v===S.view)s+=h.t*shareOf(k,h.ex);return s};
+function chip(k){
+  if(k==="scrap")return `<span class="mc ${S.scrap?"on":""}" data-k="scrap"><label title="${esc(CODE)}"><input type="checkbox" id="hp-scrap" ${S.scrap?"checked":""}>Plastic scrap <span class="q" id="hq-scrap"></span></label></span>`;
+  const h=HS[k],o=HON[k];
+  return `<span class="mc ${o.on?"on":""}" data-k="${k}"><label title="${esc(h.codes)}"><input type="checkbox" data-k="${k}" ${o.on?"checked":""}>${esc(h.n)} <span class="q" id="hq-${k}"></span></label><button type="button" class="gear" data-pop="${k}" aria-expanded="false" aria-haspopup="dialog" aria-label="Assumptions for ${esc(h.n)}" title="Assumptions">${GEAR}</button></span>`}
 function hpUI(){
-  const num=(attr,k,v,lab)=>`<input type="number" min="0" max="100" step="0.25" value="${v}" ${attr}="${k}" aria-label="${lab}">`;
-  $("#hpgrid").innerHTML=`<div class="hpc ${S.scrap?"on":""}" data-k="scrap"><label class="t"><input type="checkbox" id="hp-scrap" ${S.scrap?"checked":""}> <span>Plastic scrap</span></label><small>${esc(CODE)} · ${fT(SCRAPV(S.view))}, ${VIEWS[S.view]}</small><div class="f">Counted in full</div><small class="src">The main series, from UN Comtrade.</small></div>`+
-    Object.entries(HS).filter(([k])=>HROWS[k].length).map(([k,h])=>{const o=HON[k],L=esc(h.n);return `<div class="hpc ${o.on?"on":""}" data-k="${k}"><label class="t"><input type="checkbox" data-k="${k}" ${o.on?"checked":""}> <span>${L}</span></label><small>${h.codes} · ${fT(hTot(k,S.view))} traded in ${YL}</small>
-      <div class="f" ${o.byInc?"hidden":""}><span class="fl">Plastic share</span><input type="range" min="0" max="100" step="0.25" value="${o.f}" data-kf="${k}" list="hpd-${k}" aria-label="Plastic share of ${L}"><datalist id="hpd-${k}"><option value="${h.f}"></option></datalist>${num("data-kn",k,o.f,"Plastic share of "+L+", per cent")}%</div>
-      <div class="incg" ${o.byInc?"":"hidden"}>${["HIC","UMC","LMC","LIC"].map(g=>`<label>${g}${num("data-ki-"+g.toLowerCase(),k,o.inc[g],"Plastic share for "+INC[g]+" exporters")}</label>`).join("")}</div>
-      <label class="sm"><input type="checkbox" data-kb="${k}" ${o.byInc?"checked":""}> Plastic share varies by exporter's income group</label>
-      <div class="srcbox" id="hps-${k}"></div><div class="add" id="hpa-${k}"></div></div>`}).join("");
-  for(const k in HS)if(HROWS[k].length)hpSrc(k,true);
+  $("#hpgrid").innerHTML=HGRP.map(([g,ks])=>{const kk=ks.filter(k=>k==="scrap"||HROWS[k].length);return kk.length?`<div class="msub"><span>${g}</span><div>${kk.map(chip).join("")}</div></div>`:""}).join("");
+  $(".macts").hidden=!HAS_HID||$("#mgplas").getAttribute("aria-expanded")==="false";
+  if(POP)popUI(POP);
   hpRefresh();
 }
-function hpSrc(k,force){const box=$("#hps-"+k),d=isDef(k);if(!force&&box.dataset.d===String(d))return;box.dataset.d=d;const h=HS[k],o=HON[k];
+function popUI(k){const h=HS[k],o=HON[k],L=esc(h.n);
+  const num=(attr,v,lab)=>`<input type="number" min="0" max="100" step="0.25" value="${v}" ${attr}="${k}" aria-label="${lab}">`;
+  hpop.dataset.k=k;hpop.setAttribute("aria-label","Assumptions for "+h.n);
+  hpop.innerHTML=`<div class="ph"><b>${L}</b><button type="button" class="x" data-close aria-label="Close">×</button></div>
+    <small>${esc(h.codes)} · <span id="hpt"></span></small>
+    <label class="incl"><input type="checkbox" data-k="${k}" ${o.on?"checked":""}> Include</label>
+    <div class="f" ${o.byInc?"hidden":""}><span class="fl">Plastic share</span><input type="range" min="0" max="100" step="0.25" value="${o.f}" data-kf="${k}" list="hpd-${k}" aria-label="Plastic share of ${L}"><datalist id="hpd-${k}"><option value="${h.f}"></option></datalist>${num("data-kn",o.f,"Plastic share of "+L+", per cent")}%</div>
+    <div class="incg" ${o.byInc?"":"hidden"}>${["HIC","UMC","LMC","LIC"].map(g=>`<label>${g}${num("data-ki-"+g.toLowerCase(),o.inc[g],"Plastic share for "+INC[g]+" exporters")}</label>`).join("")}</div>
+    <label class="sm"><input type="checkbox" data-kb="${k}" ${o.byInc?"checked":""}> Plastic share varies by exporter's income group</label>
+    <div class="srcbox" id="hps-${k}"></div>
+    <div class="add"><span id="hpal"></span><b id="hpa"></b></div>`;
+  hpSrc(k,true);popRefresh();
+}
+function popRefresh(){const k=POP;if(!k)return;hpSrc(k);$("#hpt").textContent=`${fT(hTot(k,S.view))} traded in ${YL}, ${VIEWS[S.view]}`;$("#hpal").textContent=HON[k].on?"Adds to plastics":"Would add to plastics";$("#hpa").textContent=fT(addOf(k))}
+function placePop(btn){if(matchMedia("(max-width:640px)").matches)return;const r=btn.getBoundingClientRect(),w=hpop.offsetWidth;
+  hpop.style.left=Math.max(8,Math.min(r.right-w,document.documentElement.clientWidth-w-8)+scrollX)+"px";hpop.style.top=(r.bottom+scrollY+6)+"px"}
+function openPop(k,btn){if(POP===k){closePop();return}closePop();POP=k;popUI(k);hpop.hidden=false;placePop(btn);btn.setAttribute("aria-expanded","true");const f=hpop.querySelector("input[type=range],input[type=number]");if(f)f.focus({preventScroll:true})}
+function closePop(focus){if(!POP)return;const b=$(`.gear[data-pop="${POP}"]`);POP=null;hpop.hidden=true;if(b){b.setAttribute("aria-expanded","false");if(focus)b.focus()}}
+function hpSrc(k,force){const box=$("#hps-"+k);if(!box)return;const d=isDef(k);if(!force&&box.dataset.d===String(d))return;box.dataset.d=d;const h=HS[k],o=HON[k];
   box.innerHTML=d?`<small class="src">${esc(h.src)}</small>`:`<label class="usl"><span>Source for your value</span><input type="text" maxlength="300" class="usrc ${o.usrc.trim()?"":"need"}" data-ks="${k}" value="${esc(o.usrc)}" placeholder="Add a source" aria-label="Source for your ${esc(h.n)} plastic share"></label><small class="src def">Default ${h.f}%. ${esc(h.src)} <button type="button" class="relnk" data-kr="${k}">Use default</button></small>`}
-const addOf=k=>{let s=0;for(const h of hViews(k))if(h.v===S.view)s+=h.t*shareOf(k,h.ex);return s};
 function hpRefresh(){
-  const on=hidOn(),adds={};for(const k in HS)adds[k]=addOf(k);const add=d3.sum(on,k=>adds[k]);
+  const on=hidOn(),adds={};for(const k in HS)adds[k]=HROWS[k].length?addOf(k):0;const add=d3.sum(on,k=>adds[k]);
   const SCRAPT=SCRAPV(S.view);
-  for(const k in HS){if(!HROWS[k].length)continue;hpSrc(k);$("#hpa-"+k).textContent=(HON[k].on?"Adds ":"Would add ")+fT(adds[k])+" of plastic";$(`.hpc[data-k="${k}"]`).classList.toggle("on",HON[k].on)}
-  $(`.hpc[data-k="scrap"]`).classList.toggle("on",S.scrap);
-  $("#hpsum").innerHTML=on.length?`<b>${on.length} stream${on.length>1?"s":""} on</b>, adding ${fT(add)} of plastic${S.scrap?` to ${fT(SCRAPT)} of plastic scrap (+${d3.format(".0%")(add/SCRAPT)})`:", plastic scrap left out"}`:S.scrap?"":"Nothing selected.";
-  $("#hptot").textContent=on.length?`Total: ${fT(add+(S.scrap?SCRAPT:0))} of plastic, ${VIEWS[S.view]}.`:"";
+  for(const k in HS){if(!HROWS[k].length)continue;const c=$(`.mc[data-k="${k}"]`);if(!c)continue;c.classList.toggle("on",HON[k].on);$("#hq-"+k).textContent=fT(adds[k]);c.querySelector(".gear").classList.toggle("chg",!isDef(k))}
+  const sc=$(`.mc[data-k="scrap"]`);if(sc){sc.classList.toggle("on",S.scrap);$("#hq-scrap").textContent=fT(SCRAPT)}
+  const total=add+(S.scrap?SCRAPT:0);
+  $("#hpsum").innerHTML=on.length||S.scrap?`<b>${fT(total)}</b> of plastic, ${VIEWS[S.view]}`:"Nothing selected";
+  popRefresh();
   try{localStorage.setItem("gwt-assumptions",JSON.stringify({streams:HON}))}catch(e){}
 }
 let hpT=0;const hpApply=()=>{cancelAnimationFrame(hpT);hpT=requestAnimationFrame(()=>{resolve();render();hpRefresh()})};
-const turnOn=k=>{if(!HON[k].on){HON[k].on=true;const c=$(`input[data-k="${k}"]`);if(c)c.checked=true}};
-$("#hpgrid").addEventListener("change",e=>{const t=e.target;
+const turnOn=k=>{if(!HON[k].on){HON[k].on=true;document.querySelectorAll(`input[data-k="${k}"]`).forEach(c=>c.checked=true)}};
+const onChange=e=>{const t=e.target;
   if(t.id==="hp-scrap"){S.scrap=t.checked;hpApply()}
-  else if(t.dataset.k){HON[t.dataset.k].on=t.checked;hpApply()}
-  else if(t.dataset.kb){const k=t.dataset.kb;HON[k].byInc=t.checked;if(t.checked)for(const g in HON[k].inc)HON[k].inc[g]=HON[k].f;turnOn(k);hpUI();hpApply()}});
-$("#hpgrid").addEventListener("input",e=>{const t=e.target,ds=t.dataset;if(ds.ks){HON[ds.ks].usrc=t.value.slice(0,300);t.classList.toggle("need",!t.value.trim());hpRefresh();return}const v=Math.max(0,Math.min(100,+t.value||0));let k=null;
+  else if(t.dataset.k){HON[t.dataset.k].on=t.checked;document.querySelectorAll(`input[data-k="${t.dataset.k}"]`).forEach(c=>c.checked=t.checked);hpApply()}
+  else if(t.dataset.kb){const k=t.dataset.kb;HON[k].byInc=t.checked;if(t.checked)for(const g in HON[k].inc)HON[k].inc[g]=HON[k].f;turnOn(k);popUI(k);hpApply()}};
+const onInput=e=>{const t=e.target,ds=t.dataset;if(ds.ks){HON[ds.ks].usrc=t.value.slice(0,300);t.classList.toggle("need",!t.value.trim());hpRefresh();return}const v=Math.max(0,Math.min(100,+t.value||0));let k=null;
   if(ds.kf||ds.kn){k=ds.kf||ds.kn;HON[k].f=v;const o=ds.kf?$(`[data-kn="${k}"]`):$(`[data-kf="${k}"]`);o.value=v}
   else for(const g of ["HIC","UMC","LMC","LIC"]){const kk=t.getAttribute("data-ki-"+g.toLowerCase());if(kk){k=kk;HON[k].inc[g]=v}}
-  if(!k)return;turnOn(k);hpApply()});
-$("#hpgrid").addEventListener("click",e=>{const b=e.target.closest("[data-kr]");if(!b)return;const k=b.dataset.kr,on=HON[k].on;HON[k]=HDEF(k);HON[k].on=on;hpUI();hpApply()});
+  if(!k)return;turnOn(k);hpApply()};
+for(const el of [$("#hpgrid"),hpop]){el.addEventListener("change",onChange);el.addEventListener("input",onInput)}
+$("#hpgrid").addEventListener("click",e=>{const b=e.target.closest("[data-pop]");if(b)openPop(b.dataset.pop,b)});
+hpop.addEventListener("click",e=>{if(e.target.closest("[data-close]")){closePop(true);return}const b=e.target.closest("[data-kr]");if(!b)return;const k=b.dataset.kr,on=HON[k].on;HON[k]=HDEF(k);HON[k].on=on;popUI(k);hpApply()});
+document.addEventListener("pointerdown",e=>{if(POP&&!hpop.contains(e.target)&&!e.target.closest("[data-pop]"))closePop()});
+addEventListener("resize",()=>{if(POP){const b=$(`.gear[data-pop="${POP}"]`);if(b)placePop(b)}});
 $("#hpshape").onclick=()=>{for(const k in HS){HON[k].on=HS[k].shape}S.scrap=true;hpUI();hpApply()};
 $("#hpoff").onclick=()=>{for(const k in HS)HON[k].on=false;S.scrap=true;hpUI();hpApply()};
 $("#hpreset").onclick=()=>{for(const k in HS){const on=HON[k].on;HON[k]=HDEF(k);HON[k].on=on}hpUI();hpApply()};
@@ -1311,11 +1362,15 @@ $("#hpsave").onclick=()=>saveFile("gwt-hidden-plastic-assumptions.json",JSON.str
 $("#hpload").onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const j=JSON.parse(await f.text());if(!j||!j.streams)throw 0;let n=0;for(const k in HS)if(j.streams[k]){HON[k]=sanitiseH(k,j.streams[k]);n++}hpUI();hpApply();toast(`Loaded assumptions for ${n} stream${n===1?"":"s"}.`)}catch(err){toast("That file isn't a set of assumptions from this site.")}e.target.value=""};
 hpUI();
 function fillRegions(){const sel=$("#region");sel.innerHTML=`<option value="">Whole world</option>`+regionNames(S.scheme).map(r=>`<option>${esc(r)}</option>`).join("");sel.value=S.region||""}
-$("#scheme").onchange=e=>{S.scheme=e.target.value;B.scheme=S.scheme;$("#bscheme").value=B.scheme;S.region=null;$("#rdirbox").hidden=true;fillRegions();render();svg.transition().duration(600).call(zoom.transform,d3.zoomIdentity)};
+$("#scheme").onchange=e=>{S.scheme=e.target.value;B.scheme=S.scheme;$("#bscheme").value=B.scheme;S.region=null;rdirUI();fillRegions();render();svg.transition().duration(600).call(zoom.transform,d3.zoomIdentity)};
 $("#region").onchange=e=>setRegion(e.target.value||null);
-function setRegion(r){S.region=r;$("#region").value=r||"";$("#rdirbox").hidden=!r;S.sel=null;partnerVals=new Map();render();
+function rdirUI(){const reg=!!S.region;
+  if(reg&&S.rdir==="between")S.rdir="both";if(!reg&&(S.rdir==="in"||S.rdir==="out"))S.rdir="between";
+  document.querySelectorAll("#rdir button").forEach(b=>{const d=b.dataset.d;b.hidden=reg?d==="between":d==="in"||d==="out";if(d==="within")b.textContent=reg?"Within":"Within regions"});
+  pressed("#rdir","d",S.rdir)}
+function setRegion(r){S.region=r;$("#region").value=r||"";rdirUI();S.sel=null;partnerVals=new Map();render();
   if(r){const mem=Object.keys(C).filter(c=>regOf(c)===r&&pos[c]);const big=mem.filter(c=>!["RUS","USA","CAN","GRL","FRA","NOR"].includes(iso(c)));zoomToPts((big.length?big:mem).map(c=>pos[c]),5)}else svg.transition().duration(600).call(zoom.transform,d3.zoomIdentity)}
-segment("#rdir","d",v=>{S.rdir=v;render()});
+segment("#rdir","d",v=>{S.rdir=v;render()});rdirUI();
 segment("#rankmode","r",v=>{S.rank=v;S.rankSort=null;rank()});
 segment("#dlfmt","f",v=>{S.fmt=v;buildDL()});
 segment("#bfrom","v",v=>{B.from=v;drawChart()});
@@ -1335,7 +1390,7 @@ $("#reset").onclick=()=>select(null);
 $("#clist").innerHTML=Object.values(C).filter(c=>c[3]||c[4]!=null).sort((a,b)=>a[1].localeCompare(b[1])).map(c=>`<option value="${esc(c[1])}">`).join("");
 $("#find").addEventListener("change",e=>{const q=e.target.value.trim().toLowerCase();if(!q)return;const E=Object.entries(C);const hit=E.find(([k,c])=>c[1].toLowerCase()===q)||E.find(([k,c])=>c[0].toLowerCase()===q)||E.find(([k,c])=>(ALIAS[k]||"").toLowerCase().includes(q))||E.find(([k,c])=>c[1].toLowerCase().includes(q));
   if(hit){if(S.mapMode==="regions"){S.mapMode="routes";pressed("#mapmode","v","routes");$("#hlbox").hidden=false}select(hit[0]);zoomToPts([pos[hit[0]]],3)}else toast(`No country matches "${e.target.value}".`)});
-document.addEventListener("keydown",e=>{if(e.key==="Escape"){if(!$("#drawer").hidden){$("#drawer").hidden=true;return}if(S.sel)select(null)}if(e.key==="Enter"&&e.target.matches(".row[data-c]"))e.target.click()});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){if(POP){closePop(true);return}if(!$("#drawer").hidden){$("#drawer").hidden=true;return}if(S.sel)select(null)}if(e.key==="Enter"&&e.target.matches(".row[data-c]"))e.target.click()});
 
 function select(c){if(!c){S.fgrp="c";pressed("#fgrp","v","c")}S.sel=c;if(!c){partnerVals=new Map();B.focus=false;$("#bfocus").checked=false}render()}
 function render(){hideTip();side();drawMap();drawChart();rank();buildDL()}
