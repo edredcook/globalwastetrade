@@ -27,7 +27,7 @@
 <style>
 [hidden]{display:none!important}
 body{margin:0}
-/* Layout: one long chart-room page. Masthead, control strip, full-width map, country panel, chart builder, country table, data builder; design drawer on the right. */
+/* Layout: one long chart-room page. Masthead with sticky page links, material card, full-width map with a side panel of map controls (map design at the top), summary panel, chart builder (chart design at the foot of its options), country table, data builder. */
 :root{
   --sea:#dfe8ec; --land:#f7f9f9; --border:#c3cfd4; --ink:#13212a; --muted:#5a6b74;
   --panel:#ffffff; --raise:#eef3f5;
@@ -58,22 +58,24 @@ body{background:var(--sea);color:var(--ink);font-family:var(--body);font-size:15
 .wrap.wide{max-width:1934px}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:#13212a}
 header.mast{background:#13212a;color:#f2f5f6;position:sticky;top:env(safe-area-inset-top,0px);z-index:15}
-header.mast .wrap{display:flex;align-items:center;gap:20px;padding-block:10px;flex-wrap:wrap}
+header.mast>.wrap{display:flex;align-items:center;gap:20px;padding-block:10px;flex-wrap:wrap}
 .brand{font-family:var(--display);font-weight:800;font-stretch:80%;font-size:22px;letter-spacing:.01em;text-transform:uppercase;display:flex;align-items:center;gap:10px}
 .brand i{display:inline-block;width:22px;height:14px;border:3px solid #ff7a3d;border-radius:2px;position:relative}
 .brand i:after{content:"";position:absolute;inset:2px 4px;border-left:2px solid #ff7a3d;border-right:2px solid #ff7a3d}
 nav.top{display:flex;gap:2px;flex-wrap:wrap;margin-left:auto;align-items:center}
 nav.top a{color:inherit;opacity:.75;text-decoration:none;padding:6px 10px;border-radius:4px;font-weight:500;font-size:14px}
 nav.top a:hover{opacity:1;background:rgba(255,255,255,.1)}
-.designbtn{font:inherit;font-size:14px;font-weight:600;background:#ff7a3d;color:#13212a;border:0;border-radius:6px;padding:6px 12px;cursor:pointer;margin-left:6px}
-.proto{background:var(--hi);color:var(--ink);font-size:13px}
-.proto .wrap{padding-block:7px;display:flex;flex-wrap:wrap;gap:4px 18px;align-items:center}
+.subbar{background:#203440;color:#c9d6dc;font-size:13px;border-top:1px solid rgba(255,255,255,.08)}
+.subbar .wrap{padding-block:6px;display:flex;flex-wrap:wrap;gap:4px 18px;align-items:center}
+#srcline{color:#8fa3ad;font-size:12px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1 1 200px}
 nav.top a[aria-current]{opacity:1;background:rgba(255,255,255,.12)}
 .brand{color:inherit;text-decoration:none}
+.betab{justify-self:center;font:700 11px/1 var(--body);letter-spacing:.12em;text-transform:uppercase;color:#ffb38f;border:1px solid rgba(255,122,61,.7);border-radius:999px;padding:4px 10px 3px}
+@media (max-width:759px){header.mast>.wrap{gap:6px 10px;padding-block:8px}header.mast .brand{font-size:18px;gap:8px}header.mast nav.top a{padding:4px 8px}#srcline{display:none}}
+@media (min-width:760px){header.mast>.wrap{display:grid;grid-template-columns:1fr auto 1fr}header.mast .brand{justify-self:start}header.mast nav.top{justify-self:end}}
 nav.sub{display:flex;flex-wrap:wrap;gap:2px 16px;margin-left:auto}
-nav.sub a{color:inherit;text-decoration:none;font-weight:600}
-nav.sub a:hover{text-decoration:underline}
-.proto b{font-weight:600}
+nav.sub a{color:inherit;text-decoration:none;font-weight:600;padding:2px 0;border-bottom:2px solid transparent}
+nav.sub a:hover,nav.sub a:focus-visible{color:#fff;border-bottom-color:#ff7a3d}
 
 .controls{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px;padding-block:14px}
 @media (max-width:420px){.controls{grid-template-columns:1fr}}
@@ -176,17 +178,7 @@ input[type=range]{accent-color:var(--out)}
 .stage{margin-top:16px}
 aside.side{position:relative;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:16px 28px;align-items:start;min-width:0}
 aside.side > *{min-width:0}
-.sideprint{position:absolute;top:12px;right:12px;z-index:2}
-.print-cap{display:none}
-@media print{
-  body.print-side>*:not(main),body.print-side main>*:not(.stage){display:none!important}
-  body.print-side main{padding:0!important;margin:0!important;max-width:none!important}
-  body.print-side{background:#fff!important}
-  body.print-side .stage{margin:0}
-  body.print-side aside.side{border:0;padding:0;grid-template-columns:1fr 1fr;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  body.print-side .sideprint{display:none}
-  body.print-side .print-cap{display:block;grid-column:1/-1;font-size:11px;color:#555;border-top:1px solid #ccc;padding-top:6px}
-}
+.sidesave{position:absolute;top:12px;right:12px;z-index:2}
 .side .col{display:flex;flex-direction:column;gap:14px}
 .side h3{margin:0;font-family:var(--display);font-stretch:85%;font-size:26px;line-height:1.1;font-weight:800}
 .side .sub{color:var(--muted);font-size:13px;margin-top:2px}
@@ -220,7 +212,7 @@ aside.side > *{min-width:0}
 .bars .row .b{grid-column:1 / -1;height:5px;border-radius:3px}
 .side h4{margin:0 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-weight:600}
 
-section.block{margin-top:36px;scroll-margin-top:64px}
+section.block{margin-top:36px;scroll-margin-top:104px}
 .cred{padding:22px 24px}
 .cred .made{margin:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:18px 28px;font-size:15px}
 .cred .made>div{border-left:3px solid var(--border);padding-left:12px}
@@ -349,22 +341,25 @@ tbody tr:hover td{background:var(--raise)}
 .count{font-family:var(--mono);font-size:13px}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--panel);padding:8px 14px;border-radius:8px;font-size:14px;z-index:50;max-width:calc(100vw - 32px)}
 
-.drawer{position:fixed;top:0;right:0;bottom:0;width:min(360px,100vw);background:var(--panel);border-left:1px solid var(--border);z-index:30;display:flex;flex-direction:column;box-shadow:-12px 0 32px rgba(0,0,0,.18);padding-top:env(safe-area-inset-top,0px);padding-right:env(safe-area-inset-right,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-.drawer header{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid var(--border)}
-.drawer header h2{margin:0;font-family:var(--display);font-stretch:85%;font-size:22px;font-weight:800}
-.drawer .body{overflow:auto;padding:14px 16px 24px;display:flex;flex-direction:column;gap:16px}
-.drawer h3{margin:6px 0 0;font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink);font-weight:700;border-top:1px solid var(--border);padding-top:12px}
-.drawer label.f{display:grid;grid-template-columns:1fr auto;gap:6px 10px;align-items:center;font-size:14px}
-.drawer label.f input[type=range]{grid-column:1 / -1;width:100%}
-.drawer label.f output{font-family:var(--mono);font-size:12px;color:var(--muted)}
-.drawer input[type=color]{width:44px;height:30px;border:1px solid var(--border);border-radius:6px;background:var(--panel);padding:2px;cursor:pointer}
 .presets{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.mdes>summary,.cdes>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:6px}
+.mdes>summary::-webkit-details-marker,.cdes>summary::-webkit-details-marker{display:none}
+.mdes>summary::before,.cdes>summary::before{content:"";width:6px;height:6px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(-45deg);transition:transform .15s;margin-right:2px}
+.mdes[open]>summary::before,.cdes[open]>summary::before{transform:rotate(45deg)}
+.mdes[open]>summary{margin-bottom:2px}
+.ccols{display:flex;flex-wrap:wrap;gap:8px 14px;flex:1 1 100%}
+.ccols label{display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer}
+.ccols input[type=color]{width:34px;height:26px;border:1px solid var(--border);border-radius:6px;background:var(--panel);padding:2px;cursor:pointer}
+.cdes{gap:10px}
+.cdes>summary{font-size:12px;font-weight:700;color:var(--ink)}
+.cdes .mini{min-width:0}.cdes .mini input[type=range]{width:100%}
+.cdes .ctl[hidden],.cdes .mini[hidden]{display:none}
 .presets button{font:inherit;font-size:13px;border:1px solid var(--border);background:var(--panel);color:var(--ink);border-radius:8px;padding:7px 8px;cursor:pointer;display:flex;gap:6px;align-items:center;text-align:left}
 .presets button[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
 .presets i{width:12px;height:12px;border-radius:3px;flex:none}
 .x{font:inherit;font-size:22px;line-height:1;background:none;border:0;color:var(--muted);cursor:pointer;padding:4px 8px}
 
-footer{margin-top:40px;padding-block:22px 40px;border-top:1px solid var(--border);font-size:13px;color:var(--muted);scroll-margin-top:64px}
+footer{margin-top:40px;padding-block:22px 40px;border-top:1px solid var(--border);font-size:13px;color:var(--muted);scroll-margin-top:104px}
 footer .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px}
 footer b{color:var(--ink);font-weight:600}
 .loading{padding:60px 20px;text-align:center;color:var(--muted)}
@@ -374,17 +369,17 @@ footer b{color:var(--ink);font-weight:600}
 
 <header class="mast"><div class="wrap">
   <a class="brand" href="./"><i aria-hidden="true"></i>Global Waste Trade Data Hub</a>
+  <span class="betab">Beta</span>
   <nav class="top" aria-label="Pages">
     <a href="./" aria-current="page">Explorer</a><a href="trends.html">Trends</a><a href="validation.html">Validation</a><a href="about.html">About</a>
-    <button class="designbtn" data-open-design>Design</button>
   </nav>
-</div></header>
-<div class="proto"><div class="wrap"><span><b>Beta.</b> <span id="srcline">UN Comtrade</span></span>
+</div>
+<div class="subbar"><div class="wrap"><span id="srcline">UN Comtrade</span>
   <nav class="sub" aria-label="On this page"><a href="#explore">Map</a><a href="#build">Build a chart</a><a href="#rankings">Countries</a><a href="#getdata">Get the data</a><a href="#credits">Credits</a></nav>
-</div></div>
+</div></div></header>
 
 <main class="wrap wide">
-  <section class="card mats" id="explore" aria-label="Material" style="scroll-margin-top:64px">
+  <section class="card mats" id="explore" aria-label="Material" style="scroll-margin-top:104px">
     <div class="mtabs">
       <span class="lab">Material</span>
       <div class="seg">
@@ -437,11 +432,14 @@ footer b{color:var(--ink);font-weight:600}
         <div class="zoomctl"><button id="zin" aria-label="Zoom in">+</button><button id="zout" aria-label="Zoom out">−</button><button id="zreset" aria-label="Reset zoom" style="font-size:13px">⤢</button></div>
       </div>
       <div class="bar"><span id="mapnote" hidden></span>
-        <span class="save"><button class="linkbtn" id="sideopen" hidden>Map controls</button><button class="linkbtn" data-open-design>Map design</button>
-          <span class="lab" style="margin-left:8px">Save map</span><button data-save="map" data-fmt="png">PNG</button><button data-save="map" data-fmt="svg">SVG</button><button data-save="map" data-fmt="csv">CSV</button></span></div>
+        <span class="save"><button class="linkbtn" id="sideopen" hidden>Map controls</button>          <span class="lab" style="margin-left:8px">Save map</span><button data-save="map" data-fmt="png">PNG</button><button data-save="map" data-fmt="svg">SVG</button><button data-save="map" data-fmt="csv">CSV</button></span></div>
     </div>
     <aside class="mapside" id="mapside" aria-label="Map controls"><div class="msin">
       <div class="mshd"><b>Map controls</b><button class="btn ghost sm" id="mapreset">Map reset</button><button class="linkbtn" id="sideclose" aria-controls="mapside">Hide</button></div>
+      <details class="tbox mdes" id="mdes"><summary class="tbt">Map design</summary>
+        <div class="ctl"><span>Colour presets</span><div class="presets" id="presets"></div></div>
+        <div class="ccols"><label><input type="color" id="c-out">Exports</label><label><input type="color" id="c-in">Imports</label><label><input type="color" id="c-res">Resolved</label></div>
+      </details>
     <div class="maptools">
       <div class="tbox"><div class="ctl"><span>Map shows</span><div class="seg" id="mapmode"><button data-v="routes" aria-pressed="true">Country to country</button><button data-v="regions" aria-pressed="false">Region to region</button></div></div>
         <div class="ctl" id="rcolbox" hidden><span>Colours</span><div class="seg" id="rcolmode"><button data-v="io" aria-pressed="true">In and out</button><button data-v="reg" aria-pressed="false">By region</button></div></div></div>
@@ -449,7 +447,8 @@ footer b{color:var(--ink);font-weight:600}
         <option value="un">UN regions (M49)</option><option value="unsub">UN sub-regions (M49)</option><option value="wb" selected>World Bank regions</option><option value="oecd">OECD / non-OECD</option></select></div>
         <div class="ctl"><span>Region</span><select id="region" aria-label="Focus on a region"><option value="">Whole world</option></select></div></div>
       <div class="tbox"><div class="ctl" id="rdirbox"><span>Trade</span><div class="seg" id="rdir"><button data-d="both" aria-pressed="true">In and out</button><button data-d="out" aria-pressed="false">Leaving</button><button data-d="in" aria-pressed="false">Arriving</button><button data-d="between" aria-pressed="false" hidden>Between regions</button><button data-d="within" aria-pressed="false">Within</button></div></div></div>
-      <div class="tbox"><div class="ctl" id="hlbox"><span>Highlight</span><div class="seg" id="hl"><button data-v="none" aria-pressed="true">Nothing</button><button data-v="lmic" aria-pressed="false">Low &amp; middle income</button><button data-v="hic" aria-pressed="false">High income</button></div></div></div>
+      <div class="tbox"><div class="ctl" id="hlbox"><span>Highlight</span><div class="seg" id="hl"><button data-v="none" aria-pressed="true">Nothing</button><button data-v="lmic" aria-pressed="false">Low &amp; middle income</button><button data-v="hic" aria-pressed="false">High income</button></div></div>
+        <div class="ctl" id="chorobox"><span>Shade countries by size</span><div class="seg" id="choro"><button data-v="on" aria-pressed="false">On</button><button data-v="off" aria-pressed="true">Off</button></div></div></div>
       <div class="tbox"><div class="ctl" id="nrbox"><span>Non-reporters</span><div class="seg" id="nrep"><button data-v="on" aria-pressed="true">Hatched</button><button data-v="off" aria-pressed="false">Off</button></div></div></div>
       <div class="tbox"><div class="ctl" id="focusbox" hidden><span>Selected country</span><div class="seg" id="fdir"><button data-v="in" aria-pressed="false">Coming in</button><button data-v="out" aria-pressed="false">Going out</button><button data-v="both" aria-pressed="true">Both</button></div></div>
         <div class="ctl" id="fgrpbox" hidden><span>Group partners</span><div class="seg" id="fgrp"><button data-v="c" aria-pressed="true">Countries</button><button data-v="r" aria-pressed="false">By region</button></div></div></div>
@@ -458,12 +457,16 @@ footer b{color:var(--ink);font-weight:600}
     <div class="maptools row2">
       <div class="tbox"><b class="tbt">Labels</b>
         <div class="ctl"><span>Show</span><div class="seg" id="lval"><button data-v="net" aria-pressed="true">Net</button><button data-v="in" aria-pressed="false">Imports</button><button data-v="out" aria-pressed="false">Exports</button><button data-v="both" aria-pressed="false">In and out</button><button data-v="none" aria-pressed="false">Off</button></div></div>
+        <div class="ctl"><span>Income group</span><div class="seg" id="linc"><button data-v="on" aria-pressed="false">On</button><button data-v="off" aria-pressed="true">Off</button></div></div>
+        <div class="ctl"><span>Text</span><select id="d-lab" aria-label="Label text"><option value="both">Name and value</option><option value="net">Value only</option><option value="name">Names only</option><option value="none">No labels</option></select></div>
+        <div class="ctl"><span>Position</span><select id="d-lpos" aria-label="Label position"><option value="auto">Beside the dot, centred when zoomed in</option><option value="centre">Always centred</option><option value="offset">Always beside the dot</option></select></div>
         <label class="mini"><span>Label size <output id="mo-lsize"></output></span><input type="range" id="m-lsize" min="8" max="16" step="1"></label>
         <label class="mini"><span>How many labels <output id="mo-ldens"></output></span><input type="range" id="m-ldens" min="1" max="5" step="1"></label>
         <div class="ctl"><span>Decimals</span><div class="seg" id="dec"><button data-v="0" aria-pressed="false">0</button><button data-v="1" aria-pressed="true">1</button><button data-v="2" aria-pressed="false">2</button></div></div></div>
       <div class="tbox"><b class="tbt">Routes</b>
         <label class="mini"><span>Routes shown <output id="mo-maxr"></output></span><input type="range" id="m-maxr" min="0" max="24" step="1"></label>
-        <label class="mini"><span>Line width <output id="mo-line"></output></span><input type="range" id="m-line" min="0.3" max="3" step="0.1"></label></div>
+        <label class="mini"><span>Line width <output id="mo-line"></output></span><input type="range" id="m-line" min="0.3" max="3" step="0.1"></label>
+        <div class="ctl"><span>Moving flow lines</span><div class="seg" id="anim"><button data-v="on" aria-pressed="true">On</button><button data-v="off" aria-pressed="false">Off</button></div></div></div>
     </div>
     </div></aside>
   </div>
@@ -494,9 +497,18 @@ footer b{color:var(--ink);font-weight:600}
         <div class="ctl" data-for="sankey bars treemap"><span>Filters</span><div class="chk" style="flex-direction:column;align-items:flex-start">
           <label><input type="checkbox" id="bnointra"> <span>Leave out trade within the same region</span></label>
           <label><input type="checkbox" id="bfocus"> <span>Only trade involving <b id="bfocusname">the selected country</b></span></label></div></div>
+        <details class="ctl cdes" id="cdes"><summary>Chart design</summary>
+          <label class="mini"><span>Label size <output id="o-font"></output></span><input type="range" id="d-font" min="9" max="18" step="1"></label>
+          <div class="ctl"><span>Values on labels</span><div class="seg" id="vals"><button data-v="on" aria-pressed="true">On</button><button data-v="off" aria-pressed="false">Off</button></div></div>
+          <div class="ctl" data-for="sankey"><span>Colour flows by</span><select id="d-lcol" aria-label="Colour flows by"><option value="source">Sender</option><option value="target">Receiver</option><option value="grey">Plain grey</option></select></div>
+          <label class="mini" data-for="sankey"><span>Sankey bar width <output id="o-nodew"></output></span><input type="range" id="d-nodew" min="4" max="40" step="1"></label>
+          <label class="mini" data-for="sankey"><span>Sankey gap <output id="o-gap"></output></span><input type="range" id="d-gap" min="2" max="40" step="1"></label>
+          <label class="mini" data-for="sankey"><span>Flow opacity <output id="o-op"></output></span><input type="range" id="d-op" min="0.1" max="0.9" step="0.05"></label>
+          <label class="mini"><span>Chart height <output id="o-h"></output></span><input type="range" id="d-h" min="0.6" max="2" step="0.1"></label>
+        </details>
       </div>
       <div class="cstage">
-        <div class="chd"><div><h3 id="ctitle"></h3><div class="cnote" id="cnote"></div></div><button class="btn ghost sm" data-open-design>Chart design</button></div>
+        <div class="chd"><div><h3 id="ctitle"></h3><div class="cnote" id="cnote"></div></div></div>
         <div class="chartbox"><svg id="chart" role="img" aria-label="Chart"></svg></div>
         <div class="cleg" id="cleg"></div>
         <div class="bar" style="margin-top:auto"><span></span>
@@ -554,33 +566,6 @@ footer b{color:var(--ink);font-weight:600}
 
 </main>
 
-<aside class="drawer" id="drawer" hidden aria-label="Design settings">
-  <header><h2>Design</h2><button class="x" id="dclose" aria-label="Close design settings">×</button></header>
-  <div class="body">
-    <div class="ctl"><span>Colour presets</span><div class="presets" id="presets"></div></div>
-    <label class="f">Sent / exports colour <input type="color" id="c-out"></label>
-    <label class="f">Received / imports colour <input type="color" id="c-in"></label>
-    <label class="f">Resolved colour <input type="color" id="c-res"></label>
-    <h3>Map</h3>
-    <label class="f">Routes drawn <output id="o-maxr"></output><input type="range" id="d-maxr" min="0" max="24" step="1"></label>
-    <label class="f">Line thickness <output id="o-line"></output><input type="range" id="d-line" min="0.3" max="3" step="0.1"></label>
-    <label class="f">Labels <select id="d-lab"><option value="both">Name and value</option><option value="net">Value only</option><option value="name">Names only</option><option value="none">No labels</option></select></label>
-    <label class="f">Label position <select id="d-lpos"><option value="auto">Beside the dot, centred when zoomed in</option><option value="centre">Always centred</option><option value="offset">Always beside the dot</option></select></label>
-    <label class="f">How many labels <output id="o-ldens"></output><input type="range" id="d-ldens" min="1" max="5" step="1"></label>
-    <label class="f">Map label size <output id="o-lsize"></output><input type="range" id="d-lsize" min="8" max="16" step="1"></label>
-    <label class="f">Moving flow lines <input type="checkbox" id="d-anim"></label>
-    <label class="f">Shade countries by size <input type="checkbox" id="d-choro"></label>
-    <h3>Charts</h3>
-    <label class="f">Label size <output id="o-font"></output><input type="range" id="d-font" min="9" max="18" step="1"></label>
-    <label class="f">Show values on labels <input type="checkbox" id="d-vals"></label>
-    <label class="f">Sankey bar width <output id="o-nodew"></output><input type="range" id="d-nodew" min="4" max="40" step="1"></label>
-    <label class="f">Sankey gap <output id="o-gap"></output><input type="range" id="d-gap" min="2" max="40" step="1"></label>
-    <label class="f">Flow opacity <output id="o-op"></output><input type="range" id="d-op" min="0.1" max="0.9" step="0.05"></label>
-    <label class="f">Colour flows by <select id="d-lcol"><option value="source">Sender</option><option value="target">Receiver</option><option value="grey">Plain grey</option></select></label>
-    <label class="f">Chart height <output id="o-h"></output><input type="range" id="d-h" min="0.6" max="2" step="0.1"></label>
-    <button class="btn ghost sm" id="dreset">Reset all design settings</button>
-  </div>
-</aside>
 <div class="tip" id="tip" hidden></div>
 <div class="toast" id="toast" hidden></div>
 
@@ -627,7 +612,7 @@ const S={imp:new URLSearchParams(location.search).get("imp")!=="0",hatch:true,sc
 const B={type:"sankey",from:"c",to:"c",side:"ex",group:"c",scheme:"wb",view:0,measure:"t",top:15,focus:false,nointra:false};
 const HEADN=300,RSTEPS=[10,15,20,25,30,40,45,50,60,75,100,125,150,200,250,300,400,500,750,1000,1500,2000,3000,5000,1e9],ALLR=1e9;
 const rIdx=v=>{let b=0;for(let i=0;i<RSTEPS.length;i++)if(Math.abs(RSTEPS[i]-v)<Math.abs(RSTEPS[b]-v))b=i;return b},rLab=v=>v>=ALLR?"All":d3.format(",")(v);
-const DDEF={preset:"container",dec:1,rcol:"io",out:null,in:null,res:null,maxr:60,line:1,lab:"both",lval:"net",globe:"trade",lpos:"auto",ldens:3,lsize:11,anim:true,choro:false,font:12,vals:true,nodew:12,gap:10,op:.35,lcol:"source",h:1};
+const DDEF={preset:"container",dec:1,linc:false,rcol:"io",out:null,in:null,res:null,maxr:60,line:1,lab:"both",lval:"net",globe:"trade",lpos:"auto",ldens:3,lsize:11,anim:true,choro:false,font:12,vals:true,nodew:12,gap:10,op:.35,lcol:"source",h:1};
 // v7: 60 routes by default (Ed, 26 Nov 2026); other saved design choices carry over from v6.
 let D={...DDEF};try{let s=JSON.parse(localStorage.getItem("gwt-design-v7")||"null");if(!s){s=JSON.parse(localStorage.getItem("gwt-design-v6")||"null");if(s)s.maxr=DDEF.maxr}if(s)D={...DDEF,...s}}catch(e){}
 
@@ -711,11 +696,12 @@ function applyDesign(){
   pressed("#dec","v",String(D.dec??1));pressed("#rcolmode","v",D.rcol||"io");
   for(const [k,v] of [["--out",D.out],["--in",D.in],["--res",D.res]]){if(v)rs.setProperty(k,v);else rs.removeProperty(k)}
   $("#c-out").value=toHex(css("--out"));$("#c-in").value=toHex(css("--in"));$("#c-res").value=toHex(css("--res"));
-  for(const [id,k,f] of [["ldens","ldens",v=>["","Few","Fewer","Normal","More","Lots"][v]],["lsize","lsize",v=>v+" px"],["line","line",v=>v+"×"],["font","font",v=>v+" px"],["nodew","nodew",v=>v+" px"],["gap","gap",v=>v+" px"],["op","op",v=>Math.round(v*100)+"%"],["h","h",v=>v+"×"]]){$("#d-"+id).value=D[k];$("#o-"+id).textContent=f(D[k])}
-  for(const p of ["d","m"]){$(`#${p}-maxr`).value=rIdx(D.maxr);$(p==="d"?"#o-maxr":"#mo-maxr").textContent=rLab(D.maxr)}
+  for(const [id,k,f] of [["font","font",v=>v+" px"],["nodew","nodew",v=>v+" px"],["gap","gap",v=>v+" px"],["op","op",v=>Math.round(v*100)+"%"],["h","h",v=>v+"×"]]){$("#d-"+id).value=D[k];$("#o-"+id).textContent=f(D[k])}
+  $("#m-maxr").value=rIdx(D.maxr);$("#mo-maxr").textContent=rLab(D.maxr);
   for(const [id,f] of [["line",v=>v+"×"],["lsize",v=>v+" px"],["ldens",v=>["","Few","Fewer","Normal","More","Lots"][v]]]){$("#m-"+id).value=D[id];$("#mo-"+id).textContent=f(D[id])}
   pressed("#lval","v",D.lab==="none"?"none":D.lval);pressed("#globe","v",D.globe);
-  $("#d-lab").value=D.lab;$("#d-lpos").value=D.lpos;$("#d-anim").checked=D.anim;$("#d-choro").checked=D.choro;$("#d-vals").checked=D.vals;$("#d-lcol").value=D.lcol;
+  $("#d-lab").value=D.lab;$("#d-lpos").value=D.lpos;$("#d-lcol").value=D.lcol;
+  for(const k of ["anim","choro","vals","linc"])pressed("#"+k,"v",D[k]?"on":"off");
   document.querySelectorAll("#presets button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.p===D.preset));
   try{localStorage.setItem("gwt-design-v7",JSON.stringify(D))}catch(e){}
 }
@@ -724,18 +710,16 @@ function toHex(c){const x=d3.color(c);return x?x.formatHex():"#000000"}
 $("#presets").innerHTML=Object.entries(PRESETS).map(([k,p])=>`<button data-p="${k}" aria-pressed="false"><i style="background:${p.out||"#e0531f"}"></i><i style="background:${p.in||"#0f7f86"}"></i>${p.n}</button>`).join("");
 $("#presets").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;const p=PRESETS[b.dataset.p];D.preset=b.dataset.p;D.out=p.out;D.in=p.in;D.res=p.res;applyDesign();render()});
 for(const k of ["out","in","res"])$("#c-"+k).addEventListener("input",e=>{D[k]=e.target.value;D.preset="custom";applyDesign();render()});
-for(const p of ["d","m"])$(`#${p}-maxr`).addEventListener("input",e=>{D.maxr=RSTEPS[+e.target.value];applyDesign();drawMap()});
-for(const [id,k] of [["line","line"],["font","font"],["nodew","nodew"],["gap","gap"],["op","op"],["h","h"]])$("#d-"+id).addEventListener("input",e=>{D[k]=+e.target.value;applyDesign();if(["maxr","line"].includes(k))drawMap();else drawChart()});
+$("#m-maxr").addEventListener("input",e=>{D.maxr=RSTEPS[+e.target.value];applyDesign();drawMap()});
+for(const [id,k] of [["font","font"],["nodew","nodew"],["gap","gap"],["op","op"],["h","h"]])$("#d-"+id).addEventListener("input",e=>{D[k]=+e.target.value;applyDesign();if(["maxr","line"].includes(k))drawMap();else drawChart()});
 for(const id of ["line","lsize","ldens"])$("#m-"+id).addEventListener("input",e=>{D[id]=+e.target.value;applyDesign();if(id==="line")drawMap();else rescale()});
 for(const k of ["lab","lpos"])$("#d-"+k).onchange=e=>{D[k]=e.target.value;applyDesign();rescale()};
-for(const k of ["ldens","lsize"])$("#d-"+k).addEventListener("input",e=>{D[k]=+e.target.value;applyDesign();rescale()});
-$("#d-anim").onchange=e=>{D.anim=e.target.checked;applyDesign();drawMap()};
-$("#d-choro").onchange=e=>{D.choro=e.target.checked;applyDesign();drawMap()};
-$("#d-vals").onchange=e=>{D.vals=e.target.checked;applyDesign();drawChart()};
+segment("#anim","v",v=>{D.anim=v==="on";applyDesign();drawMap()});
+segment("#choro","v",v=>{D.choro=v==="on";applyDesign();drawMap()});
+segment("#linc","v",v=>{D.linc=v==="on";applyDesign();drawMap()});
+segment("#vals","v",v=>{D.vals=v==="on";applyDesign();drawChart()});
 $("#d-lcol").onchange=e=>{D.lcol=e.target.value;applyDesign();drawChart()};
-$("#dreset").onclick=()=>{D={...DDEF};applyDesign();render()};
-document.querySelectorAll("[data-open-design]").forEach(b=>b.addEventListener("click",()=>{$("#drawer").hidden=false;$("#dclose").focus()}));
-$("#dclose").onclick=()=>{$("#drawer").hidden=true};
+for(const [id,key] of [["mdes","gwt-mdes"],["cdes","gwt-cdes"]]){const el=$("#"+id);try{el.open=localStorage.getItem(key)==="1"}catch(e){}el.addEventListener("toggle",()=>{try{localStorage.setItem(key,el.open?"1":"0")}catch(e){}})}
 applyDesign();
 
 // ---------- geometry ----------
@@ -862,7 +846,8 @@ function rescale(){
 const LV=()=>!S.region&&!S.sel&&(S.rdir==="out"||S.rdir==="in")?S.rdir:D.lval;
 const effPri=it=>it.dyn?(LV()==="in"?it.vin:LV()==="out"?it.vout:it.vin+it.vout):it.pri;
 function labLines(it,k,col){const L=[],nm=k<2.5&&it.l1s?it.l1s:it.l1,showName=D.lab!=="net"||it.kind==="mid"||(!it.dyn&&!it.l2),showVal=D.lab!=="name";
-  if(showName&&nm)L.push({t:nm,cls:"l1"});
+  const g=D.linc&&it.cc?inc(it.cc):null,gl=g&&g!=="NS"?g:null;
+  if(showName&&nm)L.push(gl?{t:nm+" · "+gl,cls:"l1",col:gcol(gl)}:{t:nm,cls:"l1"});else if(gl)L.push({t:gl,cls:"l1",col:gcol(gl)});
   if(showVal){if(it.dyn){const m=it.m,vi=it.vin,vo=it.vout;
       if(LV()==="in"){if(vi>0)L.push({t:"in "+fmt(vi,m),col:col.in})}
       else if(LV()==="out"){if(vo>0)L.push({t:"out "+fmt(vo,m),col:col.out})}
@@ -993,10 +978,10 @@ function drawMap(){
   if(S.sel&&pos[S.sel])gP.append("circle").attr("class","selring").datum({r:nodeR.get(S.sel)||6}).attr("cx",pos[S.sel][0]).attr("cy",pos[S.sel][1]).attr("fill","none").attr("stroke",css("--ink"));
   if(S.sel){
     const n=net(S.sel);
-    setLabels([{id:"sel",force:true,x:pos[S.sel][0],y:pos[S.sel][1],r:nodeR.get(S.sel)||6,pri:1e18,l1:name(S.sel),l2:S.fdir==="in"?`receives ${fmt(inM.get(S.sel)||0,w)}`:S.fdir==="out"?`sends ${fmt(outM.get(S.sel)||0,w)}`:netLine(n,w),c2:S.fdir==="in"?css("--in"):S.fdir==="out"?css("--out"):dirCol(n)},
-      ...[...pv].filter(([k])=>pos[k]).map(([k,o])=>({id:k,x:pos[k][0],y:pos[k][1],r:nodeR.get(k)||0,pri:o.v,l1:name(k),l1s:shortName(k),l2:`${fmt(o.v,w)} · ${d3.format(".0%")(o.v/pvTot)}`,c2:o.out>=o.in?css("--out"):css("--in")}))]);
+    setLabels([{id:"sel",cc:S.sel,force:true,x:pos[S.sel][0],y:pos[S.sel][1],r:nodeR.get(S.sel)||6,pri:1e18,l1:name(S.sel),l2:S.fdir==="in"?`receives ${fmt(inM.get(S.sel)||0,w)}`:S.fdir==="out"?`sends ${fmt(outM.get(S.sel)||0,w)}`:netLine(n,w),c2:S.fdir==="in"?css("--in"):S.fdir==="out"?css("--out"):dirCol(n)},
+      ...[...pv].filter(([k])=>pos[k]).map(([k,o])=>({id:k,cc:k,x:pos[k][0],y:pos[k][1],r:nodeR.get(k)||0,pri:o.v,l1:name(k),l1s:shortName(k),l2:`${fmt(o.v,w)} · ${d3.format(".0%")(o.v/pvTot)}`,c2:o.out>=o.in?css("--out"):css("--in")}))]);
   }else{
-    setLabels([...new Set([...inM.keys(),...outM.keys()])].filter(k=>pos[k]&&(S.hl==="none"||hlOn(k))).map(k=>({id:k,dyn:true,m:w,vin:inM.get(k)||0,vout:outM.get(k)||0,x:pos[k][0],y:pos[k][1],r:nodeR.get(k)||0,pri:gross(k),l1:name(k),l1s:shortName(k)})));
+    setLabels([...new Set([...inM.keys(),...outM.keys()])].filter(k=>pos[k]&&(S.hl==="none"||hlOn(k))).map(k=>({id:k,cc:k,dyn:true,m:w,vin:inM.get(k)||0,vout:outM.get(k)||0,x:pos[k][0],y:pos[k][1],r:nodeR.get(k)||0,pri:gross(k),l1:name(k),l1s:shortName(k)})));
   }
   rescale();
   const tot=agg(rs);
@@ -1015,6 +1000,7 @@ function drawMap(){
     :S.hl!=="none"?(S.hl==="lmic"?["UMC","LMC","LIC"]:["HIC"]).map(g=>`<span><span class="dot" style="background:var(--g-${g.toLowerCase()})"></span>${INC[g]}</span>`).join("")+lk("--out","--out","","leaving them")+lk("--in","--in","","arriving")
     :D.choro?`<span><span class="dot" style="background:var(--net)"></span>net exporter</span><span><span class="dot" style="background:var(--land);box-shadow:inset 0 0 0 2px var(--net)"></span>net importer</span><span>${m==="ppt"?"Export price":"Exports"}, ${VIEWS[S.view]}</span><span class="ramp" style="background:linear-gradient(90deg,var(--land),${c})"></span><span>${m==="ppt"?"dearer":"more"}</span>`:(GRAD?lk("--out","--in","leaves","arrives"):S.rdir==="in"?lk("--in","--in","","arriving"):lk("--out","--out","","leaving"))+`<span>${VIEWS[S.view]}</span>`+(D.lab!=="none"&&LV()==="both"?pk("exports","imports"):"")+(D.lab!=="none"&&LV()==="net"?`<span><span class="dot" style="background:var(--net)"></span>net exporter</span><span><span class="dot" style="background:var(--land);box-shadow:inset 0 0 0 2px var(--net)"></span>net importer</span>`:"");
   if(RP()&&S.hatch)$("#legend").insertAdjacentHTML("beforeend",`<span><span class="dot hatchdot"></span>${noRepText()}</span>`);
+  if(D.linc&&D.lab!=="none")$("#legend").insertAdjacentHTML("beforeend",["HIC","UMC","LMC","LIC"].map(g=>`<span><b style="color:var(--g-${g.toLowerCase()});font-family:var(--mono);font-size:11px;min-width:26px">${g}</b>${INC[g]}</span>`).join(""));
   $("#mapnote").textContent=S.sel?"Line width shows the amount. Labels give each partner's share. Try Group partners: By region.":`Lines show the ${list.length} largest routes by ${w==="t"?"tonnes":"value"}. Change the number in Map design. Click any country to see all of its trade.`;
 }
 function drawFocusRegions(rs,w){
@@ -1099,7 +1085,7 @@ function side(){
       <div><h4>Exports to other regions</h4><div class="bars">${bars(out,k=>rcol(k,sch),mm,k=>k)}</div></div>
       <div><h4>Imports from other regions</h4><div class="bars">${bars(inn,k=>rcol(k,sch),mm,k=>k)}</div></div>`;
     el.querySelectorAll(".row[data-c]").forEach(r=>r.onclick=()=>{if(regionNames(sch).includes(r.dataset.c))setRegion(r.dataset.c)});
-    addPrint(el);return;
+    addSave(el);return;
   }
   if(!S.sel){
     const rs=routes(),tot=agg(rs);
@@ -1141,13 +1127,44 @@ function side(){
   }
   el.querySelectorAll(".row[data-c]").forEach(r=>r.onclick=()=>{if(C[r.dataset.c])select(r.dataset.c)});
   drawTrend();
-  addPrint(el);
+  addSave(el);
 }
-function addPrint(el){el.insertAdjacentHTML("afterbegin",`<button class="btn ghost sm sideprint" type="button">Print</button>`);el.querySelector(".sideprint").onclick=printSide}
-function printSide(){const H=document.documentElement,th=H.dataset.theme;document.body.classList.add("print-side");H.dataset.theme="light";
-  const done=()=>{document.body.classList.remove("print-side");if(th)H.dataset.theme=th;else delete H.dataset.theme;removeEventListener("afterprint",done)};
-  const el=$("#side");el.querySelector(".print-cap")?.remove();el.insertAdjacentHTML("beforeend",`<div class="print-cap">${esc(mapCaption())} ${esc(location.href)}</div>`);
-  addEventListener("afterprint",done);setTimeout(()=>window.print(),60)}
+function addSave(el){el.insertAdjacentHTML("afterbegin",`<span class="save sidesave"><span class="lab">Save panel</span><button type="button" data-save="side" data-fmt="png">PNG</button><button type="button" data-save="side" data-fmt="svg">SVG</button></span>`)}
+// Draws the summary panel as a plain SVG (boxes, bars, text and the trend chart) from its on-screen layout,
+// so it opens in any editor; the PNG is rendered from that SVG.
+function panelSVG(el,note){
+  const R=el.getBoundingClientRect(),W=Math.ceil(R.width),out=[],X=v=>(v-R.left).toFixed(1),Y=v=>(v-R.top).toFixed(1);
+  const col=c=>{if(!c)return "none";const m=/^color\(srgb ([\d.]+) ([\d.]+) ([\d.]+)(?: \/ ([\d.]+))?\)$/.exec(c);if(m)return `rgba(${Math.round(m[1]*255)},${Math.round(m[2]*255)},${Math.round(m[3]*255)},${m[4]??1})`;return c};
+  const clear=c=>!c||c==="transparent"||/rgba\(.*,\s*0\)$/.test(c);
+  const fam=f=>esc(f.replace(/"/g,"'"));
+  const props=["fill","stroke","stroke-width","stroke-opacity","fill-opacity","opacity","font-size","font-weight","font-family","stroke-dasharray","text-anchor","dominant-baseline"];
+  const walk=(node,clipR)=>{
+    if(node.nodeType===3){const t=node.textContent;if(!t.trim())return;const pe=node.parentElement,cs=getComputedStyle(pe);if(cs.visibility==="hidden")return;
+      const up=cs.textTransform==="uppercase",fs=parseFloat(cs.fontSize),ls=parseFloat(cs.letterSpacing)||0,rg=document.createRange(),re=/[^\s-]+-?|-/g;let m,run=null,cut=false;
+      const emit=r=>out.push(`<text x="${X(r.x)}" y="${Y(r.top+r.h*.79)}" textLength="${(r.r-r.x).toFixed(1)}" lengthAdjust="spacingAndGlyphs" font-family="${fam(cs.fontFamily)}" font-size="${fs}" font-weight="${cs.fontWeight}"${cs.fontStyle==="italic"?' font-style="italic"':""}${ls?` letter-spacing="${ls}"`:""}${cs.fontStretch&&cs.fontStretch!=="100%"&&cs.fontStretch!=="normal"?` font-stretch="${cs.fontStretch}"`:""} fill="${col(cs.color)}">${esc(up?r.t.toUpperCase():r.t)}</text>`);
+      while(!cut&&(m=re.exec(t))){rg.setStart(node,m.index);rg.setEnd(node,m.index+m[0].length);const r=rg.getClientRects()[0];if(!r||!r.width)continue;
+        if(clipR!=null&&r.right>clipR+1){if(run){run.t+="…";run.r=Math.min(clipR,run.r+fs*.6)}else run={t:"…",x:r.left,r:r.left+fs*.6,top:r.top,h:r.height};cut=true;break}
+        if(run&&Math.abs(r.top-run.top)<2){run.t+=(run.t.endsWith("-")||r.left-run.r<1?"":" ")+m[0];run.r=r.right}else{if(run)emit(run);run={t:m[0],x:r.left,r:r.right,top:r.top,h:r.height}}}
+      if(run)emit(run);return}
+    if(node.nodeType!==1)return;
+    const cs=getComputedStyle(node);if(cs.display==="none"||cs.visibility==="hidden"||node.matches(".sidesave,button,.actions"))return;
+    const r=node.getBoundingClientRect();if(!r.width&&!r.height)return;
+    if(node.tagName.toLowerCase()==="svg"){const cl=node.cloneNode(true),o=node.querySelectorAll("*"),c=cl.querySelectorAll("*");
+      o.forEach((e,i)=>{const s2=getComputedStyle(e);for(const p of props){const v=s2.getPropertyValue(p);if(v)c[i].setAttribute(p,p==="fill"||p==="stroke"?col(v):p==="font-family"?v.replace(/"/g,"'"):v)}c[i].removeAttribute("class");c[i].removeAttribute("style")});
+      cl.setAttribute("x",X(r.left));cl.setAttribute("y",Y(r.top));cl.setAttribute("width",r.width);cl.setAttribute("height",r.height);cl.removeAttribute("class");cl.removeAttribute("style");cl.removeAttribute("id");cl.setAttribute("overflow","visible");
+      out.push(new XMLSerializer().serializeToString(cl).replace(/ xmlns="[^"]*"/,""));return}
+    const bg=cs.backgroundColor,rad=parseFloat(cs.borderTopLeftRadius)||0,bw=parseFloat(cs.borderTopWidth)||0,bc=cs.borderTopColor,bs=cs.borderTopStyle;
+    const sameB=["Right","Bottom","Left"].every(k=>parseFloat(cs["border"+k+"Width"])===bw&&cs["border"+k+"Style"]===bs);
+    const rx=Math.min(rad,r.height/2,r.width/2);
+    if(!clear(bg)||(sameB&&bw&&bs!=="none")){const h=sameB&&bw&&bs!=="none"?bw/2:0;
+      out.push(`<rect x="${X(r.left+h)}" y="${Y(r.top+h)}" width="${(r.width-2*h).toFixed(1)}" height="${(r.height-2*h).toFixed(1)}" rx="${rx}" fill="${clear(bg)?"none":col(bg)}"${h?` stroke="${col(bc)}" stroke-width="${bw}"${bs==="dashed"?' stroke-dasharray="4 3"':""}`:""}/>`)}
+    else if(!sameB)for(const [k,x1,y1,x2,y2] of [["Top",r.left,r.top,r.right,r.top],["Bottom",r.left,r.bottom,r.right,r.bottom],["Left",r.left,r.top,r.left,r.bottom],["Right",r.right,r.top,r.right,r.bottom]]){const w=parseFloat(cs["border"+k+"Width"]);if(w&&cs["border"+k+"Style"]!=="none")out.push(`<line x1="${X(x1)}" y1="${Y(y1)}" x2="${X(x2)}" y2="${Y(y2)}" stroke="${col(cs["border"+k+"Color"])}" stroke-width="${w}"/>`)}
+    const clip=cs.overflow==="hidden"||cs.textOverflow==="ellipsis"?r.right-(parseFloat(cs.paddingRight)||0):clipR;
+    for(const ch of node.childNodes)walk(ch,clip)};
+  walk(el,null);
+  const H=Math.ceil(R.height),cap=wrapTxt(note||"",Math.max(60,Math.floor(W/6.4))),bot=cap.length?14+cap.length*15:0;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H+bot}" viewBox="0 0 ${W} ${H+bot}"><rect width="${W}" height="${H+bot}" fill="${col(css("--panel"))}"/>${out.join("")}${cap.map((l,i)=>`<text x="16" y="${H+16+i*15}" font-family="IBM Plex Sans, Arial, sans-serif" font-size="11" fill="${col(css("--muted"))}">${esc(l)}</text>`).join("")}</svg>`;
+}
 function drawTrend(){
   const el=$("#trend");if(!el||!TR||TR.years.length<2){if(el)el.remove();return}
   const m=S.measure,c=S.sel,yrs=TR.years,vs=S.view===2?[0,1]:[S.view],two=vs.length>1;
@@ -1185,7 +1202,7 @@ function key(r,side,grp){if(grp==="s")return "s:"+r.s;const c=r[side];return grp
 const klabel=k=>k==="other"?"Everyone else":k==="s:scrap"?"Plastic scrap":k.startsWith("s:")?HS[k.slice(2)].n:k.startsWith("g:")?INC[k.slice(2)]:k.startsWith("r:")?k.slice(2):name(k);
 const kcolor=(k,fallback)=>k.startsWith("s:")?HSCOL[k.slice(2)]:k.startsWith("g:")?gcol(k.slice(2)):k.startsWith("r:")?rcol(k.slice(2),B.scheme):k==="other"?css("--g-ns"):fallback;
 function setType(t){B.type=t;document.querySelectorAll("#btype button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.t===t));
-  document.querySelectorAll(".bopts .ctl[data-for]").forEach(d=>d.hidden=!d.dataset.for.split(" ").includes(t));
+  document.querySelectorAll(".bopts [data-for]").forEach(d=>d.hidden=!d.dataset.for.split(" ").includes(t));
   document.querySelectorAll(".bopts [data-only]").forEach(b=>{const ok=b.dataset.only===t;b.disabled=!ok;if(!ok&&b.getAttribute("aria-pressed")==="true"){b.parentNode.querySelector("button").click()}});
   drawChart()}
 let LKN=0;// a small sample route for the map legend: a dotted line from colour a to colour b, with an arrowhead
@@ -1392,6 +1409,10 @@ document.addEventListener("click",async e=>{
       const s=standaloneSVG($("#map"),title,mapCaption());
       return f==="svg"?saveFile(base+".svg",s):saveFile(base+".png",await svgToPNG(s));
     }
+    if(what==="side"){
+      const base="gwt-summary-"+slug(S.mapMode==="regions"?SCHEMES[S.scheme]:S.sel?name(S.sel):S.region||"world")+"-"+YEAR,sv=panelSVG($("#side"),mapCaption());
+      return f==="svg"?saveFile(base+".svg",sv):saveFile(base+".png",await svgToPNG(sv));
+    }
     if(what==="chart"){
       const base="gwt-"+B.type+"-"+slug($("#ctitle").textContent);
       if(f==="csv")return saveFile(base+".csv",toCSV(chartRows,chartCols)+"\n\n"+csvCell("Source: "+VERSION)+"\n"+csvCell("Cite as: "+CITE));
@@ -1531,7 +1552,7 @@ $("#mapreset").onclick=()=>{if(S.sel)select(null);if(S.region)setRegion(null);sv
 $("#clist").innerHTML=Object.values(C).filter(c=>c[3]||c[4]!=null).sort((a,b)=>a[1].localeCompare(b[1])).map(c=>`<option value="${esc(c[1])}">`).join("");
 $("#find").addEventListener("change",e=>{const q=e.target.value.trim().toLowerCase();if(!q)return;const E=Object.entries(C);const hit=E.find(([k,c])=>c[1].toLowerCase()===q)||E.find(([k,c])=>c[0].toLowerCase()===q)||E.find(([k,c])=>(ALIAS[k]||"").toLowerCase().includes(q))||E.find(([k,c])=>c[1].toLowerCase().includes(q));
   if(hit){if(S.mapMode==="regions"){S.mapMode="routes";pressed("#mapmode","v","routes");$("#hlbox").hidden=false;$("#rcolbox").hidden=true}select(hit[0]);zoomToPts([pos[hit[0]]],3)}else toast(`No country matches "${e.target.value}".`)});
-document.addEventListener("keydown",e=>{if(e.key==="Escape"){if(POP){closePop(true);return}if(!$("#drawer").hidden){$("#drawer").hidden=true;return}if(S.sel)select(null)}if(e.key==="Enter"&&e.target.matches(".row[data-c]"))e.target.click()});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){if(POP){closePop(true);return}if(S.sel)select(null)}if(e.key==="Enter"&&e.target.matches(".row[data-c]"))e.target.click()});
 
 function select(c){if(!c){S.fgrp="c";pressed("#fgrp","v","c")}S.sel=c;if(!c){partnerVals=new Map();B.focus=false;$("#bfocus").checked=false}render()}
 function render(){hideTip();side();drawMap();drawChart();rank();buildDL()}
