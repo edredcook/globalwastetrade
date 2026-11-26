@@ -718,7 +718,8 @@ svg.append("defs").html(`<pattern id="hatch" width="6" height="6" patternUnits="
 const zg=svg.append("g");
 const sphereP=zg.append("path").attr("d",path({type:"Sphere"})).attr("fill","var(--sea)");
 const gratP=zg.append("path").attr("d",path(d3.geoGraticule10())).attr("vector-effect","non-scaling-stroke").attr("fill","none").attr("stroke","var(--border)").attr("stroke-width",.3).attr("opacity",.6);
-const gC=zg.append("g"),gH=zg.append("g").attr("pointer-events","none"),gA=zg.append("g"),gN=zg.append("g"),gLL=zg.append("g"),gL=zg.append("g"),gR=zg.append("g");
+const gC=zg.append("g"),gH=zg.append("g").attr("pointer-events","none"),gA=zg.append("g"),gN=zg.append("g"),gP=zg.append("g").attr("pointer-events","none"),gLL=zg.append("g"),gL=zg.append("g"),gR=zg.append("g");
+const gradDefs=svg.append("defs");
 const countries=gC.selectAll("path").data(feats).join("path").attr("class","country").attr("d",path).attr("display",f=>D.globe!=="full"&&f.id==="010"?"none":null).attr("vector-effect","non-scaling-stroke")
   .on("click",(e,f)=>{const c=mapToCode[f.id];if(!c)return;if(S.mapMode==="regions"){const r=regOf(c);if(r){setRegion(r)}}else select(c)})
   .on("mousemove",(e,f)=>{const c=mapToCode[f.id],u=uCode(f.id),nr=u&&noRep(u)?`<br><span style="opacity:.8">${noRepText()} for ${YL}</span>`:"";showTip(e,c?`<b>${esc(name(c))}</b> <span style="opacity:.7">${INC[inc(c)]} · ${esc(regOf(c)||"")}</span><br>${tipLine(c)}${nr}`:`<b>${esc(f.properties.name)}</b><br>No plastic waste trade recorded${nr}`)})
@@ -764,19 +765,21 @@ function setLabels(items){LAB=items;buildArcIndex();
   gL.selectAll("text.clabel").data(LAB,d=>d.id).join("text").attr("class",d=>"clabel"+(d.kind==="reg"?" reg":""))}
 function rescale(){
   gN.selectAll("circle").attr("r",d=>d.r/Math.sqrt(K)).attr("stroke-width",1/K);
+  gP.selectAll("circle.pie").each(function(d){const R=d.r/Math.sqrt(K),q=R/2,cf=2*Math.PI*q;d3.select(this).attr("r",q).attr("stroke-width",R).attr("stroke-dasharray",`${d.f*cf} ${cf}`)});
   gA.selectAll("path").attr("stroke-width",d=>d.sw*Math.pow(K,.25));
   placeLabels();
 }
-const effPri=it=>it.dyn?(D.lval==="in"?it.vin:D.lval==="out"?it.vout:it.vin+it.vout):it.pri;
+const LV=()=>!S.region&&!S.sel&&(S.rdir==="out"||S.rdir==="in")?S.rdir:D.lval;
+const effPri=it=>it.dyn?(LV()==="in"?it.vin:LV()==="out"?it.vout:it.vin+it.vout):it.pri;
 function labLines(it,k,col){const L=[],nm=k<2.5&&it.l1s?it.l1s:it.l1,showName=D.lab!=="net"||it.kind==="mid"||(!it.dyn&&!it.l2),showVal=D.lab!=="name";
   if(showName&&nm)L.push({t:nm,cls:"l1"});
   if(showVal){if(it.dyn){const m=it.m,vi=it.vin,vo=it.vout;
-      if(D.lval==="in"){if(vi>0)L.push({t:"in "+fmt(vi,m),col:col.in})}
-      else if(D.lval==="out"){if(vo>0)L.push({t:"out "+fmt(vo,m),col:col.out})}
-      else if(D.lval==="both"){if(vi>0)L.push({t:"in "+fmt(vi,m),col:col.in});if(vo>0)L.push({t:"out "+fmt(vo,m),col:col.out})}
+      if(LV()==="in"){if(vi>0)L.push({t:"in "+fmt(vi,m),col:col.in})}
+      else if(LV()==="out"){if(vo>0)L.push({t:"out "+fmt(vo,m),col:col.out})}
+      else if(LV()==="both"){if(vi>0)L.push({t:"in "+fmt(vi,m),col:col.in});if(vo>0)L.push({t:"out "+fmt(vo,m),col:col.out})}
       else{const n=vi-vo;L.push({t:netLine(n,m),col:col.net})}}
     else if(it.l2)L.push({t:it.l2,col:it.c2})}
-  if(L.length===1&&L[0].cls==="l1"&&showVal&&it.dyn&&D.lval!=="net")return [];
+  if(L.length===1&&L[0].cls==="l1"&&showVal&&it.dyn&&LV()!=="net")return [];
   return L}
 // Label rules: biggest first (the selected country always); a label is skipped when it is small compared with the
 // biggest, a limit that relaxes as you zoom in; size grows with importance; each label tries 8 spots beside its dot,
@@ -839,7 +842,7 @@ let partnerVals=new Map(),partnerMax=1,mapRows=[];
 const vc=()=>css(VCOL[S.view]);
 
 function drawMap(){
-  gR.selectAll("*").remove();hatch();
+  gR.selectAll("*").remove();gP.selectAll("*").remove();gradDefs.selectAll("*").remove();hatch();
   if(S.mapMode==="regions")return drawRegionMap();
   $("#focusbox").hidden=$("#fgrpbox").hidden=!S.sel;
   const rs=routes(),c=vc(),m=S.measure,w=m==="ppt"?"t":m;
@@ -859,10 +862,14 @@ function drawMap(){
   list=list.sort((a,b)=>b[w]-a[w]).slice(0,S.sel?Math.max(40,D.maxr):D.maxr).filter(r=>pos[r.ex]&&pos[r.rc]&&r.ex!==r.rc);
   mapRows=list;
   const mx=(S.sel?d3.max(rs,r=>(r.ex===S.sel||r.rc===S.sel)&&r.ex!==r.rc&&pos[r.ex]&&pos[r.rc]?r[w]:0):d3.max(list,r=>r[w]))||1,sw=d3.scaleSqrt().domain([0,mx]).range([.6*D.line,(S.sel?9:8)*D.line]);
+  const GRAD=!S.sel&&S.hl==="none"&&!(!S.region&&(S.rdir==="out"||S.rdir==="in"));
+  if(GRAD)gradDefs.selectAll("linearGradient").data(list).join("linearGradient").attr("id",(r,i)=>"lg"+i).attr("gradientUnits","userSpaceOnUse")
+    .attr("x1",r=>pos[r.ex][0]).attr("y1",r=>pos[r.ex][1]).attr("x2",r=>pos[r.rc][0]).attr("y2",r=>pos[r.rc][1])
+    .html(`<stop offset="0" stop-color="${css("--out")}"/><stop offset=".2" stop-color="${css("--out")}"/><stop offset=".8" stop-color="${css("--in")}"/><stop offset="1" stop-color="${css("--in")}"/>`);
   gA.selectAll("path").data(list,r=>r.v+"-"+r.ex+"-"+r.rc).join(en=>en.append("path"))
     .attr("class",r=>"arc"+(D.anim?" flow":"")+(S.hl!=="none"&&!(hlOn(r.ex)||hlOn(r.rc))?" faded":""))
     .each(r=>r.sw=sw(r[w])).attr("vector-effect","non-scaling-stroke").attr("d",r=>arcD(r,pos[r.ex],pos[r.rc]))
-    .attr("stroke",r=>S.sel?(r.ex===S.sel?css("--out"):css("--in")):S.hl!=="none"?(hlOn(r.rc)&&hlOn(r.ex)?c:hlOn(r.rc)?css("--in"):hlOn(r.ex)?css("--out"):c):c)
+    .attr("stroke",(r,i)=>S.sel?(r.ex===S.sel?css("--out"):css("--in")):S.hl!=="none"?(hlOn(r.rc)&&hlOn(r.ex)?c:hlOn(r.rc)?css("--in"):hlOn(r.ex)?css("--out"):c):GRAD?`url(#lg${i})`:S.rdir==="in"?css("--in"):css("--out"))
     .attr("stroke-width",r=>r.sw*Math.pow(K,.25))
     .on("mousemove",(e,r)=>showTip(e,`<b>${esc(name(r.ex))} → ${esc(name(r.rc))}</b><br>${fT(r.t)} · ${fU(r.usd)} · ${fP(r.t>=50?r.usd/r.t:null)}${r.v===2?`<br><em>Resolved: ${esc(r.basis)}</em>`:""}${r.imp?`<br><em>Imputed: ${IMPHOW[r.imp]}</em>`:""}${r.est===2?"<br><em>Weight re-estimated in cleaning</em>":r.est?"<br><em>Weight estimated by reporter</em>":""}`))
     .on("mouseleave",hideTip).on("click",(e,r)=>select(S.sel===r.ex?r.rc:r.ex));
@@ -873,10 +880,15 @@ function drawMap(){
   const pvTot=d3.sum([...pv.values()],d=>d.v)||1,gmax=S.sel?(d3.max([...pv.values()],d=>d.v)||1):(d3.max([...ends],gross)||1);
   const nodeR=new Map();
   gN.selectAll("circle").data([...ends].filter(k=>pos[k]),d=>d).join("circle").attr("class","node")
-    .each(function(d){const v=S.sel?(d===S.sel?gmax*1.4:(pv.get(d)||{v:0}).v):gross(d);this.__r=(2+Math.sqrt(v/gmax)*(S.sel?5:6))*Math.sqrt(D.line);nodeR.set(d,this.__r)})
+    .each(function(d){const v=S.sel?(d===S.sel?gmax*1.4:(pv.get(d)||{v:0}).v):LV()==="out"?(outM.get(d)||0)*2:LV()==="in"?(inM.get(d)||0)*2:gross(d);this.__r=(2+Math.sqrt(v/gmax)*(S.sel?5:6))*Math.sqrt(D.line);nodeR.set(d,this.__r)})
     .datum(function(d){return Object.assign(new String(d),{r:this.__r,k:d})}).attr("cx",d=>pos[d.k][0]).attr("cy",d=>pos[d.k][1])
-    .attr("fill",d=>{const k=d.k;if(S.sel){if(k===S.sel)return css("--ink");const o=pv.get(k);return o&&o.out>=o.in?css("--out"):css("--in")}if(S.hl!=="none"&&!hlOn(k))return css("--g-ns");return D.lval==="in"?css("--in"):D.lval==="out"?css("--out"):D.lval==="both"?css("--g-ns"):css("--net")})
-    .classed("ring",d=>!S.sel&&S.hl==="none"&&D.lval==="net"&&D.lab!=="none"&&net(d.k)>0);
+    .attr("fill",d=>{const k=d.k;if(S.sel){if(k===S.sel)return css("--ink");const o=pv.get(k);return o&&o.out>=o.in?css("--out"):css("--in")}if(S.hl!=="none"&&!hlOn(k))return css("--g-ns");return LV()==="in"?css("--in"):LV()==="out"?css("--out"):LV()==="both"?css("--g-ns"):css("--net")})
+    .classed("ring",d=>!S.sel&&S.hl==="none"&&LV()==="net"&&D.lab!=="none"&&net(d.k)>0);
+  if(!S.sel&&S.hl==="none"&&LV()==="both"&&D.lab!=="none"){
+    gN.selectAll("circle.node").attr("fill",css("--in"));
+    gP.selectAll("circle").data([...ends].filter(k=>pos[k]&&gross(k)>0&&outM.get(k))).join("circle").attr("class","pie")
+      .datum(k=>({k,r:nodeR.get(k),f:(outM.get(k)||0)/gross(k)})).attr("cx",d=>pos[d.k][0]).attr("cy",d=>pos[d.k][1])
+      .attr("fill","none").attr("stroke",css("--out")).attr("transform",d=>`rotate(-90 ${pos[d.k][0]} ${pos[d.k][1]})`)}
   if(S.sel){
     const n=net(S.sel);
     setLabels([{id:"sel",force:true,x:pos[S.sel][0],y:pos[S.sel][1],r:nodeR.get(S.sel)||6,pri:1e18,l1:name(S.sel),l2:S.fdir==="in"?`receives ${fmt(inM.get(S.sel)||0,w)}`:S.fdir==="out"?`sends ${fmt(outM.get(S.sel)||0,w)}`:netLine(n,w),c2:S.fdir==="in"?css("--in"):S.fdir==="out"?css("--out"):dirCol(n)},
@@ -893,11 +905,13 @@ function drawMap(){
     :S.region?`${S.region}: ${fmt(mval(tot,m),m)} of ${PW()} ${({both:"traded in and out",out:"leaving",in:"arriving",within:"traded within the region"})[S.rdir]}, ${YL}`
     :S.incf==="hl"?`${fmt(mval(tot,m),m)} of ${PW()} went from high-income to middle- and low-income countries${S.rdir==="within"?` within the same ${SCHEMES[S.scheme].replace(/s$/,"")}`:S.rdir==="between"?` in another ${SCHEMES[S.scheme].replace(/s$/,"")}`:""} in ${YL}`
     :S.rdir==="within"?`${fmt(mval(tot,m),m)} of ${PW()} was traded within ${SCHEMES[S.scheme]} in ${YL}`
-    :S.rdir==="between"?`${fmt(mval(tot,m),m)} of ${PW()} crossed between ${SCHEMES[S.scheme]} in ${YL}`:`${fmt(mval(tot,m),m)} of ${PW()} crossed borders in ${YL}`;
+    :S.rdir==="between"?`${fmt(mval(tot,m),m)} of ${PW()} crossed between ${SCHEMES[S.scheme]} in ${YL}`
+    :S.rdir==="out"?`Where ${fmt(mval(tot,m),m)} of ${PW()} came from in ${YL}`
+    :S.rdir==="in"?`Where ${fmt(mval(tot,m),m)} of ${PW()} went in ${YL}`:`${fmt(mval(tot,m),m)} of ${PW()} crossed borders in ${YL}`;
   if(S.imp&&S.view!==2&&m!=="ppt"){const it=agg(rs.filter(r=>r.imp));if(it.t)$("#maptitle").textContent+=`, ${fmt(mval(it,w),w)} of it imputed`}
   $("#legend").innerHTML=S.sel?`<span><span class="dot" style="background:var(--out)"></span>sent by ${esc(name(S.sel))}</span><span><span class="dot" style="background:var(--in)"></span>sent to ${esc(name(S.sel))}</span>`
     :S.hl!=="none"?(S.hl==="lmic"?["UMC","LMC","LIC"]:["HIC"]).map(g=>`<span><span class="dot" style="background:var(--g-${g.toLowerCase()})"></span>${INC[g]}</span>`).join("")+`<span><span class="dot" style="background:var(--out)"></span>leaving them</span><span><span class="dot" style="background:var(--in)"></span>arriving</span>`
-    :D.choro?`<span><span class="dot" style="background:var(--net)"></span>net exporter</span><span><span class="dot" style="background:var(--land);box-shadow:inset 0 0 0 2px var(--net)"></span>net importer</span><span>${m==="ppt"?"Export price":"Exports"}, ${VIEWS[S.view]}</span><span class="ramp" style="background:linear-gradient(90deg,var(--land),${c})"></span><span>${m==="ppt"?"dearer":"more"}</span>`:`<span><span class="dot" style="background:${c}"></span>lines: ${VIEWS[S.view]}</span>`+(D.lab!=="none"&&D.lval==="net"?`<span><span class="dot" style="background:var(--net)"></span>net exporter</span><span><span class="dot" style="background:var(--land);box-shadow:inset 0 0 0 2px var(--net)"></span>net importer</span>`:"");
+    :D.choro?`<span><span class="dot" style="background:var(--net)"></span>net exporter</span><span><span class="dot" style="background:var(--land);box-shadow:inset 0 0 0 2px var(--net)"></span>net importer</span><span>${m==="ppt"?"Export price":"Exports"}, ${VIEWS[S.view]}</span><span class="ramp" style="background:linear-gradient(90deg,var(--land),${c})"></span><span>${m==="ppt"?"dearer":"more"}</span>`:(GRAD?`<span><span class="dot" style="background:linear-gradient(90deg,var(--out) 50%,var(--in) 50%)"></span>lines: leaving → arriving, ${VIEWS[S.view]}</span>`:`<span><span class="dot" style="background:${S.rdir==="in"?"var(--in)":"var(--out)"}"></span>lines: ${VIEWS[S.view]}</span>`)+(D.lab!=="none"&&LV()==="both"?`<span><span class="dot" style="background:var(--out)"></span>out</span><span><span class="dot" style="background:var(--in)"></span>in</span>`:"")+(D.lab!=="none"&&LV()==="net"?`<span><span class="dot" style="background:var(--net)"></span>net exporter</span><span><span class="dot" style="background:var(--land);box-shadow:inset 0 0 0 2px var(--net)"></span>net importer</span>`:"");
   if(RP()&&S.hatch)$("#legend").insertAdjacentHTML("beforeend",`<span><span class="dot hatchdot"></span>${noRepText()}</span>`);
   $("#mapnote").textContent=S.sel?"Line width shows the amount. Labels give each partner's share. Try Group partners: By region.":`Lines show the ${list.length} largest routes by ${w==="t"?"tonnes":"value"}. Change the number in Map design. Click any country to see all of its trade.`;
   $("#reset").hidden=!S.sel;
@@ -1368,8 +1382,8 @@ function fillRegions(){const sel=$("#region");sel.innerHTML=`<option value="">Wh
 $("#scheme").onchange=e=>{S.scheme=e.target.value;B.scheme=S.scheme;$("#bscheme").value=B.scheme;S.region=null;rdirUI();fillRegions();render();svg.transition().duration(600).call(zoom.transform,d3.zoomIdentity)};
 $("#region").onchange=e=>setRegion(e.target.value||null);
 function rdirUI(){const reg=!!S.region;
-  if(reg&&S.rdir==="between")S.rdir="both";if(!reg&&(S.rdir==="in"||S.rdir==="out"))S.rdir="between";
-  document.querySelectorAll("#rdir button").forEach(b=>{const d=b.dataset.d;b.hidden=reg?d==="between":d==="in"||d==="out";if(d==="within")b.textContent=reg?"Within":"Within regions"});
+  if(reg&&S.rdir==="between")S.rdir="both";
+  document.querySelectorAll("#rdir button").forEach(b=>{const d=b.dataset.d;b.hidden=reg&&d==="between";if(d==="within")b.textContent=reg?"Within":"Within regions"});
   pressed("#rdir","d",S.rdir)}
 function setRegion(r){S.region=r;$("#region").value=r||"";rdirUI();S.sel=null;partnerVals=new Map();render();
   if(r){const mem=Object.keys(C).filter(c=>regOf(c)===r&&pos[c]);const big=mem.filter(c=>!["RUS","USA","CAN","GRL","FRA","NOR"].includes(iso(c)));zoomToPts((big.length?big:mem).map(c=>pos[c]),5)}else svg.transition().duration(600).call(zoom.transform,d3.zoomIdentity)}
