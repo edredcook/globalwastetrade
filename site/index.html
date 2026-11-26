@@ -55,6 +55,7 @@ html{scroll-behavior:smooth}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 body{background:var(--sea);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5}
 .wrap{max-width:1360px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap.wide{max-width:1934px}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:#13212a}
 header.mast{background:#13212a;color:#f2f5f6;position:sticky;top:env(safe-area-inset-top,0px);z-index:15}
 header.mast .wrap{display:flex;align-items:center;gap:20px;padding-block:10px;flex-wrap:wrap}
@@ -97,14 +98,28 @@ select,input[type=search],input[type=number]{font:inherit;font-size:14px;border:
 input[type=range]{accent-color:var(--out)}
 
 .mapfull{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
-.mapbox{background:var(--panel);border:1px solid var(--border);border-radius:10px;overflow:hidden;min-width:0;max-width:1900px;margin:0 auto}
+.mapbox{background:var(--panel);border:1px solid var(--border);border-radius:10px;overflow:hidden;min-width:0;max-width:1900px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr) 330px}
+.mapbox.noside{grid-template-columns:minmax(0,1fr)}
+.mapbox.noside .mapside{display:none}
+.mapmain{min-width:0;display:flex;flex-direction:column}
+.mapside{position:relative;border-left:1px solid var(--border);background:var(--raise);min-width:0}
+.msin{position:absolute;inset:0;overflow:auto;display:flex;flex-direction:column;gap:8px;padding:10px;overscroll-behavior:contain}
+.mshd{display:flex;align-items:center;gap:8px;padding:2px 2px 0}
+.mshd b{font-family:var(--display);font-stretch:85%;font-size:17px;margin-right:auto}
+.mapside .maptools{display:flex;flex-direction:column;align-items:stretch;gap:8px;padding:0;border:0;background:none}
+.mapside .tbox{gap:8px 14px}
+.mapside .tbox>.ctl{flex:1 1 100%}
+.mapside .mini{flex:1 1 130px}
+.mapside .mini input[type=range]{width:100%}
+.mapside select{width:100%}
+@media (max-width:900px){.mapbox{grid-template-columns:minmax(0,1fr)}.mapside{border-left:0;border-top:1px solid var(--border)}.msin{position:static;overflow:visible}}
 .maptools{display:flex;align-items:stretch;gap:8px;flex-wrap:wrap;padding:10px 14px;border-bottom:1px solid var(--border);background:var(--panel)}
 .tbox{display:flex;flex-wrap:wrap;align-items:flex-end;gap:8px 18px;border:1px solid var(--border);border-radius:10px;padding:8px 12px 9px;background:var(--panel);position:relative;min-width:0}
 .tbox:not(:has(>.ctl:not([hidden]),>label)){display:none}
 .tbox>.tbt{flex-basis:100%;font-size:12px;font-weight:700;color:var(--ink);margin-bottom:-2px}
 .maptools .seg button{font-size:13px;padding:5px 11px}
 .maptools select{font-size:13px;padding:5px 8px}
-.maptools.row2{background:var(--raise);padding:8px 14px}
+
 .mini{display:flex;flex-direction:column;gap:4px;min-width:120px}
 .mini>span{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:600;display:flex;justify-content:space-between;gap:8px}
 .mini>span output{font-family:var(--mono,monospace);letter-spacing:0;text-transform:none}
@@ -122,7 +137,7 @@ input[type=range]{accent-color:var(--out)}
 .arc.flow{stroke-dasharray:2 7;animation:flow 1.6s linear infinite}
 .arc.faded{opacity:.1}
 .arc.tail{opacity:.3;pointer-events:none}
-#mapreset{order:99;margin-left:auto;align-self:flex-start}
+
 @keyframes flow{to{stroke-dashoffset:-18}}
 @media (prefers-reduced-motion:reduce){.arc.flow{animation:none;stroke-dasharray:none}}
 .node{stroke:var(--panel);stroke-width:1}
@@ -368,7 +383,7 @@ footer b{color:var(--ink);font-weight:600}
   <nav class="sub" aria-label="On this page"><a href="#explore">Map</a><a href="#build">Build a chart</a><a href="#rankings">Countries</a><a href="#getdata">Get the data</a><a href="#credits">Credits</a></nav>
 </div></div>
 
-<main class="wrap">
+<main class="wrap wide">
   <section class="card mats" id="explore" aria-label="Material" style="scroll-margin-top:64px">
     <div class="mtabs">
       <span class="lab">Material</span>
@@ -413,7 +428,20 @@ footer b{color:var(--ink);font-weight:600}
 </main>
 
 <section class="mapfull">
-  <div class="mapbox">
+  <div class="mapbox" id="mapbox">
+    <div class="mapmain">
+      <div class="mapwrap">
+        <div class="maphead"><h2 id="maptitle">Loading the plastic waste trade…</h2><div class="legend" id="legend"></div></div>
+        <svg id="map" viewBox="0 0 960 500" role="img" aria-label="World map of plastic waste trade flows"></svg>
+        <div class="zhint">Drag to move. Ctrl + scroll or pinch to zoom.</div>
+        <div class="zoomctl"><button id="zin" aria-label="Zoom in">+</button><button id="zout" aria-label="Zoom out">−</button><button id="zreset" aria-label="Reset zoom" style="font-size:13px">⤢</button></div>
+      </div>
+      <div class="bar"><span id="mapnote" hidden></span>
+        <span class="save"><button class="linkbtn" id="sideopen" hidden>Map controls</button><button class="linkbtn" data-open-design>Map design</button>
+          <span class="lab" style="margin-left:8px">Save map</span><button data-save="map" data-fmt="png">PNG</button><button data-save="map" data-fmt="svg">SVG</button><button data-save="map" data-fmt="csv">CSV</button></span></div>
+    </div>
+    <aside class="mapside" id="mapside" aria-label="Map controls"><div class="msin">
+      <div class="mshd"><b>Map controls</b><button class="btn ghost sm" id="mapreset">Map reset</button><button class="linkbtn" id="sideclose" aria-controls="mapside">Hide</button></div>
     <div class="maptools">
       <div class="tbox"><div class="ctl"><span>Map shows</span><div class="seg" id="mapmode"><button data-v="routes" aria-pressed="true">Country to country</button><button data-v="regions" aria-pressed="false">Region to region</button></div></div>
         <div class="ctl" id="rcolbox" hidden><span>Colours</span><div class="seg" id="rcolmode"><button data-v="io" aria-pressed="true">In and out</button><button data-v="reg" aria-pressed="false">By region</button></div></div></div>
@@ -426,7 +454,6 @@ footer b{color:var(--ink);font-weight:600}
       <div class="tbox"><div class="ctl" id="focusbox" hidden><span>Selected country</span><div class="seg" id="fdir"><button data-v="in" aria-pressed="false">Coming in</button><button data-v="out" aria-pressed="false">Going out</button><button data-v="both" aria-pressed="true">Both</button></div></div>
         <div class="ctl" id="fgrpbox" hidden><span>Group partners</span><div class="seg" id="fgrp"><button data-v="c" aria-pressed="true">Countries</button><button data-v="r" aria-pressed="false">By region</button></div></div></div>
       <div class="tbox"><div class="ctl"><span>Map area</span><div class="seg" id="globe"><button data-v="trade" aria-pressed="true">Trading world</button><button data-v="full" aria-pressed="false">Whole globe</button></div></div></div>
-      <button class="btn ghost sm" id="mapreset">Map reset</button>
     </div>
     <div class="maptools row2">
       <div class="tbox"><b class="tbt">Labels</b>
@@ -438,15 +465,7 @@ footer b{color:var(--ink);font-weight:600}
         <label class="mini"><span>Routes shown <output id="mo-maxr"></output></span><input type="range" id="m-maxr" min="0" max="24" step="1"></label>
         <label class="mini"><span>Line width <output id="mo-line"></output></span><input type="range" id="m-line" min="0.3" max="3" step="0.1"></label></div>
     </div>
-    <div class="mapwrap">
-      <div class="maphead"><h2 id="maptitle">Loading the plastic waste trade…</h2><div class="legend" id="legend"></div></div>
-      <svg id="map" viewBox="0 0 960 500" role="img" aria-label="World map of plastic waste trade flows"></svg>
-      <div class="zhint">Drag to move. Ctrl + scroll or pinch to zoom.</div>
-      <div class="zoomctl"><button id="zin" aria-label="Zoom in">+</button><button id="zout" aria-label="Zoom out">−</button><button id="zreset" aria-label="Reset zoom" style="font-size:13px">⤢</button></div>
-    </div>
-    <div class="bar"><span id="mapnote" hidden></span>
-      <span class="save"><button class="linkbtn" data-open-design>Map design</button>
-        <span class="lab" style="margin-left:8px">Save map</span><button data-save="map" data-fmt="png">PNG</button><button data-save="map" data-fmt="svg">SVG</button><button data-save="map" data-fmt="csv">CSV</button></span></div>
+    </div></aside>
   </div>
 </section>
 
@@ -762,14 +781,25 @@ const hlOn=c=>S.hl==="lmic"?isL(c):S.hl==="hic"?isH(c):true;
 // ---------- MAP ----------
 const svg=d3.select("#map");
 svg.append("defs").html(`<pattern id="hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" style="stroke:var(--muted)" stroke-width=".6" opacity=".35"/></pattern>`);
-// Keep the whole map box (tools, map and bar) within one screen below the sticky header.
-{const el=$("#map"),box=el.closest(".mapbox"),mast=$("header.mast");
- const fitMap=()=>{const w=el.getBoundingClientRect().width,natural=w*500/960;
-   const chrome=box.getBoundingClientRect().height-el.getBoundingClientRect().height;
+// Keep the map and its bar within one screen below the sticky header. When the box is wider than the
+// map's shape, crop the empty polar sea top and bottom (centred on the trading latitudes) instead of
+// leaving empty sea at the sides.
+{const el=$("#map"),main=el.closest(".mapmain"),box=el.closest(".mapbox"),mast=$("header.mast");
+ const fitMap=()=>{const w=el.getBoundingClientRect().width;if(!w)return;const natural=w*500/960;
+   const chrome=main.getBoundingClientRect().height-el.getBoundingClientRect().height;
    const avail=innerHeight-(mast?mast.getBoundingClientRect().height:0)-chrome-16;
-   el.style.height=natural>avail?Math.round(Math.max(Math.min(natural,300),avail))+"px":""};
+   const h=natural>avail?Math.max(Math.min(natural,300),avail):natural;
+   const vh=Math.min(500,Math.max(340,960*h/w));
+   let y0=0;if(vh<500){const cy=D.globe==="full"?250:(proj([26,64])[1]+proj([26,-40])[1])/2;y0=Math.max(0,Math.min(500-vh,cy-vh/2))}
+   el.setAttribute("viewBox",`0 ${Math.round(y0)} 960 ${Math.round(vh)}`);
+   el.style.height=h<natural-1?Math.round(h)+"px":""};
+ window.fitMap=fitMap;
  addEventListener("resize",fitMap);
- if(window.ResizeObserver){const ro=new ResizeObserver(()=>requestAnimationFrame(fitMap));box.querySelectorAll(".maptools,.bar").forEach(n=>ro.observe(n))}
+ if(window.ResizeObserver){const ro=new ResizeObserver(()=>requestAnimationFrame(fitMap));[main,...box.querySelectorAll(".bar")].forEach(n=>ro.observe(n))}
+ const setSide=open=>{box.classList.toggle("noside",!open);$("#sideopen").hidden=open;try{localStorage.setItem("gwt-side",open?"1":"0")}catch(e){}requestAnimationFrame(fitMap)};
+ $("#sideclose").onclick=()=>setSide(false);$("#sideopen").onclick=()=>{setSide(true);$("#mapside").scrollIntoView({block:"nearest"})};
+ let open=true;try{open=localStorage.getItem("gwt-side")!=="0"}catch(e){}
+ setSide(open);
  fitMap()}
 const zg=svg.append("g");
 const sphereP=zg.append("path").attr("d",path({type:"Sphere"})).attr("fill","var(--sea)");
@@ -1334,7 +1364,7 @@ async function saveFile(filename,data){
 const slug=s=>s.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,60);
 function wrapTxt(t,n){const out=[];let line="";for(const w of t.split(" ")){if(line&&(line+" "+w).length>n){out.push(line);line=w}else line=line?line+" "+w:w}if(line)out.push(line);return out}
 function standaloneSVG(svgEl,title,note){
-  const vb=svgEl.viewBox.baseVal,W=vb.width,H=vb.height,top=44,cap=wrapTxt(note||"",150),bot=26+cap.length*15;
+  const vb=svgEl.viewBox.baseVal,VX=vb.x,VY=vb.y,W=vb.width,H=vb.height,top=44,cap=wrapTxt(note||"",150),bot=26+cap.length*15;
   const clone=svgEl.cloneNode(true),orig=svgEl.querySelectorAll("*"),cl=clone.querySelectorAll("*");
   const props=["fill","stroke","stroke-width","stroke-opacity","fill-opacity","opacity","font-size","font-weight","font-family","stroke-dasharray","display","paint-order","stroke-linejoin"];
   orig.forEach((el,i)=>{const cs=getComputedStyle(el),t=cl[i];for(const p of props){let v=cs.getPropertyValue(p);if(p==="stroke-dasharray"&&el.classList.contains("flow"))v="none";if(v)t.setAttribute(p,v)}t.removeAttribute("class");t.style.cssText=""});
@@ -1343,7 +1373,7 @@ function standaloneSVG(svgEl,title,note){
   const bg=document.createElementNS(ns,"rect");bg.setAttribute("width",W);bg.setAttribute("height",H+top+bot);bg.setAttribute("fill",css("--panel"));out.appendChild(bg);
   const tx=(s,y,size,col,w)=>{const t=document.createElementNS(ns,"text");t.setAttribute("x",16);t.setAttribute("y",y);t.setAttribute("font-size",size);t.setAttribute("fill",col);t.setAttribute("font-family","Archivo, Arial, sans-serif");if(w)t.setAttribute("font-weight",w);t.textContent=s;out.appendChild(t)};
   tx(title,30,20,css("--ink"),700);
-  const inner=document.createElementNS(ns,"svg");inner.setAttribute("x",0);inner.setAttribute("y",top);inner.setAttribute("width",W);inner.setAttribute("height",H);inner.setAttribute("viewBox",`0 0 ${W} ${H}`);
+  const inner=document.createElementNS(ns,"svg");inner.setAttribute("x",0);inner.setAttribute("y",top);inner.setAttribute("width",W);inner.setAttribute("height",H);inner.setAttribute("viewBox",`${VX} ${VY} ${W} ${H}`);
   while(clone.firstChild)inner.appendChild(clone.firstChild);out.appendChild(inner);
   cap.forEach((l,i)=>tx(l,H+top+20+i*15,11,css("--muted")));
   return new XMLSerializer().serializeToString(out);
@@ -1389,7 +1419,7 @@ segment("#mapmode","v",v=>{S.mapMode=v;S.sel=null;partnerVals=new Map();$("#hlbo
 segment("#hl","v",v=>{S.hl=v;render()});
 segment("#nrep","v",v=>{S.hatch=v==="on";render()});
 const fitFocus=()=>{if(S.sel&&S.fgrp==="r"&&mapRows.length)zoomToPts(mapRows.map(f=>f.a).concat([pos[S.sel]]),4)};
-segment("#globe","v",v=>{D.globe=v;applyDesign();setProj();placeCountries();anchorCache={};sphereP.attr("d",path({type:"Sphere"}));gratP.attr("d",path(d3.geoGraticule10()));
+segment("#globe","v",v=>{D.globe=v;applyDesign();setProj();fitMap();placeCountries();anchorCache={};sphereP.attr("d",path({type:"Sphere"}));gratP.attr("d",path(d3.geoGraticule10()));
   countries.attr("d",path).attr("display",f=>D.globe!=="full"&&f.id==="010"?"none":null);svg.call(zoom.transform,d3.zoomIdentity);render()});
 segment("#dec","v",v=>{D.dec=+v;applyDesign();render()});
 segment("#rcolmode","v",v=>{D.rcol=v;applyDesign();render()});
@@ -1403,8 +1433,8 @@ const GEAR=`<svg viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="curr
 const hpop=$("#hpop");document.body.appendChild(hpop);
 let POP=null;
 const mgSet=o=>{$("#mgplas").setAttribute("aria-expanded",o);$("#hpgrid").hidden=!o;$(".macts").hidden=!o||!HAS_HID;if(!o)closePop()};
-$("#mgplas").onclick=()=>mgSet($("#mgplas").getAttribute("aria-expanded")==="false");
-if(matchMedia("(max-width:640px)").matches)mgSet(false);
+$("#mgplas").onclick=()=>{const o=$("#mgplas").getAttribute("aria-expanded")==="false";mgSet(o);try{localStorage.setItem("gwt-mg",o?"1":"0")}catch(e){}};
+{let o=null;try{o=localStorage.getItem("gwt-mg")}catch(e){}mgSet(o?o==="1":hidOn().length>0)}// collapsed by default so the map sits higher; the reader's choice is remembered
 const addOf=k=>{let s=0;for(const h of hViews(k))if(h.v===S.view)s+=h.t*shareOf(k,h.ex);return s};
 const nm2=n=>{const m=n.match(/^(.*?) (\(.*\))$/);return m?`${esc(m[1])}<small>${esc(m[2])}</small>`:esc(n)};
 function chip(k){
