@@ -487,8 +487,8 @@ footer b{color:var(--ink);font-weight:600}
     <div class="ctl"><div class="ctlh"><span class="hint" tabindex="0" data-tip="All shows every route. High → middle- and low-income keeps only trade sent from high-income countries to middle- and low-income countries, using each country's World Bank income group in that year. OECD → non-OECD keeps only trade sent from OECD members to other countries, counting membership from the year a country joined.">Routes</span><details class="dd lnk" id="lout"><summary id="loutsum" title="Leave these flows out of the map, summary, charts, country table and Get the data. Income groups are each country's World Bank group in that year, regions follow the map's region type, and OECD membership counts from the year a country joined.">Leave out trade</summary><div class="ddm">
         <label><input type="checkbox" value="r"><span>Within a region</span></label>
         <label><input type="checkbox" value="i"><span>Within an income group</span></label>
-        <label><input type="checkbox" value="h"><span>High income → middle- and low-income</span></label>
-        <label><input type="checkbox" value="o"><span>OECD → non-OECD</span></label>
+        <label><input type="checkbox" value="m"><span>Among middle- and low-income countries</span></label>
+        <label><input type="checkbox" value="e"><span>Among OECD countries</span></label>
       </div></details></div>
       <div class="seg" id="incf"><button data-f="all" aria-pressed="true">All</button><button data-f="hl" aria-pressed="false">High → middle- and low-income</button><button data-f="oe" aria-pressed="false">OECD → non-OECD</button></div></div>
 
@@ -706,7 +706,7 @@ try{let sv=JSON.parse(localStorage.getItem("gwt-assumptions-v2")||"null"),old=fa
 function sanitiseH(k,o){const c=v=>Math.max(0,Math.min(100,+v));const d=HDEF(k),n=x=>x!=null&&isFinite(+x);
   return{on:!!o.on,usrc:typeof o.usrc==="string"?o.usrc.slice(0,300):typeof o.source==="string"&&o.source!==HS[k].src?o.source.slice(0,300):"",f:n(o.f)?c(o.f):d.f,w:100,byInc:!!o.byInc,inc:Object.fromEntries(["HIC","UMC","LMC","LIC"].map(g=>[g,o.inc&&n(o.inc[g])?c(o.inc[g]):d.inc[g]]))}}
 const shareOf=(k,e)=>{const h=HON[k],g=C[e]?C[e][2]:"NS";return (h.byInc&&h.inc[g]!=null?h.inc[g]:h.f)/100*h.w/100};
-const S={imp:new URLSearchParams(location.search).get("imp")!=="0",hatch:true,scrap:true,fdir:"both",fgrp:"c",view:0,measure:"t",incf:"all",lo:(new URLSearchParams(location.search).get("lo")||"").split(",").filter(x=>x&&"riho".includes(x)),sel:null,region:null,rdir:"both",scheme:"wb",mapMode:"routes",hl:"none",resolve:"mean",rank:"exp",rankSort:null,fmt:"csv"};
+const S={imp:new URLSearchParams(location.search).get("imp")!=="0",hatch:true,scrap:true,fdir:"both",fgrp:"c",view:0,measure:"t",incf:"all",lo:(new URLSearchParams(location.search).get("lo")||"").split(",").filter(x=>x&&"rime".includes(x)),sel:null,region:null,rdir:"both",scheme:"wb",mapMode:"routes",hl:"none",resolve:"mean",rank:"exp",rankSort:null,fmt:"csv"};
 const B={type:"sankey",from:"c",to:"c",side:"ex",group:"c",scheme:"wb",view:0,measure:"t",top:15,focus:false,nointra:false,split:"r",norm:"abs",tcol:"shade",nlab:15,labt:"c"};
 const HEADN=300,RSTEPS=[10,15,20,25,30,40,45,50,60,75,100,125,150,200,250,300,400,500,750,1000,1500,2000,3000,5000,1e9],ALLR=1e9;
 const rIdx=v=>{let b=0;for(let i=0;i<RSTEPS.length;i++)if(Math.abs(RSTEPS[i]-v)<Math.abs(RSTEPS[b]-v))b=i;return b},rLab=v=>v>=ALLR?"All":d3.format(",")(v);
@@ -868,14 +868,14 @@ let toastT;function toast(m){const t=$("#toast");t.textContent=m;t.hidden=false;
 // ---------- filters ----------
 const isOECD=c=>{const a=OECD[c];return a!=null&&a<=YEAR};
 const passInc=r=>S.incf==="all"||(S.incf==="oe"?isOECD(r.ex)&&!isOECD(r.rc):inc(r.ex)==="HIC"&&LOWER.has(inc(r.rc)));
-// "Leave out trade": within a region (map's region type), within an income group, high to middle- and low-income, OECD to non-OECD.
+// "Leave out trade": within a region (map's region type), within an income group, among middle- and low-income countries, among OECD countries.
 const passLO=r=>{const L=S.lo;if(!L.length)return true;
   if(L.includes("r")){const a=regOf(r.ex),b=regOf(r.rc);if(a&&a===b)return false}
   if(L.includes("i")&&inc(r.ex)===inc(r.rc))return false;
-  if(L.includes("h")&&inc(r.ex)==="HIC"&&LOWER.has(inc(r.rc)))return false;
-  if(L.includes("o")&&isOECD(r.ex)&&!isOECD(r.rc))return false;
+  if(L.includes("m")&&LOWER.has(inc(r.ex))&&LOWER.has(inc(r.rc)))return false;
+  if(L.includes("e")&&isOECD(r.ex)&&isOECD(r.rc))return false;
   return true};
-const LON={r:"within a region",i:"within an income group",h:"from high-income to middle- and low-income countries",o:"from OECD to non-OECD countries"};
+const LON={r:"within a region",i:"within an income group",m:"among middle- and low-income countries",e:"among OECD countries"};
 const loNote=()=>S.lo.length?`Trade left out: ${S.lo.map(k=>k==="r"?`within ${SCHEMES[S.scheme]}`:LON[k]).join("; ")}.`:"";
 const passReg=r=>{if(!S.region){if(S.rdir!=="within"&&S.rdir!=="between")return true;const a=regOf(r.ex),b=regOf(r.rc);return !!a&&!!b&&(S.rdir==="within"?a===b:a!==b)}const a=regOf(r.ex)===S.region,b=regOf(r.rc)===S.region;return S.rdir==="out"?a:S.rdir==="in"?b:S.rdir==="within"?a&&b:a||b};
 const pass=r=>passInc(r)&&passReg(r)&&passLO(r);
@@ -1654,7 +1654,7 @@ segment("#view","v",v=>{S.view=+v;$("#resmethodbox").hidden=S.view!==2;$("#impbo
 $("#resmethod").onchange=e=>{S.resolve=e.target.value;resolve();render();hpRefresh()};
 segment("#measure","m",v=>{S.measure=v;render()});
 segment("#incf","f",v=>{S.incf=v;render()});
-const LOS={r:"Within a region",i:"Within an income group",h:"High → middle- and low-income",o:"OECD → non-OECD"};
+const LOS={r:"Within a region",i:"Within an income group",m:"Among middle- and low-income countries",e:"Among OECD countries"};
 const loBoxes=()=>[...document.querySelectorAll("#lout input")];
 function loUI(){loBoxes().forEach(i=>i.checked=S.lo.includes(i.value));$("#loutsum").textContent=S.lo.length?`Leaving out ${S.lo.length}`:"Leave out trade";$("#lout").classList.toggle("on",!!S.lo.length)}
 $("#lout").addEventListener("change",()=>{S.lo=loBoxes().filter(i=>i.checked).map(i=>i.value);loUI();const u=new URL(location.href);if(S.lo.length)u.searchParams.set("lo",S.lo.join(","));else u.searchParams.delete("lo");history.replaceState(null,"",u);render();hpRefresh()});
