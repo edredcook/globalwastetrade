@@ -220,7 +220,7 @@ input[type=range]{accent-color:var(--out);width:180px;max-width:100%}
       <div class="ctl"><span>Years<b id="yrs"></b></span><div class="dual"><div class="track"></div><div class="fill" id="yfill"></div><input type="range" id="y0" aria-label="First year"><input type="range" id="y1" aria-label="Last year"></div></div>
       <label class="ctl"><span>Top senders<b id="tsv"></b></span><input type="range" id="ts" min="0" max="8" step="1" value="0"></label>
       <label class="ctl"><span>Top receivers<b id="trv"></b></span><input type="range" id="tr" min="0" max="8" step="1" value="0"></label>
-      <div class="ctl"><span class="hint" tabindex="0" data-tip="Leave these flows out of every chart. Income groups are each country's World Bank group in that year, and OECD membership counts from the year a country joined.">Leave out trade</span><div class="seg tog"><button id="xr" aria-pressed="false">Within a region</button><button id="xi" aria-pressed="false">Within an income group</button><button id="xh" aria-pressed="false">High income → middle- and low-income</button><button id="xo" aria-pressed="false">OECD → non-OECD</button></div></div>
+      <div class="ctl"><span class="hint" tabindex="0" data-tip="Leave these flows out of every chart. Income groups are each country's World Bank group in that year, and OECD membership counts from the year a country joined.">Leave out trade</span><div class="seg tog"><button id="xr" aria-pressed="false">Within a region</button><button id="xi" aria-pressed="false">Within an income group</button><button id="xm" aria-pressed="false">Among middle- and low-income countries</button><button id="xe" aria-pressed="false">Among OECD countries</button></div></div>
       <button class="reset" id="reset">Reset</button>
   </section>
   <div class="tabs" role="tablist"><button role="tab" data-tab="overview" aria-selected="true">Overview</button><button role="tab" data-tab="glance" aria-selected="false">At a glance</button><button role="tab" data-tab="compare" aria-selected="false">Compare two years</button></div>
@@ -265,6 +265,6 @@ input[type=range]{accent-color:var(--out);width:180px;max-width:100%}
 <div class="tip" id="tip" hidden></div>
 <div class="toast" id="toast" role="status" hidden></div>
 <script src="vendor/d3-7.8.5.min.js"></script>
-<script src="trends.js?v=16"></script>
+<script src="trends.js?v=17"></script>
 </body>
 </html>
