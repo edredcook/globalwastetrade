@@ -585,8 +585,12 @@ footer b{color:var(--ink);font-weight:600}
         <div class="ctl" data-for="sankey bars treemap stack"><span>Reporter type</span><div class="seg" id="bview"><button data-v="0" aria-pressed="true">Exporters'</button><button data-v="1" aria-pressed="false">Importers'</button><button data-v="2" aria-pressed="false" data-def="res">Resolved</button></div></div>
         <div class="ctl" data-for="sankey bars treemap scatter stack"><span>Measure</span><div class="seg" id="bmeasure"><button data-v="t" aria-pressed="true">Tonnes</button><button data-v="usd" aria-pressed="false">US$</button><button data-v="ppt" aria-pressed="false" data-only="bars">US$/t</button></div></div>
         <div class="ctl" data-for="sankey bars treemap stack"><label class="lab hint" for="btopn" tabindex="0" data-tip="Keeps the largest traders by the chosen measure, biggest first. In Flows this many are kept on each side and the rest are grouped as Everyone else; in Shares the rest are grouped too.">Number of countries</label><div class="topn"><input type="number" id="btopn" min="1" max="200" value="15" aria-label="Number of countries"><input type="range" id="btopr" min="1" max="60" value="15" aria-label="Number of countries, slider"></div></div>
+        <div class="ctl" data-for="sankey bars treemap scatter stack"><span class="hint" tabindex="0" data-tip="The same choices as Leave out trade in the Routes box at the top, which change together. In charts, within a region uses the chart's region type.">Leave out trade</span><div class="chk" id="blout" style="flex-direction:column;align-items:flex-start">
+          <label><input type="checkbox" value="r"> <span>Within a region</span></label>
+          <label><input type="checkbox" value="i"> <span>Within an income group</span></label>
+          <label><input type="checkbox" value="m"> <span>Among middle- and low-income countries</span></label>
+          <label><input type="checkbox" value="e"> <span>Among OECD countries</span></label></div></div>
         <div class="ctl" data-for="sankey bars treemap stack"><span>Filters</span><div class="chk" style="flex-direction:column;align-items:flex-start">
-          <label><input type="checkbox" id="bnointra"> <span>Leave out trade within the same region</span></label>
           <label><input type="checkbox" id="bfocus"> <span>Only trade involving <b id="bfocusname">the selected country</b></span></label></div></div>
         <details class="ctl cdes" id="cdes"><summary>Chart design</summary>
           <label class="mini"><span>Label size <output id="o-font"></output></span><input type="range" id="d-font" min="9" max="18" step="1"></label>
@@ -707,7 +711,7 @@ function sanitiseH(k,o){const c=v=>Math.max(0,Math.min(100,+v));const d=HDEF(k),
   return{on:!!o.on,usrc:typeof o.usrc==="string"?o.usrc.slice(0,300):typeof o.source==="string"&&o.source!==HS[k].src?o.source.slice(0,300):"",f:n(o.f)?c(o.f):d.f,w:100,byInc:!!o.byInc,inc:Object.fromEntries(["HIC","UMC","LMC","LIC"].map(g=>[g,o.inc&&n(o.inc[g])?c(o.inc[g]):d.inc[g]]))}}
 const shareOf=(k,e)=>{const h=HON[k],g=C[e]?C[e][2]:"NS";return (h.byInc&&h.inc[g]!=null?h.inc[g]:h.f)/100*h.w/100};
 const S={imp:new URLSearchParams(location.search).get("imp")!=="0",hatch:true,scrap:true,fdir:"both",fgrp:"c",view:0,measure:"t",incf:"all",lo:(new URLSearchParams(location.search).get("lo")||"").split(",").filter(x=>x&&"rime".includes(x)),sel:null,region:null,rdir:"both",scheme:"wb",mapMode:"routes",hl:"none",resolve:"mean",rank:"exp",rankSort:null,fmt:"csv"};
-const B={type:"sankey",from:"c",to:"c",side:"ex",group:"c",scheme:"wb",view:0,measure:"t",top:15,focus:false,nointra:false,split:"r",norm:"abs",tcol:"shade",nlab:15,labt:"c"};
+const B={type:"sankey",from:"c",to:"c",side:"ex",group:"c",scheme:"wb",view:0,measure:"t",top:15,focus:false,split:"r",norm:"abs",tcol:"shade",nlab:15,labt:"c"};
 const HEADN=300,RSTEPS=[10,15,20,25,30,40,45,50,60,75,100,125,150,200,250,300,400,500,750,1000,1500,2000,3000,5000,1e9],ALLR=1e9;
 const rIdx=v=>{let b=0;for(let i=0;i<RSTEPS.length;i++)if(Math.abs(RSTEPS[i]-v)<Math.abs(RSTEPS[b]-v))b=i;return b},rLab=v=>v>=ALLR?"All":d3.format(",")(v);
 const DDEF={preset:"container",dec:1,linc:false,rcol:"io",out:null,in:null,res:null,maxr:60,line:1,lab:"both",lval:"net",globe:"trade",lpos:"auto",ldens:3,lsize:11,anim:true,choro:false,font:12,vals:true,nodew:12,gap:10,op:.35,lcol:"source",h:1};
@@ -869,14 +873,14 @@ let toastT;function toast(m){const t=$("#toast");t.textContent=m;t.hidden=false;
 const isOECD=c=>{const a=OECD[c];return a!=null&&a<=YEAR};
 const passInc=r=>S.incf==="all"||(S.incf==="oe"?isOECD(r.ex)&&!isOECD(r.rc):inc(r.ex)==="HIC"&&LOWER.has(inc(r.rc)));
 // "Leave out trade": within a region (map's region type), within an income group, among middle- and low-income countries, among OECD countries.
-const passLO=r=>{const L=S.lo;if(!L.length)return true;
-  if(L.includes("r")){const a=regOf(r.ex),b=regOf(r.rc);if(a&&a===b)return false}
+const passLO=(r,sch=S.scheme)=>{const L=S.lo;if(!L.length)return true;
+  if(L.includes("r")){const a=regOf(r.ex,sch),b=regOf(r.rc,sch);if(a&&a===b)return false}
   if(L.includes("i")&&inc(r.ex)===inc(r.rc))return false;
   if(L.includes("m")&&LOWER.has(inc(r.ex))&&LOWER.has(inc(r.rc)))return false;
   if(L.includes("e")&&isOECD(r.ex)&&isOECD(r.rc))return false;
   return true};
 const LON={r:"within a region",i:"within an income group",m:"among middle- and low-income countries",e:"among OECD countries"};
-const loNote=()=>S.lo.length?`Trade left out: ${S.lo.map(k=>k==="r"?`within ${SCHEMES[S.scheme]}`:LON[k]).join("; ")}.`:"";
+const loNote=(sch=S.scheme)=>S.lo.length?`Trade left out: ${S.lo.map(k=>k==="r"?`within ${SCHEMES[sch]}`:LON[k]).join("; ")}.`:"";
 const passReg=r=>{if(!S.region){if(S.rdir!=="within"&&S.rdir!=="between")return true;const a=regOf(r.ex),b=regOf(r.rc);return !!a&&!!b&&(S.rdir==="within"?a===b:a!==b)}const a=regOf(r.ex)===S.region,b=regOf(r.rc)===S.region;return S.rdir==="out"?a:S.rdir==="in"?b:S.rdir==="within"?a&&b:a||b};
 const pass=r=>passInc(r)&&passReg(r)&&passLO(r);
 const routes=(view=S.view)=>R.filter(r=>r.v===view&&pass(r));
@@ -1326,7 +1330,7 @@ function drawTrend(){
 
 // ---------- CHART BUILDER ----------
 const chart=d3.select("#chart");let chartRows=[],chartCols=[];
-function bRoutes(){let rs=R.filter(r=>r.v===B.view&&pass(r));if(B.focus&&S.sel)rs=rs.filter(r=>r.ex===S.sel||r.rc===S.sel);if(B.nointra)rs=rs.filter(r=>{const a=regOf(r.ex,B.scheme),b=regOf(r.rc,B.scheme);return !(a&&a===b)});return rs}
+function bRoutes(){let rs=R.filter(r=>r.v===B.view&&passInc(r)&&passReg(r)&&passLO(r,B.scheme));if(B.focus&&S.sel)rs=rs.filter(r=>r.ex===S.sel||r.rc===S.sel);return rs}
 // Income-group charts leave out records whose partner has no World Bank income group (unspecified "nes" areas,
 // free zones, bunkers and a few territories), so there is no "Not classified" group.
 const dropNS=(rs,sides)=>{sides=sides.filter(Boolean);return sides.length?rs.filter(r=>sides.every(sd=>inc(r[sd])!=="NS")):rs};
@@ -1386,7 +1390,7 @@ function sankey(m,who,scope){
       if(two)t.append("tspan").attr("x",t.attr("x")).attr("dy","1.2em").attr("font-size",FS()-1).attr("fill","var(--muted)").text(q[2])});
   chartRows=g.links.map(d=>({from:klabel(nodeKey(d.source.id)),to:klabel(nodeKey(d.target.id)),[mlabel(m)]:Math.round(d.value)}));chartCols=["from","to",mlabel(m)];
   $("#ctitle").textContent=`Where ${PW()} flows, ${mlabel(m)}, ${YL}${scope}`;
-  $("#cnote").textContent=`Top ${N} on each side; the rest are grouped as "Everyone else". Based on ${who}${B.nointra?`; trade within the same ${SCHEMES[B.scheme].replace(/s$/,"")} left out`:""}.${S.lo.length?" "+loNote():""}${hpNote()}`;
+  $("#cnote").textContent=`Top ${N} on each side; the rest are grouped as "Everyone else". Based on ${who}.${S.lo.length?" "+loNote(B.scheme):""}${hpNote()}`;
   $("#cleg").innerHTML=[...new Set([B.from,B.to])].map(legendFor).join("");
 }
 function barChart(m,who,scope){
@@ -1655,9 +1659,10 @@ $("#resmethod").onchange=e=>{S.resolve=e.target.value;resolve();render();hpRefre
 segment("#measure","m",v=>{S.measure=v;render()});
 segment("#incf","f",v=>{S.incf=v;render()});
 const LOS={r:"Within a region",i:"Within an income group",m:"Among middle- and low-income countries",e:"Among OECD countries"};
-const loBoxes=()=>[...document.querySelectorAll("#lout input")];
+const loBoxes=(sel="#lout input, #blout input")=>[...document.querySelectorAll(sel)];
 function loUI(){loBoxes().forEach(i=>i.checked=S.lo.includes(i.value));$("#loutsum").textContent=S.lo.length?`Leaving out ${S.lo.length}`:"Leave out trade";$("#lout").classList.toggle("on",!!S.lo.length)}
-$("#lout").addEventListener("change",()=>{S.lo=loBoxes().filter(i=>i.checked).map(i=>i.value);loUI();const u=new URL(location.href);if(S.lo.length)u.searchParams.set("lo",S.lo.join(","));else u.searchParams.delete("lo");history.replaceState(null,"",u);render();hpRefresh()});
+const loChange=box=>{S.lo=["r","i","m","e"].filter(k=>loBoxes(box+" input").some(i=>i.checked&&i.value===k));loUI();const u=new URL(location.href);if(S.lo.length)u.searchParams.set("lo",S.lo.join(","));else u.searchParams.delete("lo");history.replaceState(null,"",u);render();hpRefresh()};
+$("#lout").addEventListener("change",()=>loChange("#lout"));$("#blout").addEventListener("change",()=>loChange("#blout"));
 document.addEventListener("click",e=>{const d=$("#lout");if(d.open&&!d.contains(e.target))d.open=false});
 $("#lout").addEventListener("toggle",()=>{const d=$("#lout"),m=d.querySelector(".ddm");if(!d.open)return;m.classList.remove("flip");const r=m.getBoundingClientRect();if(r.right>innerWidth-8)m.classList.add("flip")});
 loUI();
@@ -1810,7 +1815,6 @@ $("#btopn").addEventListener("change",e=>setTop(e.target.value));
 $("#btopr").addEventListener("input",e=>setTop(e.target.value));
 document.querySelectorAll("#btype button").forEach(b=>b.onclick=()=>setType(b.dataset.t));
 $("#bfocus").onchange=e=>{B.focus=e.target.checked;drawChart()};
-$("#bnointra").onchange=e=>{B.nointra=e.target.checked;drawChart()};
 $("#mapreset").onclick=()=>{if(S.sel)select(null);if(S.region)setRegion(null);svg.transition().duration(600).call(zoom.transform,d3.zoomIdentity)};
 $("#clist").innerHTML=Object.values(C).filter(c=>c[3]||c[4]!=null).sort((a,b)=>a[1].localeCompare(b[1])).map(c=>`<option value="${esc(c[1])}">`).join("");
 $("#find").addEventListener("change",e=>{const q=e.target.value.trim().toLowerCase();if(!q)return;const E=Object.entries(C);const hit=E.find(([k,c])=>c[1].toLowerCase()===q)||E.find(([k,c])=>c[0].toLowerCase()===q)||E.find(([k,c])=>(ALIAS[k]||"").toLowerCase().includes(q))||E.find(([k,c])=>c[1].toLowerCase().includes(q));
