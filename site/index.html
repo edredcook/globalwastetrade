@@ -98,10 +98,13 @@ input[type=range]{accent-color:var(--out)}
 
 .mapfull{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 .mapbox{background:var(--panel);border:1px solid var(--border);border-radius:10px;overflow:hidden;min-width:0;max-width:1900px;margin:0 auto}
-.maptools{display:flex;align-items:flex-end;gap:10px 22px;flex-wrap:wrap;padding:10px 14px;border-bottom:1px solid var(--border);background:var(--panel)}
+.maptools{display:flex;align-items:stretch;gap:8px;flex-wrap:wrap;padding:10px 14px;border-bottom:1px solid var(--border);background:var(--panel)}
+.tbox{display:flex;flex-wrap:wrap;align-items:flex-end;gap:8px 18px;border:1px solid var(--border);border-radius:10px;padding:8px 12px 9px;background:var(--panel);position:relative;min-width:0}
+.tbox:not(:has(>.ctl:not([hidden]),>label)){display:none}
+.tbox>.tbt{flex-basis:100%;font-size:12px;font-weight:700;color:var(--ink);margin-bottom:-2px}
 .maptools .seg button{font-size:13px;padding:5px 11px}
 .maptools select{font-size:13px;padding:5px 8px}
-.maptools.row2{background:var(--raise);padding:8px 14px;gap:8px 22px}
+.maptools.row2{background:var(--raise);padding:8px 14px}
 .mini{display:flex;flex-direction:column;gap:4px;min-width:120px}
 .mini>span{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:600;display:flex;justify-content:space-between;gap:8px}
 .mini>span output{font-family:var(--mono,monospace);letter-spacing:0;text-transform:none}
@@ -131,7 +134,9 @@ input[type=range]{accent-color:var(--out)}
 .maphead{position:absolute;left:14px;top:12px;right:14px;display:flex;justify-content:space-between;gap:12px;pointer-events:none;flex-wrap:wrap}
 .maphead h2{margin:0;font-family:var(--display);font-stretch:85%;font-weight:700;font-size:clamp(17px,2.2vw,24px);line-height:1.15;text-wrap:balance;background:color-mix(in srgb,var(--sea) 80%,transparent);padding:2px 6px;border-radius:4px;max-width:38ch}
 @media (max-width:640px){.maphead{position:static;padding:10px 12px 6px}.maphead h2{background:none;padding:0}}
-.legend{font-size:12px;color:var(--muted);background:color-mix(in srgb,var(--panel) 88%,transparent);padding:6px 8px;border-radius:6px;display:flex;gap:6px 10px;align-items:center;align-self:flex-start;flex-wrap:wrap;max-width:min(520px,100%)}
+.legend{font-size:12px;color:var(--muted);background:color-mix(in srgb,var(--panel) 88%,transparent);padding:7px 10px;border-radius:6px;display:flex;flex-direction:column;gap:5px;align-items:flex-start;align-self:flex-start;max-width:min(300px,100%)}
+.legend:empty{display:none}
+@media (max-width:640px){.legend{flex-direction:row;flex-wrap:wrap;gap:5px 10px;max-width:100%}}
 .legend span{display:flex;gap:4px;align-items:center}
 .legend .ramp{width:90px;height:8px;border-radius:2px}
 .legend .lk{gap:5px}
@@ -394,24 +399,28 @@ footer b{color:var(--ink);font-weight:600}
 <section class="mapfull">
   <div class="mapbox">
     <div class="maptools">
-      <button class="btn ghost sm" id="mapreset">Map reset</button>
-      <div class="ctl"><span>Map shows</span><div class="seg" id="mapmode"><button data-v="routes" aria-pressed="true">Country routes</button><button data-v="regions" aria-pressed="false">Region to region</button></div></div>
-      <div class="ctl"><span>Regions by</span><select id="scheme" aria-label="Region definition">
+      <div class="tbox"><div class="ctl"><span>Map shows</span><div class="seg" id="mapmode"><button data-v="routes" aria-pressed="true">Country to country</button><button data-v="regions" aria-pressed="false">Region to region</button></div></div>
+        <div class="ctl" id="rcolbox" hidden><span>Colours</span><div class="seg" id="rcolmode"><button data-v="io" aria-pressed="true">In and out</button><button data-v="reg" aria-pressed="false">By region</button></div></div></div>
+      <div class="tbox"><div class="ctl"><span>Region type</span><select id="scheme" aria-label="Region type">
         <option value="un">UN regions (M49)</option><option value="unsub">UN sub-regions (M49)</option><option value="wb" selected>World Bank regions</option><option value="oecd">OECD / non-OECD</option></select></div>
-      <div class="ctl"><span>Region</span><select id="region" aria-label="Focus on a region"><option value="">Whole world</option></select></div>
-      <div class="ctl" id="rdirbox"><span>Trade</span><div class="seg" id="rdir"><button data-d="both" aria-pressed="true">In and out</button><button data-d="out" aria-pressed="false">Leaving</button><button data-d="in" aria-pressed="false">Arriving</button><button data-d="between" aria-pressed="false" hidden>Between regions</button><button data-d="within" aria-pressed="false">Within</button></div></div>
-      <div class="ctl" id="hlbox"><span>Highlight</span><div class="seg" id="hl"><button data-v="none" aria-pressed="true">Nothing</button><button data-v="lmic" aria-pressed="false">Low &amp; middle income</button><button data-v="hic" aria-pressed="false">High income</button></div></div>
-      <div class="ctl" id="nrbox"><span>Non-reporters</span><div class="seg" id="nrep"><button data-v="on" aria-pressed="true">Hatched</button><button data-v="off" aria-pressed="false">Off</button></div></div>
-      <div class="ctl" id="focusbox" hidden><span>Selected country</span><div class="seg" id="fdir"><button data-v="in" aria-pressed="false">Coming in</button><button data-v="out" aria-pressed="false">Going out</button><button data-v="both" aria-pressed="true">Both</button></div></div>
-      <div class="ctl" id="fgrpbox" hidden><span>Group partners</span><div class="seg" id="fgrp"><button data-v="c" aria-pressed="true">Countries</button><button data-v="r" aria-pressed="false">By region</button></div></div>
+        <div class="ctl"><span>Region</span><select id="region" aria-label="Focus on a region"><option value="">Whole world</option></select></div></div>
+      <div class="tbox"><div class="ctl" id="rdirbox"><span>Trade</span><div class="seg" id="rdir"><button data-d="both" aria-pressed="true">In and out</button><button data-d="out" aria-pressed="false">Leaving</button><button data-d="in" aria-pressed="false">Arriving</button><button data-d="between" aria-pressed="false" hidden>Between regions</button><button data-d="within" aria-pressed="false">Within</button></div></div></div>
+      <div class="tbox"><div class="ctl" id="hlbox"><span>Highlight</span><div class="seg" id="hl"><button data-v="none" aria-pressed="true">Nothing</button><button data-v="lmic" aria-pressed="false">Low &amp; middle income</button><button data-v="hic" aria-pressed="false">High income</button></div></div></div>
+      <div class="tbox"><div class="ctl" id="nrbox"><span>Non-reporters</span><div class="seg" id="nrep"><button data-v="on" aria-pressed="true">Hatched</button><button data-v="off" aria-pressed="false">Off</button></div></div></div>
+      <div class="tbox"><div class="ctl" id="focusbox" hidden><span>Selected country</span><div class="seg" id="fdir"><button data-v="in" aria-pressed="false">Coming in</button><button data-v="out" aria-pressed="false">Going out</button><button data-v="both" aria-pressed="true">Both</button></div></div>
+        <div class="ctl" id="fgrpbox" hidden><span>Group partners</span><div class="seg" id="fgrp"><button data-v="c" aria-pressed="true">Countries</button><button data-v="r" aria-pressed="false">By region</button></div></div></div>
+      <div class="tbox"><div class="ctl"><span>Map area</span><div class="seg" id="globe"><button data-v="trade" aria-pressed="true">Trading world</button><button data-v="full" aria-pressed="false">Whole globe</button></div></div></div>
+      <button class="btn ghost sm" id="mapreset">Map reset</button>
     </div>
     <div class="maptools row2">
-      <div class="ctl"><span>Country labels show</span><div class="seg" id="lval"><button data-v="net" aria-pressed="true">Net</button><button data-v="in" aria-pressed="false">Imports</button><button data-v="out" aria-pressed="false">Exports</button><button data-v="both" aria-pressed="false">In and out</button><button data-v="none" aria-pressed="false">Off</button></div></div>
-      <label class="mini"><span>Routes shown <output id="mo-maxr"></output></span><input type="range" id="m-maxr" min="0" max="24" step="1"></label>
-      <label class="mini"><span>Line width <output id="mo-line"></output></span><input type="range" id="m-line" min="0.3" max="3" step="0.1"></label>
-      <label class="mini"><span>Label size <output id="mo-lsize"></output></span><input type="range" id="m-lsize" min="8" max="16" step="1"></label>
-      <label class="mini"><span>How many labels <output id="mo-ldens"></output></span><input type="range" id="m-ldens" min="1" max="5" step="1"></label>
-      <div class="ctl"><span>Map area</span><div class="seg" id="globe"><button data-v="trade" aria-pressed="true">Trading world</button><button data-v="full" aria-pressed="false">Whole globe</button></div></div>
+      <div class="tbox"><b class="tbt">Labels</b>
+        <div class="ctl"><span>Show</span><div class="seg" id="lval"><button data-v="net" aria-pressed="true">Net</button><button data-v="in" aria-pressed="false">Imports</button><button data-v="out" aria-pressed="false">Exports</button><button data-v="both" aria-pressed="false">In and out</button><button data-v="none" aria-pressed="false">Off</button></div></div>
+        <label class="mini"><span>Label size <output id="mo-lsize"></output></span><input type="range" id="m-lsize" min="8" max="16" step="1"></label>
+        <label class="mini"><span>How many labels <output id="mo-ldens"></output></span><input type="range" id="m-ldens" min="1" max="5" step="1"></label>
+        <div class="ctl"><span>Decimals</span><div class="seg" id="dec"><button data-v="0" aria-pressed="false">0</button><button data-v="1" aria-pressed="true">1</button><button data-v="2" aria-pressed="false">2</button></div></div></div>
+      <div class="tbox"><b class="tbt">Routes</b>
+        <label class="mini"><span>Routes shown <output id="mo-maxr"></output></span><input type="range" id="m-maxr" min="0" max="24" step="1"></label>
+        <label class="mini"><span>Line width <output id="mo-line"></output></span><input type="range" id="m-line" min="0.3" max="3" step="0.1"></label></div>
     </div>
     <div class="mapwrap">
       <div class="maphead"><h2 id="maptitle">Loading the plastic waste trade…</h2><div class="legend" id="legend"></div></div>
@@ -580,7 +589,7 @@ const S={imp:new URLSearchParams(location.search).get("imp")!=="0",hatch:true,sc
 const B={type:"sankey",from:"c",to:"c",side:"ex",group:"c",scheme:"wb",view:0,measure:"t",top:15,focus:false,nointra:false};
 const HEADN=300,RSTEPS=[10,15,20,25,30,40,45,50,60,75,100,125,150,200,250,300,400,500,750,1000,1500,2000,3000,5000,1e9],ALLR=1e9;
 const rIdx=v=>{let b=0;for(let i=0;i<RSTEPS.length;i++)if(Math.abs(RSTEPS[i]-v)<Math.abs(RSTEPS[b]-v))b=i;return b},rLab=v=>v>=ALLR?"All":d3.format(",")(v);
-const DDEF={preset:"container",out:null,in:null,res:null,maxr:45,line:1,lab:"both",lval:"net",globe:"trade",lpos:"auto",ldens:3,lsize:11,anim:true,choro:false,font:12,vals:true,nodew:12,gap:10,op:.35,lcol:"source",h:1};
+const DDEF={preset:"container",dec:1,rcol:"io",out:null,in:null,res:null,maxr:45,line:1,lab:"both",lval:"net",globe:"trade",lpos:"auto",ldens:3,lsize:11,anim:true,choro:false,font:12,vals:true,nodew:12,gap:10,op:.35,lcol:"source",h:1};
 let D={...DDEF};try{const s=JSON.parse(localStorage.getItem("gwt-design-v6")||"null");if(s)D={...DDEF,...s}}catch(e){}
 
 let data,world,TR=null,MAN=null,IMP=null;
@@ -636,6 +645,8 @@ function resolve(){
 const PW=()=>{const h=hidOn().length;return !h?"plastic waste":S.scrap?"plastic waste and hidden plastic":"hidden plastic"};
 const aggS=rs=>{let t=0,usd=0,est=0;for(const r of rs){t+=r.t-(r.hid||0);usd+=r.usd-(r.hu||0);if(r.est)est+=r.t-(r.hid||0)}return{t,usd,est,n:rs.length}};
 const hDesc=k=>{const h=HON[k];return HS[k].n+" "+(h.byInc?"HIC "+h.inc.HIC+"/UMC "+h.inc.UMC+"/LMC "+h.inc.LMC+"/LIC "+h.inc.LIC+"% plastic":h.f+"% plastic")+(isDef(k)?"":" (user value"+(h.usrc.trim()?"; source: "+h.usrc.trim():", no source given")+")")};
+function mapCaption(){const on=hidOn(),v=VIEWS[S.view];
+  return `${v[0].toUpperCase()+v.slice(1)}${S.view===2?" ("+RMETH[S.resolve]+")":""}${S.imp?", with gaps imputed":", as reported"}.`+(on.length?` Includes other and embedded plastics: ${on.map(hDesc).join(", ")}.`:"")+(on.length&&!S.scrap?" Plastic scrap left out.":"")+` Source: ${VERSION}. Global Waste Trade Data Hub, globalwastetrade.org, CC BY\u00a04.0.`}
 function hpNote(){const on=hidOn();return on.length?" · hidden plastic: "+on.map(hDesc).join(", ")+" (UN Comtrade "+YEAR+")"+(S.scrap?"":" · plastic scrap left out"):""}
 resolve();
 const name=c=>C[c]?C[c][1]:c, iso=c=>C[c]?C[c][0]:c, inc=c=>C[c]?C[c][2]:"NS";
@@ -647,8 +658,9 @@ const rcol=(r,sch=S.scheme)=>{const L=regionNames(sch);const i=L.indexOf(r);retu
 // ---------- measures ----------
 const agg=rs=>{let t=0,usd=0,est=0;for(const r of rs){t+=r.t;usd+=r.usd;if(r.est)est+=r.t}return{t,usd,est,n:rs.length}};
 const mval=(a,m)=>m==="t"?a.t:m==="usd"?a.usd:(a.t>=50?a.usd/a.t:null);
-const fT=v=>v>=1e6?(v/1e6).toFixed(2)+" Mt":v>=1e3?d3.format(",.0f")(v/1e3)+" kt":d3.format(",.0f")(v)+" t";
-const fU=v=>v>=1e9?"$"+(v/1e9).toFixed(2)+"bn":v>=1e6?"$"+(v/1e6).toFixed(1)+"m":v>=1e3?"$"+d3.format(",.0f")(v/1e3)+"k":"$"+d3.format(",.0f")(v);
+const DEC=()=>D.dec??1;
+const fT=v=>v>=1e6?(v/1e6).toFixed(DEC())+" Mt":v>=1e3?d3.format(",.0f")(v/1e3)+" kt":d3.format(",.0f")(v)+" t";
+const fU=v=>v>=1e9?"$"+(v/1e9).toFixed(DEC())+"bn":v>=1e6?"$"+(v/1e6).toFixed(1)+"m":v>=1e3?"$"+d3.format(",.0f")(v/1e3)+"k":"$"+d3.format(",.0f")(v);
 const fP=v=>v==null?"—":"$"+d3.format(",.0f")(v)+"/t";
 const fmt=(v,m)=>v==null?"—":m==="t"?fT(v):m==="usd"?fU(v):fP(v);
 const mlabel=m=>m==="t"?"tonnes":m==="usd"?"US$":"US$ per tonne";
@@ -657,6 +669,7 @@ const mlabel=m=>m==="t"?"tonnes":m==="usd"?"US$":"US$ per tonne";
 const PRESETS={container:{n:"Container",out:null,in:null,res:null},ocean:{n:"Ocean",out:"#1d4e89",in:"#00a6a6",res:"#f49f0a"},cb:{n:"Colour-blind safe",out:"#d55e00",in:"#0072b2",res:"#009e73"},forest:{n:"Forest",out:"#b5562f",in:"#3c6e47",res:"#7d5ba6"},mono:{n:"Ink",out:"#1f2a33",in:"#7d8b94",res:"#4a6fa5"},neon:{n:"Signal",out:"#ff2e63",in:"#08d9d6",res:"#f9c74f"}};
 function applyDesign(){
   const rs=document.documentElement.style;
+  pressed("#dec","v",String(D.dec??1));pressed("#rcolmode","v",D.rcol||"io");
   for(const [k,v] of [["--out",D.out],["--in",D.in],["--res",D.res]]){if(v)rs.setProperty(k,v);else rs.removeProperty(k)}
   $("#c-out").value=toHex(css("--out"));$("#c-in").value=toHex(css("--in"));$("#c-res").value=toHex(css("--res"));
   for(const [id,k,f] of [["ldens","ldens",v=>["","Few","Fewer","Normal","More","Lots"][v]],["lsize","lsize",v=>v+" px"],["line","line",v=>v+"×"],["font","font",v=>v+" px"],["nodew","nodew",v=>v+" px"],["gap","gap",v=>v+" px"],["op","op",v=>Math.round(v*100)+"%"],["h","h",v=>v+"×"]]){$("#d-"+id).value=D[k];$("#o-"+id).textContent=f(D[k])}
@@ -944,9 +957,9 @@ function drawMap(){
     :S.region?`${S.region}: ${fmt(mval(tot,m),m)} of ${PW()} ${({both:"traded in and out",out:"leaving",in:"arriving",within:"traded within the region"})[S.rdir]}, ${YL}`
     :S.incf==="hl"?`${fmt(mval(tot,m),m)} of ${PW()} went from high-income to middle- and low-income countries${S.rdir==="within"?` within the same ${SCHEMES[S.scheme].replace(/s$/,"")}`:S.rdir==="between"?` in another ${SCHEMES[S.scheme].replace(/s$/,"")}`:""} in ${YL}`
     :S.rdir==="within"?`${fmt(mval(tot,m),m)} of ${PW()} was traded within ${SCHEMES[S.scheme]} in ${YL}`
-    :S.rdir==="between"?`${fmt(mval(tot,m),m)} of ${PW()} crossed between ${SCHEMES[S.scheme]} in ${YL}`
+    :S.rdir==="between"?`${fmt(mval(tot,m),m)} of ${PW()} was traded between ${SCHEMES[S.scheme]} in ${YL}`
     :S.rdir==="out"?`Where ${fmt(mval(tot,m),m)} of ${PW()} came from in ${YL}`
-    :S.rdir==="in"?`Where ${fmt(mval(tot,m),m)} of ${PW()} went in ${YL}`:`${fmt(mval(tot,m),m)} of ${PW()} crossed borders in ${YL}`;
+    :S.rdir==="in"?`Where ${fmt(mval(tot,m),m)} of ${PW()} went in ${YL}`:`${fmt(mval(tot,m),m)} of ${PW()} was traded in ${YL}`;
   if(S.imp&&S.view!==2&&m!=="ppt"){const it=agg(rs.filter(r=>r.imp));if(it.t)$("#maptitle").textContent+=`, ${fmt(mval(it,w),w)} of it imputed`}
   $("#legend").innerHTML=S.sel?lk("--out","--out",name(S.sel),"partner")+lk("--in","--in","partner",name(S.sel))+(S.fdir==="both"?pk("sent","received"):"")
     :S.hl!=="none"?(S.hl==="lmic"?["UMC","LMC","LIC"]:["HIC"]).map(g=>`<span><span class="dot" style="background:var(--g-${g.toLowerCase()})"></span>${INC[g]}</span>`).join("")+lk("--out","--out","","leaving them")+lk("--in","--in","","arriving")
@@ -976,36 +989,43 @@ function drawFocusRegions(rs,w){
     ...flows.map(f=>{const m=f.dir==="in"?arcMid(f.a,P):arcMid(P,f.a);return{id:f.dir+f.reg,kind:"mid",x:m[0],y:m[1],pri:f[w],l1:(both?(f.dir==="in"?"from ":"to "):"")+f.reg,l2:`${fmt(f[w],w)} · ${d3.format(".0%")(f[w]/tot[f.dir])}`,c2:rcol(f.reg,sch)}})]);
   rescale();
   $("#maptitle").textContent=S.fdir==="in"?`Where ${name(c0)}'s ${PW()} comes from, by ${SCHEMES[sch].replace(/s$/,"")}, ${YL}`:S.fdir==="out"?`Where ${name(c0)}'s ${PW()} goes, by ${SCHEMES[sch].replace(/s$/,"")}, ${YL}`:`${name(c0)}'s ${PW()} trade by ${SCHEMES[sch].replace(/s$/,"")}, ${YL}`;
-  $("#legend").innerHTML=[...new Set(flows.map(f=>f.reg))].map(r=>`<span><span class="dot" style="background:${rcol(r,sch)}"></span>${esc(r)}</span>`).join("");
+  $("#legend").innerHTML=[...new Set(flows.map(f=>f.reg))].sort((a,b)=>a.localeCompare(b)).map(r=>`<span><span class="dot" style="background:${rcol(r,sch)}"></span>${esc(r)}</span>`).join("");
   $("#mapnote").textContent=`Each line joins ${name(c0)} to the weighted centre of its partners in one region. Labels give the amount and share. Change the region definition above.`;
 }
 function regionFlows(sch,rs){const f=new Map();for(const r of rs){const a=regOf(r.ex,sch),b=regOf(r.rc,sch);if(!a||!b||a===b)continue;const k=a+">"+b;if(!f.has(k))f.set(k,{a,b,t:0,usd:0});const o=f.get(k);o.t+=r.t;o.usd+=r.usd}return[...f.values()]}
 function drawRegionMap(){
   $("#focusbox").hidden=$("#fgrpbox").hidden=true;
   const sch=S.scheme,A=anchors(sch),rs=R.filter(r=>r.v===S.view&&passInc(r)),m=S.measure==="ppt"?"t":S.measure;
-  const within=S.rdir==="within";
+  const within=S.rdir==="within",IO=D.rcol!=="reg",RN=regionNames(sch);
   const wm=within?d3.rollup(rs.filter(r=>{const a=regOf(r.ex,sch);return a&&a===regOf(r.rc,sch)&&(!S.region||a===S.region)}),v=>d3.sum(v,r=>r[m]),r=>regOf(r.ex,sch)):null;
   let flows=within?[]:regionFlows(sch,rs);
   if(S.region)flows=flows.filter(f=>S.rdir==="out"?f.a===S.region:S.rdir==="in"?f.b===S.region:S.rdir==="within"?false:(f.a===S.region||f.b===S.region));
   flows.sort((x,y)=>y[m]-x[m]);mapRows=flows;
-  countries.classed("sel",false).classed("dim",f=>!!S.region&&regOf(mapToCode[f.id],sch)!==S.region).style("fill",f=>{const r=regOf(mapToCode[f.id],sch);return r?d3.interpolateRgb(css("--land"),rcol(r,sch))(.55):null});
+  countries.classed("sel",false).classed("dim",f=>!!S.region&&regOf(mapToCode[f.id],sch)!==S.region).style("fill",f=>{const r=regOf(mapToCode[f.id],sch);return r?d3.interpolateRgb(css("--land"),IO?css("--muted"):rcol(r,sch))(IO?.08+.08*(RN.indexOf(r)%3):.55):null});
   const mx=d3.max(flows,f=>f[m])||1,sw=d3.scaleSqrt().domain([0,mx]).range([.8*D.line,16*D.line]);
   const shown=flows.slice(0,Math.min(D.maxr,120));
+  if(IO)gradDefs.selectAll("linearGradient").data(shown).join("linearGradient").attr("id",(f,i)=>"rg"+i).attr("gradientUnits","userSpaceOnUse")
+    .attr("x1",f=>A[f.a][0]).attr("y1",f=>A[f.a][1]).attr("x2",f=>A[f.b][0]).attr("y2",f=>A[f.b][1])
+    .html(`<stop offset="0" stop-color="${css("--out")}"/><stop offset=".2" stop-color="${css("--out")}"/><stop offset=".8" stop-color="${css("--in")}"/><stop offset="1" stop-color="${css("--in")}"/>`);
   gA.selectAll("path").data(shown,f=>f.a+">"+f.b).join(en=>en.append("path")).attr("class","arc"+(D.anim?" flow":""))
-    .each(f=>f.sw=sw(f[m])).attr("vector-effect","non-scaling-stroke").attr("d",f=>arcD(f,A[f.a],A[f.b])).attr("stroke",f=>rcol(f.a,sch)).attr("stroke-width",f=>f.sw*Math.pow(K,.25))
+    .each(f=>f.sw=sw(f[m])).attr("vector-effect","non-scaling-stroke").attr("d",f=>arcD(f,A[f.a],A[f.b])).attr("stroke",(f,i)=>IO?`url(#rg${i})`:rcol(f.a,sch)).attr("stroke-width",f=>f.sw*Math.pow(K,.25))
     .on("mousemove",(e,f)=>showTip(e,`<b>${esc(f.a)} → ${esc(f.b)}</b><br>${fT(f.t)} · ${fU(f.usd)} · ${fP(f.t>=50?f.usd/f.t:null)}`)).on("mouseleave",hideTip).on("click",(e,f)=>setRegion(f.a));
   const outT=d3.rollup(flows,v=>d3.sum(v,f=>f[m]),f=>f.a),inT=d3.rollup(flows,v=>d3.sum(v,f=>f[m]),f=>f.b);
   const nodes=regionNames(sch).filter(r=>A[r]&&!isNaN(A[r][0]));
   const gr=r=>within?(wm.get(r)||0):(outT.get(r)||0)+(inT.get(r)||0),gmx=d3.max(nodes,gr)||1;
   gN.selectAll("circle").data(nodes.map(r=>[r,gr(r)]),d=>d[0]).join("circle").attr("class","node")
-    .each(d=>d.r=4+Math.sqrt(d[1]/gmx)*10).attr("cx",d=>A[d[0]][0]).attr("cy",d=>A[d[0]][1]).attr("fill",d=>rcol(d[0],sch)).style("cursor","pointer").on("click",(e,d)=>setRegion(d[0]));
-  setLabels(nodes.map(r=>within?{id:"R"+r,kind:"reg",x:A[r][0],y:A[r][1],r:4+Math.sqrt(gr(r)/gmx)*10,pri:gr(r),force:S.region===r,l1:r,l2:fmt(gr(r),m)+" within",c2:rcol(r,sch)}
+    .each(d=>d.r=4+Math.sqrt(d[1]/gmx)*10).attr("cx",d=>A[d[0]][0]).attr("cy",d=>A[d[0]][1]).attr("fill",d=>IO?(within?css("--muted"):css("--in")):rcol(d[0],sch)).style("cursor","pointer").on("click",(e,d)=>setRegion(d[0]));
+  if(IO&&!within)gP.selectAll("circle").data(nodes.filter(r=>outT.get(r))).join("circle").attr("class","pie")
+    .datum(r=>({k:r,r:4+Math.sqrt(gr(r)/gmx)*10,f:(outT.get(r)||0)/(gr(r)||1)})).attr("cx",d=>A[d.k][0]).attr("cy",d=>A[d.k][1])
+    .attr("fill","none").attr("stroke",css("--out")).attr("transform",d=>`rotate(-90 ${A[d.k][0]} ${A[d.k][1]})`);
+  setLabels(nodes.map(r=>within?{id:"R"+r,kind:"reg",x:A[r][0],y:A[r][1],r:4+Math.sqrt(gr(r)/gmx)*10,pri:gr(r),force:S.region===r,l1:r,l2:fmt(gr(r),m)+" within",c2:IO?css("--ink"):rcol(r,sch)}
     :{id:"R"+r,kind:"reg",dyn:true,m,vin:inT.get(r)||0,vout:outT.get(r)||0,x:A[r][0],y:A[r][1],r:4+Math.sqrt(gr(r)/gmx)*10,pri:gr(r),force:S.region===r,l1:r}));
   rescale();
   const total=within?d3.sum(nodes,gr):d3.sum(flows,f=>f[m]),all=d3.sum(rs,r=>r[m]);
   $("#maptitle").textContent=S.region?`${S.region}: ${fmt(total,m)} of ${PW()} ${({both:"traded with other regions",out:"leaving for other regions",in:"arriving from other regions",within:"traded within the region"})[S.rdir]}, ${YL}`
-    :`${fmt(total,m)} of ${PW()} ${within?"was traded within":"crossed between"} ${SCHEMES[sch]}, ${YL} (${d3.format(".0%")(total/all)} of all trade)`;
-  $("#legend").innerHTML=nodes.map(r=>`<span><span class="dot" style="background:${rcol(r,sch)}"></span>${esc(r)}</span>`).join("");
+    :`${fmt(total,m)} of ${PW()} ${within?"was traded within":"was traded between"} ${SCHEMES[sch]}, ${YL} (${d3.format(".0%")(total/all)} of all trade)`;
+  $("#legend").innerHTML=IO?(within?"":lk("--out","--in","leaves","arrives")+pk("exports","imports"))+`<span>${VIEWS[S.view]}</span>`
+    :nodes.slice().sort((a,b)=>a.localeCompare(b)).map(r=>`<span><span class="dot" style="background:${rcol(r,sch)}"></span>${esc(r)}</span>`).join("");
   $("#mapnote").textContent=within?"Each circle is trade between countries in the same region. Click a region to focus on it.":"Trade between countries in the same region is left out. Click a region to focus on it.";
 }
 
@@ -1286,8 +1306,9 @@ async function saveFile(filename,data){
   setTimeout(()=>URL.revokeObjectURL(url),4000);toast(`Saved ${filename}`);
 }
 const slug=s=>s.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,60);
+function wrapTxt(t,n){const out=[];let line="";for(const w of t.split(" ")){if(line&&(line+" "+w).length>n){out.push(line);line=w}else line=line?line+" "+w:w}if(line)out.push(line);return out}
 function standaloneSVG(svgEl,title,note){
-  const vb=svgEl.viewBox.baseVal,W=vb.width,H=vb.height,top=54,bot=34;
+  const vb=svgEl.viewBox.baseVal,W=vb.width,H=vb.height,top=44,cap=wrapTxt(note||"",150),bot=26+cap.length*15;
   const clone=svgEl.cloneNode(true),orig=svgEl.querySelectorAll("*"),cl=clone.querySelectorAll("*");
   const props=["fill","stroke","stroke-width","stroke-opacity","fill-opacity","opacity","font-size","font-weight","font-family","stroke-dasharray","display","paint-order","stroke-linejoin"];
   orig.forEach((el,i)=>{const cs=getComputedStyle(el),t=cl[i];for(const p of props){let v=cs.getPropertyValue(p);if(p==="stroke-dasharray"&&el.classList.contains("flow"))v="none";if(v)t.setAttribute(p,v)}t.removeAttribute("class");t.style.cssText=""});
@@ -1295,10 +1316,10 @@ function standaloneSVG(svgEl,title,note){
   out.setAttribute("xmlns",ns);out.setAttribute("viewBox",`0 0 ${W} ${H+top+bot}`);out.setAttribute("width",W);out.setAttribute("height",H+top+bot);
   const bg=document.createElementNS(ns,"rect");bg.setAttribute("width",W);bg.setAttribute("height",H+top+bot);bg.setAttribute("fill",css("--panel"));out.appendChild(bg);
   const tx=(s,y,size,col,w)=>{const t=document.createElementNS(ns,"text");t.setAttribute("x",16);t.setAttribute("y",y);t.setAttribute("font-size",size);t.setAttribute("fill",col);t.setAttribute("font-family","Archivo, Arial, sans-serif");if(w)t.setAttribute("font-weight",w);t.textContent=s;out.appendChild(t)};
-  tx(title,28,20,css("--ink"),700);if(note)tx(note,46,12,css("--muted"));
+  tx(title,30,20,css("--ink"),700);
   const inner=document.createElementNS(ns,"svg");inner.setAttribute("x",0);inner.setAttribute("y",top);inner.setAttribute("width",W);inner.setAttribute("height",H);inner.setAttribute("viewBox",`0 0 ${W} ${H}`);
   while(clone.firstChild)inner.appendChild(clone.firstChild);out.appendChild(inner);
-  tx("Global Waste Trade Data Hub · globalwastetrade.org · CC BY 4.0 · "+VERSION,H+top+22,11,css("--muted"));
+  cap.forEach((l,i)=>tx(l,H+top+20+i*15,11,css("--muted")));
   return new XMLSerializer().serializeToString(out);
 }
 function svgToPNG(str){return new Promise((res,rej)=>{const img=new Image();img.onload=()=>{const s=2,c=document.createElement("canvas");c.width=img.width*s;c.height=img.height*s;const x=c.getContext("2d");x.scale(s,s);x.drawImage(img,0,0);c.toBlob(b=>b?res(b):rej(new Error("png")),"image/png")};img.onerror=rej;img.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(str)})}
@@ -1309,14 +1330,14 @@ document.addEventListener("click",async e=>{
     if(what==="map"){
       const title=$("#maptitle").textContent,base="gwt-map-"+slug(S.mapMode==="regions"?SCHEMES[S.scheme]:S.sel?name(S.sel):S.region||"world")+"-"+YEAR;
       if(f==="csv"){const rows=S.sel&&S.fgrp==="r"&&S.mapMode!=="regions"?mapRows.map(r=>({country:name(S.sel),direction:r.dir==="in"?"imports from":"exports to",partner_region:r.reg,region_definition:SCHEMES[S.scheme],partner_countries:r.n,net_weight_t:Math.round(r.t),value_usd:Math.round(r.usd),figures:VIEWS[S.view],source:VERSION+hpNote()})):S.mapMode==="regions"?mapRows.map(r=>({from_region:r.a,to_region:r.b,net_weight_t:Math.round(r.t),value_usd:Math.round(r.usd),figures:VIEWS[S.view],source:VERSION})):mapRows.map(r=>({exporter:name(r.ex),recipient:name(r.rc),net_weight_t:r.t,value_usd:r.usd,figures:VIEWS[r.v],source:VERSION}));return saveFile(base+".csv",toCSV(rows,Object.keys(rows[0]||{exporter:1})))}
-      const s=standaloneSVG($("#map"),title,`${PW()}, ${VIEWS[S.view]}${S.view===2?" ("+RMETH[S.resolve]+")":""}${hpNote()}`);
+      const s=standaloneSVG($("#map"),title,mapCaption());
       return f==="svg"?saveFile(base+".svg",s):saveFile(base+".png",await svgToPNG(s));
     }
     if(what==="chart"){
       const base="gwt-"+B.type+"-"+slug($("#ctitle").textContent);
       if(f==="csv")return saveFile(base+".csv",toCSV(chartRows,chartCols)+"\n\n"+csvCell("Source: "+VERSION)+"\n"+csvCell("Cite as: "+CITE));
       if(f==="json")return saveFile(base+".json",JSON.stringify({title:$("#ctitle").textContent,note:$("#cnote").textContent,source:VERSION,cite:CITE,rows:chartRows},null,1));
-      const s=standaloneSVG($("#chart"),$("#ctitle").textContent,$("#cnote").textContent);
+      const cn=$("#cnote").textContent.trim(),s=standaloneSVG($("#chart"),$("#ctitle").textContent,(cn?cn.replace(/\.?$/,". "):"")+`Source: ${VERSION}. Global Waste Trade Data Hub, globalwastetrade.org, CC BY\u00a04.0.`);
       return f==="svg"?saveFile(base+".svg",s):saveFile(base+".png",await svgToPNG(s));
     }
     if(what==="table"){
@@ -1338,12 +1359,14 @@ segment("#view","v",v=>{S.view=+v;$("#resmethodbox").hidden=S.view!==2;$("#impbo
 $("#resmethod").onchange=e=>{S.resolve=e.target.value;resolve();render();hpRefresh()};
 segment("#measure","m",v=>{S.measure=v;render()});
 segment("#incf","f",v=>{S.incf=v;render()});
-segment("#mapmode","v",v=>{S.mapMode=v;S.sel=null;partnerVals=new Map();$("#hlbox").hidden=v==="regions";render()});
+segment("#mapmode","v",v=>{S.mapMode=v;S.sel=null;partnerVals=new Map();$("#hlbox").hidden=v==="regions";$("#rcolbox").hidden=v!=="regions";render()});
 segment("#hl","v",v=>{S.hl=v;render()});
 segment("#nrep","v",v=>{S.hatch=v==="on";render()});
 const fitFocus=()=>{if(S.sel&&S.fgrp==="r"&&mapRows.length)zoomToPts(mapRows.map(f=>f.a).concat([pos[S.sel]]),4)};
 segment("#globe","v",v=>{D.globe=v;applyDesign();setProj();placeCountries();anchorCache={};sphereP.attr("d",path({type:"Sphere"}));gratP.attr("d",path(d3.geoGraticule10()));
   countries.attr("d",path).attr("display",f=>D.globe!=="full"&&f.id==="010"?"none":null);svg.call(zoom.transform,d3.zoomIdentity);render()});
+segment("#dec","v",v=>{D.dec=+v;applyDesign();render()});
+segment("#rcolmode","v",v=>{D.rcol=v;applyDesign();render()});
 segment("#lval","v",v=>{if(v==="none"){D.lab="none"}else{D.lval=v;if(D.lab==="none"||D.lab==="name")D.lab="both"}applyDesign();drawMap()});
 segment("#fdir","v",v=>{S.fdir=v;render()});
 segment("#fgrp","v",v=>{S.fgrp=v;render();fitFocus()});
@@ -1448,7 +1471,7 @@ $("#bnointra").onchange=e=>{B.nointra=e.target.checked;drawChart()};
 $("#mapreset").onclick=()=>{if(S.sel)select(null);if(S.region)setRegion(null);svg.transition().duration(600).call(zoom.transform,d3.zoomIdentity)};
 $("#clist").innerHTML=Object.values(C).filter(c=>c[3]||c[4]!=null).sort((a,b)=>a[1].localeCompare(b[1])).map(c=>`<option value="${esc(c[1])}">`).join("");
 $("#find").addEventListener("change",e=>{const q=e.target.value.trim().toLowerCase();if(!q)return;const E=Object.entries(C);const hit=E.find(([k,c])=>c[1].toLowerCase()===q)||E.find(([k,c])=>c[0].toLowerCase()===q)||E.find(([k,c])=>(ALIAS[k]||"").toLowerCase().includes(q))||E.find(([k,c])=>c[1].toLowerCase().includes(q));
-  if(hit){if(S.mapMode==="regions"){S.mapMode="routes";pressed("#mapmode","v","routes");$("#hlbox").hidden=false}select(hit[0]);zoomToPts([pos[hit[0]]],3)}else toast(`No country matches "${e.target.value}".`)});
+  if(hit){if(S.mapMode==="regions"){S.mapMode="routes";pressed("#mapmode","v","routes");$("#hlbox").hidden=false;$("#rcolbox").hidden=true}select(hit[0]);zoomToPts([pos[hit[0]]],3)}else toast(`No country matches "${e.target.value}".`)});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){if(POP){closePop(true);return}if(!$("#drawer").hidden){$("#drawer").hidden=true;return}if(S.sel)select(null)}if(e.key==="Enter"&&e.target.matches(".row[data-c]"))e.target.click()});
 
 function select(c){if(!c){S.fgrp="c";pressed("#fgrp","v","c")}S.sel=c;if(!c){partnerVals=new Map();B.focus=false;$("#bfocus").checked=false}render()}
