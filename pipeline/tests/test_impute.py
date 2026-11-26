@@ -89,6 +89,43 @@ class PartYear(unittest.TestCase):
         rows, _ = mp.model(cur, [], None)
         self.assertEqual(rows[0]["netWgt"], 12000)
 
+    def test_national_months_fill_what_comtrade_lacks(self):
+        import tempfile
+        iso = {"FRA": (251, "France"), "TUR": (792, "Türkiye"), "DEU": (276, "Germany")}
+        cur = [dict(mrow(276, "X", 792, 1000, 200, "202601"), cmdCode="3915")]
+        nat = [  # Germany January overlaps Comtrade (sets the rate: 200 US$ for 100 EUR)
+            {"source": "comext", "reporterISO": "DEU", "partnerISO": "TUR", "flow": "X", "cmd": "391590",
+             "period": "202601", "kg": 1000, "value": 100, "currency": "EUR"},
+            {"source": "comext", "reporterISO": "DEU", "partnerISO": "TUR", "flow": "X", "cmd": "391510",
+             "period": "202602", "kg": 500, "value": 30, "currency": "EUR"},
+            {"source": "comext", "reporterISO": "DEU", "partnerISO": "TUR", "flow": "X", "cmd": "391520",
+             "period": "202602", "kg": 500, "value": 20, "currency": "EUR"},
+            {"source": "comext", "reporterISO": "FRA", "partnerISO": "TUR", "flow": "X", "cmd": "391590",
+             "period": "202601", "kg": 3000, "value": 50, "currency": "EUR"},
+            {"source": "comext", "reporterISO": "FRA", "partnerISO": "XX", "flow": "X", "cmd": "391590",
+             "period": "202601", "kg": 9, "value": 9, "currency": "EUR"},
+        ]
+        with tempfile.TemporaryDirectory() as d:
+            for per in ("202601", "202602"):
+                Path(d, f"comext_{per}.json").write_text(json.dumps([r for r in nat if r["period"] == per]))
+            loaded = mp.load_national(2026, ["3915"], iso, Path(d))
+        rows, used = mp.supplement(cur, loaded, iso)
+        added = {(r["reporterCode"], r["period"]): r for r in rows if r.get("source")}
+        self.assertEqual(set(added), {(276, "202602"), (251, "202601")})   # Germany's January kept from Comtrade
+        self.assertEqual(added[(276, "202602")]["netWgt"], 1000)          # HS6 rows summed to HS 3915
+        self.assertAlmostEqual(added[(276, "202602")]["primaryValue"], 100)  # 50 EUR at 2 US$ per EUR (nearest month)
+        self.assertEqual(used["comext"]["reporter_flows"], 2)
+        rows, filed = mp.model(rows, [], None)
+        self.assertEqual(filed, {"276X": ["01", "02"], "251X": ["01"]})
+
+    def test_several_codes_modelled_apart(self):
+        cur = [dict(mrow(1, "X", 2, 1000, 5, "202601"), cmdCode="4707"),
+               dict(mrow(1, "X", 2, 2000, 5, "202601"), cmdCode="4004"),
+               dict(mrow(1, "X", 2, 2000, 5, "202602"), cmdCode="4004")]
+        rows, filed = mp.model_codes(cur, [], None)
+        self.assertEqual({r["cmdCode"]: r["netWgt"] for r in rows}, {"4707": 12000, "4004": 24000})
+        self.assertEqual(filed, {"4004:1X": ["01", "02"], "4707:1X": ["01"]})
+
 
 if __name__ == "__main__":
     unittest.main()
