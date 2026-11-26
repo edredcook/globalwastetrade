@@ -429,7 +429,7 @@ footer b{color:var(--ink);font-weight:600}
       <div class="seg" id="view">
         <button data-v="0" aria-pressed="true"><span class="dot" style="background:var(--out)"></span>Exporters'</button>
         <button data-v="1" aria-pressed="false"><span class="dot" style="background:var(--in)"></span>Importers'</button>
-        <button data-v="2" aria-pressed="false"><span class="dot" style="background:var(--res)"></span>Resolved</button>
+        <button data-v="2" aria-pressed="false" data-def="res"><span class="dot" style="background:var(--res)"></span>Resolved</button>
       </div></div>
     <div class="ctl" id="impbox"><div class="ctlh"><span class="hint" tabindex="0" data-tip="Imputed fills trade that a country did not report, from its partners' reports, the years either side or the trend, and labels it as imputed. As reported shows only what countries filed.">Data gaps</span><a class="sublink" href="trends.html#reported">Who reported</a></div>
       <div class="seg" id="imp"><button data-i="1" aria-pressed="true">Imputed</button><button data-i="0" aria-pressed="false">As reported</button></div></div>
@@ -465,7 +465,7 @@ footer b{color:var(--ink);font-weight:600}
       <div class="mshd"><b>Map controls</b><button class="btn ghost sm" id="mapreset">Map reset</button><button class="linkbtn" id="sideclose" aria-controls="mapside">Hide</button></div>
       <details class="tbox mdes" id="mdes"><summary class="tbt">Map design</summary>
         <div class="ctl"><span>Colour presets</span><div class="presets" id="presets"></div></div>
-        <div class="ccols"><label><input type="color" id="c-out">Exports</label><label><input type="color" id="c-in">Imports</label><label><input type="color" id="c-res">Resolved</label></div>
+        <div class="ccols"><label><input type="color" id="c-out">Exports</label><label><input type="color" id="c-in">Imports</label><label data-def="res"><input type="color" id="c-res">Resolved</label></div>
       </details>
     <div class="maptools">
       <div class="tbox"><div class="ctl"><span>Map shows</span><div class="seg" id="mapmode"><button data-v="routes" aria-pressed="true">Country to country</button><button data-v="regions" aria-pressed="false">Region to region</button></div></div>
@@ -512,16 +512,22 @@ footer b{color:var(--ink);font-weight:600}
             <button data-t="bars" aria-pressed="false"><svg viewBox="0 0 60 26" aria-hidden="true"><rect x="0" y="1" width="58" height="5" fill="var(--out)"/><rect x="0" y="9" width="42" height="5" fill="var(--out)"/><rect x="0" y="17" width="27" height="5" fill="var(--out)"/></svg>Ranking</button>
             <button data-t="treemap" aria-pressed="false"><svg viewBox="0 0 60 26" aria-hidden="true"><rect x="0" y="0" width="32" height="26" fill="var(--g-hic)"/><rect x="34" y="0" width="26" height="14" fill="var(--g-umc)"/><rect x="34" y="16" width="14" height="10" fill="var(--g-lmc)"/><rect x="50" y="16" width="10" height="10" fill="var(--g-lic)"/></svg>Shares (treemap)</button>
             <button data-t="scatter" aria-pressed="false"><svg viewBox="0 0 60 26" aria-hidden="true"><path d="M2 24L58 2" stroke="var(--muted)" stroke-dasharray="2 2"/><circle cx="12" cy="19" r="3" fill="var(--g-hic)"/><circle cx="25" cy="12" r="3" fill="var(--g-umc)"/><circle cx="40" cy="12" r="3" fill="var(--g-lmc)"/><circle cx="48" cy="5" r="3" fill="var(--g-hic)"/></svg>Mirror check</button>
+            <button data-t="stack" aria-pressed="false"><svg viewBox="0 0 60 26" aria-hidden="true"><rect x="0" y="1" width="30" height="6" fill="var(--g-hic)"/><rect x="30" y="1" width="18" height="6" fill="var(--g-umc)"/><rect x="48" y="1" width="10" height="6" fill="var(--g-lmc)"/><rect x="0" y="10" width="20" height="6" fill="var(--g-hic)"/><rect x="20" y="10" width="16" height="6" fill="var(--g-umc)"/><rect x="36" y="10" width="6" height="6" fill="var(--g-lic)"/><rect x="0" y="19" width="12" height="6" fill="var(--g-hic)"/><rect x="12" y="19" width="14" height="6" fill="var(--g-lmc)"/></svg>Stacked bars</button>
           </div></div>
         <div class="ctl" data-for="sankey"><span>Left side</span><div class="seg" id="bfrom"><button data-v="c" aria-pressed="true">Countries</button><button data-v="r" aria-pressed="false">Regions</button><button data-v="g" aria-pressed="false">Income groups</button><button data-v="s" aria-pressed="false">Material stream</button></div></div>
         <div class="ctl" data-for="sankey"><span>Right side</span><div class="seg" id="bto"><button data-v="c" aria-pressed="true">Countries</button><button data-v="r" aria-pressed="false">Regions</button><button data-v="g" aria-pressed="false">Income groups</button></div></div>
-        <div class="ctl" data-for="bars treemap scatter"><span>Show</span><div class="seg" id="bside"><button data-v="ex" aria-pressed="true">Senders</button><button data-v="rc" aria-pressed="false">Receivers</button><button data-v="rt" aria-pressed="false" data-only="bars">Routes</button></div></div>
-        <div class="ctl" data-for="bars treemap"><span>Group by</span><div class="seg" id="bgroup"><button data-v="c" aria-pressed="true">Countries</button><button data-v="r" aria-pressed="false">Regions</button><button data-v="g" aria-pressed="false">Income groups</button></div></div>
-        <div class="ctl" data-for="sankey bars treemap"><span>Region type</span><select id="bscheme" aria-label="Region definition for the chart"><option value="un">UN regions (M49)</option><option value="unsub">UN sub-regions (M49)</option><option value="wb" selected>World Bank regions</option><option value="oecd">OECD / non-OECD</option></select></div>
-        <div class="ctl" data-for="sankey bars treemap"><span>Reporter type</span><div class="seg" id="bview"><button data-v="0" aria-pressed="true">Exporters'</button><button data-v="1" aria-pressed="false">Importers'</button><button data-v="2" aria-pressed="false">Resolved</button></div></div>
-        <div class="ctl" data-for="sankey bars treemap scatter"><span>Measure</span><div class="seg" id="bmeasure"><button data-v="t" aria-pressed="true">Tonnes</button><button data-v="usd" aria-pressed="false">US$</button><button data-v="ppt" aria-pressed="false" data-only="bars">US$/t</button></div></div>
-        <div class="ctl" data-for="sankey bars treemap"><label class="lab hint" for="btopn" tabindex="0" data-tip="Keeps the largest traders by the chosen measure, biggest first. In Flows this many are kept on each side and the rest are grouped as Everyone else; in Shares the rest are grouped too.">Number of countries</label><div class="topn"><input type="number" id="btopn" min="1" max="200" value="15" aria-label="Number of countries"><input type="range" id="btopr" min="1" max="60" value="15" aria-label="Number of countries, slider"></div></div>
-        <div class="ctl" data-for="sankey bars treemap"><span>Filters</span><div class="chk" style="flex-direction:column;align-items:flex-start">
+        <div class="ctl" data-for="bars treemap scatter stack"><span>Show</span><div class="seg" id="bside"><button data-v="ex" aria-pressed="true">Senders</button><button data-v="rc" aria-pressed="false">Receivers</button><button data-v="rt" aria-pressed="false" data-only="bars">Routes</button></div></div>
+        <div class="ctl" data-for="bars treemap stack"><span>Group by</span><div class="seg" id="bgroup"><button data-v="c" aria-pressed="true">Countries</button><button data-v="r" aria-pressed="false">Regions</button><button data-v="g" aria-pressed="false">Income groups</button></div></div>
+        <div class="ctl" data-for="stack"><span class="hint" tabindex="0" data-tip="Each bar is divided by where its trade goes to (for senders) or comes from (for receivers).">Split by partner</span><div class="seg" id="bsplit"><button data-v="r" aria-pressed="true">Region</button><button data-v="g" aria-pressed="false">Income group</button></div></div>
+        <div class="ctl" data-for="stack"><span>Bar length</span><div class="seg" id="bnorm"><button data-v="abs" aria-pressed="true">Amount</button><button data-v="pct" aria-pressed="false">Share (100%)</button></div></div>
+        <div class="ctl" data-for="treemap"><span>Colours</span><div class="seg" id="btcol"><button data-v="shade" aria-pressed="true">One colour</button><button data-v="reg" aria-pressed="false">By region</button><button data-v="inc" aria-pressed="false">By income group</button><button data-v="mix" aria-pressed="false">Mixed</button></div></div>
+        <div class="ctl" data-for="scatter"><label class="lab hint" for="bnlab" tabindex="0" data-tip="Labels the largest countries first. A label that would overlap another label or a dot is skipped and the next country is tried.">Number of labels <output id="o-bnlab"></output></label><input type="range" id="bnlab" min="0" max="80" step="1" value="15" aria-label="Number of labels"></div>
+        <div class="ctl" data-for="scatter"><span>Label text</span><div class="seg" id="blabt"><button data-v="c" aria-pressed="true">Codes</button><button data-v="n" aria-pressed="false">Names</button></div></div>
+        <div class="ctl" data-for="sankey bars treemap stack"><span>Region type</span><select id="bscheme" aria-label="Region definition for the chart"><option value="un">UN regions (M49)</option><option value="unsub">UN sub-regions (M49)</option><option value="wb" selected>World Bank regions</option><option value="oecd">OECD / non-OECD</option></select></div>
+        <div class="ctl" data-for="sankey bars treemap stack"><span>Reporter type</span><div class="seg" id="bview"><button data-v="0" aria-pressed="true">Exporters'</button><button data-v="1" aria-pressed="false">Importers'</button><button data-v="2" aria-pressed="false" data-def="res">Resolved</button></div></div>
+        <div class="ctl" data-for="sankey bars treemap scatter stack"><span>Measure</span><div class="seg" id="bmeasure"><button data-v="t" aria-pressed="true">Tonnes</button><button data-v="usd" aria-pressed="false">US$</button><button data-v="ppt" aria-pressed="false" data-only="bars">US$/t</button></div></div>
+        <div class="ctl" data-for="sankey bars treemap stack"><label class="lab hint" for="btopn" tabindex="0" data-tip="Keeps the largest traders by the chosen measure, biggest first. In Flows this many are kept on each side and the rest are grouped as Everyone else; in Shares the rest are grouped too.">Number of countries</label><div class="topn"><input type="number" id="btopn" min="1" max="200" value="15" aria-label="Number of countries"><input type="range" id="btopr" min="1" max="60" value="15" aria-label="Number of countries, slider"></div></div>
+        <div class="ctl" data-for="sankey bars treemap stack"><span>Filters</span><div class="chk" style="flex-direction:column;align-items:flex-start">
           <label><input type="checkbox" id="bnointra"> <span>Leave out trade within the same region</span></label>
           <label><input type="checkbox" id="bfocus"> <span>Only trade involving <b id="bfocusname">the selected country</b></span></label></div></div>
         <details class="ctl cdes" id="cdes"><summary>Chart design</summary>
@@ -560,7 +566,7 @@ footer b{color:var(--ink);font-weight:600}
           <div class="ctl"><span class="hint" tabindex="0" data-tip="Tick one or more. Each set comes as its own rows, marked in the Figures column, and they are never added together.">Reporter type</span><div class="chk dlv">
             <label><input type="checkbox" id="dlx"><span class="dot" style="background:var(--out)"></span>Exporters'</label>
             <label><input type="checkbox" id="dlm"><span class="dot" style="background:var(--in)"></span>Importers'</label>
-            <label><input type="checkbox" id="dlr"><span class="dot" style="background:var(--res)"></span>Resolved</label></div></div>
+            <label data-def="res"><input type="checkbox" id="dlr"><span class="dot" style="background:var(--res)"></span>Resolved</label></div></div>
           <div class="ctl"><span class="hint" tabindex="0" data-tip="Imputed includes filled-in trade, marked in the Imputed column. Changing it here changes it for the whole page.">Data gaps</span><div class="seg" id="dlimp"><button data-i="1" aria-pressed="true">Imputed</button><button data-i="0" aria-pressed="false">As reported</button></div></div>
           <div class="ctl"><span>Countries</span><div class="chk dlc">
             <label><input type="radio" name="dlc" id="dlc-all" value="all" checked> All countries</label>
@@ -642,7 +648,7 @@ function sanitiseH(k,o){const c=v=>Math.max(0,Math.min(100,+v));const d=HDEF(k),
   return{on:!!o.on,usrc:typeof o.usrc==="string"?o.usrc.slice(0,300):typeof o.source==="string"&&o.source!==HS[k].src?o.source.slice(0,300):"",f:n(o.f)?c(o.f):d.f,w:100,byInc:!!o.byInc,inc:Object.fromEntries(["HIC","UMC","LMC","LIC"].map(g=>[g,o.inc&&n(o.inc[g])?c(o.inc[g]):d.inc[g]]))}}
 const shareOf=(k,e)=>{const h=HON[k],g=C[e]?C[e][2]:"NS";return (h.byInc&&h.inc[g]!=null?h.inc[g]:h.f)/100*h.w/100};
 const S={imp:new URLSearchParams(location.search).get("imp")!=="0",hatch:true,scrap:true,fdir:"both",fgrp:"c",view:0,measure:"t",incf:"all",sel:null,region:null,rdir:"both",scheme:"wb",mapMode:"routes",hl:"none",resolve:"mean",rank:"exp",rankSort:null,fmt:"csv"};
-const B={type:"sankey",from:"c",to:"c",side:"ex",group:"c",scheme:"wb",view:0,measure:"t",top:15,focus:false,nointra:false};
+const B={type:"sankey",from:"c",to:"c",side:"ex",group:"c",scheme:"wb",view:0,measure:"t",top:15,focus:false,nointra:false,split:"r",norm:"abs",tcol:"shade",nlab:15,labt:"c"};
 const HEADN=300,RSTEPS=[10,15,20,25,30,40,45,50,60,75,100,125,150,200,250,300,400,500,750,1000,1500,2000,3000,5000,1e9],ALLR=1e9;
 const rIdx=v=>{let b=0;for(let i=0;i<RSTEPS.length;i++)if(Math.abs(RSTEPS[i]-v)<Math.abs(RSTEPS[b]-v))b=i;return b},rLab=v=>v>=ALLR?"All":d3.format(",")(v);
 const DDEF={preset:"container",dec:1,linc:false,rcol:"io",out:null,in:null,res:null,maxr:60,line:1,lab:"both",lval:"net",globe:"trade",lpos:"auto",ldens:3,lsize:11,anim:true,choro:false,font:12,vals:true,nodew:12,gap:10,op:.35,lcol:"source",h:1};
@@ -1149,7 +1155,7 @@ function side(){
     <div class="mirror"><b>Exports: three ways to count.</b> ${flag}
       <div class="bar2"><span>${esc(me[0])} says</span><span class="track"><i style="width:${sv/mx*100}%;background:var(--out)"></i></span><span>${fmt(sv,mm)}</span></div>
       <div class="bar2"><span>Partners say</span><span class="track"><i style="width:${mv/mx*100}%;background:var(--in)"></i></span><span>${fmt(mv,mm)}</span></div>
-      <div class="bar2"><span>Resolved</span><span class="track"><i style="width:${rv/mx*100}%;background:var(--res)"></i></span><span>${fmt(rv,mm)}</span></div>
+      <div class="bar2"><span data-def="res">Resolved</span><span class="track"><i style="width:${rv/mx*100}%;background:var(--res)"></i></span><span>${fmt(rv,mm)}</span></div>
       ${hidOn().length?`<div class="note" style="margin-top:6px">These three bars compare plastic scrap only. Hidden or embedded plastic adds ${fT(d3.sum(rs.filter(r=>r.ex===c),r=>r.hid||0))} to exports in this view.</div>`:""}
       ${self.t>0&&self.est/self.t>0.005?`<div class="note" style="margin-top:6px">${d3.format(".0%")(self.est/self.t)} of ${esc(me[0])}'s reported export weight is estimated.</div>`:""}</div></div>
     <div><h4>Where it goes${byReg?" (by region)":""}</h4><div class="bars">${outP.length?bars(outP.slice(0,10),byReg?k=>rcol(k):css("--out"),byReg&&m==="ppt"?"t":m,byReg?k=>k:name):'<div class="note">No exports recorded in this view.</div>'}</div></div>
@@ -1252,7 +1258,7 @@ function drawChart(){
   $("#bfocusname").textContent=S.sel?name(S.sel):"the selected country (pick one on the map)";
   $("#bfocus").disabled=!S.sel;
   const m=B.measure,who=VIEWS[B.view],scope=(B.focus&&S.sel?` involving ${name(S.sel)}`:"")+(S.region?` · ${S.region}`:"");
-  if(B.type==="sankey")sankey(m,who,scope);else if(B.type==="bars")barChart(m,who,scope);else if(B.type==="treemap")treemap(m,who,scope);else scatter(m);
+  if(B.type==="sankey")sankey(m,who,scope);else if(B.type==="bars")barChart(m,who,scope);else if(B.type==="treemap")treemap(m,who,scope);else if(B.type==="stack")stacked(m,who,scope);else scatter(m);
 }
 const FS=()=>D.font;
 function sankey(m,who,scope){
@@ -1329,7 +1335,9 @@ function treemap(m,who,scope){
     .on("mousemove",(e,d)=>showTip(e,`<b>${esc(klabel(d.data.k))}</b><br>${fmt(d.value,m)} · ${d3.format(".1%")(d.value/total)}`)).on("mouseleave",hideTip).on("click",(e,d)=>{if(C[d.data.k])select(d.data.k)});
   const shade=d3.scaleLinear().domain([0,top[0][1]]).range([.45,1]);
   const grouped=k=>k.startsWith("g:")||k.startsWith("r:")||k==="other";
-  cell.append("rect").attr("width",d=>d.x1-d.x0).attr("height",d=>d.y1-d.y0).attr("rx",3).attr("fill",d=>kcolor(d.data.k,sideCol)).attr("fill-opacity",d=>grouped(d.data.k)?.92:shade(d.value));
+  const MIX=["#4e79a7","#f28e2b","#e15759","#76b7b2","#59a14f","#c9a227","#b07aa1","#ff9da7","#9c755f","#6b6ecf","#2a9d8f","#d1495b"];
+  const tfill=(d,i)=>{const k=d.data.k;if(grouped(k)||!C[k]||B.tcol==="shade")return kcolor(k,sideCol);return B.tcol==="reg"?rcol(regOf(k,B.scheme)||"",B.scheme):B.tcol==="inc"?gcol(inc(k)):MIX[i%MIX.length]};
+  cell.append("rect").attr("width",d=>d.x1-d.x0).attr("height",d=>d.y1-d.y0).attr("rx",3).attr("fill",tfill).attr("fill-opacity",d=>grouped(d.data.k)||B.tcol!=="shade"?.92:shade(d.value));
   // Every tile gets a label: the full name at the largest size that fits (turned on its side in tall, thin tiles),
   // then the short code, then a shortened name; the value goes underneath when there is room.
   const sizes=[...new Set([FS()+1,FS(),FS()-1,FS()-2,10,9,8,7,6])].filter(f=>f>=6&&f<=FS()+1).sort((a,b)=>b-a);
@@ -1344,7 +1352,38 @@ function treemap(m,who,scope){
   chartRows=top.map(([k,v])=>({name:klabel(k),[mlabel(m)]:Math.round(v),share:+(v/total).toFixed(4)}));chartCols=["name",mlabel(m),"share"];
   $("#ctitle").textContent=`Who ${B.side==="rc"?"receives":"sends"} ${PW()}: shares of ${mlabel(m)}, ${YL}${scope}`;
   $("#cnote").textContent=`Top ${B.top}, then everyone else. Based on ${who}.`;
-  $("#cleg").innerHTML=legendFor(B.group);
+  $("#cleg").innerHTML=legendFor(B.group==="c"&&B.tcol==="reg"?"r":B.group==="c"&&B.tcol==="inc"?"g":B.group);
+}
+// Stacked bars: each bar is a sender (or receiver), country, region or income group, divided by where its trade goes
+// to (or comes from), by partner region or income group. Amount or share of the bar.
+function stacked(m,who,scope){
+  if(m==="ppt")m="t";
+  const sd=B.side==="rc"?"rc":"ex",od=sd==="ex"?"rc":"ex",pct=B.norm==="pct";
+  const rs=dropNS(bRoutes(),[B.group==="g"&&sd,B.split==="g"&&od]);
+  const bk=r=>key(r,sd,B.group),sk=r=>B.split==="g"?"g:"+inc(r[od]):"r:"+(regOf(r[od],B.scheme)||"Unallocated");
+  const tot=d3.rollups(rs,v=>d3.sum(v,r=>r[m]),bk).sort((a,b)=>b[1]-a[1]).slice(0,B.top),keep=new Set(tot.map(d=>d[0]));
+  const cell=d3.rollup(rs.filter(r=>keep.has(bk(r))),v=>d3.sum(v,r=>r[m]),bk,sk);
+  const all=B.split==="g"?["HIC","UMC","LMC","LIC"].map(g=>"g:"+g):[...regionNames(B.scheme),"Unallocated"].map(r=>"r:"+r);
+  const cats=all.filter(c=>tot.some(([k])=>(cell.get(k)?.get(c)||0)>0));
+  const items=tot.map(([k,v])=>({k,label:klabel(k),v,parts:cats.map(c=>[c,cell.get(k)?.get(c)||0])}));
+  const W=960,rowH=Math.round((FS()+12)*D.h),H=items.length*rowH+40,lw=Math.min(380,16*FS()*.62+20);
+  chart.attr("viewBox",`0 0 ${W} ${H}`);if(!items.length){emptyChart(W,300);return}
+  const x=d3.scaleLinear().domain([0,pct?1:d3.max(items,d=>d.v)]).nice().range([lw,W-(pct?20:110)]);
+  const tf=v=>pct?d3.format(".0%")(v):fmt(v,m).replace(/\.00 /," ");
+  chart.append("g").selectAll("line").data(x.ticks(6)).join("line").attr("x1",x).attr("x2",x).attr("y1",4).attr("y2",H-24).attr("stroke","var(--border)").attr("stroke-width",.5);
+  chart.append("g").attr("transform",`translate(0,${H-24})`).call(d3.axisBottom(x).ticks(6).tickFormat(tf)).call(g=>{g.selectAll("text").attr("fill","var(--muted)").attr("font-size",11);g.selectAll("line,path").attr("stroke","var(--border)")});
+  const row=chart.append("g").selectAll("g").data(items).join("g").attr("transform",(d,i)=>`translate(0,${8+i*rowH})`);
+  const maxc=Math.floor((lw-12)/(FS()*.58));
+  row.append("text").attr("x",lw-8).attr("y",rowH/2-2).attr("dy","0.35em").attr("text-anchor","end").attr("font-size",FS()).attr("fill","var(--ink)").style("cursor",d=>C[d.k]?"pointer":null).text(d=>d.label.length>maxc?d.label.slice(0,maxc-1)+"…":d.label).on("click",(e,d)=>{if(C[d.k])select(d.k)});
+  row.each(function(d){let acc=0;const g=d3.select(this);for(const [c,v] of d.parts){if(!(v>0))continue;const a=pct?acc/d.v:acc,b=pct?(acc+v)/d.v:acc+v;acc+=v;
+    g.append("rect").attr("x",x(a)).attr("y",3).attr("height",Math.max(4,rowH-9)).attr("width",Math.max(.5,x(b)-x(a)-.5)).attr("fill",kcolor(c)).style("cursor","default")
+      .on("mousemove",e=>showTip(e,`<b>${esc(d.label)} ${sd==="ex"?"→":"←"} ${esc(klabel(c))}</b><br>${fmt(v,m)} · ${d3.format(".0%")(v/d.v)} of ${esc(d.label)}'s ${sd==="ex"?"exports":"imports"}`)).on("mouseleave",hideTip)}});
+  if(D.vals&&!pct)row.append("text").attr("x",d=>x(d.v)+6).attr("y",rowH/2-2).attr("dy","0.35em").attr("font-size",FS()-1).attr("font-family","IBM Plex Mono, monospace").attr("fill","var(--muted)").attr("stroke","var(--panel)").attr("stroke-width",5).attr("stroke-linejoin","round").attr("paint-order","stroke").text(d=>fmt(d.v,m));
+  chartRows=items.map(d=>Object.assign({name:d.label,[`total_${m==="t"?"tonnes":"usd"}`]:Math.round(d.v)},...d.parts.map(([c,v])=>({[klabel(c)]:Math.round(v)}))));chartCols=["name",`total_${m==="t"?"tonnes":"usd"}`,...cats.map(klabel)];
+  const what=B.group==="g"?"income groups":B.group==="r"?"regions":(sd==="ex"?"senders":"receivers");
+  $("#ctitle").textContent=`Top ${B.top} ${what} of ${PW()}, ${sd==="ex"?"by where it goes":"by where it comes from"} (partner ${B.split==="g"?"income group":"region"}), ${pct?"share of ":""}${mlabel(m)}, ${YL}${scope}`;
+  $("#cnote").textContent=`Based on ${who}.`;
+  $("#cleg").innerHTML=cats.map(c=>`<span><span class="dot" style="background:${kcolor(c)}"></span>${esc(klabel(c))}</span>`).join("");
 }
 function scatter(m){
   if(m==="ppt")m="t";
@@ -1361,14 +1400,27 @@ function scatter(m){
   const tf=v=>{const s=Math.log10(v);return Number.isInteger(Math.round(s*1e6)/1e6)?fmt(v,m).replace(/\.00 /," "):""};
   chart.append("g").attr("transform",`translate(0,${H-mb})`).call(d3.axisBottom(x).ticks(8,tf)).call(ax);
   chart.append("g").attr("transform",`translate(${ml},0)`).call(d3.axisLeft(y).ticks(8,tf)).call(ax);
-  chart.append("text").attr("x",(ml+W-20)/2).attr("y",H-10).attr("text-anchor","middle").attr("font-size",12).attr("fill","var(--muted)").text(`Quantity reported by country (${k==="ex"?"exports":"imports"})`);
-  chart.append("text").attr("transform",`translate(16,${(14+H-mb)/2}) rotate(-90)`).attr("text-anchor","middle").attr("font-size",12).attr("fill","var(--muted)").text(`Quantity reported by trading partner`);
+  chart.append("text").attr("x",(ml+W-20)/2).attr("y",H-10).attr("text-anchor","middle").attr("font-size",12).attr("fill","var(--muted)").text(`Quantity reported by country (${k==="ex"?"exports":"imports"}, ${m==="usd"?"US$":"tonnes"} per year)`);
+  chart.append("text").attr("transform",`translate(16,${(14+H-mb)/2}) rotate(-90)`).attr("text-anchor","middle").attr("font-size",12).attr("fill","var(--muted)").text(`Quantity reported by trading partner (${m==="usd"?"US$":"tonnes"} per year)`);
   chart.append("text").attr("x",x(d0[1])-8).attr("y",y(d0[1])+18).attr("text-anchor","end").attr("font-size",11).attr("fill","var(--ok)").text("Green band: within ±50%");
   chart.append("g").selectAll("circle").data(items).join("circle").attr("cx",d=>x(d.x)).attr("cy",d=>y(d.y)).attr("r",d=>d.code===S.sel?8:5)
     .attr("fill",d=>gcol(inc(d.code))).attr("stroke",d=>d.code===S.sel?"var(--ink)":"var(--panel)").attr("stroke-width",d=>d.code===S.sel?2:1).attr("opacity",.9).style("cursor","pointer")
     .on("mousemove",(e,d)=>showTip(e,`<b>${esc(name(d.code))}</b><br>Own report ${fmt(d.x,m)}<br>Partners report ${fmt(d.y,m)}<br>Mirror ratio ${d.ratio.toFixed(2)}`)).on("mouseleave",hideTip).on("click",(e,d)=>select(d.code));
-  const big=items.filter(d=>(d.x>hi/40||d.y>hi/40)&&(d.ratio<0.5||d.ratio>2||d.x>hi/6)||d.code===S.sel);
-  chart.append("g").selectAll("text").data(big).join("text").attr("x",d=>x(d.x)+8).attr("y",d=>y(d.y)+4).attr("font-size",FS()-1).attr("fill","var(--ink)").text(d=>iso(d.code));
+  // Labels: largest countries first (the selected one always), each tried in eight spots around its dot; a label that
+  // would overlap another label or a dot is skipped and the next country is tried, until the chosen number is placed.
+  const fs=FS()-1,pts=items.map(d=>[x(d.x),y(d.y),d.code]),placed=[],labs=[];
+  const order=items.slice().sort((a,b)=>(b.code===S.sel)-(a.code===S.sel)||Math.max(b.x,b.y)-Math.max(a.x,a.y));
+  const SPOTS=[[8,4,"start"],[-8,4,"end"],[0,-9,"middle"],[0,16,"middle"],[7,-5,"start"],[-7,-5,"end"],[7,13,"start"],[-7,13,"end"]];
+  for(const d of order){if(labs.length>=B.nlab&&d.code!==S.sel)break;
+    const t=B.labt==="n"?name(d.code):iso(d.code),w=t.length*fs*.6,h=fs,px=x(d.x),py=y(d.y);
+    for(const pass of [0,1]){let hit=null;
+      for(const [dx,dy,anc] of SPOTS){const x0=anc==="start"?px+dx:anc==="end"?px+dx-w:px-w/2,y0=py+dy-h*.8,b=[x0,y0,x0+w,y0+h];
+        if(b[0]<ml+2||b[2]>W-6||b[1]<2||b[3]>H-mb-2)continue;
+        if(placed.some(q=>b[0]<q[2]+2&&b[2]>q[0]-2&&b[1]<q[3]+1&&b[3]>q[1]-1))continue;
+        if(!pass&&pts.some(([qx,qy,c])=>c!==d.code&&qx>b[0]-4&&qx<b[2]+4&&qy>b[1]-4&&qy<b[3]+4))continue;
+        hit={x:px+dx,y:py+dy,anc,b};break}
+      if(hit){placed.push(hit.b);labs.push({...hit,t});break}}}
+  chart.append("g").selectAll("text").data(labs).join("text").attr("x",d=>d.x).attr("y",d=>d.y).attr("text-anchor",d=>d.anc).attr("font-size",fs).attr("fill","var(--ink)").attr("stroke","var(--panel)").attr("stroke-width",3).attr("stroke-linejoin","round").attr("paint-order","stroke").text(d=>d.t);
   chartRows=items.map(d=>({country:name(d.code),iso3:iso(d.code),income:inc(d.code),own_report:Math.round(d.x),partners_report:Math.round(d.y),mirror_ratio:+d.ratio.toFixed(3)}));chartCols=["country","iso3","income","own_report","partners_report","mirror_ratio"];
   $("#ctitle").textContent=`Do the two sets of figures agree? ${k==="ex"?"Exports":"Imports"} by country, ${mlabel(m)}, ${YL}${S.region?" · "+S.region:""}`;
   $("#cnote").textContent="Each dot is a country. On the dashed line both sides report the same amount. Log scales.";
@@ -1390,7 +1442,7 @@ function rank(){
   rows.sort((x,y)=>{const a=x[sort.k],b=y[sort.k];if(a==null)return 1;if(b==null)return -1;return(a>b?1:a<b?-1:0)*sort.d});
   rankRows=rows;
   const cols=[["name","Country"],["inc","Income"],["region",SCHEMES[S.scheme].replace(/s$/,"")],["own",k?"Exports, own report":"Imports, own report",1],["mir","Partners' reports",1],["ratio","Mirror ratio",1],["res","Resolved",1],...(hidOn().length?[["hid","of which hidden or embedded plastic",1]]:[]),["usd","Value (resolved)",1],["ppt","US$ per tonne",1],["np",k?"Destinations":"Origins",1],["est","Estimated weight",1]];
-  $("#rank thead").innerHTML="<tr>"+cols.map(([key,l,n])=>`<th class="${n?"n":""}" data-k="${key}" ${sort.k===key?`aria-sort="${sort.d>0?"ascending":"descending"}"`:""}>${esc(l)}</th>`).join("")+"</tr>";
+  $("#rank thead").innerHTML="<tr>"+cols.map(([key,l,n])=>`<th class="${n?"n":""}" data-k="${key}"${key==="res"?' data-def="res"':""} ${sort.k===key?`aria-sort="${sort.d>0?"ascending":"descending"}"`:""}>${esc(l)}</th>`).join("")+"</tr>";
   const m=d3.max(rows,r=>r.res)||1;
   $("#rank tbody").innerHTML=rows.map(r=>`<tr data-c="${esc(r.code)}"><td>${esc(r.name)}</td><td><span class="inc" style="background:var(--g-${r.inc.toLowerCase()})">${r.inc}</span></td><td>${esc(r.region)}</td><td class="n">${r.own?fT(r.own):"—"}</td><td class="n">${r.mir?fT(r.mir):"—"}</td><td class="n"><span class="ratio ${r.ratio!=null&&(r.ratio<0.67||r.ratio>1.5)?"warn":""}">${r.ratio==null?"—":r.ratio.toFixed(2)}</span></td><td class="n res">${fT(r.res)}<span class="spark" style="width:${r.res/m*50}px;background:var(--res)"></span></td>${hidOn().length?`<td class="n">${r.hid?fT(r.hid):"—"}</td>`:""}<td class="n">${r.usd?fU(r.usd):"—"}</td><td class="n">${fP(r.ppt)}</td><td class="n">${r.np||"—"}</td><td class="n">${r.est>0.005?d3.format(".0%")(r.est):"—"}</td></tr>`).join("");
   $("#rank thead").querySelectorAll("th").forEach(th=>th.onclick=()=>{const kk=th.dataset.k;S.rankSort={k:kk,d:(S.rankSort&&S.rankSort.k===kk)?-S.rankSort.d:(["name","inc","region"].includes(kk)?1:-1)};rank()});
@@ -1427,7 +1479,7 @@ function buildDL(){
   $("#dlmat").innerHTML=(S.scrap?`<span>Plastic scrap <i>${CODE}</i></span>`:"")+on.map(k=>{const h=HON[k];return `<span>${esc(HS[k].n)} <i>${h.byInc?"by income":h.f+"%"}</i></span>`}).join("")||`<span>Nothing ticked</span>`;
   const rows=dlRows(),keys=dlKeys(),views=[[0,"#dlx"],[1,"#dlm"],[2,"#dlr"]].filter(([v,id])=>$(id).checked).map(d=>d[0]),mode=document.querySelector("input[name=dlc]:checked").value;
   $("#dlcount").textContent=`${d3.format(",")(rows.length)} rows`;
-  const per=views.map(v=>{const rs=rows.filter(r=>r.view===["exporter","importer","resolved"][v]);return `<div><dt>${["Exporters' reports","Importers' reports","Resolved"][v]}</dt><dd>${fT(d3.sum(rs,r=>r.net_weight_t))}<small>${fU(d3.sum(rs,r=>r.value_usd))} · ${d3.format(",")(rs.length)} rows${v===2?" · "+RMETH[S.resolve]:""}</small></dd></div>`}).join("");
+  const per=views.map(v=>{const rs=rows.filter(r=>r.view===["exporter","importer","resolved"][v]);return `<div><dt${v===2?' data-def="res"':""}>${["Exporters' reports","Importers' reports","Resolved"][v]}</dt><dd>${fT(d3.sum(rs,r=>r.net_weight_t))}<small>${fU(d3.sum(rs,r=>r.value_usd))} · ${d3.format(",")(rs.length)} rows${v===2?" · "+RMETH[S.resolve]:""}</small></dd></div>`}).join("");
   const imp=rows.filter(r=>r.imputed&&r.imputed!=="modelled year").length;
   $("#dlsum").innerHTML=`<div><dt>File</dt><dd>${d3.format(",")(rows.length)} rows<small>${esc(dlFile(rows.length,S.fmt))}</small></dd></div>
     <div><dt>Year and countries</dt><dd>${YL}<small>${mode==="all"?"All countries":mode==="map"?"Map filters: "+esc(mapDesc()):DLC?esc(name(DLC))+", all its partners":"Choose a country"}</small></dd></div>
@@ -1614,6 +1666,17 @@ segment("#bside","v",v=>{B.side=v;drawChart()});
 segment("#bgroup","v",v=>{B.group=v;drawChart()});
 segment("#bview","v",v=>{B.view=+v;drawChart()});
 segment("#bmeasure","v",v=>{B.measure=v;drawChart()});
+segment("#bsplit","v",v=>{B.split=v;drawChart()});
+segment("#bnorm","v",v=>{B.norm=v;drawChart()});
+segment("#btcol","v",v=>{B.tcol=v;drawChart()});
+segment("#blabt","v",v=>{B.labt=v;drawChart()});
+$("#o-bnlab").textContent=B.nlab;$("#bnlab").addEventListener("input",e=>{B.nlab=+e.target.value;$("#o-bnlab").textContent=B.nlab;drawChart()});
+// A reminder of what Resolved means wherever the word appears.
+{const resTip=()=>`<b>Resolved</b><br>One figure for each route, combining the exporter's and the importer's reports: ${RMETH[S.resolve]}. Where only one side reports, that figure is used.`;
+ let on=null;document.addEventListener("mouseover",e=>{const el=e.target.closest&&e.target.closest("[data-def]");if(el){on=el;showTip(e,resTip())}else if(on){on=null;hideTip()}});
+ document.addEventListener("mousemove",e=>{if(on)showTip(e,resTip())});
+ document.addEventListener("focusin",e=>{const el=e.target.closest&&e.target.closest("[data-def]");if(el){const r=el.getBoundingClientRect();showTip({clientX:r.left,clientY:r.bottom},resTip());on=el}});
+ document.addEventListener("focusout",()=>{if(on){on=null;hideTip()}})}
 $("#bscheme").onchange=e=>{B.scheme=e.target.value;drawChart()};
 const setTop=v=>{v=Math.max(1,Math.min(200,Math.round(+v||1)));B.top=v;$("#btopn").value=v;$("#btopr").value=Math.min(60,v);drawChart()};
 $("#btopn").addEventListener("change",e=>setTop(e.target.value));
