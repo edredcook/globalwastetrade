@@ -614,10 +614,12 @@ const HS={
   hardrubber:{n:"Hard rubber",codes:"HS 4017",f:100,shape:false,src:"Assumption: all rubber is counted in the plastics family, and the whole code is treated as waste."},
   paper:{n:"Paper and card (plastic contamination)",codes:"HS 4707",f:2,shape:false,src:"Assumption, for illustration."}};
 const HSCOL={scrap:"#0f7f86",fibre:"#b07aa1",clothing:"#e15759",rags:"#ff9da7",weee:"#4e79a7",weeeo:"#a0cbe8",rdf:"#9c755f",tyres:"#3d3d3d",rubber:"#8a8a8a",hardrubber:"#5f5f5f",paper:"#edc948"};
-const HDEF=k=>({on:false,f:HS[k].f,w:100,byInc:false,inc:{HIC:HS[k].f,UMC:HS[k].f,LMC:HS[k].f,LIC:HS[k].f},usrc:""});
+const HDEF=k=>({on:true,f:HS[k].f,w:100,byInc:false,inc:{HIC:HS[k].f,UMC:HS[k].f,LMC:HS[k].f,LIC:HS[k].f},usrc:""});
 const isDef=k=>!HON[k].byInc&&+HON[k].f===+HS[k].f;
 const HON={};for(const k in HS)HON[k]=HDEF(k);
-try{const sv=JSON.parse(localStorage.getItem("gwt-assumptions")||"null");if(sv&&sv.streams)for(const k in HS)if(sv.streams[k])HON[k]=sanitiseH(k,sv.streams[k])}catch(e){}
+// v2: every stream is on by default (Ed, 26 Nov 2026). Saved shares from v1 are kept, with the streams switched on.
+try{let sv=JSON.parse(localStorage.getItem("gwt-assumptions-v2")||"null"),old=false;if(!sv){sv=JSON.parse(localStorage.getItem("gwt-assumptions")||"null");old=!!sv}
+  if(sv&&sv.streams)for(const k in HS)if(sv.streams[k]){HON[k]=sanitiseH(k,sv.streams[k]);if(old)HON[k].on=true}}catch(e){}
 function sanitiseH(k,o){const c=v=>Math.max(0,Math.min(100,+v));const d=HDEF(k),n=x=>x!=null&&isFinite(+x);
   return{on:!!o.on,usrc:typeof o.usrc==="string"?o.usrc.slice(0,300):typeof o.source==="string"&&o.source!==HS[k].src?o.source.slice(0,300):"",f:n(o.f)?c(o.f):d.f,w:100,byInc:!!o.byInc,inc:Object.fromEntries(["HIC","UMC","LMC","LIC"].map(g=>[g,o.inc&&n(o.inc[g])?c(o.inc[g]):d.inc[g]]))}}
 const shareOf=(k,e)=>{const h=HON[k],g=C[e]?C[e][2]:"NS";return (h.byInc&&h.inc[g]!=null?h.inc[g]:h.f)/100*h.w/100};
@@ -625,8 +627,9 @@ const S={imp:new URLSearchParams(location.search).get("imp")!=="0",hatch:true,sc
 const B={type:"sankey",from:"c",to:"c",side:"ex",group:"c",scheme:"wb",view:0,measure:"t",top:15,focus:false,nointra:false};
 const HEADN=300,RSTEPS=[10,15,20,25,30,40,45,50,60,75,100,125,150,200,250,300,400,500,750,1000,1500,2000,3000,5000,1e9],ALLR=1e9;
 const rIdx=v=>{let b=0;for(let i=0;i<RSTEPS.length;i++)if(Math.abs(RSTEPS[i]-v)<Math.abs(RSTEPS[b]-v))b=i;return b},rLab=v=>v>=ALLR?"All":d3.format(",")(v);
-const DDEF={preset:"container",dec:1,rcol:"io",out:null,in:null,res:null,maxr:45,line:1,lab:"both",lval:"net",globe:"trade",lpos:"auto",ldens:3,lsize:11,anim:true,choro:false,font:12,vals:true,nodew:12,gap:10,op:.35,lcol:"source",h:1};
-let D={...DDEF};try{const s=JSON.parse(localStorage.getItem("gwt-design-v6")||"null");if(s)D={...DDEF,...s}}catch(e){}
+const DDEF={preset:"container",dec:1,rcol:"io",out:null,in:null,res:null,maxr:60,line:1,lab:"both",lval:"net",globe:"trade",lpos:"auto",ldens:3,lsize:11,anim:true,choro:false,font:12,vals:true,nodew:12,gap:10,op:.35,lcol:"source",h:1};
+// v7: 60 routes by default (Ed, 26 Nov 2026); other saved design choices carry over from v6.
+let D={...DDEF};try{let s=JSON.parse(localStorage.getItem("gwt-design-v7")||"null");if(!s){s=JSON.parse(localStorage.getItem("gwt-design-v6")||"null");if(s)s.maxr=DDEF.maxr}if(s)D={...DDEF,...s}}catch(e){}
 
 let data,world,TR=null,MAN=null,IMP=null;
 try{const ok=r=>{if(!r.ok)throw new Error(r.status);return r.json()};MAN=await fetch("data/manifest.json",{cache:"no-cache"}).then(ok);const qy=+new URLSearchParams(location.search).get("year");const yr=MAN.years.includes(qy)?qy:(MAN.default||MAN.latest);[data,world,TR,IMP]=await Promise.all([fetch(`data/plastic_${yr}.json`,{cache:"no-cache"}).then(ok),fetch("data/world-110m.json").then(ok),fetch("data/trends.json",{cache:"no-cache"}).then(ok).catch(()=>null),fetch(`data/imputed_${yr}.json`,{cache:"no-cache"}).then(ok).catch(()=>null)]);}
@@ -714,7 +717,7 @@ function applyDesign(){
   pressed("#lval","v",D.lab==="none"?"none":D.lval);pressed("#globe","v",D.globe);
   $("#d-lab").value=D.lab;$("#d-lpos").value=D.lpos;$("#d-anim").checked=D.anim;$("#d-choro").checked=D.choro;$("#d-vals").checked=D.vals;$("#d-lcol").value=D.lcol;
   document.querySelectorAll("#presets button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.p===D.preset));
-  try{localStorage.setItem("gwt-design-v6",JSON.stringify(D))}catch(e){}
+  try{localStorage.setItem("gwt-design-v7",JSON.stringify(D))}catch(e){}
 }
 function pressed(sel,attr,val){document.querySelectorAll(sel+" button").forEach(b=>b.setAttribute("aria-pressed",b.dataset[attr]===String(val)?"true":"false"))}
 function toHex(c){const x=d3.color(c);return x?x.formatHex():"#000000"}
@@ -1433,8 +1436,8 @@ const GEAR=`<svg viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="curr
 const hpop=$("#hpop");document.body.appendChild(hpop);
 let POP=null;
 const mgSet=o=>{$("#mgplas").setAttribute("aria-expanded",o);$("#hpgrid").hidden=!o;$(".macts").hidden=!o||!HAS_HID;if(!o)closePop()};
-$("#mgplas").onclick=()=>{const o=$("#mgplas").getAttribute("aria-expanded")==="false";mgSet(o);try{localStorage.setItem("gwt-mg",o?"1":"0")}catch(e){}};
-{let o=null;try{o=localStorage.getItem("gwt-mg")}catch(e){}mgSet(o?o==="1":hidOn().length>0)}// collapsed by default so the map sits higher; the reader's choice is remembered
+$("#mgplas").onclick=()=>{const o=$("#mgplas").getAttribute("aria-expanded")==="false";mgSet(o);try{localStorage.setItem("gwt-mg2",o?"1":"0")}catch(e){}};
+{let o=null;try{o=localStorage.getItem("gwt-mg2")}catch(e){}mgSet(o==="1")}// collapsed by default so the map sits higher; the reader's choice is remembered
 const addOf=k=>{let s=0;for(const h of hViews(k))if(h.v===S.view)s+=h.t*shareOf(k,h.ex);return s};
 const nm2=n=>{const m=n.match(/^(.*?) (\(.*\))$/);return m?`${esc(m[1])}<small>${esc(m[2])}</small>`:esc(n)};
 function chip(k){
@@ -1476,7 +1479,7 @@ function hpRefresh(){
   const total=add+(S.scrap?SCRAPT:0);
   $("#hpsum").innerHTML=on.length||S.scrap?`<b>${fT(total)}</b> of plastic, ${VIEWS[S.view]}`:"Nothing selected";
   popRefresh();
-  try{localStorage.setItem("gwt-assumptions",JSON.stringify({streams:HON}))}catch(e){}
+  try{localStorage.setItem("gwt-assumptions-v2",JSON.stringify({streams:HON}))}catch(e){}
 }
 let hpT=0;const hpApply=()=>{cancelAnimationFrame(hpT);hpT=requestAnimationFrame(()=>{resolve();render();hpRefresh()})};
 const turnOn=k=>{if(!HON[k].on){HON[k].on=true;document.querySelectorAll(`input[data-k="${k}"]`).forEach(c=>c.checked=true)}};
