@@ -227,23 +227,77 @@ def census(month):
 ESTAT = "https://api.e-stat.go.jp/rest/3.0/app/json"
 
 
+ESTAT_TABLES = {"X": "Commodity by Country Export", "M": "Commodity by Country Import"}
+MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
+
+
+def _list(x):
+    return x if isinstance(x, list) else ([x] if x else [])
+
+
+def estat_table_ids(app, month):
+    """Japan Customs publishes one commodity-by-country table per year and flow."""
+    res = get(ESTAT + "/getStatsList?" + urllib.parse.urlencode(
+        {"appId": app, "statsCode": "00350300", "surveyYears": month.replace("-", ""), "lang": "E"}))
+    out = {}
+    for t in _list((res.get("GET_STATS_LIST", {}).get("DATALIST_INF") or {}).get("TABLE_INF")):
+        name = str(t.get("STATISTICS_NAME") or "")
+        for flow, key in ESTAT_TABLES.items():
+            if name.endswith("Japan " + key) and flow not in out:
+                out[flow] = t["@id"]
+    return out
+
+
 def estat(month):
-    """Second pass: show the dimensions of Japan's commodity-by-country tables."""
     app = os.environ.get("ESTAT_APP_ID")
     if not app:
         raise RuntimeError("Japan e-Stat needs ESTAT_APP_ID; register for a free key and add it as a repo secret.")
-    for table in ("0004049306", "0004049326"):
-        res = get(ESTAT + "/getMetaInfo?" + urllib.parse.urlencode(
+    period = month.replace("-", "")
+    mon = MONTHS[int(month[5:7]) - 1]
+    acc = {}
+    for flow, table in estat_table_ids(app, month).items():
+        meta = get(ESTAT + "/getMetaInfo?" + urllib.parse.urlencode(
             {"appId": app, "statsDataId": table, "lang": "E"}))
-        objs = res.get("GET_META_INFO", {}).get("METADATA_INF", {}).get("CLASS_INF", {}).get("CLASS_OBJ", [])
-        for o in objs if isinstance(objs, list) else [objs]:
-            cls = o.get("CLASS", [])
-            cls = cls if isinstance(cls, list) else [cls]
-            sample = [(c.get("@code"), c.get("@name"), c.get("@level"), c.get("@unit")) for c in cls]
-            hs = [x for x in sample if str(x[0]).startswith(("3915", "6309", "4012"))][:6]
-            print(f"{table} {o.get('@id')} {o.get('@name')}: {len(cls)} codes; first {sample[:4]}; waste {hs}")
-        break_after = month
-    raise RuntimeError("fetcher not finished: e-Stat table layout listed in the log")
+        classes = {o["@id"]: _list(o.get("CLASS")) for o in
+                   _list(meta["GET_META_INFO"]["METADATA_INF"]["CLASS_INF"]["CLASS_OBJ"])}
+        goods = [c["@code"] for c in classes["cat01"] if c["@code"].startswith(tuple(HS4))]
+        cols = {}
+        for c in classes["cat02"]:
+            n = c["@name"].lower()
+            if mon in n and n.startswith("quantity1"):
+                cols["q"] = c["@code"]
+            elif mon in n and n.startswith("value"):
+                cols["v"] = c["@code"]
+            elif n == "unit1":
+                cols["u"] = c["@code"]
+        if not goods or "q" not in cols or "v" not in cols:
+            names = [c["@name"] for c in classes["cat02"]]
+            raise RuntimeError(f"e-Stat table {table} layout not recognised: {names[:12]}")
+        areas = {c["@code"]: c["@name"] for c in classes["area"]}
+        cells = defaultdict(dict)
+        start = 1
+        while start:
+            res = get(ESTAT + "/getStatsData?" + urllib.parse.urlencode(
+                {"appId": app, "statsDataId": table, "lang": "E", "cdCat01": ",".join(goods),
+                 "cdCat02": ",".join(cols.values()), "startPosition": start, "limit": 100000}))
+            data = res["GET_STATS_DATA"]["STATISTICAL_DATA"]
+            for v in _list(data.get("DATA_INF", {}).get("VALUE")):
+                cells[(v["@cat01"], v["@area"])][v["@cat02"]] = v.get("$")
+            start = (data.get("RESULT_INF") or {}).get("NEXT_KEY")
+        for (good, area), c in cells.items():
+            def num(x):
+                try:
+                    return float(x)
+                except (TypeError, ValueError):
+                    return 0.0
+            q, val, unit = num(c.get(cols["q"])), num(c.get(cols["v"])), str(c.get(cols.get("u"), "")).upper()
+            if not q and not val:
+                continue
+            kg = q * {"KG": 1, "MT": 1000, "TNE": 1000}.get(unit, 0)
+            name = areas.get(area, area)
+            # Values are published in thousands of yen.
+            add(acc, "estat", "JPN", iso3_from_name(name), name, flow, good, period, kg, val * 1000, "JPY")
+    return rows_from(acc)
 
 
 def needs_key(var, what):
