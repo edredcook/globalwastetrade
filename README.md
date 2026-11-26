@@ -1,4 +1,4 @@
-# Global Waste Trade
+# Global Waste Trade Data Hub
 
 Source for [globalwastetrade.org](https://globalwastetrade.org): an explorer for the international trade in plastic waste, built on UN Comtrade data.
 
