@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Global Waste Trade: international plastic waste trade data and map</title>
+<title>Global Waste Trade Data Hub: international plastic waste trade data and map</title>
 <meta name="description" content="Free, open data on the international trade in plastic waste, 2008 to 2026. Map who exports and imports it, from UN Comtrade, with exporters' and importers' figures side by side. Download as CSV or JSON.">
 <link rel="canonical" href="https://globalwastetrade.org/">
-<meta property="og:site_name" content="Global Waste Trade">
-<meta property="og:title" content="Global Waste Trade: international plastic waste trade data and map">
+<meta property="og:site_name" content="Global Waste Trade Data Hub">
+<meta property="og:title" content="Global Waste Trade Data Hub: international plastic waste trade data and map">
 <meta property="og:description" content="Free, open data on the international trade in plastic waste, 2008 to 2026. Map who exports and imports it, from UN Comtrade, with exporters' and importers' figures side by side. Download as CSV or JSON.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://globalwastetrade.org/">
@@ -19,8 +19,8 @@
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Global Waste Trade","alternateName":"globalwastetrade.org","url":"https://globalwastetrade.org/"}</script>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"Dataset","name":"Global Waste Trade: international plastic waste trade data","alternateName":["Global plastic waste trade data","International waste trade data"],"description":"Free, open data on the international trade in plastic waste, 2008 to 2026. Map who exports and imports it, from UN Comtrade, with exporters' and importers' figures side by side. Download as CSV or JSON. Covers plastic waste (HS 3915) by exporter and importer, with figures cleaned and gaps imputed, plus plastic carried in other traded wastes such as used clothing, rags, e-waste, refuse-derived fuel, paper and tyres.","url":"https://globalwastetrade.org/","keywords":["plastic waste trade","international waste trade","waste trade data","plastic waste exports","plastic waste imports","HS 3915","UN Comtrade","Basel Convention","scrap plastic","circular economy"],"license":"https://creativecommons.org/licenses/by/4.0/","isAccessibleForFree":true,"creator":{"@type":"Person","name":"Ed Cook","url":"https://globalwastetrade.org/about.html"},"publisher":{"@type":"Person","name":"Ed Cook","url":"https://globalwastetrade.org/about.html"},"citation":"Cook, E. (2026) Global Waste Trade. Available at: https://globalwastetrade.org/","datePublished":"2026-11-25","temporalCoverage":"2008/2026","spatialCoverage":{"@type":"Place","name":"World"},"variableMeasured":["Net weight of plastic waste traded (tonnes)","Value of plastic waste traded (US$)","Price per tonne (US$)"],"isBasedOn":{"@type":"Dataset","name":"UN Comtrade","url":"https://comtradeplus.un.org/"},"distribution":[{"@type":"DataDownload","encodingFormat":"application/json","contentUrl":"https://globalwastetrade.org/data/trends.json","name":"Plastic waste trade by year"},{"@type":"DataDownload","encodingFormat":"text/csv","contentUrl":"https://globalwastetrade.org/data/completeness.csv","name":"Who reported plastic waste trade, by year"}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Global Waste Trade Data Hub","alternateName":["Global Waste Trade","globalwastetrade.org"],"url":"https://globalwastetrade.org/"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Dataset","name":"Global Waste Trade Data Hub: international plastic waste trade data","alternateName":["Global plastic waste trade data","International waste trade data"],"description":"Free, open data on the international trade in plastic waste, 2008 to 2026. Map who exports and imports it, from UN Comtrade, with exporters' and importers' figures side by side. Download as CSV or JSON. Covers plastic waste (HS 3915) by exporter and importer, with figures cleaned and gaps imputed, plus plastic carried in other traded wastes such as used clothing, rags, e-waste, refuse-derived fuel, paper and tyres.","url":"https://globalwastetrade.org/","keywords":["plastic waste trade","international waste trade","waste trade data","plastic waste exports","plastic waste imports","HS 3915","UN Comtrade","Basel Convention","scrap plastic","circular economy"],"license":"https://creativecommons.org/licenses/by/4.0/","isAccessibleForFree":true,"creator":{"@type":"Person","name":"Ed Cook","url":"https://globalwastetrade.org/about.html"},"publisher":{"@type":"Person","name":"Ed Cook","url":"https://globalwastetrade.org/about.html"},"citation":"Cook, E. (2026) Global Waste Trade Data Hub. Available at: https://globalwastetrade.org/","datePublished":"2026-11-25","temporalCoverage":"2008/2026","spatialCoverage":{"@type":"Place","name":"World"},"variableMeasured":["Net weight of plastic waste traded (tonnes)","Value of plastic waste traded (US$)","Price per tonne (US$)"],"isBasedOn":{"@type":"Dataset","name":"UN Comtrade","url":"https://comtradeplus.un.org/"},"distribution":[{"@type":"DataDownload","encodingFormat":"application/json","contentUrl":"https://globalwastetrade.org/data/trends.json","name":"Plastic waste trade by year"},{"@type":"DataDownload","encodingFormat":"text/csv","contentUrl":"https://globalwastetrade.org/data/completeness.csv","name":"Who reported plastic waste trade, by year"}]}</script>
 <meta name="theme-color" content="#13212a">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,500..900&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -74,7 +74,16 @@ nav.sub a{color:inherit;text-decoration:none;font-weight:600}
 nav.sub a:hover{text-decoration:underline}
 .proto b{font-weight:600}
 
-.controls{display:flex;flex-wrap:wrap;gap:16px 26px;padding-block:18px 14px;align-items:flex-end}
+.controls{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px;padding-block:14px}
+@media (max-width:420px){.controls{grid-template-columns:1fr}}
+.controls>.ctl{border:1px solid var(--border);border-radius:10px;background:var(--panel);padding:9px 12px 10px;justify-content:flex-start}
+.controls>.ctl[hidden]{display:none}
+.controls .seg button{font-size:13px;padding:5px 10px}
+.controls select,.controls input[type=search]{font-size:13px}
+.sublink{font-size:12px;color:var(--muted);text-underline-offset:2px;align-self:flex-start}
+.sublink:hover{color:var(--ink)}
+.hint{position:relative;cursor:help;text-decoration:underline dotted color-mix(in srgb,var(--muted) 60%,transparent);text-underline-offset:3px;align-self:flex-start;outline-offset:2px}
+.hint:hover::after,.hint:focus-visible::after,.hint:focus::after{content:attr(data-tip);position:absolute;left:-4px;top:calc(100% + 6px);z-index:30;width:max-content;max-width:min(280px,80vw);background:var(--ink);color:var(--panel);font:400 12.5px/1.4 var(--body);letter-spacing:0;text-transform:none;padding:7px 9px;border-radius:6px;box-shadow:0 4px 14px rgb(0 0 0 / .18);pointer-events:none;white-space:normal}
 .ctl{display:flex;flex-direction:column;gap:6px;min-width:0}
 .ctl > span,.lab{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:600}
 .seg{display:flex;flex-wrap:wrap;gap:4px}
@@ -265,7 +274,8 @@ tbody tr:hover td{background:var(--raise)}
 .mc{display:flex;align-items:center;gap:6px;border-radius:6px;font-size:13px;min-width:0;padding:1px 0}
 .mc.on{background:color-mix(in srgb,var(--res) 8%,transparent)}
 .mc label{display:flex;align-items:center;gap:7px;padding:4px 6px;cursor:pointer;flex:1;min-width:0}
-.mc label .nm{overflow:hidden;text-overflow:ellipsis}
+.mc label .nm{overflow:hidden;text-overflow:ellipsis;line-height:1.25}
+.mc label .nm small{display:block;font-size:11.5px;color:var(--muted)}
 .mc input{accent-color:var(--res);margin:0;flex:none}
 .mc .q{margin-left:auto;color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums;white-space:nowrap;padding-left:8px}
 .mc.on .q{color:var(--res);font-weight:600}
@@ -327,7 +337,7 @@ footer b{color:var(--ink);font-weight:600}
 <body>
 
 <header class="mast"><div class="wrap">
-  <a class="brand" href="./"><i aria-hidden="true"></i>Global Waste Trade</a>
+  <a class="brand" href="./"><i aria-hidden="true"></i>Global Waste Trade Data Hub</a>
   <nav class="top" aria-label="Pages">
     <a href="./" aria-current="page">Explorer</a><a href="trends.html">Trends</a><a href="validation.html">Validation</a><a href="about.html">About</a>
     <button class="designbtn" data-open-design>Design</button>
@@ -355,29 +365,29 @@ footer b{color:var(--ink);font-weight:600}
   </section>
   <div class="hpop" id="hpop" role="dialog" aria-modal="false" hidden></div>
   <div class="controls">
-    <div class="ctl"><span>Year</span>
+    <div class="ctl"><span class="hint" tabindex="0" data-tip="Calendar year of the trade. The current year is modelled from the monthly returns filed so far.">Year</span>
       <select id="year" aria-label="Year"></select></div>
-    <div class="ctl"><span>Whose figures</span>
+    <div class="ctl"><span class="hint" tabindex="0" data-tip="Each trade is reported twice, by the exporting country and by the importing country, and the two rarely match. Resolved combines them into one figure.">Reporter type</span>
       <div class="seg" id="view">
         <button data-v="0" aria-pressed="true"><span class="dot" style="background:var(--out)"></span>Exporters'</button>
         <button data-v="1" aria-pressed="false"><span class="dot" style="background:var(--in)"></span>Importers'</button>
         <button data-v="2" aria-pressed="false"><span class="dot" style="background:var(--res)"></span>Resolved</button>
       </div></div>
-    <div class="ctl" id="impbox"><span>Gaps</span>
-      <div class="seg" id="imp"><button data-i="1" aria-pressed="true">Imputed</button><button data-i="0" aria-pressed="false">As reported</button></div></div>
-    <div class="ctl" id="resmethodbox" hidden><span>Resolve by</span>
+    <div class="ctl" id="impbox"><span class="hint" tabindex="0" data-tip="Imputed fills trade that a country did not report, from its partners' reports, the years either side or the trend, and labels it as imputed. As reported shows only what countries filed.">Data gaps</span>
+      <div class="seg" id="imp"><button data-i="1" aria-pressed="true">Imputed</button><button data-i="0" aria-pressed="false">As reported</button></div><a class="sublink" href="trends.html#reported">Who reported</a></div>
+    <div class="ctl" id="resmethodbox" hidden><span class="hint" tabindex="0" data-tip="How the exporter's and importer's figures for the same route are combined into one.">Resolve by</span>
       <select id="resmethod" aria-label="How to resolve the two sets of figures">
         <option value="mean">Average where both report</option>
         <option value="imp">Prefer importer's figure</option>
         <option value="exp">Prefer exporter's figure</option>
         <option value="max">Take the larger figure</option>
       </select></div>
-    <div class="ctl"><span>Measure</span>
+    <div class="ctl"><span class="hint" tabindex="0" data-tip="Weight in tonnes, value in US dollars, or the average price per tonne.">Measure</span>
       <div class="seg" id="measure"><button data-m="t" aria-pressed="true">Tonnes</button><button data-m="usd" aria-pressed="false">US$</button><button data-m="ppt" aria-pressed="false">US$ per tonne</button></div></div>
-    <div class="ctl"><span>Routes</span>
+    <div class="ctl"><span class="hint" tabindex="0" data-tip="All shows every route. High → middle- and low-income keeps only trade sent from high-income countries to middle- and low-income countries, using each country's World Bank income group in that year.">Routes</span>
       <div class="seg" id="incf"><button data-f="all" aria-pressed="true">All</button><button data-f="hl" aria-pressed="false">High → middle- and low-income</button></div></div>
-    <div class="ctl"><span>Find a country</span>
-      <input type="search" id="find" list="clist" placeholder="e.g. Malaysia" aria-label="Find a country"><datalist id="clist"></datalist></div>
+    <div class="ctl"><span class="hint" tabindex="0" data-tip="Pick a country to see all its trade partners on the map.">Select a country</span>
+      <input type="search" id="find" list="clist" placeholder="e.g. Malaysia" aria-label="Select a country"><datalist id="clist"></datalist></div>
   </div>
 </main>
 
@@ -491,7 +501,7 @@ footer b{color:var(--ink);font-weight:600}
         <dt>Map</dt><dd>Natural Earth</dd>
         <dt>Built with</dt><dd>Claude, by Anthropic</dd>
         <dt>Licence</dt><dd><a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener license">CC BY 4.0</a></dd>
-        <dt>Cite as</dt><dd><a href="about.html#cite">Cook, E. (2026) Global Waste Trade</a></dd>
+        <dt>Cite as</dt><dd><a href="about.html#cite">Cook, E. (2026) Global Waste Trade Data Hub</a></dd>
         <dt>Sources</dt><dd><a href="about.html#sources">Sources</a></dd>
       </dl>
     </div>
@@ -546,7 +556,7 @@ const VCOL=["--out","--in","--res"];
 const SCHEMES={un:"UN regions",unsub:"UN sub-regions",wb:"World Bank regions",oecd:"OECD groups"};
 const RMETH={mean:"average where both report",imp:"importer's figure preferred",exp:"exporter's figure preferred",max:"larger figure"};
 let VERSION="UN Comtrade";
-const CITE="Cook, E. (2026) Global Waste Trade. Available at: https://globalwastetrade.org. Licence: CC BY 4.0";
+const CITE="Cook, E. (2026) Global Waste Trade Data Hub. Available at: https://globalwastetrade.org. Licence: CC BY 4.0";
 const HS={
   fibre:{n:"Synthetic fibres",codes:"HS 5505.10",f:100,shape:true,src:"Assumption: synthetic fibre is plastic."},
   clothing:{n:"Used clothing (plastic fraction)",codes:"HS 6309",f:65,shape:true,src:"Source: Textile Exchange, Materials Market Report 2023, p10 (synthetic share of global fibre production, 2022)."},
@@ -1288,7 +1298,7 @@ function standaloneSVG(svgEl,title,note){
   tx(title,28,20,css("--ink"),700);if(note)tx(note,46,12,css("--muted"));
   const inner=document.createElementNS(ns,"svg");inner.setAttribute("x",0);inner.setAttribute("y",top);inner.setAttribute("width",W);inner.setAttribute("height",H);inner.setAttribute("viewBox",`0 0 ${W} ${H}`);
   while(clone.firstChild)inner.appendChild(clone.firstChild);out.appendChild(inner);
-  tx("Global Waste Trade · globalwastetrade.org · CC BY 4.0 · "+VERSION,H+top+22,11,css("--muted"));
+  tx("Global Waste Trade Data Hub · globalwastetrade.org · CC BY 4.0 · "+VERSION,H+top+22,11,css("--muted"));
   return new XMLSerializer().serializeToString(out);
 }
 function svgToPNG(str){return new Promise((res,rej)=>{const img=new Image();img.onload=()=>{const s=2,c=document.createElement("canvas");c.width=img.width*s;c.height=img.height*s;const x=c.getContext("2d");x.scale(s,s);x.drawImage(img,0,0);c.toBlob(b=>b?res(b):rej(new Error("png")),"image/png")};img.onerror=rej;img.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(str)})}
@@ -1347,13 +1357,14 @@ const mgSet=o=>{$("#mgplas").setAttribute("aria-expanded",o);$("#hpgrid").hidden
 $("#mgplas").onclick=()=>mgSet($("#mgplas").getAttribute("aria-expanded")==="false");
 if(matchMedia("(max-width:640px)").matches)mgSet(false);
 const addOf=k=>{let s=0;for(const h of hViews(k))if(h.v===S.view)s+=h.t*shareOf(k,h.ex);return s};
+const nm2=n=>{const m=n.match(/^(.*?) (\(.*\))$/);return m?`${esc(m[1])}<small>${esc(m[2])}</small>`:esc(n)};
 function chip(k){
   if(k==="scrap")return `<span class="mc ${S.scrap?"on":""}" data-k="scrap"><label title="${esc(CODE)}"><input type="checkbox" id="hp-scrap" ${S.scrap?"checked":""}><span class="nm">Plastic scrap</span><span class="q" id="hq-scrap"></span></label></span>`;
   const h=HS[k],o=HON[k];
-  return `<span class="mc ${o.on?"on":""}" data-k="${k}"><label title="${esc(h.codes)}"><input type="checkbox" data-k="${k}" ${o.on?"checked":""}><span class="nm">${esc(h.n)}</span><span class="q" id="hq-${k}"></span></label><button type="button" class="gear" data-pop="${k}" aria-expanded="false" aria-haspopup="dialog" aria-label="Assumptions for ${esc(h.n)}" title="Assumptions">${GEAR}</button></span>`}
+  return `<span class="mc ${o.on?"on":""}" data-k="${k}"><label title="${esc(h.codes)}"><input type="checkbox" data-k="${k}" ${o.on?"checked":""}><span class="nm">${nm2(h.n)}</span><span class="q" id="hq-${k}"></span></label><button type="button" class="gear" data-pop="${k}" aria-expanded="false" aria-haspopup="dialog" aria-label="Assumptions for ${esc(h.n)}" title="Assumptions">${GEAR}</button></span>`}
 function hpUI(){
   const boxes=HGRP.map(([g,ks])=>{const kk=ks.filter(k=>HROWS[k].length);return kk.length?`<div class="mbox"><b>${g}</b>${kk.map(chip).join("")}</div>`:""}).join("");
-  $("#hpgrid").innerHTML=`<div class="mscrap">${chip("scrap")}</div>`+(boxes?`<div><span class="lab">Other and embedded plastics</span><div class="mboxes">${boxes}</div></div>`:"");
+  $("#hpgrid").innerHTML=`<div class="mscrap">${chip("scrap")}</div>`+(boxes?`<div><span class="lab hint" tabindex="0" data-tip="Plastic carried inside other traded wastes. Each stream's tonnage is multiplied by its plastic share, which you can change with the sliders button.">Other and embedded plastics</span><div class="mboxes">${boxes}</div></div>`:"");
   $(".macts").hidden=!HAS_HID||$("#mgplas").getAttribute("aria-expanded")==="false";
   if(POP)popUI(POP);
   hpRefresh();
@@ -1406,7 +1417,7 @@ addEventListener("resize",()=>{if(POP){const b=$(`.gear[data-pop="${POP}"]`);if(
 $("#hpshape").onclick=()=>{for(const k in HS){HON[k].on=HROWS[k].length>0}S.scrap=true;hpUI();hpApply()};
 $("#hpoff").onclick=()=>{for(const k in HS)HON[k].on=false;S.scrap=true;hpUI();hpApply()};
 $("#hpreset").onclick=()=>{for(const k in HS){const on=HON[k].on;HON[k]=HDEF(k);HON[k].on=on}hpUI();hpApply()};
-$("#hpsave").onclick=()=>saveFile("gwt-hidden-plastic-assumptions.json",JSON.stringify({about:"Global Waste Trade hidden-plastic assumptions. f = plastic share %, source = source for the value used, inc = plastic share % by exporter income group (used when byInc is true), ",version:VERSION,streams:Object.fromEntries(Object.entries(HON).map(([k,o])=>[k,{name:HS[k].n,codes:HS[k].codes,...o,default_f:HS[k].f,source:isDef(k)?HS[k].src:o.usrc.trim()||"No source given"}]))},null,1));
+$("#hpsave").onclick=()=>saveFile("gwt-hidden-plastic-assumptions.json",JSON.stringify({about:"Global Waste Trade Data Hub hidden-plastic assumptions. f = plastic share %, source = source for the value used, inc = plastic share % by exporter income group (used when byInc is true), ",version:VERSION,streams:Object.fromEntries(Object.entries(HON).map(([k,o])=>[k,{name:HS[k].n,codes:HS[k].codes,...o,default_f:HS[k].f,source:isDef(k)?HS[k].src:o.usrc.trim()||"No source given"}]))},null,1));
 $("#hpload").onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const j=JSON.parse(await f.text());if(!j||!j.streams)throw 0;let n=0;for(const k in HS)if(j.streams[k]){HON[k]=sanitiseH(k,j.streams[k]);n++}hpUI();hpApply();toast(`Loaded assumptions for ${n} stream${n===1?"":"s"}.`)}catch(err){toast("That file isn't a set of assumptions from this site.")}e.target.value=""};
 hpUI();
 function fillRegions(){const sel=$("#region");sel.innerHTML=`<option value="">Whole world</option>`+regionNames(S.scheme).map(r=>`<option>${esc(r)}</option>`).join("");sel.value=S.region||""}

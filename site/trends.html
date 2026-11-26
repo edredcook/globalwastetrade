@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Plastic waste trade trends since 2008 · Global Waste Trade</title>
+<title>Plastic waste trade trends since 2008 · Global Waste Trade Data Hub</title>
 <meta name="description" content="How the international trade in plastic waste has changed since 2008, including exports from high-income to middle- and low-income countries and plastic carried in other traded wastes.">
 <link rel="canonical" href="https://globalwastetrade.org/trends.html">
-<meta property="og:site_name" content="Global Waste Trade">
-<meta property="og:title" content="Plastic waste trade trends since 2008 · Global Waste Trade">
+<meta property="og:site_name" content="Global Waste Trade Data Hub">
+<meta property="og:title" content="Plastic waste trade trends since 2008 · Global Waste Trade Data Hub">
 <meta property="og:description" content="How the international trade in plastic waste has changed since 2008, including exports from high-income to middle- and low-income countries and plastic carried in other traded wastes.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://globalwastetrade.org/trends.html">
@@ -169,7 +169,7 @@ input[type=range]{accent-color:var(--out);width:180px;max-width:100%}
 </head>
 <body>
 <header class="mast"><div class="wrap">
-  <a class="brand" href="./"><i aria-hidden="true"></i>Global Waste Trade</a>
+  <a class="brand" href="./"><i aria-hidden="true"></i>Global Waste Trade Data Hub</a>
   <nav class="top" aria-label="Pages">
     <a href="./">Explorer</a><a href="trends.html" aria-current="page">Trends</a><a href="validation.html">Validation</a><a href="about.html">About</a>
   </nav>
@@ -206,7 +206,7 @@ input[type=range]{accent-color:var(--out);width:180px;max-width:100%}
       <div class="chart" id="cC"></div><div class="legend" id="lC"></div></section>
     <section class="card wide"><div class="hd"><h2 id="hE">Receivers year by year</h2><div class="cbar"><div class="seg" data-k="hdir"><button data-v="in">Receivers</button><button data-v="out">Senders</button></div><label class="ctl"><span>Rows<b id="hrv"></b></span><input type="range" id="hrows" min="5" max="60" step="5"></label></div></div>
       <div class="chart scroll" id="cE"></div><div class="legend" id="lE"></div></section>
-    <section class="card wide"><div class="hd"><h2>Who reported plastic waste trade</h2><a class="dl" href="data/completeness.csv" download="gwt-who-reported-hs3915.csv">Download CSV</a></div>
+    <section class="card wide" id="reported" style="scroll-margin-top:70px"><div class="hd"><h2>Who reported plastic waste trade</h2><a class="dl" href="data/completeness.csv" download="gwt-who-reported-hs3915.csv">Download CSV</a></div>
       <div class="chart" id="cW"></div><div class="legend" id="lW"></div><div class="nrlist" id="wlist"></div></section>
   </div>
   <div id="p-glance" hidden>
@@ -238,6 +238,6 @@ input[type=range]{accent-color:var(--out);width:180px;max-width:100%}
 
 <div class="tip" id="tip" hidden></div>
 <script src="vendor/d3-7.8.5.min.js"></script>
-<script src="trends.js?v=11"></script>
+<script src="trends.js?v=12"></script>
 </body>
 </html>

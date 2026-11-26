@@ -426,4 +426,5 @@ let rt;addEventListener("resize",()=>{clearTimeout(rt);rt=setTimeout(()=>D&&draw
 matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>D&&drawTab());
 S.gq="";
 await setMats();
+if(location.hash){const t=document.getElementById(location.hash.slice(1));if(t)requestAnimationFrame(()=>t.scrollIntoView())}
 })();
