@@ -24,6 +24,7 @@ import json
 from collections import defaultdict
 from pathlib import Path
 
+from build_site_data import MATERIALS
 from impute import impute
 
 GROUPS = ["HIC", "UMC", "LMC", "LIC", "NS"]
@@ -224,8 +225,10 @@ def main():
     # "modelled": mostly modelled from monthly returns; "part_modelled": some reporters modelled.
     modelled = [y for y, d in zip(years, data) if d["meta"].get("modelled") and d["meta"].get("modelled_share", 1) >= 0.5]
     part = [y for y, d in zip(years, data) if d["meta"].get("modelled") and y not in modelled]
+    mat_years = {m: [y for y in years if (SITE_DATA / f"{m}_{y}.json").exists()] for m in MATERIALS}
     write("manifest.json", {"latest": years[-1], "default": comp["default"], "years": years,
-                            "modelled": modelled, "part_modelled": part})
+                            "modelled": modelled, "part_modelled": part,
+                            "materials": {m: ys for m, ys in mat_years.items() if ys}})
     with open(SITE_DATA / "completeness.csv", "w", encoding="utf-8", newline="") as f:
         w = csv.writer(f)
         w.writerow(CSV_HEAD)
@@ -242,9 +245,40 @@ def main():
         for i, rs in enumerate(imk):
             if rs:
                 by_year[i][k] = rs
+    # The other material groups: <mat>_<year>.json, for the same years as plastic.
+    done = set(streams)
+    mats = []
+    for mat, cfg in MATERIALS.items():
+        mdata = []
+        for i, y in enumerate(years):
+            p = SITE_DATA / f"{mat}_{y}.json"
+            mdata.append(json.loads(p.read_text(encoding="utf-8")) if p.exists() else None)
+        if not any(mdata):
+            continue
+        mats.append(mat)
+        munis = [set((d.get("reporting") or {}).get("universe", {})) if d else set() for d in mdata]
+        mimp = [{} for _ in years]
+        for k in sorted({k for d in mdata if d for k in d["hidden"]}):
+            if k in done:                       # borrowed from the plastic files: already built
+                for i in range(len(years)):
+                    if k in by_year[i]:
+                        mimp[i][k] = by_year[i][k]
+                continue
+            per = [((d or {}).get("hidden", {}).get(k, []), (d or data[i])["countries"]) for i, d in enumerate(mdata)]
+            imk = impute(years, [r for r, _ in per], munis)
+            write(f"trends_{k}.json", summarise(years, per))
+            write(f"flows_{k}.json", flows(years, per, schemes, imk, modelled))
+            done.add(k)
+            for i, rs in enumerate(imk):
+                if rs:
+                    mimp[i][k] = rs
+        for y, d, mi in zip(years, mdata, mimp):
+            if d:
+                write(f"imputed_{mat}_{y}.json", mi)
     for y, d in zip(years, by_year):
         write(f"imputed_{y}.json", d)
-    print(f"Wrote trends for {len(years)} years: plastic and {len(streams)} mixed streams ({', '.join(streams)}).")
+    print(f"Wrote trends for {len(years)} years: plastic and {len(streams)} mixed streams ({', '.join(streams)}); "
+          f"other groups: {', '.join(mats) or 'none'}.")
 
 
 if __name__ == "__main__":

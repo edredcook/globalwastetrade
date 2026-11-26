@@ -31,7 +31,10 @@ jobs:
           ESTAT_APP_ID: ${{ secrets.ESTAT_APP_ID }}
           KCS_SERVICE_KEY: ${{ secrets.KCS_SERVICE_KEY }}
           MIXED: 550510,6309,6310,854931,854939,854991,854999,382510,4707,401220,4004,401700
+          MATERIALS: paper metals textiles ewaste
         run: |
+          # Codes of each other material group, from build_site_data.MATERIALS
+          codes() { python -c "import sys; sys.path.insert(0, 'pipeline'); import build_site_data as b; print(','.join(b.material_codes('$1')))"; }
           if [ -z "$YEARS" ]; then Y=$(date -u +%Y); YEARS="$((Y-3)) $((Y-2)) $((Y-1))"; fi
           echo "YEARS=$YEARS" >> "$GITHUB_ENV"
           : > failed.txt
@@ -43,6 +46,13 @@ jobs:
               echo "$y: no download of the mixed streams" >> failed.txt; continue
             fi
             python pipeline/build_site_data.py --year "$y" || echo "$y: build stopped, see the report" >> failed.txt
+            for m in $MATERIALS; do
+              if python pipeline/fetch_comtrade.py --year "$y" --name "$m" --cmd "$(codes $m)"; then
+                python pipeline/build_site_data.py --year "$y" --material "$m" || echo "$y $m: build stopped, see the report" >> failed.txt
+              else
+                echo "$y: no download of $m" >> failed.txt
+              fi
+            done
           done
           # Last year and the current year: annual returns where filed, the rest modelled
           # from the months published so far (each needs the year before's months too).
@@ -51,6 +61,10 @@ jobs:
             python pipeline/fetch_comtrade.py --year "$y" --monthly || echo "$y: no monthly download" >> failed.txt
             python pipeline/fetch_comtrade.py --year "$y" --monthly --name mixed --cmd "$MIXED" \
               || echo "$y: no monthly download of the mixed streams" >> failed.txt
+            for m in $MATERIALS; do
+              python pipeline/fetch_comtrade.py --year "$y" --monthly --name "$m" --cmd "$(codes $m)" \
+                || echo "$y: no monthly download of $m" >> failed.txt
+            done
           done
           # Months not yet in Comtrade, from national statistics offices (provisional)
           NOW=$(date -u +%Y%m); MONTHS=""
@@ -64,6 +78,13 @@ jobs:
             else
               echo "$y (modelled): not modelled" >> failed.txt
             fi
+            for m in $MATERIALS; do
+              if python pipeline/model_part_year.py --year "$y" --name "$m"; then
+                python pipeline/build_site_data.py --year "$y" --material "$m" || echo "$y $m (modelled): build stopped, see the report" >> failed.txt
+              else
+                echo "$y $m (modelled): not modelled" >> failed.txt
+              fi
+            done
           done
           python pipeline/build_trends.py
           python pipeline/build_validation.py
@@ -87,14 +108,15 @@ jobs:
           fi
           BR="data/refresh-$(date -u +%Y%m%d)"
           { echo "Years refreshed: ${YEARS}"; if [ -s failed.txt ]; then echo; echo "Not updated:"; sed 's/^/- /' failed.txt; fi
-            for y in $YEARS; do f="pipeline/reports/hs3915_${y}.md"; [ -f "$f" ] && { echo; cat "$f"; }; done; } > pr-body.md
+            for y in $YEARS; do f="pipeline/reports/hs3915_${y}.md"; [ -f "$f" ] && { echo; cat "$f"; }; done
+            for y in $YEARS; do for m in $MATERIALS; do f="pipeline/reports/${m}_${y}.md"; [ -f "$f" ] && { echo; sed -n '1,12p' "$f"; }; done; done; } > pr-body.md
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -b "$BR"
           git add site/data pipeline/reports
-          git commit -m "Refresh HS 3915 data from UN Comtrade (${YEARS})"
+          git commit -m "Refresh waste trade data from UN Comtrade (${YEARS})"
           git push -u origin "$BR"
           gh pr create --draft --base main --head "$BR" \
-            --title "Data refresh: plastic waste (HS 3915), ${YEARS}" \
+            --title "Data refresh: plastics and other materials, ${YEARS}" \
             --body-file pr-body.md \
             || echo "::warning::Branch $BR pushed, but the PR could not be opened. Allow Actions to create pull requests in Settings > Actions > General, or open it by hand."

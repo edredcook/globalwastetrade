@@ -35,13 +35,22 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 RAW = HERE / "raw" / "national"
 CODES = json.loads((HERE / "reference" / "national_codes.json").read_text(encoding="utf-8"))
-# Plastic waste plus every waste stream the site shows, and tyres. HS4 or HS6 prefixes.
+# Plastic waste plus every waste stream the site shows, and tyres, then the main codes
+# of the other material groups (metals, textiles, e-waste; paper is HS 4707). HS4 or HS6 prefixes.
 WASTE_CODES = ["3915", "550510", "6309", "6310", "854931", "854939", "854991", "854999",
-               "382510", "4707", "401220", "400400", "401700"]
+               "382510", "4707", "401220", "400400", "401700",
+               "7204", "7404", "7602", "7503", "7802", "7902", "8002", "7112",
+               "550520", "5202", "5103", "5104", "5003", "530130",
+               "854911", "854912", "854913", "854914", "854919", "854921", "854929"]
 HS4 = os.environ.get("NATIONAL_CODES", ",".join(WASTE_CODES)).split(",")
 # Comext is asked for HS6 subheadings; these expand the four-digit codes.
 HS6_OF = {"3915": ["391510", "391520", "391530", "391590"], "6309": ["630900"],
-          "6310": ["631010", "631090"], "4707": ["470710", "470720", "470730", "470790"]}
+          "6310": ["631010", "631090"], "4707": ["470710", "470720", "470730", "470790"],
+          "7204": ["720410", "720421", "720429", "720430", "720441", "720449", "720450"],
+          "7404": ["740400"], "7602": ["760200"], "7503": ["750300"], "7802": ["780200"],
+          "7902": ["790200"], "8002": ["800200"], "7112": ["711291", "711292", "711299"],
+          "5202": ["520210", "520291", "520299"], "5103": ["510310", "510320", "510330"],
+          "5104": ["510400"], "5003": ["500300"]}
 EU27 = ("AT BE BG HR CY CZ DK EE FI FR DE GR HU IE IT LV LT LU MT NL PL PT RO SK SI ES SE").split()
 
 

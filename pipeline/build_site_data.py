@@ -202,7 +202,55 @@ STREAMS = {
 }
 
 
-def mixed_streams(rows, factor=10.0):
+# The other material groups. Each stream belongs to one group, which counts its whole
+# tonnage. "borrow" lists streams of other groups (already in plastic_<year>.json) that
+# the group also shows: in full where they belong to it (textiles: clothing, rags,
+# synthetic fibre; e-waste: assemblies and other electrical scrap), or as a share of
+# them (metals in e-waste, paper and textiles in refuse-derived fuel), set on the page.
+# Codes are HS as reported, so a stream can list codes from several HS editions
+# (HS 8548.10 batteries until HS 2017, HS 8549.11-.19 from HS 2022); a reporter uses
+# one edition a year, so summing them never counts the same trade twice.
+MATERIALS = {
+    "paper": {
+        "name": "Paper and card", "code": "HS 4707",
+        "desc": "Recovered (waste and scrap) paper or paperboard",
+        "streams": {"pkraft": ["470710"], "pbleach": ["470720"], "pmech": ["470730"], "pmixed": ["470790"]},
+        "borrow": ["rdf"],
+    },
+    "metals": {
+        "name": "Metals", "code": "HS 7204, 7404, 7602 and other metal waste and scrap",
+        "desc": "Ferrous and non-ferrous metal waste and scrap",
+        "streams": {
+            "fe": ["720410", "720429", "720430", "720441", "720449", "720450"],
+            "ss": ["720421"], "al": ["7602"], "cu": ["7404"], "pb": ["7802"], "zn": ["7902"],
+            "ni": ["7503"], "sn": ["8002"], "pm": ["711291", "711292", "711299"],
+            "om": ["810197", "810297", "810330", "810420", "810530", "810730", "810830", "810930",
+                   "810931", "810939", "811020", "811213", "811222", "811252", "811261"],
+        },
+        "borrow": ["weee", "weeeo"],
+    },
+    "textiles": {
+        "name": "Textiles", "code": "HS 6309, 6310 and textile fibre waste",
+        "desc": "Used clothing, rags and textile fibre waste",
+        "streams": {"tartif": ["550520"], "tcotton": ["5202"], "twool": ["5103", "5104"],
+                    "tsilk": ["5003", "530130"]},
+        "borrow": ["clothing", "rags", "fibre", "rdf"],
+    },
+    "ewaste": {
+        "name": "E-waste", "code": "HS 8549 (HS 8548.10 before 2022)",
+        "desc": "Electrical and electronic waste and scrap, including batteries",
+        "streams": {"ebatt": ["854810", "854911", "854912", "854913", "854914", "854919"],
+                    "eprec": ["854921", "854929"]},
+        "borrow": ["weee", "weeeo"],
+    },
+}
+
+
+def material_codes(mat):
+    return [c for cs in MATERIALS[mat]["streams"].values() for c in cs]
+
+
+def mixed_streams(rows, factor=10.0, streams=None):
     """Comtrade routes for each mixed stream, in the site's route format.
 
     Returns ({stream: routes}, {stream: {"A": n, "B": n, "C": n}}).
@@ -211,7 +259,7 @@ def mixed_streams(rows, factor=10.0):
     for r in rows:
         by_code[s(r.get("cmdCode"))].append(r)
     out, rules = {}, {}
-    for k, codes in STREAMS.items():
+    for k, codes in (streams or STREAMS).items():
         merged = {}
         rules[k] = {"A": 0, "B": 0, "C": 0, "D": 0}
         for code in codes:
@@ -316,19 +364,20 @@ def cleaning_section(changes, med, factor, names):
     return lines
 
 
-def mixed_report(year, mixed, rules):
+def mixed_report(year, mixed, rules, streams=None, title="Wastes carrying plastic amongst other materials",
+                 lead="Whole stream tonnes, before any plastic share is applied.", baci_name="baci_mixed_streams"):
     """Mixed-stream totals per view, checked against BACI where we hold BACI figures."""
     if not mixed:
         return ""
-    baci_path = REF / f"baci_mixed_streams_{year}.json"
+    baci_path = REF / f"{baci_name}_{year}.json"
     baci = load(baci_path)["streams"] if baci_path.exists() else {}
-    lines = ["", "## Wastes carrying plastic amongst other materials", "",
-             "Whole stream tonnes, before any plastic share is applied."
+    lines = ["", f"## {title}", "",
+             lead
              + (" BACI is shown as a check only; the site uses Comtrade." if baci else ""), "",
              "| Stream | HS | Exporters' reports, t | Importers' reports, t | "
              + ("BACI, t | Exporters ÷ BACI | " if baci else "") + "Cleaned A / B / D / C |",
              "|---|---|---:|---:|" + ("---:|---:|" if baci else "") + "---|"]
-    for k, codes in STREAMS.items():
+    for k, codes in (streams or STREAMS).items():
         rs = mixed.get(k, [])
         x = sum(r[3] for r in rs if r[0] == 0)
         m = sum(r[3] for r in rs if r[0] == 1)
@@ -405,15 +454,107 @@ def estimated_weights(year):
     return out
 
 
+def build_material(year, mat, factor=10.0, min_ratio=0.6):
+    """Build site/data/<mat>_<year>.json for one of the other material groups.
+
+    Reads pipeline/raw/comtrade_<mat>_<year>.json and, for the streams it borrows,
+    site/data/plastic_<year>.json (so run the plastic build for that year first).
+    The file has the same shape as plastic_<year>.json, with no "routes": every stream,
+    the group's own and the borrowed ones, is under "hidden".
+    """
+    cfg = MATERIALS[mat]
+    raw = load(RAW / f"comtrade_{mat}_{year}.json")
+    rows = raw["data"]
+    ref = load(REF / "countries.json")
+    world = load(SITE_DATA / "world-110m.json")
+    map_ids = {g.get("id") for g in world["objects"]["countries"]["geometries"]}
+    own, rules = mixed_streams(rows, factor, cfg["streams"])
+    ppath = SITE_DATA / f"plastic_{year}.json"
+    plastic = load(ppath) if ppath.exists() else {"hidden": {}, "countries": {}, "meta": {}}
+    borrowed = {k: plastic["hidden"].get(k, []) for k in cfg["borrow"]}
+    hidden = {k: v for k, v in {**own, **borrowed}.items() if v}
+    all_routes = [r for rs in hidden.values() for r in rs]
+    countries, new = countries_for(all_routes, rows, {**ref, **plastic["countries"]}, map_ids)
+    income = load(REF / "income_history.json")
+    apply_income(countries, income, year)
+
+    out_path = SITE_DATA / f"{mat}_{year}.json"
+    warn = []
+    own_t = {v: sum(r[3] for k in cfg["streams"] for r in own.get(k, []) if r[0] == v) for v in (0, 1)}
+    prev = None
+    if out_path.exists():
+        old = load(out_path)
+        prev = {v: sum(r[3] for k in cfg["streams"] for r in old["hidden"].get(k, []) if r[0] == v) for v in (0, 1)}
+        for v in (0, 1):
+            if prev[v] and own_t[v] < min_ratio * prev[v]:
+                warn.append(f"View {v} tonnes fell to {own_t[v] / prev[v]:.0%} of the previous file.")
+    if not any(own.values()):
+        warn.append("No routes for this group's own streams.")
+
+    m = raw["meta"]
+    data = {
+        "meta": {
+            "year": year, "material": mat, "name": cfg["name"], "code": cfg["code"], "desc": cfg["desc"],
+            "source": f"UN Comtrade API, HS as reported, downloaded {m.get('downloaded')}; "
+                      "partner-2 World totals, otherwise partner-2 detail summed",
+            "built": dt.date.today().isoformat(),
+            "income": f"{income['source']}; GNI data year {min(year, income['years'][1])}",
+            "hidden_source": f"UN Comtrade API, downloaded {m.get('downloaded')}; same selection and cleaning as HS 3915",
+        },
+        "countries": countries,
+        "routes": [],
+        "schemes": load(REF / "region_schemes.json"),
+        "aliases": load(REF / "aliases.json"),
+        "hidden": hidden,
+        "reporting": reporting(rows, ref, income, year),
+    }
+    if m.get("modelled"):
+        data["meta"].update(modelled=True, months=m.get("months"), modelled_share=m.get("modelled_share", 1.0))
+        data["meta"]["source"] += "; modelled: " + m["method"]
+        data["meta"]["hidden_source"] += "; modelled: " + m["method"]
+    names = {k: v[1] for k, v in countries.items()}
+    lines = [f"# {cfg['name']}, {year}: data check", "",
+             f"Downloaded {m.get('downloaded')} from the UN Comtrade API ({m.get('records', len(rows)):,} raw records). "
+             f"Built {dt.date.today().isoformat()}.", ""]
+    if warn:
+        lines += ["## Warnings", ""] + [f"- {w}" for w in warn] + [""]
+    lines += ["## Totals of this group's own streams", "", "| Figures | Tonnes | Change vs previous file |", "|---|---:|---:|"]
+    for v, lab in ((0, "Exporters' reports"), (1, "Importers' reports")):
+        ch = f"{own_t[v] / prev[v] - 1:+.1%}" if prev and prev[v] else ""
+        lines.append(f"| {lab} | {own_t[v]:,.0f} | {ch} |")
+    if new:
+        lines += ["", "## Countries not in the reference list", ""] + [f"- {c}: {countries[c][1]} ({countries[c][0]})" for c in new]
+    for v, lab in ((0, "exporters' reports"), (1, "importers' reports")):
+        top = sorted((r for k in cfg["streams"] for r in own.get(k, []) if r[0] == v), key=lambda r: -r[3])[:15]
+        lines += ["", f"## Largest 15 routes, {lab}", "", "| Stream | From | To | Tonnes | US$ |", "|---|---|---|---:|---:|"]
+        st = {tuple(r): k for k in cfg["streams"] for r in own.get(k, [])}
+        for r in top:
+            lines.append(f"| {st.get(tuple(r), '')} | {names.get(str(r[1]), r[1])} | {names.get(str(r[2]), r[2])} | {r[3]:,.0f} | {r[4]:,.0f} |")
+    rep = "\n".join(lines) + "\n" + mixed_report(year, own, rules, cfg["streams"], f"{cfg['name']}: streams",
+                                                  "Whole stream tonnes, code by code.", f"baci_{mat}")
+    REPORTS.mkdir(exist_ok=True)
+    (REPORTS / f"{mat}_{year}.md").write_text(rep, encoding="utf-8")
+    if warn:
+        print("\n".join(warn), file=sys.stderr)
+        raise SystemExit(f"Checks failed for {mat} {year}; the site data was not changed. See the report.")
+    with open(out_path, "w", encoding="utf-8") as f:
+        json.dump(data, f, separators=(",", ":"), ensure_ascii=False)
+    print(f"Wrote {out_path}: {sum(len(v) for v in hidden.values()):,} routes in {len(hidden)} streams, {len(new)} new countries.")
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--year", type=int, required=True)
+    ap.add_argument("--material", choices=sorted(MATERIALS),
+                    help="build one of the other material groups from comtrade_<material>_<year>.json")
     ap.add_argument("--cmd", default="3915")
     ap.add_argument("--outlier-factor", type=float, default=10.0,
                     help="US$ per tonne this many times above or below the median counts as out of range")
     ap.add_argument("--min-ratio", type=float, default=0.6,
                     help="stop if a view's tonnes fall below this share of the previous file")
     a = ap.parse_args()
+    if a.material:
+        return build_material(a.year, a.material, a.outlier_factor, a.min_ratio)
 
     raw = load(RAW / f"comtrade_hs{a.cmd}_{a.year}.json")
     rows = raw["data"]

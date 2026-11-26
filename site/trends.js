@@ -13,13 +13,19 @@ const MATS=[
   ["E-waste",[["weee","Electronic waste (plastic fraction)","HS 8549.31, 8549.39"],["weeeo","Electrical waste (plastic fraction)","HS 8549.91, 8549.99"]],OEP],
   ["Refuse-derived fuel",[["rdf","Refuse-derived fuel (plastic fraction)","HS 3825.10"]],OEP],
   ["Rubber and tyres",[["tyres","Used tyres","HS 4012.20"],["rubber","Rubber waste and scrap","HS 4004"],["hardrubber","Hard rubber","HS 4017"]],OEP],
-  ["Paper and card",[["paper","Paper and card (plastic contamination)","HS 4707"]],OEP]];
+  ["Paper and card",[["paper","Paper and card (plastic contamination)","HS 4707"]],OEP],
+  ["Paper and card grades",[["pkraft","Kraft and corrugated","HS 4707.10"],["pbleach","Bleached paper and board","HS 4707.20"],["pmech","Newspapers and magazines","HS 4707.30"],["pmixed","Mixed and unsorted","HS 4707.90"]]],
+  ["Metals",[["fe","Iron and steel","HS 7204, not 7204.21"],["ss","Stainless steel","HS 7204.21"],["al","Aluminium","HS 7602"],["cu","Copper","HS 7404"],["pb","Lead","HS 7802"],["zn","Zinc","HS 7902"],["ni","Nickel","HS 7503"],["sn","Tin","HS 8002"],["pm","Precious metals","HS 7112.91 to 7112.99"],["om","Other metals","HS 81 waste and scrap"]]],
+  ["Other textiles",[["tartif","Artificial fibres","HS 5505.20"],["tcotton","Cotton","HS 5202"],["twool","Wool and animal hair","HS 5103, 5104"],["tsilk","Silk and flax","HS 5003, 5301.30"]]],
+  ["Other e-waste",[["ebatt","Batteries","HS 8549.11 to 8549.19, 8548.10"],["eprec","Scrap for precious-metal recovery","HS 8549.21, 8549.29"]]]];
 const MATN=Object.fromEntries(MATS.flatMap(g=>g[1].map(([k,n])=>[k,n])));
 const MATC=Object.fromEntries(MATS.flatMap(g=>g[1].map(([k,,c])=>[k,c])));
 const STREAMS=MATS.flatMap(g=>g[1].map(i=>i[0])).filter(k=>k!=="all");
 // Plastic shares, as in the explorer's Plastics group (sources on the About page).
 const SHARE={plastic:1,clothing:.65,rags:.65,fibre:1,weee:.247,weeeo:.247,rdf:.3325,tyres:1,rubber:1,hardrubber:1,paper:.02};
-const MATCOL={plastic:"#e0531f",clothing:"#4e79a7",rags:"#76b7b2",fibre:"#b07aa1",weee:"#59a14f",weeeo:"#8cd17d",rdf:"#9c755f",tyres:"#3d3d3d",rubber:"#8a8a8a",hardrubber:"#5f5f5f",paper:"#edc948"};
+// Streams of the other material groups carry no plastic share here; "All plastic" leaves them out.
+const PSTREAMS=STREAMS.filter(k=>SHARE[k]);
+const MATCOL={pkraft:"#9c755f",pbleach:"#edc948",pmech:"#c9b27a",pmixed:"#bab0ac",fe:"#4e79a7",ss:"#a0cbe8",al:"#86bcb6",cu:"#d37295",pb:"#5f5f5f",zn:"#76b7b2",ni:"#59a14f",sn:"#8cd17d",pm:"#f1ce63",om:"#b6992d",tartif:"#d4a6c8",tcotton:"#499894",twool:"#a47764",tsilk:"#f28e2b",ebatt:"#9d7660",eprec:"#d7b5a6",plastic:"#e0531f",clothing:"#4e79a7",rags:"#76b7b2",fibre:"#b07aa1",weee:"#59a14f",weeeo:"#8cd17d",rdf:"#9c755f",tyres:"#3d3d3d",rubber:"#8a8a8a",hardrubber:"#5f5f5f",paper:"#edc948"};
 const GL=["H","U","M","L","N"],GKEY={HIC:"H",UMC:"U",LMC:"M",LIC:"L",NS:"N"};
 const GC={H:"--g-hic",U:"--g-umc",M:"--g-lmc",L:"--g-lic",N:"--g-ns"};
 const GN={H:"High income",U:"Upper-middle income",M:"Lower-middle income",L:"Low income",N:"Not classified"};
@@ -77,7 +83,7 @@ async function load(k){if(D.mats[k])return;const r=await fetch(k==="plastic"?"da
   D.nc=D.codes.length;D.nm=D.names.map(n=>n[1]);D.real=D.nm.map(n=>!NONC.test(n));D.incY=D.years.map((y,i)=>D.inc.map(s=>s[i]));
   const o=D.regions.oecd||[];D.regions.oecd2=D.codes.map((c,j)=>o[j]?(o[j].startsWith("OECD")?"OECD members":"Non-OECD"):"")}
 // Selected materials as [key, weight]: "all" = every stream at its plastic share.
-const matList=()=>S.mats.includes("all")?STREAMS.map(k=>[k,SHARE[k]]):S.mats.map(k=>[k,S.count==="plastic"?SHARE[k]:1]);
+const matList=()=>S.mats.includes("all")?PSTREAMS.map(k=>[k,SHARE[k]]):S.mats.map(k=>[k,S.count==="plastic"&&SHARE[k]!=null?SHARE[k]:1]);
 function setSpan(){const ml=matList(),has=D.years.map((y,i)=>ml.some(([k])=>D.mats[k].F[0][i].length+D.mats[k].F[1][i].length>0));
   const a=has.indexOf(true),b=has.lastIndexOf(true);D.span=a<0?[0,D.years.length-1]:[a,b]}
 let I0=0,I1=0,Y=[],N=0,LAST=0;
@@ -362,7 +368,7 @@ let toastT;const toast=m=>{const t=$("#toast");t.textContent=m;t.hidden=false;cl
 async function saveFile(fn,data){const type=fn.endsWith(".csv")?"text/csv":fn.endsWith(".svg")?"image/svg+xml":"image/png";
   const blob=data instanceof Blob?data:new Blob([data],{type:type+";charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");
   a.href=url;a.download=fn;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),4000);toast(`Saved ${fn}`)}
-function matDesc(){if(S.mats.includes("all"))return "All plastic: Plastic scrap (HS 3915) with "+STREAMS.filter(k=>k!=="plastic").map(k=>`${nmShare(k)} (${MATC[k]})`).join(", ");
+function matDesc(){if(S.mats.includes("all"))return "All plastic: Plastic scrap (HS 3915) with "+PSTREAMS.filter(k=>k!=="plastic").map(k=>`${nmShare(k)} (${MATC[k]})`).join(", ");
   return S.mats.map(k=>`${S.count==="plastic"?nmShare(k):nm(k)} (${MATC[k]})`).join(", ")}
 function caption(c){const p=[];
   if(c==="W")p.push(`Plastic scrap (HS 3915). ${VN[S.v][0].toUpperCase()+VN[S.v].slice(1)}.`);
@@ -468,17 +474,17 @@ $$(".pickbox").forEach(box=>{const inp=box.querySelector("input"),menu=box.query
 function matUI(){let par="";
   $("#matmenu").innerHTML=MATS.map(([hd,its,p])=>{let h="";if((p||"")!==par){par=p||"";if(p)h+=`<div class="mh">${esc(p)}</div>`}
     h+=`<div class="${p?"msh":"mh"}">${esc(hd)}</div>`;
-    return h+its.map(([k])=>`<label${p?' class="sub"':""}><input type="checkbox" value="${k}" ${S.mats.includes(k)||S.mats[0]==="all"?"checked":""}>${k==="all"?"":`<i style="background:${MATCOL[k]}"></i>`}<span>${nm2(nm(k))}</span>${MATC[k]?`<small>${MATC[k]}</small>`:""}</label>`).join("")}).join("");
+    return h+its.map(([k])=>`<label${p?' class="sub"':""}><input type="checkbox" value="${k}" ${S.mats.includes(k)||S.mats[0]==="all"&&(k==="all"||SHARE[k]!=null)?"checked":""}>${k==="all"?"":`<i style="background:${MATCOL[k]}"></i>`}<span>${nm2(nm(k))}</span>${MATC[k]?`<small>${MATC[k]}</small>`:""}</label>`).join("")}).join("");
   $("#matsum").textContent=matShort(true);
-  $("#countctl").hidden=S.mats.includes("all")||S.mats.every(k=>k==="plastic")}
+  $("#countctl").hidden=S.mats.includes("all")||S.mats.every(k=>k==="plastic"||SHARE[k]==null)}
 // As on the explorer: a bracket such as "(plastic fraction)" sits on its own line.
 const nm2=n=>{const m=n.match(/^(.*?) (\(.*\))$/);return m?`${esc(m[1])}<small>${esc(m[2])}</small>`:esc(n)};
 const matShort=code=>S.mats[0]==="all"?"All plastic":S.mats.length===1?nm(S.mats[0])+(code&&MATC[S.mats[0]]?` (${MATC[S.mats[0]]})`:""):`${S.mats.length} materials: `+S.mats.map(nm).join(", ");
 // "All plastic" ticks every stream; unticking one leaves the rest at their plastic shares,
 // and ticking every stream again counts as "All plastic".
-$("#matmenu").addEventListener("change",e=>{const k=e.target.value;let m=S.mats[0]==="all"?STREAMS.slice():S.mats.slice();
+$("#matmenu").addEventListener("change",e=>{const k=e.target.value;let m=S.mats[0]==="all"?PSTREAMS.slice():S.mats.slice();
   if(k==="all")m=e.target.checked?["all"]:["plastic"];
-  else{if(S.mats[0]==="all")S.count="plastic";if(e.target.checked)m.push(k);else m=m.filter(x=>x!==k);if(STREAMS.every(x=>m.includes(x)))m=["all"]}
+  else{if(S.mats[0]==="all")S.count="plastic";if(e.target.checked)m.push(k);else m=m.filter(x=>x!==k);if(PSTREAMS.every(x=>m.includes(x))&&m.every(x=>PSTREAMS.includes(x)))m=["all"]}
   if(!m.length)m=["plastic"];const before=S.mats.length;S.mats=STREAMS.concat("all").filter(x=>m.includes(x));
   if((S.mats.length>1||S.mats[0]==="all")&&before<2&&S.split!=="mt")S.split="mt";
   setMats()});
@@ -510,7 +516,7 @@ const run=fns=>{hideTip();for(const f of fns){try{f()}catch(e){console.error(e)}
 function drawTab(){if(S.tab==="overview")run([chartA,chartB,chartC,chartE,chartW]);else if(S.tab==="glance")run([chartF]);else run([chartG])}
 function update(){$("#split").value=S.split;setRange();yearsUI();cmpYears();compute();chips();syncUI();drawTab();syncURL()}
 
-async function setMats(){matUI();const need=S.mats.includes("all")?STREAMS:S.mats;
+async function setMats(){matUI();const need=S.mats.includes("all")?PSTREAMS:S.mats;
   try{await Promise.all(need.map(load))}catch(e){$("main").insertAdjacentHTML("beforeend",`<div class="empty">The data could not load. Refresh the page to try again.</div>`);return}
   setSpan();options();update()}
 

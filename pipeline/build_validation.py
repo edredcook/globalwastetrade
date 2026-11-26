@@ -14,6 +14,8 @@ Writes site/data/validation.json for the Validation page.
 import json
 from pathlib import Path
 
+from build_site_data import MATERIALS
+
 ROOT = Path(__file__).resolve().parent.parent
 SITE_DATA = ROOT / "site" / "data"
 REFERENCE = ROOT / "pipeline" / "reference"
@@ -23,8 +25,8 @@ EU27 = {40, 56, 100, 191, 196, 203, 208, 233, 246, 251, 276, 300, 348, 372, 380,
 MLIC = {"UMC", "LMC", "LIC"}
 
 
-def load_year(year):
-    with open(SITE_DATA / f"plastic_{year}.json", encoding="utf-8") as f:
+def load_year(year, mat=None):
+    with open(SITE_DATA / (f"{mat}_{year}.json" if mat else f"plastic_{year}.json"), encoding="utf-8") as f:
         return json.load(f)
 
 
@@ -50,7 +52,10 @@ def member(spec, d):
 
 
 def routes_of(d, stream=None):
-    rs = d["hidden"].get(stream, []) if stream else d["routes"]
+    if isinstance(stream, list):
+        rs = [r for k in stream for r in d["hidden"].get(k, [])]
+    else:
+        rs = d["hidden"].get(stream, []) if stream else d["routes"]
     return [r for r in rs if r[1] != r[2]]
 
 
@@ -67,14 +72,22 @@ def measure(d, m, stream=None):
     return views[0], views[1], sum(pair.values())
 
 
+def stream_of(check):
+    """A plastic stream, or for another material group the listed streams (default: all its own)."""
+    if check.get("material"):
+        return check.get("streams") or list(MATERIALS[check["material"]]["streams"])
+    return check.get("stream")
+
+
 def ours(check, data):
     years = check.get("years") or [check["year"]]
     rows = []
+    st = stream_of(check)
     for y in years:
-        d = data[y]
-        x, mm, lg = measure(d, check["measure"], check.get("stream"))
+        d = data[(check.get("material"), y)] if check.get("material") else data[y]
+        x, mm, lg = measure(d, check["measure"], st)
         if "share_of" in check:
-            bx, bm, blg = measure(d, check["share_of"], check.get("stream"))
+            bx, bm, blg = measure(d, check["share_of"], st)
             x, mm, lg = (100 * x / bx if bx else None, 100 * mm / bm if bm else None,
                          100 * lg / blg if blg else None)
         rows.append((x, mm, lg))
@@ -108,11 +121,16 @@ def build():
         needed.update(c.get("years") or [c["year"]])
     needed.add(ref["baci_streams"]["year"])
     data = {y: load_year(y) for y in sorted(needed) if y in years}
+    for c in ref["checks"]:
+        m = c.get("material")
+        for y in (c.get("years") or [c["year"]]) if m else ():
+            if y in years and (m, y) not in data and (SITE_DATA / f"{m}_{y}.json").exists():
+                data[(m, y)] = load_year(y, m)
 
     checks = []
     for c in ref["checks"]:
         ys = c.get("years") or [c["year"]]
-        if any(y not in data for y in ys):
+        if any((c.get("material"), y) not in data if c.get("material") else y not in data for y in ys):
             continue
         unit = c.get("unit", "t")
         pub = c["published"] * c.get("scale", 1)

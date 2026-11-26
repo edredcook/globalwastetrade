@@ -77,6 +77,48 @@
    "cite": "IPEN (2023) <i>Plastic Waste Trade: The Hidden Numbers</i>. Gothenburg: International Pollutants Elimination Network.",
    "url": "https://ipen.org/documents/plastic-waste-trade-hidden-numbers",
    "data": "UN Comtrade; exports from the EU, Japan, the UK and the US to non-OECD countries and Türkiye"
+  },
+  "usgs2026": {
+   "short": "USGS (2026)",
+   "kind": "Official statistics",
+   "cite": "U.S. Geological Survey (2026) <i>Mineral Commodity Summaries 2026: Iron and steel scrap</i>. Reston, VA: USGS.",
+   "url": "https://pubs.usgs.gov/periodicals/mcs2026/mcs2026-iron-steel-scrap.pdf",
+   "data": "US exports and imports of iron and steel scrap, 2021 to 2024"
+  },
+  "eurostat2025rrm": {
+   "short": "Eurostat (2025)",
+   "kind": "Official statistics",
+   "cite": "Eurostat (2025) <i>Exports in recyclable raw materials decreased in 2024</i>. Luxembourg: Eurostat, 24 April.",
+   "url": "https://ec.europa.eu/eurostat/web/products-eurostat-news/w/ddn-20250424-2",
+   "data": "EU exports of metal scrap to non-EU countries, 2024"
+  },
+  "eurostat2024rec": {
+   "short": "Eurostat (2024b)",
+   "kind": "Official statistics",
+   "cite": "Eurostat (2024) <i>Marked increase in EU exports of recyclables in 2023</i>. Luxembourg: Eurostat, 11 October.",
+   "url": "https://ec.europa.eu/eurostat/web/products-eurostat-news/w/ddn-20241011-1",
+   "data": "EU exports of recovered paper to non-EU countries, 2023"
+  },
+  "eea2023": {
+   "short": "EEA (2023)",
+   "kind": "Official report",
+   "cite": "European Environment Agency (2023) <i>EU exports of used textiles in Europe's circular economy</i>. EEA Briefing 01/2023. Copenhagen: EEA.",
+   "url": "https://www.eea.europa.eu/en/analysis/publications/eu-exports-of-used-textiles-in-europes-circular-economy",
+   "data": "EU exports of used textiles (HS 6309 and 6310) to non-EU countries, 2019"
+  },
+  "gem2024": {
+   "short": "Baldé et al. (2024)",
+   "kind": "Official report",
+   "cite": "Baldé, C.P. et al. (2024) <i>The Global E-waste Monitor 2024</i>. Geneva and Bonn: ITU and UNITAR.",
+   "url": "https://ewastemonitor.info/wp-content/uploads/2024/03/GEM_2024_18-03_web_executive-Summery.pdf",
+   "data": "E-waste shipped across borders in 2022, p. 15; e-waste composition, p. 11"
+  },
+  "usitc2018": {
+   "short": "USITC (2018)",
+   "kind": "Official report",
+   "cite": "U.S. International Trade Commission (2018) <i>China's Recycled Wastepaper Import Policies: Part 1</i>. Executive Briefing on Trade, April.",
+   "url": "https://www.usitc.gov/publications/332/executive_briefings/ebot_china_recycled_paper_final.pdf",
+   "data": "China's imports and US exports of recovered paper, yearly average since 2010"
   }
  },
  "checks": [
@@ -661,6 +703,224 @@
     "to": "OECD"
    },
    "why": ""
+  },
+  {
+   "group": "Metals",
+   "label": "US exports of iron and steel scrap",
+   "year": 2021,
+   "published": 18000000,
+   "source": "usgs2026",
+   "material": "metals",
+   "streams": [
+    "fe",
+    "ss"
+   ],
+   "measure": {
+    "from": [
+     842
+    ],
+    "to": "*"
+   },
+   "why": "USGS rounds to the nearest million tonnes."
+  },
+  {
+   "group": "Metals",
+   "label": "US exports of iron and steel scrap",
+   "year": 2022,
+   "published": 18000000,
+   "source": "usgs2026",
+   "material": "metals",
+   "streams": [
+    "fe",
+    "ss"
+   ],
+   "measure": {
+    "from": [
+     842
+    ],
+    "to": "*"
+   },
+   "why": "USGS rounds to the nearest million tonnes."
+  },
+  {
+   "group": "Metals",
+   "label": "US exports of iron and steel scrap",
+   "year": 2023,
+   "published": 16000000,
+   "source": "usgs2026",
+   "material": "metals",
+   "streams": [
+    "fe",
+    "ss"
+   ],
+   "measure": {
+    "from": [
+     842
+    ],
+    "to": "*"
+   },
+   "why": "USGS rounds to the nearest million tonnes."
+  },
+  {
+   "group": "Metals",
+   "label": "US exports of iron and steel scrap",
+   "year": 2024,
+   "published": 15000000,
+   "source": "usgs2026",
+   "material": "metals",
+   "streams": [
+    "fe",
+    "ss"
+   ],
+   "measure": {
+    "from": [
+     842
+    ],
+    "to": "*"
+   },
+   "why": "USGS rounds to the nearest million tonnes."
+  },
+  {
+   "group": "Metals",
+   "label": "US imports of iron and steel scrap",
+   "year": 2023,
+   "published": 5100000,
+   "source": "usgs2026",
+   "material": "metals",
+   "streams": [
+    "fe",
+    "ss"
+   ],
+   "measure": {
+    "from": "*",
+    "to": [
+     842
+    ]
+   },
+   "why": ""
+  },
+  {
+   "group": "Metals",
+   "label": "US imports of iron and steel scrap",
+   "year": 2024,
+   "published": 4800000,
+   "source": "usgs2026",
+   "material": "metals",
+   "streams": [
+    "fe",
+    "ss"
+   ],
+   "measure": {
+    "from": "*",
+    "to": [
+     842
+    ]
+   },
+   "why": ""
+  },
+  {
+   "group": "Metals",
+   "label": "EU exports of metal scrap outside the EU",
+   "year": 2024,
+   "published": 19000000,
+   "source": "eurostat2025rrm",
+   "material": "metals",
+   "measure": {
+    "from": "EU27",
+    "to": "!EU27"
+   },
+   "why": "Eurostat's recyclable raw materials cover a list of codes close to, but not the same as, this site's metal streams."
+  },
+  {
+   "group": "Paper and card",
+   "label": "EU exports of recovered paper outside the EU",
+   "year": 2023,
+   "published": 7000000,
+   "source": "eurostat2024rec",
+   "material": "paper",
+   "measure": {
+    "from": "EU27",
+    "to": "!EU27"
+   },
+   "why": ""
+  },
+  {
+   "group": "Paper and card",
+   "label": "US exports of recovered paper, yearly average",
+   "years": [
+    2010,
+    2011,
+    2012,
+    2013,
+    2014,
+    2015,
+    2016,
+    2017
+   ],
+   "published": 19500000,
+   "source": "usitc2018",
+   "material": "paper",
+   "measure": {
+    "from": [
+     842
+    ],
+    "to": "*"
+   },
+   "why": ""
+  },
+  {
+   "group": "Paper and card",
+   "label": "China's imports of recovered paper, yearly average",
+   "years": [
+    2010,
+    2011,
+    2012,
+    2013,
+    2014,
+    2015,
+    2016,
+    2017
+   ],
+   "published": 26000000,
+   "source": "usitc2018",
+   "material": "paper",
+   "measure": {
+    "from": "*",
+    "to": [
+     156
+    ]
+   },
+   "why": ""
+  },
+  {
+   "group": "Textiles",
+   "label": "EU exports of used textiles outside the EU",
+   "year": 2019,
+   "published": 1700000,
+   "source": "eea2023",
+   "material": "textiles",
+   "streams": [
+    "clothing",
+    "rags"
+   ],
+   "measure": {
+    "from": "EU27",
+    "to": "!EU27"
+   },
+   "why": "The EEA also used UN Comtrade (HS 6309 and 6310) and gives the figure as almost 1.7 Mt."
+  },
+  {
+   "group": "E-waste",
+   "label": "E-waste shipped across borders",
+   "year": 2022,
+   "published": 5100000,
+   "source": "gem2024",
+   "material": "ewaste",
+   "measure": {
+    "from": "*",
+    "to": "*"
+   },
+   "why": "Not like for like. The Monitor's figure includes 3.3 Mt of undocumented shipments, much of it declared as used equipment for reuse, which customs codes for waste and scrap do not capture."
   }
  ],
  "baci_streams": {

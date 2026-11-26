@@ -439,11 +439,11 @@ footer b{color:var(--ink);font-weight:600}
     <div class="mtabs">
       <span class="lab">Material</span>
       <div class="seg">
-        <button id="mgplas" aria-pressed="true" aria-expanded="true" aria-controls="hpgrid">Plastics</button>
-        <button disabled>Paper &amp; card <small>soon</small></button>
-        <button disabled>Metals <small>soon</small></button>
-        <button disabled>Textiles <small>soon</small></button>
-        <button disabled>E-waste <small>soon</small></button>
+        <button id="mgplas" data-mat="plastic" aria-pressed="true" aria-expanded="true" aria-controls="hpgrid">Plastics</button>
+        <button data-mat="paper" aria-pressed="false">Paper &amp; card</button>
+        <button data-mat="metals" aria-pressed="false">Metals</button>
+        <button data-mat="textiles" aria-pressed="false">Textiles</button>
+        <button data-mat="ewaste" aria-pressed="false">E-waste</button>
       </div>
       <span id="hpsum"></span>
       <span class="macts"><button class="linkbtn" id="hpshape">Select all</button><button class="linkbtn" id="hpoff">Plastic scrap only</button><button class="linkbtn" id="hpreset">Reset values</button><button class="linkbtn" id="hpsave">Save assumptions</button><label class="linkbtn">Load assumptions<input type="file" id="hpload" accept=".json,application/json" hidden></label></span>
@@ -672,7 +672,12 @@ const SCHEMES={un:"UN regions",unsub:"UN sub-regions",wb:"World Bank regions",oe
 const RMETH={mean:"average where both report",imp:"importer's figure preferred",exp:"exporter's figure preferred",max:"larger figure"};
 let VERSION="UN Comtrade";
 const CITE="Cook, E. (2026) Global Waste Trade Data Hub. Available at: https://globalwastetrade.org. Licence: CC BY 4.0";
-const HS={
+const GEM="Global E-waste Monitor 2024 (Baldé et al. 2024), p. 11: 31 of the 62 Mt of e-waste generated in 2022 were metals.";
+const GER="Gerassimidou et al. 2020, Waste Management & Research 38(9), Table 1";
+const MCFG={
+  plastic:{n:"Plastics",noun:"plastic",word:"plastic waste",core:"Plastic scrap",emb:"Plastic in other materials",embHead:"Other and embedded plastics",only:"Plastic scrap only",
+    embTip:"Plastic carried inside other traded wastes. Each stream's tonnage is multiplied by its plastic share, which you can change with the sliders button.",
+    hs:{
   fibre:{n:"Synthetic fibres",codes:"HS 5505.10",f:100,shape:true,src:"Assumption: synthetic fibre is plastic."},
   clothing:{n:"Used clothing (plastic fraction)",codes:"HS 6309",f:65,shape:true,src:"Source: Textile Exchange, Materials Market Report 2023, p10 (synthetic share of global fibre production, 2022)."},
   rags:{n:"Rags, twine and rope (plastic fraction)",codes:"HS 6310",f:65,shape:true,src:"Assumption, using Textile Exchange, Materials Market Report 2023, p10 (synthetic share of global fibre production, 2022)."},
@@ -682,18 +687,64 @@ const HS={
   tyres:{n:"Used tyres",codes:"HS 4012.20",f:100,shape:false,src:"Assumption: the whole tyre (natural and synthetic rubber, fillers, additives and cords) is counted in the plastics family."},
   rubber:{n:"Rubber waste and scrap",codes:"HS 4004",f:100,shape:false,src:"Assumption: all rubber, natural and synthetic, is counted in the plastics family."},
   hardrubber:{n:"Hard rubber",codes:"HS 4017",f:100,shape:false,src:"Assumption: all rubber is counted in the plastics family, and the whole code is treated as waste."},
-  paper:{n:"Paper and card (plastic contamination)",codes:"HS 4707",f:2,shape:false,src:"Assumption, for illustration."}};
-const HSCOL={scrap:"#0f7f86",fibre:"#b07aa1",clothing:"#e15759",rags:"#ff9da7",weee:"#4e79a7",weeeo:"#a0cbe8",rdf:"#9c755f",tyres:"#3d3d3d",rubber:"#8a8a8a",hardrubber:"#5f5f5f",paper:"#edc948"};
+  paper:{n:"Paper and card (plastic contamination)",codes:"HS 4707",f:2,shape:false,src:"Assumption, for illustration."}},
+    col:{scrap:"#0f7f86",fibre:"#b07aa1",clothing:"#e15759",rags:"#ff9da7",weee:"#4e79a7",weeeo:"#a0cbe8",rdf:"#9c755f",tyres:"#3d3d3d",rubber:"#8a8a8a",hardrubber:"#5f5f5f",paper:"#edc948"},
+    grp:[["Textiles",["clothing","rags","fibre"]],["E-waste",["weee","weeeo"]],["Refuse-derived fuel",["rdf"]],["Rubber and tyres",["tyres","rubber","hardrubber"]],["Paper and card",["paper"]]],
+    dlk:{}},
+  paper:{n:"Paper and card",noun:"paper",word:"recovered paper",core:"Recovered paper",emb:"Paper in other materials",embHead:"Other and embedded paper",only:"Paper and card only",
+    embTip:"Paper carried inside other traded wastes. Each stream's tonnage is multiplied by its paper share, which you can change with the sliders button.",
+    hs:{pkraft:{n:"Kraft and corrugated",codes:"HS 4707.10",f:100,core:true},pbleach:{n:"Bleached paper and board",codes:"HS 4707.20",f:100,core:true},
+      pmech:{n:"Newspapers and magazines",codes:"HS 4707.30",f:100,core:true},pmixed:{n:"Mixed and unsorted",codes:"HS 4707.90",f:100,core:true},
+      rdf:{n:"Refuse-derived fuel (paper fraction)",codes:"HS 3825.10",f:50,src:"Source: "+GER+" (50% paper and card)."}},
+    col:{pkraft:"#9c755f",pbleach:"#edc948",pmech:"#76b7b2",pmixed:"#bab0ac",rdf:"#59a14f"},
+    grp:[["Grades",["pkraft","pbleach","pmech","pmixed"],1],["Refuse-derived fuel",["rdf"]]],
+    dlk:{plastic_scrap_t:"recovered_paper_t",hidden_plastic_t:"paper_in_other_materials_t",hidden_detail:"by_stream"}},
+  metals:{n:"Metals",noun:"metal",word:"metal scrap",core:"Metal scrap",emb:"Metal in other materials",embHead:"Other and embedded metals",only:"Metal scrap only",
+    embTip:"Metal carried inside other traded wastes. Each stream's tonnage is multiplied by its metal share, which you can change with the sliders button.",
+    hs:{fe:{n:"Iron and steel",codes:"HS 7204 (not 7204.21)",f:100,core:true},ss:{n:"Stainless steel",codes:"HS 7204.21",f:100,core:true},
+      al:{n:"Aluminium",codes:"HS 7602",f:100,core:true},cu:{n:"Copper",codes:"HS 7404",f:100,core:true},pb:{n:"Lead",codes:"HS 7802",f:100,core:true},
+      zn:{n:"Zinc",codes:"HS 7902",f:100,core:true},ni:{n:"Nickel",codes:"HS 7503",f:100,core:true},sn:{n:"Tin",codes:"HS 8002",f:100,core:true},
+      pm:{n:"Precious metals",codes:"HS 7112.91, 7112.92, 7112.99",f:100,core:true},om:{n:"Other metals",codes:"HS 81 waste and scrap",f:100,core:true},
+      weee:{n:"Electronic assemblies and boards (metal fraction)",codes:"HS 8549.31, 8549.39",f:50,src:"Source: "+GEM},
+      weeeo:{n:"Other electrical scrap (metal fraction)",codes:"HS 8549.91, 8549.99",f:50,src:"Assumption, using "+GEM}},
+    col:{fe:"#4e79a7",ss:"#a0cbe8",al:"#bab0ac",cu:"#e15759",pb:"#5f5f5f",zn:"#76b7b2",ni:"#59a14f",sn:"#8cd17d",pm:"#edc948",om:"#9c755f",weee:"#b07aa1",weeeo:"#ff9da7"},
+    grp:[["Ferrous",["fe","ss"],1],["Non-ferrous",["al","cu","pb","zn","ni","sn"],1],["Precious and other",["pm","om"],1],["E-waste",["weee","weeeo"]]],
+    dlk:{plastic_scrap_t:"metal_scrap_t",hidden_plastic_t:"metal_in_other_materials_t",hidden_detail:"by_stream"}},
+  textiles:{n:"Textiles",noun:"textiles",word:"used textiles",core:"Used textiles",emb:"Textiles in other materials",embHead:"Other and embedded textiles",only:"Textiles only",
+    embTip:"Textiles carried inside other traded wastes. Each stream's tonnage is multiplied by its textile share, which you can change with the sliders button.",
+    hs:{clothing:{n:"Used clothing",codes:"HS 6309",f:100,core:true},rags:{n:"Rags, twine and rope",codes:"HS 6310",f:100,core:true},
+      fibre:{n:"Synthetic fibres",codes:"HS 5505.10",f:100,core:true},tartif:{n:"Artificial fibres",codes:"HS 5505.20",f:100,core:true},
+      tcotton:{n:"Cotton",codes:"HS 5202",f:100,core:true},twool:{n:"Wool and animal hair",codes:"HS 5103, 5104",f:100,core:true},
+      tsilk:{n:"Silk and flax",codes:"HS 5003, 5301.30",f:100,core:true},
+      rdf:{n:"Refuse-derived fuel (textile fraction)",codes:"HS 3825.10",f:5,src:"Source: "+GER+" (5% textiles)."}},
+    col:{clothing:"#e15759",rags:"#ff9da7",fibre:"#b07aa1",tartif:"#d4a6c8",tcotton:"#4e79a7",twool:"#9c755f",tsilk:"#edc948",rdf:"#59a14f"},
+    grp:[["Clothing and rags",["clothing","rags"],1],["Fibres",["fibre","tartif","tcotton","twool","tsilk"],1],["Refuse-derived fuel",["rdf"]]],
+    dlk:{plastic_scrap_t:"used_textiles_t",hidden_plastic_t:"textiles_in_other_materials_t",hidden_detail:"by_stream"}},
+  ewaste:{n:"E-waste",noun:"e-waste",word:"e-waste",core:"E-waste",emb:"",embHead:"",only:"",embTip:"",
+    hs:{ebatt:{n:"Batteries",codes:"HS 8549.11 to 8549.19 (HS 8548.10 before 2022)",f:100,core:true},eprec:{n:"Scrap for precious-metal recovery",codes:"HS 8549.21, 8549.29",f:100,core:true},
+      weee:{n:"Electronic assemblies and boards",codes:"HS 8549.31, 8549.39",f:100,core:true},weeeo:{n:"Other electrical and electronic scrap",codes:"HS 8549.91, 8549.99",f:100,core:true}},
+    col:{ebatt:"#e15759",eprec:"#edc948",weee:"#4e79a7",weeeo:"#a0cbe8"},
+    grp:[["Batteries",["ebatt"],1],["Electrical and electronic",["eprec","weee","weeeo"],1]],
+    dlk:{plastic_scrap_t:"ewaste_t",hidden_plastic_t:"other_t",hidden_detail:"by_stream"}}};
+const MATQ=new URLSearchParams(location.search).get("mat");
+const MAT=MCFG[MATQ]?MATQ:"plastic",MC=MCFG[MAT],HS=MC.hs,HSCOL=MC.col,HGRP=MC.grp,PLAS=MAT==="plastic";
+const EMB=Object.keys(HS).some(k=>!HS[k].core);
+const cap1=t=>t.charAt(0).toUpperCase()+t.slice(1);
+{const cur=document.querySelector(`.mtabs [data-mat="${MAT}"]`);if(!PLAS){const p=$("#mgplas");p.removeAttribute("id");p.removeAttribute("aria-expanded");p.removeAttribute("aria-controls");p.setAttribute("aria-pressed","false");cur.id="mgplas";cur.setAttribute("aria-pressed","true");cur.setAttribute("aria-expanded","true");cur.setAttribute("aria-controls","hpgrid")}
+  if(!PLAS)$(".dlmatbox .hint").dataset.tip=`The streams ticked under ${MC.n} at the top of the page.`+(EMB?` Each row splits into ${MC.core.toLowerCase()} and ${MC.emb.toLowerCase()}.`:"");
+  $("#hpoff").textContent=MC.only;if(!EMB)["#hpoff","#hpreset","#hpsave"].forEach(q=>$(q).hidden=true),$("#hpload").parentElement.hidden=true}
+const ASSUME=PLAS?"gwt-assumptions-v2":"gwt-assumptions-"+MAT;
 const HDEF=k=>({on:true,f:HS[k].f,w:100,byInc:false,inc:{HIC:HS[k].f,UMC:HS[k].f,LMC:HS[k].f,LIC:HS[k].f},usrc:""});
 const isDef=k=>!HON[k].byInc&&+HON[k].f===+HS[k].f;
 const HON={};for(const k in HS)HON[k]=HDEF(k);
 // v2: every stream is on by default (Ed, 26 Nov 2026). Saved shares from v1 are kept, with the streams switched on.
-try{let sv=JSON.parse(localStorage.getItem("gwt-assumptions-v2")||"null"),old=false;if(!sv){sv=JSON.parse(localStorage.getItem("gwt-assumptions")||"null");old=!!sv}
-  if(sv&&sv.streams)for(const k in HS)if(sv.streams[k]){HON[k]=sanitiseH(k,sv.streams[k]);if(old)HON[k].on=true}}catch(e){}
+try{let sv=JSON.parse(localStorage.getItem(ASSUME)||"null"),old=false;if(!sv&&PLAS){sv=JSON.parse(localStorage.getItem("gwt-assumptions")||"null");old=!!sv}
+  if(sv&&sv.streams)for(const k in HS)if(sv.streams[k]){HON[k]=sanitiseH(k,sv.streams[k]);if(old)HON[k].on=true;if(HS[k].core){HON[k].f=100;HON[k].byInc=false}}}catch(e){}
 function sanitiseH(k,o){const c=v=>Math.max(0,Math.min(100,+v));const d=HDEF(k),n=x=>x!=null&&isFinite(+x);
   return{on:!!o.on,usrc:typeof o.usrc==="string"?o.usrc.slice(0,300):typeof o.source==="string"&&o.source!==HS[k].src?o.source.slice(0,300):"",f:n(o.f)?c(o.f):d.f,w:100,byInc:!!o.byInc,inc:Object.fromEntries(["HIC","UMC","LMC","LIC"].map(g=>[g,o.inc&&n(o.inc[g])?c(o.inc[g]):d.inc[g]]))}}
 const shareOf=(k,e)=>{const h=HON[k],g=C[e]?C[e][2]:"NS";return (h.byInc&&h.inc[g]!=null?h.inc[g]:h.f)/100*h.w/100};
 const S={imp:new URLSearchParams(location.search).get("imp")!=="0",hatch:true,scrap:true,fdir:"both",fgrp:"c",view:0,measure:"t",incf:"all",lo:(new URLSearchParams(location.search).get("lo")||"").split(",").filter(x=>x&&"riho".includes(x)),sel:null,region:null,rdir:"both",scheme:"wb",mapMode:"routes",hl:"none",resolve:"mean",rank:"exp",rankSort:null,fmt:"csv"};
+if(!PLAS)S.scrap=false;
 const B={type:"sankey",from:"c",to:"c",side:"ex",group:"c",scheme:"wb",view:0,measure:"t",top:15,focus:false,nointra:false,split:"r",norm:"abs",tcol:"shade",nlab:15,labt:"c"};
 const HEADN=300,RSTEPS=[10,15,20,25,30,40,45,50,60,75,100,125,150,200,250,300,400,500,750,1000,1500,2000,3000,5000,1e9],ALLR=1e9;
 const rIdx=v=>{let b=0;for(let i=0;i<RSTEPS.length;i++)if(Math.abs(RSTEPS[i]-v)<Math.abs(RSTEPS[b]-v))b=i;return b},rLab=v=>v>=ALLR?"All":d3.format(",")(v);
@@ -701,13 +752,23 @@ const DDEF={preset:"container",dec:1,linc:false,rcol:"io",out:null,in:null,res:n
 // v7: 60 routes by default (Ed, 26 Nov 2026); other saved design choices carry over from v6.
 let D={...DDEF};try{let s=JSON.parse(localStorage.getItem("gwt-design-v7")||"null");if(!s){s=JSON.parse(localStorage.getItem("gwt-design-v6")||"null");if(s)s.maxr=DDEF.maxr}if(s)D={...DDEF,...s}}catch(e){}
 
-let data,world,TR=null,MAN=null,IMP=null;
-try{const ok=r=>{if(!r.ok)throw new Error(r.status);return r.json()};MAN=await fetch("data/manifest.json",{cache:"no-cache"}).then(ok);const qy=+new URLSearchParams(location.search).get("year");const yr=MAN.years.includes(qy)?qy:(MAN.default||MAN.latest);[data,world,TR,IMP]=await Promise.all([fetch(`data/plastic_${yr}.json`,{cache:"no-cache"}).then(ok),fetch("data/world-110m.json").then(ok),fetch("data/trends.json",{cache:"no-cache"}).then(ok).catch(()=>null),fetch(`data/imputed_${yr}.json`,{cache:"no-cache"}).then(ok).catch(()=>null)]);OECD=await fetch("data/oecd.json",{cache:"no-cache"}).then(ok).then(d=>d.members||{}).catch(()=>({}));}
+let data,world,TR=null,MAN=null,IMP=null,MYEARS=[];
+// Trend series of several streams added together (same years in every file).
+function mergeTR(list){if(!list.length)return null;const n=list[0].years.length,z=()=>new Array(n).fill(0),o={years:list[0].years,world:{},countries:{}};
+  for(const T of list){for(const v in T.world){const w=o.world[v]||(o.world[v]={t:z(),usd:z()});T.world[v].t.forEach((x,i)=>w.t[i]+=x);T.world[v].usd.forEach((x,i)=>w.usd[i]+=x)}
+    for(const c in T.countries)for(const v in T.countries[c]){const dst=(o.countries[c]||(o.countries[c]={}))[v]||(o.countries[c][v]={});for(const k in T.countries[c][v]){const a=dst[k]||(dst[k]=z());T.countries[c][v][k].forEach((x,i)=>a[i]+=x)}}}
+  return o}
+try{const ok=r=>{if(!r.ok)throw new Error(r.status);return r.json()};MAN=await fetch("data/manifest.json",{cache:"no-cache"}).then(ok);
+  if(!PLAS&&!(MAN.materials||{})[MAT]){const u=new URL(location.href);u.searchParams.delete("mat");location.replace(u.toString());return}
+  MYEARS=PLAS?MAN.years:MAN.materials[MAT];
+  const qy=+new URLSearchParams(location.search).get("year"),dy=MYEARS.includes(MAN.default)?MAN.default:MYEARS.filter(y=>!(MAN.modelled||[]).includes(y)).pop()||MYEARS[MYEARS.length-1];const yr=MYEARS.includes(qy)?qy:dy;
+  const cores=Object.keys(HS).filter(k=>HS[k].core),getTR=PLAS?fetch("data/trends.json",{cache:"no-cache"}).then(ok):Promise.all(cores.map(k=>fetch(`data/trends_${k}.json`,{cache:"no-cache"}).then(ok).catch(()=>null))).then(a=>mergeTR(a.filter(Boolean)));
+  [data,world,TR,IMP]=await Promise.all([fetch(PLAS?`data/plastic_${yr}.json`:`data/${MAT}_${yr}.json`,{cache:"no-cache"}).then(ok),fetch("data/world-110m.json").then(ok),getTR.catch(()=>null),fetch(PLAS?`data/imputed_${yr}.json`:`data/imputed_${MAT}_${yr}.json`,{cache:"no-cache"}).then(ok).catch(()=>null)]);}
 catch(e){$("#maptitle").textContent="The data could not load. Refresh the page to try again.";$("#side").innerHTML="";return;}
 
 const MODY=new Set(MAN.modelled||[]),PMODY=new Set(MAN.part_modelled||[]),ylab=y=>y+(MODY.has(y)?" (modelled)":PMODY.has(y)?" (part modelled)":"");
 const C=data.countries,SCH=data.schemes,YEAR=data.meta.year,CODE=data.meta.code,MOD=!!data.meta.modelled,YL=MOD?ylab(YEAR).replace(/^\d+$/,YEAR+" (modelled)"):String(YEAR);
-$("#year").innerHTML=MAN.years.slice().reverse().map(y=>`<option value="${y}" ${y===YEAR?"selected":""}>${ylab(y)}</option>`).join("");
+$("#year").innerHTML=MYEARS.slice().reverse().map(y=>`<option value="${y}" ${y===YEAR?"selected":""}>${ylab(y)}</option>`).join("");
 const goYear=(y,hash)=>{const u=new URL(location.href);if(hash)u.hash=hash;u.searchParams.set("year",y);if(S.sel)u.searchParams.set("c",S.sel);else u.searchParams.delete("c");if(!S.imp)u.searchParams.set("imp","0");else u.searchParams.delete("imp");location.href=u.toString()};
 $("#year").onchange=e=>goYear(e.target.value);
 const NAT=["Eurostat","HMRC"].filter(k=>(data.meta.source||"").includes(k)), NATL=NAT.length?` with provisional ${NAT.join(" and ")} months`:"";
@@ -722,6 +783,7 @@ const ALIAS=data.aliases||{};
 let R=[];
 const HAS_HID=Object.values(HROWS).some(x=>x.length);
 const hidOn=()=>!HAS_HID?[]:Object.keys(HS).filter(k=>{const h=HON[k];return h.on&&h.w>0&&(h.byInc?Object.values(h.inc).some(v=>v>0):h.f>0)});
+const embOn=()=>hidOn().filter(k=>!HS[k].core),coreOn=()=>hidOn().filter(k=>HS[k].core);
 function pairUp(RAW){
   const m=new Map();for(const r of RAW){const k=r.ex+">"+r.rc;if(!m.has(k))m.set(k,[null,null]);m.get(k)[r.v]=r}
   const out=[];
@@ -747,16 +809,20 @@ function resolve(){
     for(const k of on){
       for(const h of hViews(k)){const {v,ex,rc}=h,f=shareOf(k,ex),key=v+"|"+ex+"|"+rc;let r=idx.get(key);
         if(!r){r={v,ex,rc,t:0,usd:0,est:false,basis:"hidden or embedded plastic only",hid:0,hu:0,hs:null};rows.push(r);idx.set(key,r)}
-        const tt=h.t*f,uu=h.usd*f;r.t+=tt;r.usd+=uu;r.hid+=tt;r.hu+=uu;(r.hs||(r.hs={}))[k]=(r.hs[k]||0)+tt}}
+        const tt=h.t*f,uu=h.usd*f;r.t+=tt;r.usd+=uu;r.hid+=tt;r.hu+=uu;if(!HS[k].core){r.emb=(r.emb||0)+tt;r.eu=(r.eu||0)+uu}(r.hs||(r.hs={}))[k]=(r.hs[k]||0)+tt}}
   }
   R=rows;
 }
-const PW=()=>{const h=hidOn().length;return !h?"plastic waste":S.scrap?"plastic waste and hidden or embedded plastic":"hidden or embedded plastic"};
-const aggS=rs=>{let t=0,usd=0,est=0;for(const r of rs){t+=r.t-(r.hid||0);usd+=r.usd-(r.hu||0);if(r.est)est+=r.t-(r.hid||0)}return{t,usd,est,n:rs.length}};
-const hDesc=k=>{const h=HON[k];return HS[k].n+" "+(h.byInc?"HIC "+h.inc.HIC+"/UMC "+h.inc.UMC+"/LMC "+h.inc.LMC+"/LIC "+h.inc.LIC+"% plastic":h.f+"% plastic")+(isDef(k)?"":" (user value"+(h.usrc.trim()?"; source: "+h.usrc.trim():", no source given")+")")};
+const PW=()=>{if(PLAS){const h=hidOn().length;return !h?"plastic waste":S.scrap?"plastic waste and hidden or embedded plastic":"hidden or embedded plastic"}
+  const e=embOn().length,c=coreOn().length;return !e?MC.word:c?MC.word+" and embedded "+MC.noun:"embedded "+MC.noun};
+const aggS=rs=>{let t=0,usd=0,est=0;for(const r of rs){const h=PLAS?r.hid||0:r.emb||0;t+=r.t-h;usd+=r.usd-(PLAS?r.hu||0:r.eu||0);if(r.est)est+=r.t-h}return{t,usd,est,n:rs.length}};
+const hDesc=k=>{const h=HON[k];if(HS[k].core)return HS[k].n;return HS[k].n+" "+(h.byInc?"HIC "+h.inc.HIC+"/UMC "+h.inc.UMC+"/LMC "+h.inc.LMC+"/LIC "+h.inc.LIC+"% "+MC.noun:h.f+"% "+MC.noun)+(isDef(k)?"":" (user value"+(h.usrc.trim()?"; source: "+h.usrc.trim():", no source given")+")")};
+const coreAll=()=>Object.keys(HS).filter(k=>HS[k].core&&HROWS[k].length);
+function matNote(cap){if(PLAS)return "";const c=coreOn(),e=embOn(),a=cap?[" Streams: "," Includes "+MC.embHead.toLowerCase()+": ","."]:[" · streams: "," · "+MC.embHead.toLowerCase()+": ",""];
+  return (c.length<coreAll().length?a[0]+(c.length?c.map(hDesc).join(", "):"none")+a[2]:"")+(e.length?a[1]+e.map(hDesc).join(", ")+a[2]:"")}
 function mapCaption(){const on=hidOn(),v=VIEWS[S.view];
-  return `${v[0].toUpperCase()+v.slice(1)}${S.view===2?" ("+RMETH[S.resolve]+")":""}${S.imp?", with gaps imputed":", as reported"}.`+(on.length?` Includes other and embedded plastics: ${on.map(hDesc).join(", ")}.`:"")+(on.length&&!S.scrap?" Plastic scrap left out.":"")+(S.incf==="oe"?" Only trade from OECD to non-OECD countries.":S.incf==="hl"?" Only trade from high-income to middle- and low-income countries.":"")+(S.lo.length?" "+loNote():"")+` Source: ${VERSION}. Global Waste Trade Data Hub, globalwastetrade.org, CC BY\u00a04.0.`}
-function hpNote(){const on=hidOn();return on.length?" · hidden or embedded plastic: "+on.map(hDesc).join(", ")+" (UN Comtrade "+YEAR+")"+(S.scrap?"":" · plastic scrap left out"):""}
+  return `${v[0].toUpperCase()+v.slice(1)}${S.view===2?" ("+RMETH[S.resolve]+")":""}${S.imp?", with gaps imputed":", as reported"}.`+(PLAS?(on.length?` Includes other and embedded plastics: ${on.map(hDesc).join(", ")}.`:"")+(on.length&&!S.scrap?" Plastic scrap left out.":""):matNote(true))+(S.incf==="oe"?" Only trade from OECD to non-OECD countries.":S.incf==="hl"?" Only trade from high-income to middle- and low-income countries.":"")+(S.lo.length?" "+loNote():"")+` Source: ${VERSION}. Global Waste Trade Data Hub, globalwastetrade.org, CC BY\u00a04.0.`}
+function hpNote(){if(!PLAS)return matNote(false);const on=hidOn();return on.length?" · hidden or embedded plastic: "+on.map(hDesc).join(", ")+" (UN Comtrade "+YEAR+")"+(S.scrap?"":" · plastic scrap left out"):""}
 resolve();
 const name=c=>C[c]?C[c][1]:c, iso=c=>C[c]?C[c][0]:c, inc=c=>C[c]?C[c][2]:"NS";
 const regOf=(c,sch=S.scheme)=>(SCH[sch]&&SCH[sch][c])||null;
@@ -1222,7 +1288,7 @@ function side(){
       <div class="bar2"><span>${esc(me[0])} says</span><span class="track"><i style="width:${sv/mx*100}%;background:var(--out)"></i></span><span>${fmt(sv,mm)}</span></div>
       <div class="bar2"><span>Partners say</span><span class="track"><i style="width:${mv/mx*100}%;background:var(--in)"></i></span><span>${fmt(mv,mm)}</span></div>
       <div class="bar2"><span data-def="res">Resolved</span><span class="track"><i style="width:${rv/mx*100}%;background:var(--res)"></i></span><span>${fmt(rv,mm)}</span></div>
-      ${hidOn().length?`<div class="note" style="margin-top:6px">These three bars compare plastic scrap only. Hidden or embedded plastic adds ${fT(d3.sum(rs.filter(r=>r.ex===c),r=>r.hid||0))} to exports in this view.</div>`:""}
+      ${(PLAS?hidOn():embOn()).length?`<div class="note" style="margin-top:6px">These three bars compare ${MC.core.toLowerCase()} only. ${PLAS?"Hidden or embedded plastic":MC.emb} adds ${fT(d3.sum(rs.filter(r=>r.ex===c),r=>(PLAS?r.hid:r.emb)||0))} to exports in this view.</div>`:""}
       ${self.t>0&&self.est/self.t>0.005?`<div class="note" style="margin-top:6px">${d3.format(".0%")(self.est/self.t)} of ${esc(me[0])}'s reported export weight is estimated.</div>`:""}</div></div>
     <div><h4>Where it goes${byReg?" (by region)":""}</h4><div class="bars">${outP.length?bars(outP.slice(0,10),byReg?k=>rcol(k):css("--out"),byReg&&m==="ppt"?"t":m,byReg?k=>k:name):'<div class="note">No exports recorded in this view.</div>'}</div></div>
     <div><h4>Where it comes from${byReg?" (by region)":""}</h4><div class="bars">${inP.length?bars(inP.slice(0,10),byReg?k=>rcol(k):css("--in"),byReg&&m==="ppt"?"t":m,byReg?k=>k:name):'<div class="note">No imports recorded in this view.</div>'}</div>
@@ -1500,41 +1566,42 @@ function rank(){
   const k=S.rank==="exp",side=k?"ex":"rc",own=k?0:1,rows=[];
   const by=d3.group(R.filter(r=>!r.imp&&pass(r)),r=>r[side]);
   for(const [code,A] of by){
-    const a=aggS(A.filter(r=>r.v===own)),b=aggS(A.filter(r=>r.v===1-own)),c=agg(A.filter(r=>r.v===2)),h=d3.sum(A.filter(r=>r.v===2),r=>r.hid||0);
+    const a=aggS(A.filter(r=>r.v===own)),b=aggS(A.filter(r=>r.v===1-own)),c=agg(A.filter(r=>r.v===2)),h=d3.sum(A.filter(r=>r.v===2),r=>(PLAS?r.hid:r.emb)||0);
     if(!a.t&&!b.t&&!c.t)continue;
     rows.push({code,name:name(code),iso:iso(code),inc:inc(code),region:regOf(code)||"",own:a.t,mir:b.t,ratio:a.t>0&&b.t>0?b.t/a.t:null,res:c.t,usd:c.usd,ppt:c.t>=50?c.usd/c.t:null,np:new Set(A.filter(r=>r.v===2).map(r=>k?r.rc:r.ex)).size,est:a.t>0?a.est/a.t:0,hid:h});
   }
   const sort=S.rankSort||{k:"res",d:-1};
   rows.sort((x,y)=>{const a=x[sort.k],b=y[sort.k];if(a==null)return 1;if(b==null)return -1;return(a>b?1:a<b?-1:0)*sort.d});
   rankRows=rows;
-  const cols=[["name","Country"],["inc","Income"],["region",SCHEMES[S.scheme].replace(/s$/,"")],["own",k?"Exports, own report":"Imports, own report",1],["mir","Partners' reports",1],["ratio","Mirror ratio",1],["res","Resolved",1],...(hidOn().length?[["hid","of which hidden or embedded plastic",1]]:[]),["usd","Value (resolved)",1],["ppt","US$ per tonne",1],["np",k?"Destinations":"Origins",1],["est","Estimated weight",1]];
+  const cols=[["name","Country"],["inc","Income"],["region",SCHEMES[S.scheme].replace(/s$/,"")],["own",k?"Exports, own report":"Imports, own report",1],["mir","Partners' reports",1],["ratio","Mirror ratio",1],["res","Resolved",1],...((PLAS?hidOn():embOn()).length?[["hid",PLAS?"of which hidden or embedded plastic":"of which "+MC.emb.toLowerCase(),1]]:[]),["usd","Value (resolved)",1],["ppt","US$ per tonne",1],["np",k?"Destinations":"Origins",1],["est","Estimated weight",1]];
   $("#rank thead").innerHTML="<tr>"+cols.map(([key,l,n])=>`<th class="${n?"n":""}" data-k="${key}"${key==="res"?' data-def="res"':""} ${sort.k===key?`aria-sort="${sort.d>0?"ascending":"descending"}"`:""}>${esc(l)}</th>`).join("")+"</tr>";
   const m=d3.max(rows,r=>r.res)||1;
-  $("#rank tbody").innerHTML=rows.map(r=>`<tr data-c="${esc(r.code)}"><td>${esc(r.name)}</td><td><span class="inc" style="background:var(--g-${r.inc.toLowerCase()})">${r.inc}</span></td><td>${esc(r.region)}</td><td class="n">${r.own?fT(r.own):"—"}</td><td class="n">${r.mir?fT(r.mir):"—"}</td><td class="n"><span class="ratio ${r.ratio!=null&&(r.ratio<0.67||r.ratio>1.5)?"warn":""}">${r.ratio==null?"—":r.ratio.toFixed(2)}</span></td><td class="n res">${fT(r.res)}<span class="spark" style="width:${r.res/m*50}px;background:var(--res)"></span></td>${hidOn().length?`<td class="n">${r.hid?fT(r.hid):"—"}</td>`:""}<td class="n">${r.usd?fU(r.usd):"—"}</td><td class="n">${fP(r.ppt)}</td><td class="n">${r.np||"—"}</td><td class="n">${r.est>0.005?d3.format(".0%")(r.est):"—"}</td></tr>`).join("");
+  $("#rank tbody").innerHTML=rows.map(r=>`<tr data-c="${esc(r.code)}"><td>${esc(r.name)}</td><td><span class="inc" style="background:var(--g-${r.inc.toLowerCase()})">${r.inc}</span></td><td>${esc(r.region)}</td><td class="n">${r.own?fT(r.own):"—"}</td><td class="n">${r.mir?fT(r.mir):"—"}</td><td class="n"><span class="ratio ${r.ratio!=null&&(r.ratio<0.67||r.ratio>1.5)?"warn":""}">${r.ratio==null?"—":r.ratio.toFixed(2)}</span></td><td class="n res">${fT(r.res)}<span class="spark" style="width:${r.res/m*50}px;background:var(--res)"></span></td>${(PLAS?hidOn():embOn()).length?`<td class="n">${r.hid?fT(r.hid):"—"}</td>`:""}<td class="n">${r.usd?fU(r.usd):"—"}</td><td class="n">${fP(r.ppt)}</td><td class="n">${r.np||"—"}</td><td class="n">${r.est>0.005?d3.format(".0%")(r.est):"—"}</td></tr>`).join("");
   $("#rank thead").querySelectorAll("th").forEach(th=>th.onclick=()=>{const kk=th.dataset.k;S.rankSort={k:kk,d:(S.rankSort&&S.rankSort.k===kk)?-S.rankSort.d:(["name","inc","region"].includes(kk)?1:-1)};rank()});
   $("#rank tbody").querySelectorAll("tr").forEach(tr=>tr.onclick=()=>{select(tr.dataset.c);$("#explore").scrollIntoView()});
 }
 
 // ---------- DATA BUILDER ----------
-const DLCOLS=[["year","Year",1],["view","Figures",1],["basis","Resolved basis",0],["exporter_iso","Exporter ISO3",1],["exporter","Exporter",1],["exporter_income","Exporter income",0],["exporter_region","Exporter region",0],["recipient_iso","Recipient ISO3",1],["recipient","Recipient",1],["recipient_income","Recipient income",0],["recipient_region","Recipient region",0],["net_weight_t","Net weight (t)",1],["value_usd","Value (US$)",1],["usd_per_tonne","US$ per tonne",0],["weight_estimated","Weight estimated",0],["imputed","Imputed",1],["plastic_scrap_t","Plastic scrap (t)",0],["hidden_plastic_t","Plastic in other materials (t)",0],["hidden_detail","Plastic in other materials, by stream",0],["code","Commodity code",0],["source","Source and version",0]];
-const DLGRP=[["Record",["year","view","basis","code","source"]],["Exporter",["exporter","exporter_iso","exporter_income","exporter_region"]],["Recipient",["recipient","recipient_iso","recipient_income","recipient_region"]],["Amounts",["net_weight_t","value_usd","usd_per_tonne","weight_estimated","imputed"]],["Plastic",["plastic_scrap_t","hidden_plastic_t","hidden_detail"]]];
+const DLCOLS=[["year","Year",1],["view","Figures",1],["basis","Resolved basis",0],["exporter_iso","Exporter ISO3",1],["exporter","Exporter",1],["exporter_income","Exporter income",0],["exporter_region","Exporter region",0],["recipient_iso","Recipient ISO3",1],["recipient","Recipient",1],["recipient_income","Recipient income",0],["recipient_region","Recipient region",0],["net_weight_t","Net weight (t)",1],["value_usd","Value (US$)",1],["usd_per_tonne","US$ per tonne",0],["weight_estimated","Weight estimated",0],["imputed","Imputed",1],["plastic_scrap_t",MC.core+" (t)",0],["hidden_plastic_t",(MC.emb||"Other")+" (t)",0],["hidden_detail",PLAS?"Plastic in other materials, by stream":"By stream",0],["code","Commodity code",0],["source","Source and version",0]];
+const DLGRP=[["Record",["year","view","basis","code","source"]],["Exporter",["exporter","exporter_iso","exporter_income","exporter_region"]],["Recipient",["recipient","recipient_iso","recipient_income","recipient_region"]],["Amounts",["net_weight_t","value_usd","usd_per_tonne","weight_estimated","imputed"]],[MC.n,PLAS||EMB?["plastic_scrap_t","hidden_plastic_t","hidden_detail"]:["hidden_detail"]]];
 {const L=Object.fromEntries(DLCOLS.map(c=>[c[0],c])),short=(g,l)=>g==="Exporter"||g==="Recipient"?(l.replace(g,"").trim()||"Name").replace(/^./,c=>c.toUpperCase()):l;
 $("#dlcols").innerHTML=DLGRP.map(([g,ks])=>`<fieldset><legend>${g}</legend>${ks.map(k=>{const [,l,on]=L[k];return `<label><input type="checkbox" id="col-${k}" ${on?"checked":""}> ${short(g,l)}</label>`}).join("")}</fieldset>`).join("")}
 function dlRows(){
   const views=[[0,"#dlx"],[1,"#dlm"],[2,"#dlr"]].filter(([v,id])=>$(id).checked).map(d=>d[0]),mode=document.querySelector("input[name=dlc]:checked").value;
   return R.filter(r=>views.includes(r.v)&&(mode==="all"||(mode==="map"&&pass(r))||(mode==="sel"&&DLC&&(r.ex===DLC||r.rc===DLC))))
-   .sort((a,b)=>b.t-a.t).map(r=>({year:YEAR,view:["exporter","importer","resolved"][r.v],basis:r.v===2?r.basis+(r.basis==="both reported"?` (${RMETH[S.resolve]})`:""):r.basis,exporter_iso:iso(r.ex),exporter:name(r.ex),exporter_income:inc(r.ex),exporter_region:regOf(r.ex)||"",recipient_iso:iso(r.rc),recipient:name(r.rc),recipient_income:inc(r.rc),recipient_region:regOf(r.rc)||"",net_weight_t:+r.t.toFixed(2),value_usd:Math.round(r.usd),usd_per_tonne:r.t>0?Math.round(r.usd/r.t):"",weight_estimated:r.est===2?"cleaning":r.est?"reporter":"",imputed:r.imp?IMPHOW[r.imp]:MODY.has(YEAR)?"modelled year":"",plastic_scrap_t:+(r.t-(r.hid||0)).toFixed(2),hidden_plastic_t:+(r.hid||0).toFixed(2),hidden_detail:r.hs?Object.entries(r.hs).map(([k,v])=>k+":"+v.toFixed(1)).join(";"):"",code:(S.scrap?CODE:"")+(r.hs?(S.scrap?" + ":"")+Object.keys(r.hs).map(k=>HS[k].codes).join(" + "):""),source:VERSION+" · regions: "+SCHEMES[S.scheme]+hpNote()}));
+   .sort((a,b)=>b.t-a.t).map(r=>({year:YEAR,view:["exporter","importer","resolved"][r.v],basis:r.v===2?r.basis+(r.basis==="both reported"?` (${RMETH[S.resolve]})`:""):r.basis,exporter_iso:iso(r.ex),exporter:name(r.ex),exporter_income:inc(r.ex),exporter_region:regOf(r.ex)||"",recipient_iso:iso(r.rc),recipient:name(r.rc),recipient_income:inc(r.rc),recipient_region:regOf(r.rc)||"",net_weight_t:+r.t.toFixed(2),value_usd:Math.round(r.usd),usd_per_tonne:r.t>0?Math.round(r.usd/r.t):"",weight_estimated:r.est===2?"cleaning":r.est?"reporter":"",imputed:r.imp?IMPHOW[r.imp]:MODY.has(YEAR)?"modelled year":"",plastic_scrap_t:+(r.t-((PLAS?r.hid:r.emb)||0)).toFixed(2),hidden_plastic_t:+((PLAS?r.hid:r.emb)||0).toFixed(2),hidden_detail:r.hs?Object.entries(r.hs).map(([k,v])=>k+":"+v.toFixed(1)).join(";"):"",code:(S.scrap?CODE:"")+(r.hs?(S.scrap?" + ":"")+Object.keys(r.hs).map(k=>HS[k].codes).join(" + "):""),source:VERSION+" · regions: "+SCHEMES[S.scheme]+hpNote()}));
 }
 const csvCell=v=>{v=v==null?"":String(v);return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
-const toCSV=(rows,keys)=>[keys.join(","),...rows.map(r=>keys.map(k=>csvCell(r[k])).join(","))].join("\n");
-const toJSON=(rows,keys,pretty)=>JSON.stringify(rows.map(r=>Object.fromEntries(keys.map(k=>[k,r[k]]))),null,pretty?1:0);
-const dlKeys=()=>DLCOLS.map(c=>c[0]).filter(k=>$("#col-"+k).checked);
+const OUTK=k=>MC.dlk[k]||k;
+const toCSV=(rows,keys)=>[keys.map(OUTK).join(","),...rows.map(r=>keys.map(k=>csvCell(r[k])).join(","))].join("\n");
+const toJSON=(rows,keys,pretty)=>JSON.stringify(rows.map(r=>Object.fromEntries(keys.map(k=>[OUTK(k),r[k]]))),null,pretty?1:0);
+const dlKeys=()=>DLCOLS.map(c=>c[0]).filter(k=>$("#col-"+k)?.checked);
 // Get the data mirrors the page filters so the reader can see and change them here: year and data gaps change the
 // whole page; reporter types follow the page until the reader ticks their own; the country follows the map selection
 // until the reader picks one.
 let DLC=null,dlOwnC=false,dlOwnV=false;
 const mapDesc=()=>[S.incf==="hl"?"High → middle- and low-income":S.incf==="oe"?"OECD → non-OECD":"",S.region||"",S.lo.length?"leaving out trade "+S.lo.map(k=>LON[k]).join(", "):""].filter(Boolean).join(" · ")||"none";
-const dlFile=(n,f)=>`gwt-${hidOn().length?"plastic-incl-hidden":"plastic-waste"}-${YL}-${n}-rows.${f}`;
+const dlFile=(n,f)=>`gwt-${PLAS?(hidOn().length?"plastic-incl-hidden":"plastic-waste"):MAT+(embOn().length?"-incl-embedded":"")}-${YL}-${n}-rows.${f}`;
 function buildDL(){
   if(!dlOwnV)[[0,"#dlx"],[1,"#dlm"],[2,"#dlr"]].forEach(([v,id])=>$(id).checked=v===S.view);
   if(!dlOwnC&&S.sel)DLC=S.sel;
@@ -1542,7 +1609,7 @@ function buildDL(){
   pressed("#dlimp","i",S.imp?"1":"0");
   $("#dlmapdesc").textContent=mapDesc();
   const on=hidOn();
-  $("#dlmat").innerHTML=(S.scrap?`<span>Plastic scrap <i>${CODE}</i></span>`:"")+on.map(k=>{const h=HON[k];return `<span>${esc(HS[k].n)} <i>${h.byInc?"by income":h.f+"%"}</i></span>`}).join("")||`<span>Nothing ticked</span>`;
+  $("#dlmat").innerHTML=(S.scrap?`<span>Plastic scrap <i>${CODE}</i></span>`:"")+on.map(k=>{const h=HON[k];return `<span>${esc(HS[k].n)} <i>${HS[k].core?esc(HS[k].codes):h.byInc?"by income":h.f+"%"}</i></span>`}).join("")||`<span>Nothing ticked</span>`;
   const rows=dlRows(),keys=dlKeys(),views=[[0,"#dlx"],[1,"#dlm"],[2,"#dlr"]].filter(([v,id])=>$(id).checked).map(d=>d[0]),mode=document.querySelector("input[name=dlc]:checked").value;
   $("#dlcount").textContent=`${d3.format(",")(rows.length)} rows`;
   const per=views.map(v=>{const rs=rows.filter(r=>r.view===["exporter","importer","resolved"][v]);return `<div><dt${v===2?' data-def="res"':""}>${["Exporters' reports","Importers' reports","Resolved"][v]}</dt><dd>${fT(d3.sum(rs,r=>r.net_weight_t))}<small>${fU(d3.sum(rs,r=>r.value_usd))} · ${d3.format(",")(rs.length)} rows${v===2?" · "+RMETH[S.resolve]:""}</small></dd></div>`}).join("");
@@ -1650,7 +1717,6 @@ segment("#fdir","v",v=>{S.fdir=v;render()});
 segment("#fgrp","v",v=>{S.fgrp=v;render();fitFocus()});
 // ---------- materials: the Plastics group ----------
 const SCRAPV=v=>v===2?d3.sum(pairUp(BASE),r=>r.t):d3.sum(S.imp?BASE.concat(BASEI):BASE,r=>r.v===v?r.t:0);
-const HGRP=[["Textiles",["clothing","rags","fibre"]],["E-waste",["weee","weeeo"]],["Refuse-derived fuel",["rdf"]],["Rubber and tyres",["tyres","rubber","hardrubber"]],["Paper and card",["paper"]]];
 const GEAR=`<svg viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M2 4h7M13 4h1M2 12h1M7 12h7M2 8h2M8 8h6"/><circle cx="11" cy="4" r="1.8"/><circle cx="5" cy="12" r="1.8"/><circle cx="6" cy="8" r="1.8"/></svg>`;
 const hpop=$("#hpop");document.body.appendChild(hpop);
 let POP=null;
@@ -1662,10 +1728,11 @@ const nm2=n=>{const m=n.match(/^(.*?) (\(.*\))$/);return m?`${esc(m[1])}<small>$
 function chip(k){
   if(k==="scrap")return `<span class="mc ${S.scrap?"on":""}" data-k="scrap"><label title="${esc(CODE)}"><input type="checkbox" id="hp-scrap" ${S.scrap?"checked":""}><span class="nm">Plastic scrap</span><span class="q" id="hq-scrap"></span></label></span>`;
   const h=HS[k],o=HON[k];
-  return `<span class="mc ${o.on?"on":""}" data-k="${k}"><label title="${esc(h.codes)}"><input type="checkbox" data-k="${k}" ${o.on?"checked":""}><span class="nm">${nm2(h.n)}</span><span class="q" id="hq-${k}"></span></label><button type="button" class="gear" data-pop="${k}" aria-expanded="false" aria-haspopup="dialog" aria-label="Assumptions for ${esc(h.n)}" title="Assumptions">${GEAR}</button></span>`}
+  return `<span class="mc ${o.on?"on":""}" data-k="${k}"><label title="${esc(h.codes)}"><input type="checkbox" data-k="${k}" ${o.on?"checked":""}><span class="nm">${nm2(h.n)}</span><span class="q" id="hq-${k}"></span></label>`+(h.core?"</span>":`<button type="button" class="gear" data-pop="${k}" aria-expanded="false" aria-haspopup="dialog" aria-label="Assumptions for ${esc(h.n)}" title="Assumptions">${GEAR}</button></span>`)}
 function hpUI(){
-  const boxes=HGRP.map(([g,ks])=>{const kk=ks.filter(k=>HROWS[k].length);return kk.length?`<div class="mbox"><b>${g}</b>${kk.map(chip).join("")}</div>`:""}).join("");
-  $("#hpgrid").innerHTML=`<div class="mscrap">${chip("scrap")}</div>`+(boxes?`<div><span class="lab hint" tabindex="0" data-tip="Plastic carried inside other traded wastes. Each stream's tonnage is multiplied by its plastic share, which you can change with the sliders button.">Other and embedded plastics</span><div class="mboxes">${boxes}</div></div>`:"");
+  const bx=core=>HGRP.filter(g=>!!g[2]===core).map(([g,ks])=>{const kk=ks.filter(k=>HROWS[k].length);return kk.length?`<div class="mbox"><b>${g}</b>${kk.map(chip).join("")}</div>`:""}).join("");
+  const boxes=bx(false),cores=bx(true);
+  $("#hpgrid").innerHTML=(PLAS?`<div class="mscrap">${chip("scrap")}</div>`:cores?`<div class="mboxes">${cores}</div>`:"")+(boxes?`<div><span class="lab hint" tabindex="0" data-tip="${esc(MC.embTip)}">${esc(MC.embHead)}</span><div class="mboxes">${boxes}</div></div>`:"");
   $(".macts").hidden=!HAS_HID||$("#mgplas").getAttribute("aria-expanded")==="false";
   if(POP)popUI(POP);
   hpRefresh();
@@ -1676,29 +1743,29 @@ function popUI(k){const h=HS[k],o=HON[k],L=esc(h.n);
   hpop.innerHTML=`<div class="ph"><b>${L}</b><button type="button" class="x" data-close aria-label="Close">×</button></div>
     <small>${esc(h.codes)} · <span id="hpt"></span></small>
     <label class="incl"><input type="checkbox" data-k="${k}" ${o.on?"checked":""}> Include</label>
-    <div class="f" ${o.byInc?"hidden":""}><span class="fl">Plastic share</span><input type="range" min="0" max="100" step="0.25" value="${o.f}" data-kf="${k}" list="hpd-${k}" aria-label="Plastic share of ${L}"><datalist id="hpd-${k}"><option value="${h.f}"></option></datalist>${num("data-kn",o.f,"Plastic share of "+L+", per cent")}%</div>
-    <div class="incg" ${o.byInc?"":"hidden"}>${["HIC","UMC","LMC","LIC"].map(g=>`<label>${g}${num("data-ki-"+g.toLowerCase(),o.inc[g],"Plastic share for "+INC[g]+" exporters")}</label>`).join("")}</div>
-    <label class="sm"><input type="checkbox" data-kb="${k}" ${o.byInc?"checked":""}> Plastic share varies by exporter's income group</label>
+    <div class="f" ${o.byInc?"hidden":""}><span class="fl">${cap1(MC.noun)} share</span><input type="range" min="0" max="100" step="0.25" value="${o.f}" data-kf="${k}" list="hpd-${k}" aria-label="${cap1(MC.noun)} share of ${L}"><datalist id="hpd-${k}"><option value="${h.f}"></option></datalist>${num("data-kn",o.f,cap1(MC.noun)+" share of "+L+", per cent")}%</div>
+    <div class="incg" ${o.byInc?"":"hidden"}>${["HIC","UMC","LMC","LIC"].map(g=>`<label>${g}${num("data-ki-"+g.toLowerCase(),o.inc[g],cap1(MC.noun)+" share for "+INC[g]+" exporters")}</label>`).join("")}</div>
+    <label class="sm"><input type="checkbox" data-kb="${k}" ${o.byInc?"checked":""}> ${cap1(MC.noun)} share varies by exporter's income group</label>
     <div class="srcbox" id="hps-${k}"></div>
     <div class="add"><span id="hpal"></span><b id="hpa"></b></div>`;
   hpSrc(k,true);popRefresh();
 }
-function popRefresh(){const k=POP;if(!k)return;hpSrc(k);$("#hpt").textContent=`${fT(hTot(k,S.view))} traded in ${YL}, ${VIEWS[S.view]}`;$("#hpal").textContent=HON[k].on?"Adds to plastics":"Would add to plastics";$("#hpa").textContent=fT(addOf(k))}
+function popRefresh(){const k=POP;if(!k)return;hpSrc(k);$("#hpt").textContent=`${fT(hTot(k,S.view))} traded in ${YL}, ${VIEWS[S.view]}`;$("#hpal").textContent=(HON[k].on?"Adds to ":"Would add to ")+MC.n.toLowerCase();$("#hpa").textContent=fT(addOf(k))}
 function placePop(btn){if(matchMedia("(max-width:640px)").matches)return;const r=btn.getBoundingClientRect(),w=hpop.offsetWidth;
   hpop.style.left=Math.max(8,Math.min(r.right-w,document.documentElement.clientWidth-w-8)+scrollX)+"px";hpop.style.top=(r.bottom+scrollY+6)+"px"}
 function openPop(k,btn){if(POP===k){closePop();return}closePop();POP=k;popUI(k);hpop.hidden=false;placePop(btn);btn.setAttribute("aria-expanded","true");const f=hpop.querySelector("input[type=range],input[type=number]");if(f)f.focus({preventScroll:true})}
 function closePop(focus){if(!POP)return;const b=$(`.gear[data-pop="${POP}"]`);POP=null;hpop.hidden=true;if(b){b.setAttribute("aria-expanded","false");if(focus)b.focus()}}
 function hpSrc(k,force){const box=$("#hps-"+k);if(!box)return;const d=isDef(k);if(!force&&box.dataset.d===String(d))return;box.dataset.d=d;const h=HS[k],o=HON[k];
-  box.innerHTML=d?`<small class="src">${esc(h.src)}</small>`:`<label class="usl"><span>Source for your value</span><input type="text" maxlength="300" class="usrc ${o.usrc.trim()?"":"need"}" data-ks="${k}" value="${esc(o.usrc)}" placeholder="Add a source" aria-label="Source for your ${esc(h.n)} plastic share"></label><small class="src def">Default ${h.f}%. ${esc(h.src)} <button type="button" class="relnk" data-kr="${k}">Use default</button></small>`}
+  box.innerHTML=d?`<small class="src">${esc(h.src)}</small>`:`<label class="usl"><span>Source for your value</span><input type="text" maxlength="300" class="usrc ${o.usrc.trim()?"":"need"}" data-ks="${k}" value="${esc(o.usrc)}" placeholder="Add a source" aria-label="Source for your ${esc(h.n)} ${MC.noun} share"></label><small class="src def">Default ${h.f}%. ${esc(h.src)} <button type="button" class="relnk" data-kr="${k}">Use default</button></small>`}
 function hpRefresh(){
   const on=hidOn(),adds={};for(const k in HS)adds[k]=HROWS[k].length?addOf(k):0;const add=d3.sum(on,k=>adds[k]);
   const SCRAPT=SCRAPV(S.view);
-  for(const k in HS){if(!HROWS[k].length)continue;const c=$(`.mc[data-k="${k}"]`);if(!c)continue;c.classList.toggle("on",HON[k].on);$("#hq-"+k).textContent=fT(adds[k]);c.querySelector(".gear").classList.toggle("chg",!isDef(k))}
+  for(const k in HS){if(!HROWS[k].length)continue;const c=$(`.mc[data-k="${k}"]`);if(!c)continue;c.classList.toggle("on",HON[k].on);$("#hq-"+k).textContent=fT(adds[k]);c.querySelector(".gear")?.classList.toggle("chg",!isDef(k))}
   const sc=$(`.mc[data-k="scrap"]`);if(sc){sc.classList.toggle("on",S.scrap);$("#hq-scrap").textContent=fT(SCRAPT)}
   const total=add+(S.scrap?SCRAPT:0);
-  $("#hpsum").innerHTML=on.length||S.scrap?`<b>${fT(total)}</b> of plastic, ${VIEWS[S.view]}`:"Nothing selected";
+  $("#hpsum").innerHTML=on.length||S.scrap?`<b>${fT(total)}</b> of ${MC.noun}, ${VIEWS[S.view]}`:"Nothing selected";
   popRefresh();
-  try{localStorage.setItem("gwt-assumptions-v2",JSON.stringify({streams:HON}))}catch(e){}
+  try{localStorage.setItem(ASSUME,JSON.stringify({streams:HON}))}catch(e){}
 }
 let hpT=0;const hpApply=()=>{cancelAnimationFrame(hpT);hpT=requestAnimationFrame(()=>{resolve();render();hpRefresh()})};
 const turnOn=k=>{if(!HON[k].on){HON[k].on=true;document.querySelectorAll(`input[data-k="${k}"]`).forEach(c=>c.checked=true)}};
@@ -1715,10 +1782,13 @@ $("#hpgrid").addEventListener("click",e=>{const b=e.target.closest("[data-pop]")
 hpop.addEventListener("click",e=>{if(e.target.closest("[data-close]")){closePop(true);return}const b=e.target.closest("[data-kr]");if(!b)return;const k=b.dataset.kr,on=HON[k].on;HON[k]=HDEF(k);HON[k].on=on;popUI(k);hpApply()});
 document.addEventListener("pointerdown",e=>{if(POP&&!hpop.contains(e.target)&&!e.target.closest("[data-pop]"))closePop()});
 addEventListener("resize",()=>{if(POP){const b=$(`.gear[data-pop="${POP}"]`);if(b)placePop(b)}});
-$("#hpshape").onclick=()=>{for(const k in HS){HON[k].on=HROWS[k].length>0}S.scrap=true;hpUI();hpApply()};
-$("#hpoff").onclick=()=>{for(const k in HS)HON[k].on=false;S.scrap=true;hpUI();hpApply()};
+$("#hpshape").onclick=()=>{for(const k in HS){HON[k].on=HROWS[k].length>0}S.scrap=PLAS;hpUI();hpApply()};
+$("#hpoff").onclick=()=>{for(const k in HS)HON[k].on=!!HS[k].core&&HROWS[k].length>0;S.scrap=PLAS;hpUI();hpApply()};
 $("#hpreset").onclick=()=>{for(const k in HS){const on=HON[k].on;HON[k]=HDEF(k);HON[k].on=on}hpUI();hpApply()};
-$("#hpsave").onclick=()=>saveFile("gwt-hidden-plastic-assumptions.json",JSON.stringify({about:"Global Waste Trade Data Hub hidden-plastic assumptions. f = plastic share %, source = source for the value used, inc = plastic share % by exporter income group (used when byInc is true), ",version:VERSION,streams:Object.fromEntries(Object.entries(HON).map(([k,o])=>[k,{name:HS[k].n,codes:HS[k].codes,...o,default_f:HS[k].f,source:isDef(k)?HS[k].src:o.usrc.trim()||"No source given"}]))},null,1));
+document.querySelectorAll(".mtabs [data-mat]").forEach(b=>{if(b.dataset.mat!==MAT)b.onclick=()=>{const u=new URL(location.href);u.hash="";if(b.dataset.mat==="plastic")u.searchParams.delete("mat");else u.searchParams.set("mat",b.dataset.mat);
+  const ys=b.dataset.mat==="plastic"?MAN.years:(MAN.materials||{})[b.dataset.mat]||[];if(!ys.includes(YEAR))u.searchParams.delete("year");location.href=u.toString()};
+  if(b.dataset.mat!=="plastic"&&!(MAN.materials||{})[b.dataset.mat])b.disabled=true});
+$("#hpsave").onclick=()=>saveFile(PLAS?"gwt-hidden-plastic-assumptions.json":`gwt-embedded-${MAT}-assumptions.json`,JSON.stringify({about:`Global Waste Trade Data Hub ${PLAS?"hidden-plastic":"embedded "+MC.noun} assumptions. f = ${MC.noun} share %`+", source = source for the value used, inc = share % by exporter income group (used when byInc is true), ",version:VERSION,streams:Object.fromEntries(Object.entries(HON).map(([k,o])=>[k,{name:HS[k].n,codes:HS[k].codes,...o,default_f:HS[k].f,source:isDef(k)?HS[k].src:o.usrc.trim()||"No source given"}]))},null,1));
 $("#hpload").onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const j=JSON.parse(await f.text());if(!j||!j.streams)throw 0;let n=0;for(const k in HS)if(j.streams[k]){HON[k]=sanitiseH(k,j.streams[k]);n++}hpUI();hpApply();toast(`Loaded assumptions for ${n} stream${n===1?"":"s"}.`)}catch(err){toast("That file isn't a set of assumptions from this site.")}e.target.value=""};
 hpUI();
 function fillRegions(){const sel=$("#region");sel.innerHTML=`<option value="">Whole world</option>`+regionNames(S.scheme).map(r=>`<option>${esc(r)}</option>`).join("");sel.value=S.region||""}
