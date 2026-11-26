@@ -550,8 +550,9 @@ const C=data.countries,SCH=data.schemes,YEAR=data.meta.year,CODE=data.meta.code,
 $("#year").innerHTML=MAN.years.slice().reverse().map(y=>`<option value="${y}" ${y===YEAR?"selected":""}>${ylab(y)}</option>`).join("");
 const goYear=y=>{const u=new URL(location.href);u.searchParams.set("year",y);if(S.sel)u.searchParams.set("c",S.sel);else u.searchParams.delete("c");if(!S.imp)u.searchParams.set("imp","0");else u.searchParams.delete("imp");location.href=u.toString()};
 $("#year").onchange=e=>goYear(e.target.value);
-VERSION=`UN Comtrade ${YL}, ${CODE}`+(data.meta.built?` · built ${data.meta.built}`:"");
-$("#srcline").textContent=`UN Comtrade ${YL} · ${CODE} · ${data.meta.desc}`;
+const NAT=["Eurostat","HMRC"].filter(k=>(data.meta.source||"").includes(k)), NATL=NAT.length?` with provisional ${NAT.join(" and ")} months`:"";
+VERSION=`UN Comtrade ${YL}${NATL}, ${CODE}`+(data.meta.built?` · built ${data.meta.built}`:"");
+$("#srcline").textContent=`UN Comtrade ${YL}${NATL} · ${CODE} · ${data.meta.desc}`;
 const BASE=data.routes.map(r=>({v:r[0],ex:String(r[1]),rc:String(r[2]),t:r[3],usd:r[4],est:r[5],basis:r[0]===0?"exporter report":"importer report"}));
 const HROWS={};for(const k in HS)HROWS[k]=(data.hidden[k]||[]).map(r=>({v:r[0],ex:String(r[1]),rc:String(r[2]),t:r[3],usd:r[4],est:r[5]})).filter(r=>C[r.ex]&&C[r.rc]);
 const IMPHOW={1:"from partner reports",2:"straight line between reported years",3:"trend from nearest reported year"};
