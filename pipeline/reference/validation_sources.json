@@ -894,7 +894,7 @@
   },
   {
    "group": "Textiles",
-   "label": "EU exports of used textiles outside the EU",
+   "label": "EU exports of used textiles outside the EU (with the UK)",
    "year": 2019,
    "published": 1700000,
    "source": "eea2023",
@@ -904,10 +904,10 @@
     "rags"
    ],
    "measure": {
-    "from": "EU27",
-    "to": "!EU27"
+    "from": "EU28",
+    "to": "!EU28"
    },
-   "why": "The EEA also used UN Comtrade (HS 6309 and 6310) and gives the figure as almost 1.7 Mt."
+   "why": "The EU as it was in 2019, with the UK. For the EU-27 alone the site has 1.32 Mt from exporters' reports. The EEA also used UN Comtrade (HS 6309 and 6310)."
   },
   {
    "group": "E-waste",

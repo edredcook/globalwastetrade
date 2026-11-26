@@ -783,7 +783,7 @@ const ALIAS=data.aliases||{};
 let R=[];
 const HAS_HID=Object.values(HROWS).some(x=>x.length);
 const hidOn=()=>!HAS_HID?[]:Object.keys(HS).filter(k=>{const h=HON[k];return h.on&&h.w>0&&(h.byInc?Object.values(h.inc).some(v=>v>0):h.f>0)});
-const embOn=()=>hidOn().filter(k=>!HS[k].core),coreOn=()=>hidOn().filter(k=>HS[k].core);
+const embOn=()=>hidOn().filter(k=>!HS[k].core&&HROWS[k].length),coreOn=()=>hidOn().filter(k=>HS[k].core&&HROWS[k].length);
 function pairUp(RAW){
   const m=new Map();for(const r of RAW){const k=r.ex+">"+r.rc;if(!m.has(k))m.set(k,[null,null]);m.get(k)[r.v]=r}
   const out=[];

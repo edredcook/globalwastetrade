@@ -42,6 +42,8 @@ def member(spec, d):
         return lambda c: True
     if spec == "EU27":
         return lambda c: c in EU27
+    if spec == "EU28":  # the EU before the UK left (to January 2020)
+        return lambda c: c in EU27 or c == 826
     if spec == "OECD":
         oecd = d["schemes"]["oecd"]
         return lambda c: oecd.get(str(c), "").startswith("OECD")
