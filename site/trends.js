@@ -14,7 +14,7 @@ const MATS=[
 const MATN={all:"All plastic",plastic:"Plastic waste and scrap",clothing:"Worn clothing",rags:"Rags, twine and rope",fibre:"Synthetic fibre waste",weee:"E-waste assemblies and boards",weeeo:"Other e-waste",rdf:"Refuse-derived fuel",tyres:"Used tyres",rubber:"Rubber waste",hardrubber:"Hard rubber",paper:"Recovered paper"};
 const MATL=Object.fromEntries(MATS.flatMap(g=>g[1]));
 const STREAMS=["plastic","clothing","rags","fibre","weee","weeeo","rdf","tyres","rubber","hardrubber","paper"];
-// Plastic shares, as on the explorer's "Plastics traded amongst other materials" panel (sources on the About page).
+// Plastic shares, as in the explorer's Plastics group (sources on the About page).
 const SHARE={plastic:1,clothing:.65,rags:.65,fibre:1,weee:.247,weeeo:.247,rdf:.3325,tyres:1,rubber:1,hardrubber:1,paper:.02};
 const MATCOL={plastic:"#e0531f",clothing:"#4e79a7",rags:"#76b7b2",fibre:"#b07aa1",weee:"#59a14f",weeeo:"#8cd17d",rdf:"#9c755f",tyres:"#3d3d3d",rubber:"#8a8a8a",hardrubber:"#5f5f5f",paper:"#edc948"};
 const GL=["H","U","M","L","N"],GKEY={HIC:"H",UMC:"U",LMC:"M",LIC:"L",NS:"N"};
