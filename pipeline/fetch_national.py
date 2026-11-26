@@ -193,13 +193,12 @@ def census(month):
              ("imports", "M", "I_COMMODITY", "GEN_VAL_MO", "GEN_QY1_MO"))
     errors = []
     for path, flow, comm, val, qty in specs:
-        for h in product_codes_hs6():
-            params = {"get": f"CTY_CODE,CTY_NAME,{val},{qty},UNIT_QY1",
-                      "COMM_LVL": "HS6", comm: h, "time": month}
-            if key:
-                params["key"] = key
+        for h in HS4:
+            # Quantities are only given at the 10-digit level, so ask for HS10 lines.
+            params = {"get": f"CTY_CODE,CTY_NAME,{comm},{val},{qty},UNIT_QY1",
+                      "COMM_LVL": "HS10", comm: h + "*", "time": month, "key": key}
             try:
-                body = get(f"{CENSUS}/{path}/hs?" + urllib.parse.urlencode(params, safe=","), raw=True)
+                body = get(f"{CENSUS}/{path}/hs?" + urllib.parse.urlencode(params, safe=",*"), raw=True)
             except RuntimeError as e:
                 errors.append(str(e))
                 continue
@@ -216,12 +215,36 @@ def census(month):
                 code, name = r[ix["CTY_CODE"]], r[ix["CTY_NAME"]]
                 if not code.isdigit() or code.startswith("0"):
                     continue  # totals and country groups
-                kg = float(r[ix[qty]] or 0) if r[ix["UNIT_QY1"]] == "KG" else 0
-                add(acc, "census", "USA", iso3_from_name(name), name, flow, h, period,
+                unit = r[ix["UNIT_QY1"]]
+                kg = float(r[ix[qty]] or 0) * {"KG": 1, "T": 1000}.get(unit, 0)
+                add(acc, "census", "USA", iso3_from_name(name), name, flow, r[ix[comm]], period,
                     kg, r[ix[val]], "USD")
     if errors and not acc:
         raise RuntimeError(errors[0])
     return rows_from(acc)
+
+
+ESTAT = "https://api.e-stat.go.jp/rest/3.0/app/json"
+
+
+def estat(month):
+    """First pass: list e-Stat's trade tables for the month so the right ones can be chosen."""
+    app = os.environ.get("ESTAT_APP_ID")
+    if not app:
+        raise RuntimeError("Japan e-Stat needs ESTAT_APP_ID; register for a free key and add it as a repo secret.")
+    params = {"appId": app, "statsCode": "00350300", "surveyYears": month.replace("-", ""),
+              "lang": "E", "limit": "100"}
+    res = get(ESTAT + "/getStatsList?" + urllib.parse.urlencode(params))
+    lst = res.get("GET_STATS_LIST", {})
+    tables = (lst.get("DATALIST_INF") or {}).get("TABLE_INF") or []
+    if isinstance(tables, dict):
+        tables = [tables]
+    print(f"e-Stat {month}: {lst.get('RESULT', {})} {len(tables)} tables")
+    for t in tables:
+        title = t.get("TITLE")
+        title = title.get("$") if isinstance(title, dict) else title
+        print(f"  {t.get('@id')} | {t.get('STATISTICS_NAME')} | {title}")
+    raise RuntimeError(f"fetcher not finished: listed {len(tables)} e-Stat tables in the log")
 
 
 def needs_key(var, what):
@@ -236,7 +259,7 @@ SOURCES = {
     "comext": comext,
     "hmrc": hmrc,
     "census": census,
-    "estat": needs_key("ESTAT_APP_ID", "Japan e-Stat"),
+    "estat": estat,
     "kcs": needs_key("KCS_SERVICE_KEY", "Korea Customs Service"),
 }
 
