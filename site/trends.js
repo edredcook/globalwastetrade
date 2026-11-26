@@ -4,16 +4,19 @@
 // separately and never added together.
 (async function(){
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+// Material menu, named as in the explorer's Material card. One entry per group:
+// [heading, [[key, name, HS codes], ...], parent heading]. STREAMS follows from it.
+const OEP="Other and embedded plastics";
 const MATS=[
-  ["Plastic",[["all","All plastic, in every stream below"],["plastic","Plastic waste and scrap (HS 3915)"]]],
-  ["Textiles",[["clothing","Used clothing (HS 6309)"],["rags","Rags, twine and rope (HS 6310)"],["fibre","Synthetic fibres (HS 5505.10)"]]],
-  ["E-waste",[["weee","Electronic waste (HS 8549.31, 8549.39)"],["weeeo","Electrical waste (HS 8549.91, 8549.99)"]]],
-  ["Refuse-derived fuel",[["rdf","Refuse-derived fuel (HS 3825.10)"]]],
-  ["Rubber and tyres",[["tyres","Used tyres (HS 4012.20)"],["rubber","Rubber waste and scrap (HS 4004)"],["hardrubber","Hard rubber (HS 4017)"]]],
-  ["Paper and card",[["paper","Paper and card (HS 4707)"]]]];
-const MATN={all:"All plastic",plastic:"Plastic waste and scrap",clothing:"Used clothing",rags:"Rags, twine and rope",fibre:"Synthetic fibres",weee:"Electronic waste",weeeo:"Electrical waste",rdf:"Refuse-derived fuel",tyres:"Used tyres",rubber:"Rubber waste",hardrubber:"Hard rubber",paper:"Paper and card"};
-const MATL=Object.fromEntries(MATS.flatMap(g=>g[1]));
-const STREAMS=["plastic","clothing","rags","fibre","weee","weeeo","rdf","tyres","rubber","hardrubber","paper"];
+  ["Plastics",[["all","All plastic",""],["plastic","Plastic scrap","HS 3915"]]],
+  ["Textiles",[["clothing","Used clothing (plastic fraction)","HS 6309"],["rags","Rags, twine and rope (plastic fraction)","HS 6310"],["fibre","Synthetic fibres","HS 5505.10"]],OEP],
+  ["E-waste",[["weee","Electronic waste (plastic fraction)","HS 8549.31, 8549.39"],["weeeo","Electrical waste (plastic fraction)","HS 8549.91, 8549.99"]],OEP],
+  ["Refuse-derived fuel",[["rdf","Refuse-derived fuel (plastic fraction)","HS 3825.10"]],OEP],
+  ["Rubber and tyres",[["tyres","Used tyres","HS 4012.20"],["rubber","Rubber waste and scrap","HS 4004"],["hardrubber","Hard rubber","HS 4017"]],OEP],
+  ["Paper and card",[["paper","Paper and card (plastic contamination)","HS 4707"]],OEP]];
+const MATN=Object.fromEntries(MATS.flatMap(g=>g[1].map(([k,n])=>[k,n])));
+const MATC=Object.fromEntries(MATS.flatMap(g=>g[1].map(([k,,c])=>[k,c])));
+const STREAMS=MATS.flatMap(g=>g[1].map(i=>i[0])).filter(k=>k!=="all");
 // Plastic shares, as in the explorer's Plastics group (sources on the About page).
 const SHARE={plastic:1,clothing:.65,rags:.65,fibre:1,weee:.247,weeeo:.247,rdf:.3325,tyres:1,rubber:1,hardrubber:1,paper:.02};
 const MATCOL={plastic:"#e0531f",clothing:"#4e79a7",rags:"#76b7b2",fibre:"#b07aa1",weee:"#59a14f",weeeo:"#8cd17d",rdf:"#9c755f",tyres:"#3d3d3d",rubber:"#8a8a8a",hardrubber:"#5f5f5f",paper:"#edc948"};
@@ -32,10 +35,10 @@ const NONC=/nes$|^Areas|^Special Categories|^Free Zones|^Bunkers/;
 const q=new URLSearchParams(location.search);
 const toks=s=>(s||"").split(",").filter(t=>/^(c|g|r):/.test(t));
 const pick=(v,ok,d)=>ok.includes(v)?v:d;
-const DEF={imp:"1",count:"whole",v:0,m:"t",sch:"wb",xr:false,xi:false,ts:0,tr:0,from:[],to:[],split:"rg",bmode:"t",hdir:"in",hrows:20,gdir:"out",gsort:"total",gshow:1,gmin:0,gscale:"own",cdir:"in",cgrp:"c",csort:"b",cn:12,cchart:"dumb",cscale:"lin"};
+const DEF={imp:"1",count:"plastic",v:0,m:"t",sch:"wb",xr:false,xi:false,ts:0,tr:0,from:[],to:[],split:"rg",bmode:"t",hdir:"in",hrows:20,gdir:"out",gsort:"total",gshow:1,gmin:0,gscale:"own",cdir:"in",cgrp:"c",csort:"b",cn:12,cchart:"dumb",cscale:"lin"};
 const S={...DEF,
-  mats:(()=>{const m=(q.get("w")||"plastic").split(",").filter(k=>MATL[k]);return m.includes("all")?["all"]:m.length?m:["plastic"]})(),
-  count:q.get("count")==="plastic"?"plastic":"whole", imp:q.get("imp")==="0"?"0":"1",
+  mats:(()=>{const w=(q.get("w")||"plastic").split(","),m=["all",...STREAMS].filter(k=>w.includes(k));return m.includes("all")?["all"]:m.length?m:["plastic"]})(),
+  count:q.get("count")==="whole"?"whole":"plastic", imp:q.get("imp")==="0"?"0":"1",
   v:q.get("v")==="1"?1:0, m:pick(q.get("m"),["t","usd"],"t"), sch:pick(q.get("sch"),Object.keys(SCHEMES),"wb"),
   xr:q.get("xr")==="1", xi:q.get("xi")==="1",
   ts:Math.max(0,TOPS.indexOf(+q.get("ts"))), tr:Math.max(0,TOPS.indexOf(+q.get("tr"))),
@@ -57,6 +60,9 @@ const tip=$("#tip");
 const showTip=(e,h)=>{tip.innerHTML=h;tip.hidden=false;let x=e.clientX+14,y=e.clientY+14;if(x>innerWidth-270)x=e.clientX-270;if(y>innerHeight-130)y=e.clientY-120;tip.style.left=x+"px";tip.style.top=y+"px"};
 const hideTip=()=>tip.hidden=true;
 const sent=()=>S.v?"received":"sent";
+// Explorer names count the plastic share; with "Whole material" the bracket is dropped.
+const nm=k=>S.count==="whole"&&!S.mats.includes("all")?MATN[k].replace(/ \(plastic (fraction|contamination)\)$/,""):MATN[k];
+const nmShare=k=>SHARE[k]<1&&MATN[k].endsWith(")")&&(S.mats.includes("all")||S.count==="plastic")?MATN[k].replace(/\)$/,`, ${d3.format(".4~p")(SHARE[k])})`):nm(k);
 
 // ---------- data ----------
 // Each material file has its own country list; all are mapped onto one shared index.
@@ -138,8 +144,10 @@ function ensureHatch(svg){if(svg.select("#mhatch").size())return;
 const empty=(el,lg)=>{el.innerHTML=`<div class="empty">No trade for this selection.</div>`;if(lg)lg.innerHTML=""};
 
 // ---------- overview ----------
-function chartA(){const el=$("#cA");const w0=sl(A[0].tot),w1=sl(A[1].tot);
+function chartA(){const el=$("#cA");const w0=sl(A[0].tot),w1=sl(A[1].tot);ROWS.A=null;
   if(!d3.max([...w0,...w1]))return empty(el);
+  {const u=unit(),t0=sl(A[0].ti),t1=sl(A[1].ti);ROWS.A=()=>[["year","modelled","exporters_reports_"+u,"importers_reports_"+u,...(S.imp==="1"?["imputed_in_exporters_reports_"+u,"imputed_in_importers_reports_"+u]:[])],
+    Y.map((y,i)=>({year:y,modelled:D.modelled.includes(y)?"yes":"",["exporters_reports_"+u]:rnd(w0[i]),["importers_reports_"+u]:rnd(w1[i]),["imputed_in_exporters_reports_"+u]:rnd(t0[i]),["imputed_in_importers_reports_"+u]:rnd(t1[i])}))]}
   const f=frame(el,300,{l:62,r:120,t:30,b:28});const {svg,x}=f;
   const y=d3.scaleLinear().domain([0,(d3.max([...w0,...w1])||1)*1.08]).nice().range([300-28,30]);
   axes(f,y,fAx);marks(f);
@@ -158,10 +166,10 @@ function chartA(){const el=$("#cA");const w0=sl(A[0].tot),w1=sl(A[1].tot);
 const BTITLE={rg:"Where it goes",sg:"Where it comes from",rr:"Where it goes",sr:"Where it comes from",mt:"By material"};
 function chartB(){const el=$("#cB");$("#hB").textContent=BTITLE[S.split];const sp=cur().split,inc=S.split[1]==="g",mt=S.split==="mt";
   let keys=[...sp.keys()].filter(k=>d3.sum(sl(sp.get(k)))>0);
-  keys=inc?GL.filter(g=>keys.includes(g)):mt?STREAMS.filter(k=>keys.includes(k)):keys.sort((a,b)=>(a==="Other")-(b==="Other")||d3.sum(sl(sp.get(b)))-d3.sum(sl(sp.get(a))));
-  if(!keys.length)return empty(el,$("#lB"));
-  const plc=S.mats.includes("all")||S.count==="plastic";
-  const col=k=>inc?css(GC[k]):mt?MATCOL[k]:regCol(k),lab=k=>inc?GN[k]:mt?MATN[k]+(plc&&k!=="plastic"?`, ${d3.format(".4~p")(SHARE[k])} plastic`:""):k;
+  keys=inc?GL.filter(g=>g!=="N"&&keys.includes(g)):mt?STREAMS.filter(k=>keys.includes(k)):keys.sort((a,b)=>(a==="Other")-(b==="Other")||d3.sum(sl(sp.get(b)))-d3.sum(sl(sp.get(a))));
+  ROWS.B=null;if(!keys.length)return empty(el,$("#lB"));
+  {const u=unit(),gl=$("#split").selectedOptions[0].textContent.replace(/^By /,"");ROWS.B=()=>[["year","figures",gl,u,"share"],Y.flatMap((y,i)=>{const t=d3.sum(keys,k=>sp.get(k)[I0+i]);return keys.map(k=>{const v=sp.get(k)[I0+i];return {year:y,figures:VN[S.v],[gl]:lab(k),[u]:rnd(v),share:t?+(v/t).toFixed(4):""}})})]}
+  const col=k=>inc?css(GC[k]):mt?MATCOL[k]:regCol(k),lab=k=>inc?GN[k]:mt?nmShare(k):k;
   const f=frame(el,280,{l:60,r:12,t:30,b:28});const {svg,x}=f;
   const rows=Y.map((yr,i)=>{const o={yr},t=d3.sum(keys,k=>sp.get(k)[I0+i]);keys.forEach(k=>{const v=sp.get(k)[I0+i];o[k]=S.bmode==="s"?(t?v/t:0):v});o._t=t;return o});
   const st=d3.stack().keys(keys)(rows);
@@ -173,7 +181,8 @@ function chartB(){const el=$("#cB");$("#hB").textContent=BTITLE[S.split];const s
   $("#lB").innerHTML=keys.map(k=>`<span><i style="background:${col(k)}"></i>${esc(lab(k))}</span>`).join("")}
 
 function chartC(){const el=$("#cC");const hl=Y.map((yr,i)=>[cur().hl[I0+i],cur().hAll[I0+i]]);
-  if(!d3.max(hl,d=>d[1]))return empty(el,$("#lC"));
+  ROWS.C=null;if(!d3.max(hl,d=>d[1]))return empty(el,$("#lC"));
+  {const u=unit();ROWS.C=()=>[["year","figures","to_middle_and_low_income_"+u,"all_high_income_exports_"+u,"share"],Y.map((y,i)=>({year:y,figures:VN[S.v],["to_middle_and_low_income_"+u]:rnd(hl[i][0]),["all_high_income_exports_"+u]:rnd(hl[i][1]),share:hl[i][1]?+(hl[i][0]/hl[i][1]).toFixed(4):""}))]}
   const f=frame(el,280,{l:60,r:48,t:30,b:28});const {svg,x,W,H,m}=f;
   const y=d3.scaleLinear().domain([0,(d3.max(hl,d=>d[0])||1)*1.1]).nice().range([H-m.b,m.t]),y2=d3.scaleLinear().domain([0,1]).range([H-m.b,m.t]);
   axes(f,y,fAx);
@@ -193,7 +202,8 @@ const RAMP_D=["#16222b","#1f4552","#22737c","#3aa59a","#93d3a8","#f1eab0"];
 function chartE(){const el=$("#cE");el.innerHTML="";const ramp=dark()?RAMP_D:RAMP_L,arr=S.hdir==="in"?cur().inn:cur().out;
   $("#hE").textContent=S.hdir==="in"?"Receivers year by year":"Senders year by year";$("#hrv").textContent=S.hrows;
   const top=d3.range(D.nc).filter(j=>D.real[j]).map(j=>({j,s:series(arr,j)})).map(d=>({...d,t:d3.sum(d.s)})).filter(d=>d.t>0).sort((a,b)=>b.t-a.t).slice(0,S.hrows);
-  if(!top.length)return empty(el,$("#lE"));
+  ROWS.E=null;if(!top.length)return empty(el,$("#lE"));
+  ROWS.E=()=>wide(top,S.hdir==="in"?"receiver":"sender");
   const m={l:150,r:8,t:6,b:24},cw=Math.max(18,Math.min(64,((el.clientWidth||560)-m.l-m.r)/N)),ch=18,W=m.l+cw*N+m.r,H=m.t+ch*top.length+m.b;
   const svg=d3.select(el).append("svg").attr("viewBox",`0 0 ${W} ${H}`).style("min-width",Math.min(W,m.l+18*N+m.r)+"px").style("max-width",W+"px");
   const mx=d3.max(top,d=>d3.max(d.s))||1,lo=Math.max(1,mx/2000);
@@ -269,7 +279,8 @@ function chartF(){const el=$("#cF");el.innerHTML="";const out=S.gdir==="out",arr
   rows.sort((a,b)=>S.gsort==="name"?key(a).localeCompare(key(b)):key(a)-key(b));
   const total=rows.length;if(lim)rows=rows.slice(0,lim);
   $("#fcount").textContent=`${rows.length} of ${total}`;
-  if(!rows.length)return empty(el);
+  ROWS.F=null;if(!rows.length)return empty(el);
+  ROWS.F=()=>wide(rows,out?"sender":"receiver");
   const shared=S.gscale==="shared"?d3.max(rows,d=>d.peak):0;
   for(const d of rows){const s=d.s;const box=document.createElement("div");box.className="m";
     box.innerHTML=`<b title="${esc(name(d.j))}">${esc(name(d.j))}</b><small>Peak ${fV(d.peak)} in ${Y[d.pk]}</small><small>${LAST}: ${fV(d.last)}</small>`;el.appendChild(box);
@@ -289,13 +300,14 @@ function cmpRows(){const ia=D.years.indexOf(S.ya),ib=D.years.indexOf(S.yb),NY=D.
     else if(S.cgrp==="r"){const r=D.regions[S.sch][j]||"Other";add(r,r,regCol(r),a,b)}
     else{add(D.incY[ia][j]+"a",null,null,a,0);add(D.incY[ib][j]+"a",null,null,0,b)}}
   let rows=[...g.values()];
-  if(S.cgrp==="g")rows=rows.map(o=>({...o,lab:GN[o.k[0]],col:css(GC[o.k[0]])}));
+  if(S.cgrp==="g")rows=rows.filter(o=>o.k[0]!=="N").map(o=>({...o,lab:GN[o.k[0]],col:css(GC[o.k[0]])}));
   const ch=r=>r.b-r.a,pc=r=>r.a?(r.b-r.a)/r.a:(r.b?Infinity:0);
   const key={b:r=>-r.b,a:r=>-r.a,chg:r=>-Math.abs(ch(r)),rise:r=>-ch(r),fall:r=>ch(r),pct:r=>-pc(r),pctf:r=>pc(r)}[S.csort];
   rows=rows.filter(r=>r.a||r.b);
   if(S.csort==="pct"||S.csort==="pctf")rows=rows.filter(r=>r.a>0&&r.b>0);
   return rows.sort((p,q)=>key(p)-key(q)).slice(0,S.cn)}
 function chartG(){const el=$("#cG");el.innerHTML="";$("#cnv").textContent=S.cn;const rows=cmpRows();
+  {const u=unit(),a=S.ya+"_"+u,b=S.yb+"_"+u;ROWS.G=rows.length?()=>[[(S.cdir==="in"?"receiver_":"sender_")+{c:"country",r:"region",g:"income_group"}[S.cgrp],"figures",a,b,"change_"+u,"change_pct"],rows.map(r=>({[(S.cdir==="in"?"receiver_":"sender_")+{c:"country",r:"region",g:"income_group"}[S.cgrp]]:r.lab,figures:VN[S.v],[a]:rnd(r.a),[b]:rnd(r.b),["change_"+u]:rnd(r.b-r.a),change_pct:r.a?+((r.b-r.a)/r.a*100).toFixed(1):""}))]:null}
   $("#lG").innerHTML=(S.cchart==="dumb"?`<span><i style="border:1.5px solid var(--muted);border-radius:50%"></i>${S.ya}</span><span><i style="background:var(--ink);border-radius:50%"></i>${S.yb}</span>`:"")+`<span><i style="background:var(--in)"></i>Rise</span><span><i style="background:var(--out)"></i>Fall</span>`;
   if(!rows.length)return empty(el,$("#lG"));
   (S.cchart==="slope"?slope:dumbbell)(el,rows)}
@@ -330,6 +342,88 @@ function slope(el,rows){const W=Math.max(320,el.clientWidth||700),narrow=W<600,H
     [[xa,r.a],[xb,r.b]].forEach(([xx,v])=>svg.append("circle").attr("cx",xx).attr("cy",y(v)).attr("r",3.5).attr("fill",c));
     svg.append("text").attr("class","lbl").attr("x",xa-8).attr("y",la.get(r.k)+4).attr("text-anchor","end").attr("fill",css("--ink")).text(narrow?`${fV(r.a)} ${nm.slice(0,12)}`:`${nm} ${fV(r.a)}`);
     svg.append("text").attr("class","lbl").attr("x",xb+8).attr("y",lb.get(r.k)+4).attr("fill",c).text(narrow?`${fV(r.b)} ${nm.slice(0,12)}`:`${fV(r.b)} ${nm}`)}}
+
+// ---------- saving ----------
+// Every chart saves as PNG, SVG (title, legend and a source caption) and CSV.
+const CITE="Cook, E. (2026) Global Waste Trade Data Hub. Available at: https://globalwastetrade.org. Licence: CC BY 4.0";
+const ROWS={};
+const unit=()=>S.m==="usd"?"usd":"t";
+const rnd=v=>v==null?"":Math.round(v);
+const wide=(list,who)=>[[who,"iso3","figures",...Y.map(String)],list.map(d=>Object.assign({[who]:name(d.j),iso3:D.names[d.j][0],figures:VN[S.v]},Object.fromEntries(Y.map((y,i)=>[String(y),rnd(d.s[i])]))))];
+const csvCell=v=>{const t=v==null?"":String(v);return /[",\n]/.test(t)?`"${t.replace(/"/g,'""')}"`:t};
+const toCSV=(keys,rows)=>[keys.map(csvCell).join(","),...rows.map(r=>keys.map(k=>csvCell(r[k])).join(","))].join("\n");
+const slug=t=>t.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,50);
+let toastT;const toast=m=>{const t=$("#toast");t.textContent=m;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,3400)};
+async function saveFile(fn,data){const type=fn.endsWith(".csv")?"text/csv":fn.endsWith(".svg")?"image/svg+xml":"image/png";
+  const blob=data instanceof Blob?data:new Blob([data],{type:type+";charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");
+  a.href=url;a.download=fn;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),4000);toast(`Saved ${fn}`)}
+function matDesc(){if(S.mats.includes("all"))return "All plastic: Plastic scrap (HS 3915) with "+STREAMS.filter(k=>k!=="plastic").map(k=>`${nmShare(k)} (${MATC[k]})`).join(", ");
+  return S.mats.map(k=>`${S.count==="plastic"?nmShare(k):nm(k)} (${MATC[k]})`).join(", ")}
+function caption(c){const p=[];
+  if(c==="W")p.push(`Plastic scrap (HS 3915). ${VN[S.v][0].toUpperCase()+VN[S.v].slice(1)}.`);
+  else{p.push(matDesc()+".",`${VN[S.v][0].toUpperCase()+VN[S.v].slice(1)}, ${S.imp==="1"?"with gaps imputed":"as reported"}.`,S.m==="usd"?"US$.":"Tonnes.");
+    if(S.from.length)p.push("From "+S.from.map(t=>tokLabel(t)[0]).join(", ")+".");
+    if(S.to.length)p.push("To "+S.to.map(t=>tokLabel(t)[0]).join(", ")+".");
+    if(S.ts)p.push(`Top ${TOPS[S.ts]} senders.`);if(S.tr)p.push(`Top ${TOPS[S.tr]} receivers.`);
+    if(S.xr)p.push(`Trade within a region left out (${SCHEMES[S.sch]}).`);if(S.xi)p.push("Trade within an income group left out.");
+    const md=D.modelled.filter(y=>y>=Y[0]&&y<=LAST);if(md.length)p.push(md.join(", ")+" modelled.")}
+  p.push(`Source: UN Comtrade${c==="W"?"":`, ${Y[0]}–${LAST}`}. Global Waste Trade Data Hub, globalwastetrade.org, CC BY 4.0.`);return p.join(" ")}
+const TITLE={A:()=>"Total",B:()=>$("#hB").textContent,C:()=>"From high-income to middle- and low-income countries",E:()=>$("#hE").textContent,W:()=>"Who reported plastic scrap trade",F:()=>$("#hF").textContent,G:()=>`Compare ${S.ya} and ${S.yb}`};
+const LEG={A:null,B:"#lB",C:"#lC",E:"#lE",W:"#lW",F:null,G:"#lG"};
+const mctx=document.createElement("canvas").getContext("2d");
+const tw=(t,px,w)=>{mctx.font=`${w||400} ${px}px "IBM Plex Sans", Arial, sans-serif`;return mctx.measureText(t).width};
+function wrapTxt(t,max,px){const out=[];let line="";for(const w of t.split(" ")){const nx=line?line+" "+w:w;if(line&&tw(nx,px)>max){out.push(line);line=w}else line=nx}if(line)out.push(line);return out}
+// Legend chips (HTML) redrawn as SVG rows.
+function legendItems(el){if(!el)return [];return [...el.children].map(sp=>{
+  if(sp.classList.contains("ramp"))return {ramp:(sp.getAttribute("style").match(/#[0-9a-f]{6}/gi)||[])};
+  const i=sp.querySelector("i"),o={text:sp.textContent.trim()};
+  if(i){const cs=getComputedStyle(i);o.sw={fill:cs.backgroundColor,op:cs.opacity,h:Math.min(10,parseFloat(cs.height)||10),stroke:parseFloat(cs.borderTopWidth)?cs.borderTopColor:null,round:cs.borderTopLeftRadius==="50%"||parseFloat(cs.borderTopLeftRadius)>=5}}
+  return o})}
+function standalone(svgEl,title,note,lgEl,raw){
+  const ns="http://www.w3.org/2000/svg",vb=svgEl.viewBox.baseVal,VW=vb.width,H=vb.height,W=Math.max(VW+48,520),top=46;
+  const items=legendItems(lgEl),pos=[];let lx=16,ly=0,lrows=items.length?1:0;
+  for(const it of items){const w=it.ramp?126:(it.sw?16:0)+tw(it.text,12)+16;if(lx+w>W-16&&lx>16){lx=16;ly+=20;lrows++}pos.push([lx,ly]);lx+=w}
+  const lgH=lrows?lrows*20+6:0,cap=wrapTxt(note||"",W-32,11),bot=lgH+18+cap.length*15,TH=H+top+bot;
+  const out=document.createElementNS(ns,"svg");out.setAttribute("xmlns",ns);out.setAttribute("viewBox",`0 0 ${W} ${TH}`);out.setAttribute("width",W);out.setAttribute("height",TH);
+  const el=(tag,at,parent)=>{const e=document.createElementNS(ns,tag);for(const k in at)e.setAttribute(k,at[k]);(parent||out).appendChild(e);return e};
+  const tx=(t,x,y,size,col,w,fam)=>{const e=el("text",{x,y,"font-size":size,fill:col,"font-family":fam||"IBM Plex Sans, Arial, sans-serif"});if(w)e.setAttribute("font-weight",w);e.textContent=t;return e};
+  el("rect",{width:W,height:TH,fill:css("--panel")});
+  tx(title,16,30,20,css("--ink"),700,"Archivo, Arial Narrow, Arial, sans-serif");
+  const clone=svgEl.cloneNode(true);
+  if(!raw){const orig=svgEl.querySelectorAll("*"),cl=clone.querySelectorAll("*");
+    const props=["fill","stroke","stroke-width","stroke-opacity","fill-opacity","opacity","font-size","font-weight","font-family","stroke-dasharray","display","text-anchor"];
+    orig.forEach((o,i)=>{const cs=getComputedStyle(o),t=cl[i];for(const p of props){const v=cs.getPropertyValue(p);if(v)t.setAttribute(p,v)}t.removeAttribute("class");t.style.cssText=""})}
+  const inner=el("svg",{x:(W-VW)/2,y:top,width:VW,height:H,viewBox:`${vb.x} ${vb.y} ${VW} ${H}`,overflow:"visible"});
+  while(clone.firstChild)inner.appendChild(clone.firstChild);
+  const ly0=H+top+12;
+  items.forEach((it,k)=>{const [x,y]=pos[k],yy=ly0+y;
+    if(it.ramp){const id="lgr"+k,g=el("linearGradient",{id},el("defs",{}));it.ramp.forEach((c,n)=>el("stop",{offset:n/Math.max(1,it.ramp.length-1),"stop-color":c},g));el("rect",{x,y:yy,width:110,height:10,rx:2,fill:`url(#${id})`});return}
+    let tx0=x;if(it.sw){const s=it.sw,h=s.h;const r=el("rect",{x,y:yy+5-h/2,width:10,height:h,rx:s.round?5:2,fill:s.fill,opacity:s.op});if(s.stroke){r.setAttribute("stroke",s.stroke);r.setAttribute("stroke-width",1.5)}tx0+=16}
+    tx(it.text,tx0,yy+9.5,12,css("--muted"))});
+  cap.forEach((l,i)=>tx(l,16,H+top+lgH+20+i*15,11,css("--muted")));
+  return new XMLSerializer().serializeToString(out)}
+function svgToPNG(str){return new Promise((res,rej)=>{const img=new Image();img.onload=()=>{const k=2,c=document.createElement("canvas");c.width=img.width*k;c.height=img.height*k;const x=c.getContext("2d");x.scale(k,k);x.drawImage(img,0,0);c.toBlob(b=>b?res(b):rej(new Error("png")),"image/png")};img.onerror=rej;img.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(str)})}
+// At a glance: the small charts laid out as one picture, in the grid's columns.
+function glanceSVG(){const el=$("#cF"),boxes=[...el.querySelectorAll(".m")];if(!boxes.length)return null;
+  const ns="http://www.w3.org/2000/svg",cols=Math.max(1,getComputedStyle(el).gridTemplateColumns.split(" ").length),cw=176,chh=104;
+  const svg=document.createElementNS(ns,"svg"),W=cols*cw,H=Math.ceil(boxes.length/cols)*chh;svg.setAttribute("viewBox",`0 0 ${W} ${H}`);
+  const ink=css("--ink"),mut=css("--muted");
+  boxes.forEach((b,n)=>{const g=document.createElementNS(ns,"g"),x=(n%cols)*cw,y=Math.floor(n/cols)*chh;g.setAttribute("transform",`translate(${x},${y})`);svg.appendChild(g);
+    const t=(s,yy,size,col,w,fam)=>{const e=document.createElementNS(ns,"text");e.setAttribute("x",0);e.setAttribute("y",yy);e.setAttribute("font-size",size);e.setAttribute("fill",col);e.setAttribute("font-family",fam||"IBM Plex Sans, Arial, sans-serif");if(w)e.setAttribute("font-weight",w);e.textContent=s;g.appendChild(e)};
+    let nmT=b.querySelector("b").textContent;while(nmT.length>3&&tw(nmT,12.5,600)>cw-12)nmT=nmT.slice(0,-2)+"…";
+    t(nmT,12,12.5,ink,600);[...b.querySelectorAll("small")].forEach((sm,i)=>t(sm.textContent,27+i*13,10.5,mut,null,"IBM Plex Mono, Menlo, monospace"));
+    const s=b.querySelector("svg").cloneNode(true),inner=document.createElementNS(ns,"svg");inner.setAttribute("x",0);inner.setAttribute("y",44);inner.setAttribute("width",160);inner.setAttribute("height",50);inner.setAttribute("viewBox","0 0 160 50");
+    while(s.firstChild)inner.appendChild(s.firstChild);g.appendChild(inner)});
+  return svg}
+document.addEventListener("click",async e=>{const b=e.target.closest("[data-save]");if(!b)return;const c=b.dataset.save,f=b.dataset.fmt;
+  try{const title=TITLE[c](),base=c==="W"?`gwt-trends-who-reported-hs3915`:c==="G"?`gwt-trends-compare-${S.ya}-${S.yb}-${slug(matShort())}`:`gwt-trends-${slug(title)}-${slug(matShort())}-${Y[0]}-${LAST}`;
+    if(f==="csv"){if(c==="W"){const r=await fetch("data/completeness.csv");if(!r.ok)throw new Error(r.status);return saveFile(base+".csv",await r.blob())}
+      if(!ROWS[c])return toast("Nothing to save for this selection.");const [keys,rows]=ROWS[c]();
+      return saveFile(base+".csv",toCSV(keys,rows)+"\n\n"+csvCell(caption(c))+"\n"+csvCell("Cite as: "+CITE))}
+    const svg=c==="F"?glanceSVG():$(`#c${c} svg`);if(!svg)return toast("Nothing to save for this selection.");
+    const st=standalone(svg,c==="W"?title:`${title} · ${matShort()}`,caption(c),LEG[c]&&$(LEG[c]),c==="F");
+    return f==="svg"?saveFile(base+".svg",st):saveFile(base+".png",await svgToPNG(st))}
+  catch(err){console.error(err);toast("Couldn't build that file. Try another format.")}});
 
 // ---------- filter controls ----------
 // Grouped choices for the From / To pickers.
@@ -366,9 +460,13 @@ $$(".pickbox").forEach(box=>{const inp=box.querySelector("input"),menu=box.query
   box.addEventListener("click",e=>{if(e.target===box)inp.focus()})});
 
 // Materials menu: tick several; "All plastic" stands on its own.
-function matUI(){$("#matmenu").innerHTML=MATS.map(([hd,its])=>`<div class="mh">${esc(hd)}</div>`+its.map(([k,l])=>`<label><input type="checkbox" value="${k}" ${S.mats.includes(k)?"checked":""}>${k==="all"?"":`<i style="background:${MATCOL[k]}"></i>`}${esc(l)}</label>`).join("")).join("");
-  $("#matsum").textContent=S.mats[0]==="all"?"All plastic":S.mats.length===1?MATL[S.mats[0]]:`${S.mats.length} materials: `+S.mats.map(k=>MATN[k]).join(", ");
+function matUI(){let par="";
+  $("#matmenu").innerHTML=MATS.map(([hd,its,p])=>{let h="";if((p||"")!==par){par=p||"";if(p)h+=`<div class="mh">${esc(p)}</div>`}
+    h+=`<div class="${p?"msh":"mh"}">${esc(hd)}</div>`;
+    return h+its.map(([k])=>`<label${p?' class="sub"':""}><input type="checkbox" value="${k}" ${S.mats.includes(k)?"checked":""}>${k==="all"?"":`<i style="background:${MATCOL[k]}"></i>`}<span>${esc(nm(k))}</span>${MATC[k]?`<small>${MATC[k]}</small>`:""}</label>`).join("")}).join("");
+  $("#matsum").textContent=matShort(true);
   $("#countctl").hidden=S.mats.includes("all")||S.mats.every(k=>k==="plastic")}
+const matShort=code=>S.mats[0]==="all"?"All plastic":S.mats.length===1?nm(S.mats[0])+(code&&MATC[S.mats[0]]?` (${MATC[S.mats[0]]})`:""):`${S.mats.length} materials: `+S.mats.map(nm).join(", ");
 $("#matmenu").addEventListener("change",e=>{const k=e.target.value;let m=S.mats.filter(x=>x!=="all");
   if(k==="all")m=e.target.checked?["all"]:["plastic"];else if(e.target.checked)m.push(k);else m=m.filter(x=>x!==k);
   if(!m.length)m=["plastic"];const before=S.mats.length;S.mats=STREAMS.concat("all").filter(x=>m.includes(x));
@@ -392,7 +490,7 @@ function syncUI(){$$(".seg[data-k]").forEach(s=>s.querySelectorAll("button").for
   $$(".tabs button").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.tab===S.tab)));
   ["overview","glance","compare"].forEach(t=>$("#p-"+t).hidden=t!==S.tab)}
 function syncURL(){const u=new URL(location.href),p=u.searchParams;const set=(k,v,d)=>{if(v===d||v===""||v==null)p.delete(k);else p.set(k,v)};
-  set("imp",S.imp,"1");set("w",S.mats.join(","),"plastic");set("count",S.count,"whole");set("v",S.v?"1":"","");set("m",S.m,"t");set("sch",S.sch,"wb");set("xr",S.xr?"1":"","");set("xi",S.xi?"1":"","");
+  set("imp",S.imp,"1");set("w",S.mats.join(","),"plastic");set("count",S.count,"plastic");set("v",S.v?"1":"","");set("m",S.m,"t");set("sch",S.sch,"wb");set("xr",S.xr?"1":"","");set("xi",S.xi?"1":"","");
   set("ts",S.ts?TOPS[S.ts]:"","");set("tr",S.tr?TOPS[S.tr]:"","");set("from",S.from.join(","),"");set("to",S.to.join(","),"");
   set("y0",I0!==D.span[0]?Y[0]:"","");set("y1",I1!==D.span[1]?LAST:"","");set("tab",S.tab,"overview");
   set("split",S.split,"rg");set("cgrp",S.cgrp,"c");set("cdir",S.cdir,"in");set("gdir",S.gdir,"out");
@@ -408,7 +506,7 @@ async function setMats(){matUI();const need=S.mats.includes("all")?STREAMS:S.mat
 
 // ---------- wiring ----------
 $$(".seg[data-k]").forEach(s=>s.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;const k=s.dataset.k,v=b.dataset.v;S[k]=k==="v"?+v:v;
-  if(k==="count"){setSpan();update()}else if(["v","m","imp"].includes(k))update();else{syncUI();drawTab();syncURL()}}));
+  if(k==="count"){matUI();setSpan();update()}else if(["v","m","imp"].includes(k))update();else{syncUI();drawTab();syncURL()}}));
 $("#xr").onclick=()=>{S.xr=!S.xr;update()};$("#xi").onclick=()=>{S.xi=!S.xi;update()};
 $("#sch").onchange=e=>{S.sch=e.target.value;options();update()};
 $("#ts").oninput=e=>{S.ts=+e.target.value;update()};$("#tr").oninput=e=>{S.tr=+e.target.value;update()};

@@ -167,6 +167,20 @@ input[type=range]{accent-color:var(--out);width:180px;max-width:100%}
 .cbar input[type=search]{font:inherit;font-size:13px;padding:5px 9px;border:1px solid var(--border);border-radius:8px;background:var(--panel);color:var(--ink);width:170px;max-width:100%}
 .count{font-size:12px;color:var(--muted);font-family:var(--mono)}
 .small.many{grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}
+.ddm .mh+.msh{padding-top:2px}
+.msh{font-size:12.5px;font-weight:600;color:var(--ink);padding:7px 16px 1px}
+.ddm label.sub{padding-left:24px}
+.ddm label span{flex:1;min-width:0}
+.ddm label small{font-family:var(--mono);font-size:11px;color:var(--muted);white-space:nowrap;padding-left:10px}
+.hint{position:relative;cursor:help;text-decoration:underline dotted color-mix(in srgb,var(--muted) 60%,transparent);text-underline-offset:3px;align-self:flex-start;outline-offset:2px}
+.hint:hover::after,.hint:focus-visible::after,.hint:focus::after{content:attr(data-tip);position:absolute;left:-4px;top:calc(100% + 6px);z-index:30;width:max-content;max-width:min(280px,80vw);background:var(--ink);color:var(--panel);font:400 12.5px/1.4 var(--body);letter-spacing:0;text-transform:none;padding:7px 9px;border-radius:6px;box-shadow:0 4px 14px rgb(0 0 0 / .18);pointer-events:none;white-space:normal}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:0}
+.sbar{display:flex;justify-content:flex-end;margin-top:2px}
+.save{display:flex;gap:4px;align-items:center;flex-wrap:wrap}
+.save .lab{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-right:4px}
+.save button{font-size:12px;font-weight:600;border:1px solid var(--border);background:var(--raise);color:var(--ink);padding:3px 9px;border-radius:5px;cursor:pointer;font-family:var(--mono)}
+.save button:hover{border-color:var(--out);color:var(--out)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--panel);padding:8px 14px;border-radius:8px;font-size:14px;z-index:50;max-width:calc(100vw - 32px)}
 
 </style>
 </head>
@@ -181,17 +195,17 @@ input[type=range]{accent-color:var(--out);width:180px;max-width:100%}
 <main class="wrap">
   <div class="top-row">
     <h1>Trends</h1>
-    <div class="ctl"><span>Materials</span><details class="dd" id="mats"><summary id="matsum">Plastic waste and scrap (HS 3915)</summary><div class="ddm" id="matmenu"></div></details></div>
-    <div class="ctl" id="countctl" hidden><span>Count</span><div class="seg" data-k="count"><button data-v="whole">Whole material</button><button data-v="plastic">Plastic content</button></div></div>
-    <div class="ctl"><span>Figures</span><div class="seg" data-k="v"><button data-v="0">Exporters' reports</button><button data-v="1">Importers' reports</button></div></div>
-    <div class="ctl"><span>Gaps</span><div class="seg" data-k="imp"><button data-v="1">Imputed</button><button data-v="0">As reported</button></div></div>
-    <div class="ctl"><span>Measure</span><div class="seg" data-k="m"><button data-v="t">Tonnes</button><button data-v="usd">US$</button></div></div>
+    <div class="ctl"><span>Material</span><details class="dd" id="mats"><summary id="matsum">Plastic scrap (HS 3915)</summary><div class="ddm" id="matmenu"></div></details></div>
+    <div class="ctl" id="countctl" hidden><span class="hint" tabindex="0" data-tip="Plastic content counts each stream at its plastic share, as on the Explorer. Whole material counts the full weight.">Count</span><div class="seg" data-k="count"><button data-v="plastic">Plastic content</button><button data-v="whole">Whole material</button></div></div>
+    <div class="ctl"><span class="hint" tabindex="0" data-tip="Each trade is reported twice, by the exporting country and by the importing country, and the two rarely match.">Reporter type</span><div class="seg" data-k="v"><button data-v="0"><span class="dot" style="background:var(--out)"></span>Exporters'</button><button data-v="1"><span class="dot" style="background:var(--in)"></span>Importers'</button></div></div>
+    <div class="ctl"><span class="hint" tabindex="0" data-tip="Imputed fills trade that a country did not report, from its partners' reports, the years either side or the trend, and labels it as imputed. As reported shows only what countries filed.">Data gaps</span><div class="seg" data-k="imp"><button data-v="1">Imputed</button><button data-v="0">As reported</button></div></div>
+    <div class="ctl"><span class="hint" tabindex="0" data-tip="Weight in tonnes or value in US dollars.">Measure</span><div class="seg" data-k="m"><button data-v="t">Tonnes</button><button data-v="usd">US$</button></div></div>
   </div>
   <section class="card filters" aria-label="Filters">
     <div class="frow">
       <div class="ctl pick"><span>From</span><div class="pickbox" data-p="from"><input placeholder="Country, region or income group" aria-label="Add senders" role="combobox" aria-expanded="false" autocomplete="off"><div class="menu" role="listbox" hidden></div></div></div>
       <div class="ctl pick"><span>To</span><div class="pickbox" data-p="to"><input placeholder="Country, region or income group" aria-label="Add receivers" role="combobox" aria-expanded="false" autocomplete="off"><div class="menu" role="listbox" hidden></div></div></div>
-      <label class="ctl"><span>Regions by</span><select id="sch"><option value="un">UN regions (M49)</option><option value="unsub">UN sub-regions (M49)</option><option value="wb">World Bank regions</option><option value="oecd2">OECD members / non-OECD</option><option value="oecd">OECD regions</option></select></label>
+      <label class="ctl"><span>Region type</span><select id="sch"><option value="un">UN regions (M49)</option><option value="unsub">UN sub-regions (M49)</option><option value="wb">World Bank regions</option><option value="oecd2">OECD / non-OECD</option><option value="oecd">OECD regions</option></select></label>
     </div>
     <div class="frow">
       <div class="ctl"><span>Years<b id="yrs"></b></span><div class="dual"><div class="track"></div><div class="fill" id="yfill"></div><input type="range" id="y0" aria-label="First year"><input type="range" id="y1" aria-label="Last year"></div></div>
@@ -203,15 +217,15 @@ input[type=range]{accent-color:var(--out);width:180px;max-width:100%}
   </section>
   <div class="tabs" role="tablist"><button role="tab" data-tab="overview" aria-selected="true">Overview</button><button role="tab" data-tab="glance" aria-selected="false">At a glance</button><button role="tab" data-tab="compare" aria-selected="false">Compare two years</button></div>
   <div class="grid" id="p-overview">
-    <section class="card wide"><div class="hd"><h2>Total</h2></div><div class="chart" id="cA"></div></section>
+    <section class="card wide"><div class="hd"><h2>Total</h2></div><div class="chart" id="cA"></div><div class="sbar"><span class="save"><span class="lab">Save chart</span><button type="button" data-save="A" data-fmt="png">PNG</button><button type="button" data-save="A" data-fmt="svg">SVG</button><button type="button" data-save="A" data-fmt="csv">CSV</button></span></div></section>
     <section class="card"><div class="hd"><h2 id="hB">Where it goes</h2><div class="cbar"><select id="split" aria-label="Split by"><option value="rg">By recipient's income group</option><option value="sg">By sender's income group</option><option value="rr">By recipient's region</option><option value="sr">By sender's region</option><option value="mt">By material</option></select><div class="seg" data-k="bmode"><button data-v="t">Amount</button><button data-v="s">Share</button></div></div></div>
-      <div class="chart" id="cB"></div><div class="legend" id="lB"></div></section>
+      <div class="chart" id="cB"></div><div class="legend" id="lB"></div><div class="sbar"><span class="save"><span class="lab">Save chart</span><button type="button" data-save="B" data-fmt="png">PNG</button><button type="button" data-save="B" data-fmt="svg">SVG</button><button type="button" data-save="B" data-fmt="csv">CSV</button></span></div></section>
     <section class="card"><div class="hd"><h2>From high-income to middle- and low-income countries</h2></div>
-      <div class="chart" id="cC"></div><div class="legend" id="lC"></div></section>
+      <div class="chart" id="cC"></div><div class="legend" id="lC"></div><div class="sbar"><span class="save"><span class="lab">Save chart</span><button type="button" data-save="C" data-fmt="png">PNG</button><button type="button" data-save="C" data-fmt="svg">SVG</button><button type="button" data-save="C" data-fmt="csv">CSV</button></span></div></section>
     <section class="card wide"><div class="hd"><h2 id="hE">Receivers year by year</h2><div class="cbar"><div class="seg" data-k="hdir"><button data-v="in">Receivers</button><button data-v="out">Senders</button></div><label class="ctl"><span>Rows<b id="hrv"></b></span><input type="range" id="hrows" min="5" max="60" step="5"></label></div></div>
-      <div class="chart scroll" id="cE"></div><div class="legend" id="lE"></div></section>
-    <section class="card wide" id="reported" style="scroll-margin-top:70px"><div class="hd"><h2>Who reported plastic waste trade</h2><a class="dl" href="data/completeness.csv" download="gwt-who-reported-hs3915.csv">Download CSV</a></div>
-      <div class="chart" id="cW"></div><div class="legend" id="lW"></div><div class="nrlist" id="wlist"></div></section>
+      <div class="chart scroll" id="cE"></div><div class="legend" id="lE"></div><div class="sbar"><span class="save"><span class="lab">Save chart</span><button type="button" data-save="E" data-fmt="png">PNG</button><button type="button" data-save="E" data-fmt="svg">SVG</button><button type="button" data-save="E" data-fmt="csv">CSV</button></span></div></section>
+    <section class="card wide" id="reported" style="scroll-margin-top:70px"><div class="hd"><h2>Who reported plastic scrap trade</h2></div>
+      <div class="chart" id="cW"></div><div class="legend" id="lW"></div><div class="sbar"><span class="save"><span class="lab">Save chart</span><button type="button" data-save="W" data-fmt="png">PNG</button><button type="button" data-save="W" data-fmt="svg">SVG</button><button type="button" data-save="W" data-fmt="csv">CSV</button></span></div><div class="nrlist" id="wlist"></div></section>
   </div>
   <div id="p-glance" hidden>
     <section class="card wide"><div class="hd"><h2 id="hF">Senders at a glance</h2><span class="count" id="fcount"></span></div>
@@ -223,7 +237,7 @@ input[type=range]{accent-color:var(--out);width:180px;max-width:100%}
         <div class="ctl"><span>Scale</span><div class="seg" data-k="gscale"><button data-v="own">Each its own</button><button data-v="shared">Shared</button></div></div>
         <label class="ctl"><span>Find</span><input type="search" id="gq" aria-label="Find a country"></label>
       </div>
-      <div class="small many" id="cF"></div></section>
+      <div class="small many" id="cF"></div><div class="sbar"><span class="save"><span class="lab">Save charts</span><button type="button" data-save="F" data-fmt="png">PNG</button><button type="button" data-save="F" data-fmt="svg">SVG</button><button type="button" data-save="F" data-fmt="csv">CSV</button></span></div></section>
   </div>
   <div id="p-compare" hidden>
     <section class="card wide"><div class="hd"><h2>Compare two years</h2></div>
@@ -236,12 +250,13 @@ input[type=range]{accent-color:var(--out);width:180px;max-width:100%}
         <div class="ctl"><span>Chart</span><div class="seg" data-k="cchart"><button data-v="dumb">Dumbbell</button><button data-v="slope">Slope</button></div></div>
         <div class="ctl"><span>Scale</span><div class="seg" data-k="cscale"><button data-v="lin">Linear</button><button data-v="log">Log</button></div></div>
       </div>
-      <div class="chart" id="cG"></div><div class="legend" id="lG"></div></section>
+      <div class="chart" id="cG"></div><div class="legend" id="lG"></div><div class="sbar"><span class="save"><span class="lab">Save chart</span><button type="button" data-save="G" data-fmt="png">PNG</button><button type="button" data-save="G" data-fmt="svg">SVG</button><button type="button" data-save="G" data-fmt="csv">CSV</button></span></div></section>
   </div>
 </main>
 
 <div class="tip" id="tip" hidden></div>
+<div class="toast" id="toast" role="status" hidden></div>
 <script src="vendor/d3-7.8.5.min.js"></script>
-<script src="trends.js?v=12"></script>
+<script src="trends.js?v=13"></script>
 </body>
 </html>
