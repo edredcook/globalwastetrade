@@ -65,9 +65,9 @@ header.mast>.wrap{display:flex;align-items:center;gap:20px;padding-block:10px;fl
 nav.top{display:flex;gap:2px;flex-wrap:wrap;margin-left:auto;align-items:center}
 nav.top a{color:inherit;opacity:.75;text-decoration:none;padding:6px 10px;border-radius:4px;font-weight:500;font-size:14px}
 nav.top a:hover{opacity:1;background:rgba(255,255,255,.1)}
-.subbar{background:#203440;color:#c9d6dc;font-size:13px;border-top:1px solid rgba(255,255,255,.08)}
+.subbar{background:#203440;color:#ff9a66;font-size:13px;border-top:1px solid rgba(255,255,255,.08)}
 .subbar .wrap{padding-block:6px;display:flex;flex-wrap:wrap;gap:4px 18px;align-items:center}
-#srcline{color:#8fa3ad;font-size:12px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1 1 200px}
+#srcline{color:#a9bac2;font-size:12px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1 1 200px}
 nav.top a[aria-current]{opacity:1;background:rgba(255,255,255,.12)}
 .brand{color:inherit;text-decoration:none}
 .betab{justify-self:center;font:700 11px/1 var(--body);letter-spacing:.12em;text-transform:uppercase;color:#ffb38f;border:1px solid rgba(255,122,61,.7);border-radius:999px;padding:4px 10px 3px}
@@ -75,20 +75,27 @@ nav.top a[aria-current]{opacity:1;background:rgba(255,255,255,.12)}
 @media (min-width:760px){header.mast>.wrap{display:grid;grid-template-columns:1fr auto 1fr}header.mast .brand{justify-self:start}header.mast nav.top{justify-self:end}}
 nav.sub{display:flex;flex-wrap:wrap;gap:2px 16px;margin-left:auto}
 nav.sub a{color:inherit;text-decoration:none;font-weight:600;padding:2px 0;border-bottom:2px solid transparent}
-nav.sub a:hover,nav.sub a:focus-visible{color:#fff;border-bottom-color:#ff7a3d}
+nav.sub a:hover,nav.sub a:focus-visible{color:#ffc4a3;border-bottom-color:#ff7a3d}
+header.mast .wrap{max-width:1934px}
 
-.controls{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px;padding-block:14px}
-@media (max-width:420px){.controls{grid-template-columns:1fr}}
-.controls>.ctl{border:1px solid var(--border);border-radius:10px;background:var(--panel);padding:9px 12px 10px;justify-content:flex-start}
+.controls{display:flex;flex-wrap:wrap;gap:8px;padding-block:10px}
+.controls>.ctl{flex:1 1 auto;border:1px solid var(--border);border-radius:10px;background:var(--panel);padding:6px 10px 8px;gap:4px;justify-content:flex-start}
+.controls>.ctl.grow{flex:1 1 150px}
+.controls>.ctl.grow input{width:100%;min-width:0}
+.controls #year{width:auto;min-width:110px}
+.controls .seg{flex-wrap:nowrap}
+@media (max-width:420px){.controls>.ctl{flex-basis:100%}.controls .seg{flex-wrap:wrap}}
+.ctlh{display:flex;align-items:baseline;gap:10px}
+.ctlh .sublink{align-self:auto;font-size:11px}
 .controls>.ctl[hidden]{display:none}
-.controls .seg button{font-size:13px;padding:5px 10px}
+.controls .seg button{font-size:13px;padding:4px 10px;white-space:nowrap}
 .controls select,.controls input[type=search]{font-size:13px}
 .sublink{font-size:12px;color:var(--muted);text-underline-offset:2px;align-self:flex-start}
 .sublink:hover{color:var(--ink)}
 .hint{position:relative;cursor:help;text-decoration:underline dotted color-mix(in srgb,var(--muted) 60%,transparent);text-underline-offset:3px;align-self:flex-start;outline-offset:2px}
 .hint:hover::after,.hint:focus-visible::after,.hint:focus::after{content:attr(data-tip);position:absolute;left:-4px;top:calc(100% + 6px);z-index:30;width:max-content;max-width:min(280px,80vw);background:var(--ink);color:var(--panel);font:400 12.5px/1.4 var(--body);letter-spacing:0;text-transform:none;padding:7px 9px;border-radius:6px;box-shadow:0 4px 14px rgb(0 0 0 / .18);pointer-events:none;white-space:normal}
 .ctl{display:flex;flex-direction:column;gap:6px;min-width:0}
-.ctl > span,.lab{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.ctl > span,.ctlh > span,.lab{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:600}
 .seg{display:flex;flex-wrap:wrap;gap:4px}
 .seg button{font:inherit;font-size:14px;border:1px solid var(--border);background:var(--panel);color:var(--ink);padding:6px 12px;border-radius:999px;cursor:pointer;display:flex;align-items:center;gap:6px}
 .seg button[aria-pressed="true"]{background:var(--ink);color:var(--panel);border-color:var(--ink)}
@@ -100,11 +107,11 @@ select,input[type=search],input[type=number]{font:inherit;font-size:14px;border:
 input[type=range]{accent-color:var(--out)}
 
 .mapfull{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
-.mapbox{background:var(--panel);border:1px solid var(--border);border-radius:10px;overflow:hidden;min-width:0;max-width:1900px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr) 330px}
+.mapbox{background:var(--panel);border:1px solid var(--border);border-radius:10px;overflow:hidden;min-width:0;max-width:1900px;margin:0 auto;display:grid;grid-template-columns:330px minmax(0,1fr)}
 .mapbox.noside{grid-template-columns:minmax(0,1fr)}
 .mapbox.noside .mapside{display:none}
 .mapmain{min-width:0;display:flex;flex-direction:column}
-.mapside{position:relative;border-left:1px solid var(--border);background:var(--raise);min-width:0}
+.mapside{position:relative;order:-1;border-right:1px solid var(--border);background:var(--raise);min-width:0}
 .msin{position:absolute;inset:0;overflow:auto;display:flex;flex-direction:column;gap:8px;padding:10px;overscroll-behavior:contain}
 .mshd{display:flex;align-items:center;gap:8px;padding:2px 2px 0}
 .mshd b{font-family:var(--display);font-stretch:85%;font-size:17px;margin-right:auto}
@@ -114,7 +121,7 @@ input[type=range]{accent-color:var(--out)}
 .mapside .mini{flex:1 1 130px}
 .mapside .mini input[type=range]{width:100%}
 .mapside select{width:100%}
-@media (max-width:900px){.mapbox{grid-template-columns:minmax(0,1fr)}.mapside{border-left:0;border-top:1px solid var(--border)}.msin{position:static;overflow:visible}}
+@media (max-width:900px){.mapbox{grid-template-columns:minmax(0,1fr)}.mapside{order:0;border-right:0;border-top:1px solid var(--border)}.msin{position:static;overflow:visible}}
 .maptools{display:flex;align-items:stretch;gap:8px;flex-wrap:wrap;padding:10px 14px;border-bottom:1px solid var(--border);background:var(--panel)}
 .tbox{display:flex;flex-wrap:wrap;align-items:flex-end;gap:8px 18px;border:1px solid var(--border);border-radius:10px;padding:8px 12px 9px;background:var(--panel);position:relative;min-width:0}
 .tbox:not(:has(>.ctl:not([hidden]),>label)){display:none}
@@ -304,7 +311,8 @@ tbody tr:hover td{background:var(--raise)}
 .btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--border);font-weight:500}
 .btn.sm{font-size:13px;padding:6px 12px}
 .note{font-size:12px;color:var(--muted)}
-.mats{margin:18px 0 0;padding:12px 16px 14px}
+.mats{margin:12px 0 0;padding:6px 12px}
+.mats .mtabs .seg button{padding:4px 11px;font-size:13px}
 .mtabs{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px}
 .mtabs .seg button{font-weight:600}
 #mgplas::after{content:"";width:7px;height:7px;border:solid currentColor;border-width:0 1.5px 1.5px 0;transform:translateY(1px) rotate(-135deg);margin-left:2px}
@@ -423,8 +431,8 @@ footer b{color:var(--ink);font-weight:600}
         <button data-v="1" aria-pressed="false"><span class="dot" style="background:var(--in)"></span>Importers'</button>
         <button data-v="2" aria-pressed="false"><span class="dot" style="background:var(--res)"></span>Resolved</button>
       </div></div>
-    <div class="ctl" id="impbox"><span class="hint" tabindex="0" data-tip="Imputed fills trade that a country did not report, from its partners' reports, the years either side or the trend, and labels it as imputed. As reported shows only what countries filed.">Data gaps</span>
-      <div class="seg" id="imp"><button data-i="1" aria-pressed="true">Imputed</button><button data-i="0" aria-pressed="false">As reported</button></div><a class="sublink" href="trends.html#reported">Who reported</a></div>
+    <div class="ctl" id="impbox"><div class="ctlh"><span class="hint" tabindex="0" data-tip="Imputed fills trade that a country did not report, from its partners' reports, the years either side or the trend, and labels it as imputed. As reported shows only what countries filed.">Data gaps</span><a class="sublink" href="trends.html#reported">Who reported</a></div>
+      <div class="seg" id="imp"><button data-i="1" aria-pressed="true">Imputed</button><button data-i="0" aria-pressed="false">As reported</button></div></div>
     <div class="ctl" id="resmethodbox" hidden><span class="hint" tabindex="0" data-tip="How the exporter's and importer's figures for the same route are combined into one.">Resolve by</span>
       <select id="resmethod" aria-label="How to resolve the two sets of figures">
         <option value="mean">Average where both report</option>
@@ -436,7 +444,7 @@ footer b{color:var(--ink);font-weight:600}
       <div class="seg" id="measure"><button data-m="t" aria-pressed="true">Tonnes</button><button data-m="usd" aria-pressed="false">US$</button><button data-m="ppt" aria-pressed="false">US$ per tonne</button></div></div>
     <div class="ctl"><span class="hint" tabindex="0" data-tip="All shows every route. High → middle- and low-income keeps only trade sent from high-income countries to middle- and low-income countries, using each country's World Bank income group in that year.">Routes</span>
       <div class="seg" id="incf"><button data-f="all" aria-pressed="true">All</button><button data-f="hl" aria-pressed="false">High → middle- and low-income</button></div></div>
-    <div class="ctl"><span class="hint" tabindex="0" data-tip="Pick a country to see all its trade partners on the map.">Select a country</span>
+    <div class="ctl grow"><span class="hint" tabindex="0" data-tip="Pick a country to see all its trade partners on the map.">Select a country</span>
       <input type="search" id="find" list="clist" placeholder="e.g. Malaysia" aria-label="Select a country"><datalist id="clist"></datalist></div>
   </div>
 </main>
