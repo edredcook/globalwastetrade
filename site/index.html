@@ -85,8 +85,24 @@ header.mast .wrap{max-width:1934px}
 .controls #year{width:auto;min-width:110px}
 .controls .seg{flex-wrap:nowrap}
 @media (max-width:420px){.controls>.ctl{flex-basis:100%}.controls .seg{flex-wrap:wrap}}
-.ctlh{display:flex;align-items:baseline;gap:10px}
+.ctlh{display:flex;align-items:baseline;gap:2px 10px;flex-wrap:wrap}
 .ctlh .sublink{align-self:auto;font-size:11px}
+.grpbtn{color:var(--muted);text-transform:none;letter-spacing:0}
+.grpbtn.on{color:var(--out);font-weight:600}
+.grpcard{margin:0 0 10px;padding:10px 12px}
+.grphd{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.grphd b{font-family:var(--display);font-stretch:85%;font-size:17px}
+.grphd .x{border:0;background:none;font-size:22px;line-height:1;color:var(--muted);cursor:pointer}
+.grpbody{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;align-items:start}
+.grpbody .seg button{font-size:13px;padding:4px 10px}
+.grpbody input[type=text],.grpbody input[type=search]{font:inherit;font-size:13px;width:100%;max-width:320px;border:1px solid var(--border);background:var(--panel);color:var(--ink);padding:6px 10px;border-radius:6px}
+.grpmem input{max-width:320px}
+.grpchips{display:flex;flex-wrap:wrap;gap:4px}
+.grpchips button{font:inherit;font-size:12px;border:1px solid var(--border);background:var(--panel);color:var(--ink);border-radius:999px;padding:2px 6px 2px 9px;cursor:pointer;display:flex;gap:4px;align-items:center}
+.grpchips button:hover{border-color:var(--out)}
+.grpchips button i{font-style:normal;color:var(--muted)}
+.grpbody .actions{grid-column:1/-1}
+@media (max-width:600px){.grpbody{grid-template-columns:1fr}}
 .controls>.ctl[hidden]{display:none}
 .controls .seg button{font-size:13px;padding:4px 10px;white-space:nowrap}
 .controls select,.controls input[type=search]{font-size:13px}
@@ -444,9 +460,19 @@ footer b{color:var(--ink);font-weight:600}
       <div class="seg" id="measure"><button data-m="t" aria-pressed="true">Tonnes</button><button data-m="usd" aria-pressed="false">US$</button><button data-m="ppt" aria-pressed="false">US$ per tonne</button></div></div>
     <div class="ctl"><span class="hint" tabindex="0" data-tip="All shows every route. High → middle- and low-income keeps only trade sent from high-income countries to middle- and low-income countries, using each country's World Bank income group in that year.">Routes</span>
       <div class="seg" id="incf"><button data-f="all" aria-pressed="true">All</button><button data-f="hl" aria-pressed="false">High → middle- and low-income</button></div></div>
-    <div class="ctl grow"><span class="hint" tabindex="0" data-tip="Pick a country to see all its trade partners on the map.">Select a country</span>
+    <div class="ctl grow"><div class="ctlh"><span class="hint" tabindex="0" data-tip="Pick a country to see all its trade partners on the map.">Select a country</span><button class="sublink linkbtn grpbtn" id="grpbtn" type="button" aria-expanded="false" aria-controls="grpcard" title="Pick several countries to treat as one group, like a region">+ Group</button></div>
       <input type="search" id="find" list="clist" placeholder="e.g. Malaysia" aria-label="Select a country"><datalist id="clist"></datalist></div>
   </div>
+  <section class="card grpcard" id="grpcard" aria-label="Group of countries" hidden>
+    <div class="grphd"><b>Group of countries</b><button class="x" id="grpclose" type="button" aria-label="Close">×</button></div>
+    <div class="grpbody">
+      <div class="ctl"><span class="hint" tabindex="0" data-tip="Current members. You can add or remove countries after choosing one.">Start from</span><div class="seg" id="grppre"></div></div>
+      <div class="ctl"><span>Name</span><input type="text" id="grpname" maxlength="40" aria-label="Group name"></div>
+      <div class="ctl grpmem"><span>Countries <output id="grpn"></output></span><div class="grpchips" id="grpchips"></div>
+        <input type="search" id="grpadd" list="clist" placeholder="Add a country" aria-label="Add a country to the group"></div>
+      <div class="actions"><button class="btn" id="grpgo" type="button">Show group</button><button class="btn ghost" id="grpoff" type="button">Clear group</button></div>
+    </div>
+  </section>
 </main>
 
 <section class="mapfull">
@@ -714,9 +740,19 @@ function hpNote(){const on=hidOn();return on.length?" · hidden or embedded plas
 resolve();
 const name=c=>C[c]?C[c][1]:c, iso=c=>C[c]?C[c][0]:c, inc=c=>C[c]?C[c][2]:"NS";
 const regOf=(c,sch=S.scheme)=>(SCH[sch]&&SCH[sch][c])||null;
+// Group of countries: the chosen countries become one more region in every region scheme, so the map, summary,
+// charts and downloads treat it like a region. Regions that lose members to it are renamed "... excl. <group>".
+const SCH0=JSON.parse(JSON.stringify(SCH)),RBASE={};let GRP=null;const GRPCOL="#c2185b";
+function applyGroup(){for(const k of Object.keys(RBASE))delete RBASE[k];
+  for(const sch of Object.keys(SCH0)){const base=SCH0[sch],m=new Set(GRP?GRP.members:[]),lost=new Set();
+    if(GRP)for(const c of m)if(base[c])lost.add(base[c]);
+    const out={};for(const c of Object.keys(base)){const r=base[c];if(m.has(c)){out[c]=GRP.name;continue}const n=lost.has(r)?`${r} excl. ${GRP.name}`:r;out[c]=n;RBASE[n]=r}
+    if(GRP)for(const c of m)if(!out[c])out[c]=GRP.name;
+    SCH[sch]=out}
+  anchorCache={}}
 const regionNames=sch=>[...new Set(Object.values(SCH[sch]))].sort();
 const REGPAL=["#4e79a7","#f28e2b","#59a14f","#e15759","#76b7b2","#edc948","#b07aa1","#ff9da7","#9c755f","#8cd17d","#499894","#d37295","#a0cbe8","#bab0ac","#86bcb6","#f1ce63"];
-const rcol=(r,sch=S.scheme)=>{const L=regionNames(sch);const i=L.indexOf(r);return i<0?css("--g-ns"):REGPAL[i%REGPAL.length]};
+const rcol=(r,sch=S.scheme)=>{if(GRP&&r===GRP.name)return GRPCOL;const L=[...new Set(Object.values(SCH0[sch]))].sort();const i=L.indexOf(RBASE[r]||r);return i<0?css("--g-ns"):REGPAL[i%REGPAL.length]};
 
 // ---------- measures ----------
 const agg=rs=>{let t=0,usd=0,est=0;for(const r of rs){t+=r.t;usd+=r.usd;if(r.est)est+=r.t}return{t,usd,est,n:rs.length}};
@@ -1655,6 +1691,36 @@ function rdirUI(){const reg=!!S.region;
   if(reg&&S.rdir==="between")S.rdir="both";
   document.querySelectorAll("#rdir button").forEach(b=>{const d=b.dataset.d;b.hidden=reg&&d==="between";if(d==="within")b.textContent=reg?"Within":"Within regions"});
   pressed("#rdir","d",S.rdir)}
+// ---------- GROUP OF COUNTRIES ----------
+{const PRE={"EU-27":"AUT BEL BGR HRV CYP CZE DNK EST FIN FRA DEU GRC HUN IRL ITA LVA LTU LUX MLT NLD POL PRT ROU SVK SVN ESP SWE",
+  "EU-27 + UK":"AUT BEL BGR HRV CYP CZE DNK EST FIN FRA DEU GRC HUN IRL ITA LVA LTU LUX MLT NLD POL PRT ROU SVK SVN ESP SWE GBR",
+  "ASEAN":"BRN KHM IDN LAO MYS MMR PHL SGP THA VNM TLS","G7":"CAN FRA DEU ITA JPN GBR USA",
+  "BRICS":"BRA RUS IND CHN ZAF EGY ETH IRN ARE IDN","Mercosur":"ARG BRA PRY URY BOL","GCC":"BHR KWT OMN QAT SAU ARE"};
+ const byIso={};for(const [c,v] of Object.entries(C))byIso[v[0]]=byIso[v[0]]||c;
+ let draft={name:"",members:[]};
+ try{const sv=JSON.parse(localStorage.getItem("gwt-group")||"null");if(sv&&Array.isArray(sv.members))draft={name:String(sv.name||"").slice(0,40),members:sv.members.filter(c=>C[c])}}catch(e){}
+ const card=$("#grpcard"),btn=$("#grpbtn");
+ $("#grppre").innerHTML=Object.keys(PRE).map(k=>`<button type="button" data-p="${esc(k)}" aria-pressed="false">${esc(k)}</button>`).join("")+`<button type="button" data-p="" aria-pressed="false">Your own list</button>`;
+ const ui=()=>{draft.members=[...new Set(draft.members)].filter(c=>C[c]).sort((a,b)=>name(a).localeCompare(name(b)));
+   $("#grpname").value=draft.name;$("#grpn").textContent=draft.members.length?`(${draft.members.length})`:"";
+   $("#grpchips").innerHTML=draft.members.map(c=>`<button type="button" data-c="${c}" aria-label="Remove ${esc(name(c))}">${esc(name(c))}<i>×</i></button>`).join("");
+   $("#grpgo").disabled=!draft.members.length;$("#grpoff").hidden=!GRP;
+   btn.textContent=GRP?`Group: ${GRP.name}`:"+ Group";btn.classList.toggle("on",!!GRP)};
+ const open=o=>{card.hidden=!o;btn.setAttribute("aria-expanded",o);if(o)ui()};
+ btn.onclick=()=>open(card.hidden);$("#grpclose").onclick=()=>open(false);
+ $("#grppre").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;const k=b.dataset.p;
+   pressed("#grppre","p",k);draft=k?{name:k,members:PRE[k].split(" ").map(i=>byIso[i]).filter(Boolean)}:{name:draft.name&&!PRE[draft.name]?draft.name:"My group",members:k===""&&!PRE[draft.name]?draft.members:[]};ui()});
+ $("#grpname").addEventListener("input",e=>{draft.name=e.target.value.slice(0,40)});
+ $("#grpchips").addEventListener("click",e=>{const b=e.target.closest("button[data-c]");if(!b)return;draft.members=draft.members.filter(c=>c!==b.dataset.c);ui()});
+ $("#grpadd").addEventListener("change",e=>{const q=e.target.value.trim().toLowerCase();if(!q)return;const hit=Object.entries(C).find(([k,c])=>c[1].toLowerCase()===q||c[0].toLowerCase()===q)||Object.entries(C).find(([k,c])=>c[1].toLowerCase().startsWith(q));
+   if(hit){draft.members.push(hit[0]);e.target.value="";ui()}else toast(`No country called "${e.target.value}".`)});
+ $("#grpgo").onclick=()=>{if(!draft.members.length)return;let nm=(draft.name||"My group").trim()||"My group";
+   const taken=new Set(Object.values(SCH0).flatMap(m=>Object.values(m)));if(taken.has(nm))nm+=" (group)";
+   GRP={name:nm,members:draft.members.slice()};draft.name=nm;try{localStorage.setItem("gwt-group",JSON.stringify(draft))}catch(e){}
+   applyGroup();S.region=null;fillRegions();open(false);ui();
+   setRegion(GRP.name);toast(`Showing ${nm}: ${GRP.members.length} countries`)};
+ $("#grpoff").onclick=()=>{GRP=null;applyGroup();S.region=null;fillRegions();ui();open(false);setRegion(null)};
+ ui()}
 function setRegion(r){S.region=r;$("#region").value=r||"";rdirUI();S.sel=null;partnerVals=new Map();render();
   if(r){const mem=Object.keys(C).filter(c=>regOf(c)===r&&pos[c]);const big=mem.filter(c=>!["RUS","USA","CAN","GRL","FRA","NOR"].includes(iso(c)));zoomToPts((big.length?big:mem).map(c=>pos[c]),5)}else svg.transition().duration(600).call(zoom.transform,d3.zoomIdentity)}
 segment("#rdir","d",v=>{S.rdir=v;render()});rdirUI();
