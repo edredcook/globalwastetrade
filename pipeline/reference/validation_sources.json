@@ -711,8 +711,8 @@
   },
   {
    "title": "Plastic in recovered paper",
-   "status": "Assumption to review.",
-   "text": "The site assumes 2% plastic in recovered paper (HS 4707). IPEN (2023) uses 5 to 30% for paper bales, which would make paper the largest carrier of plastic amongst other materials."
+   "status": "Kept at 2%.",
+   "text": "The site assumes 2% plastic in recovered paper (HS 4707). IPEN (2023) uses 5 to 30% for paper bales."
   },
   {
    "title": "Basel Convention data",
