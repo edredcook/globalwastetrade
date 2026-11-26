@@ -1,0 +1,157 @@
+{
+ "_about": "OECD member countries and the year each joined, keyed by Comtrade reporter code. A country counts as an OECD member for every calendar year from its accession year onwards. Source: OECD, Members and partners (oecd.org/en/about/members-partners.html).",
+ "members": {
+  "36": {
+   "name": "Australia",
+   "joined": 1971
+  },
+  "40": {
+   "name": "Austria",
+   "joined": 1961
+  },
+  "56": {
+   "name": "Belgium",
+   "joined": 1961
+  },
+  "124": {
+   "name": "Canada",
+   "joined": 1961
+  },
+  "152": {
+   "name": "Chile",
+   "joined": 2010
+  },
+  "170": {
+   "name": "Colombia",
+   "joined": 2020
+  },
+  "188": {
+   "name": "Costa Rica",
+   "joined": 2021
+  },
+  "203": {
+   "name": "Czechia",
+   "joined": 1995
+  },
+  "208": {
+   "name": "Denmark",
+   "joined": 1961
+  },
+  "233": {
+   "name": "Estonia",
+   "joined": 2010
+  },
+  "246": {
+   "name": "Finland",
+   "joined": 1969
+  },
+  "251": {
+   "name": "France",
+   "joined": 1961
+  },
+  "276": {
+   "name": "Germany",
+   "joined": 1961
+  },
+  "300": {
+   "name": "Greece",
+   "joined": 1961
+  },
+  "348": {
+   "name": "Hungary",
+   "joined": 1996
+  },
+  "352": {
+   "name": "Iceland",
+   "joined": 1961
+  },
+  "372": {
+   "name": "Ireland",
+   "joined": 1961
+  },
+  "376": {
+   "name": "Israel",
+   "joined": 2010
+  },
+  "380": {
+   "name": "Italy",
+   "joined": 1961
+  },
+  "392": {
+   "name": "Japan",
+   "joined": 1964
+  },
+  "428": {
+   "name": "Latvia",
+   "joined": 2016
+  },
+  "440": {
+   "name": "Lithuania",
+   "joined": 2018
+  },
+  "442": {
+   "name": "Luxembourg",
+   "joined": 1961
+  },
+  "484": {
+   "name": "Mexico",
+   "joined": 1994
+  },
+  "528": {
+   "name": "Netherlands",
+   "joined": 1961
+  },
+  "554": {
+   "name": "New Zealand",
+   "joined": 1973
+  },
+  "579": {
+   "name": "Norway",
+   "joined": 1961
+  },
+  "616": {
+   "name": "Poland",
+   "joined": 1996
+  },
+  "620": {
+   "name": "Portugal",
+   "joined": 1961
+  },
+  "703": {
+   "name": "Slovakia",
+   "joined": 2000
+  },
+  "705": {
+   "name": "Slovenia",
+   "joined": 2010
+  },
+  "410": {
+   "name": "South Korea",
+   "joined": 1996
+  },
+  "724": {
+   "name": "Spain",
+   "joined": 1961
+  },
+  "752": {
+   "name": "Sweden",
+   "joined": 1961
+  },
+  "757": {
+   "name": "Switzerland",
+   "joined": 1961
+  },
+  "792": {
+   "name": "Turkey",
+   "joined": 1961
+  },
+  "826": {
+   "name": "United Kingdom",
+   "joined": 1961
+  },
+  "842": {
+   "name": "United States",
+   "joined": 1961
+  }
+ }
+}

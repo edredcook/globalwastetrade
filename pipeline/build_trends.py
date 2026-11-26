@@ -28,6 +28,18 @@ from impute import impute
 
 GROUPS = ["HIC", "UMC", "LMC", "LIC", "NS"]
 SITE_DATA = Path(__file__).resolve().parent.parent / "site" / "data"
+REF = Path(__file__).resolve().parent / "reference"
+
+
+def oecd_members():
+    """OECD membership by year for the site: Comtrade code -> accession year."""
+    ref = json.loads((REF / "oecd_members.json").read_text(encoding="utf-8"))
+    return {"members": {c: m["joined"] for c, m in sorted(ref["members"].items(), key=lambda kv: int(kv[0]))}}
+
+
+def is_oecd(members, code, year):
+    joined = members.get(str(code))
+    return joined is not None and joined <= year
 
 
 def summarise(years, per_year):
@@ -219,6 +231,7 @@ def main():
         w.writerow(CSV_HEAD)
         w.writerows(rows)
     write("flows.json", flows(years, per, schemes, imp, modelled))
+    write("oecd.json", oecd_members())
     by_year = [{"plastic": rs} for rs in imp]
     streams = sorted({k for d in data for k in d.get("hidden", {})})
     for k in streams:

@@ -35,12 +35,12 @@ const NONC=/nes$|^Areas|^Special Categories|^Free Zones|^Bunkers/;
 const q=new URLSearchParams(location.search);
 const toks=s=>(s||"").split(",").filter(t=>/^(c|g|r):/.test(t));
 const pick=(v,ok,d)=>ok.includes(v)?v:d;
-const DEF={imp:"1",count:"plastic",v:0,m:"t",sch:"wb",xr:false,xi:false,ts:0,tr:0,from:[],to:[],split:"rg",bmode:"t",hdir:"in",hrows:20,gdir:"out",gsort:"total",gshow:1,gmin:0,gscale:"own",cdir:"in",cgrp:"c",csort:"b",cn:12,cchart:"dumb",cscale:"lin"};
+const DEF={imp:"1",count:"plastic",v:0,m:"t",sch:"wb",xr:false,xi:false,xh:false,xo:false,ts:0,tr:0,from:[],to:[],split:"rg",bmode:"t",hdir:"in",hrows:20,gdir:"out",gsort:"total",gshow:1,gmin:0,gscale:"own",cdir:"in",cgrp:"c",csort:"b",cn:12,cchart:"dumb",cscale:"lin"};
 const S={...DEF,
   mats:(()=>{const w=(q.get("w")||"plastic").split(","),m=["all",...STREAMS].filter(k=>w.includes(k));return m.includes("all")?["all"]:m.length?m:["plastic"]})(),
   count:q.get("count")==="whole"?"whole":"plastic", imp:q.get("imp")==="0"?"0":"1",
   v:q.get("v")==="1"?1:0, m:pick(q.get("m"),["t","usd"],"t"), sch:pick(q.get("sch"),Object.keys(SCHEMES),"wb"),
-  xr:q.get("xr")==="1", xi:q.get("xi")==="1",
+  xr:q.get("xr")==="1", xi:q.get("xi")==="1", xh:q.get("xh")==="1", xo:q.get("xo")==="1",
   ts:Math.max(0,TOPS.indexOf(+q.get("ts"))), tr:Math.max(0,TOPS.indexOf(+q.get("tr"))),
   from:toks(q.get("from")), to:toks(q.get("to")),
   tab:pick(q.get("tab"),["overview","glance","compare"],"overview"),
@@ -66,6 +66,7 @@ const nmShare=k=>SHARE[k]<1&&MATN[k].endsWith(")")&&(S.mats.includes("all")||S.c
 
 // ---------- data ----------
 // Each material file has its own country list; all are mapped onto one shared index.
+let OECD={};
 const D={codes:[],idx:new Map(),names:[],inc:[],regions:{},years:null,mats:{},nc:0,span:[0,0],modelled:[]};
 async function load(k){if(D.mats[k])return;const r=await fetch(k==="plastic"?"data/flows.json":`data/flows_${k}.json`,{cache:"no-cache"});if(!r.ok)throw new Error(r.status);const d=await r.json();
   if(!D.years){D.years=d.years;D.modelled=d.modelled||[]}
@@ -85,6 +86,8 @@ const name=j=>D.nm[j];
 const regCol=nm=>{if(!nm||nm==="Other")return css("--g-ns");const all=[...new Set(D.regions[S.sch])].filter(Boolean).sort();return REGPAL[Math.max(0,all.indexOf(nm))%REGPAL.length]};
 const events=()=>S.mats.some(k=>k==="plastic"||k==="all")?[[2018,"China ban"],[2021,"Basel amendments"]]:[[2018,"China ban"]];
 
+// OECD members in year i (by accession year).
+const oecdMask=i=>{const y=D.years[i],m=new Uint8Array(D.nc);for(let j=0;j<D.nc;j++){const a=OECD[D.codes[j]];if(a!=null&&a<=y)m[j]=1}return m};
 // Token → member mask for year i.
 function mask(tokens,i){if(!tokens.length)return null;const m=new Uint8Array(D.nc);
   for(const t of tokens){const k=t[0];
@@ -97,13 +100,15 @@ function mask(tokens,i){if(!tokens.length)return null;const m=new Uint8Array(D.n
 function agg(v,lim){const NY=D.years.length,nc=D.nc,R=D.regions[S.sch],usd=S.m==="usd",sk=S.split;
   const tot=new Float64Array(NY),ti=new Float64Array(NY),out=new Float64Array(nc*NY),inn=new Float64Array(nc*NY),hl=new Float64Array(NY),hAll=new Float64Array(NY),split=new Map();
   const ml=matList();
-  for(let i=I0;i<=I1;i++){const fm=mask(S.from,i),tm=mask(S.to,i),inc=D.incY[i];
+  for(let i=I0;i<=I1;i++){const fm=mask(S.from,i),tm=mask(S.to,i),inc=D.incY[i],oe=S.xo?oecdMask(i):null;
    for(const [mk,w] of ml)for(const im of S.imp==="1"?[0,1]:[0]){const a=D.mats[mk][im?"FI":"F"][v][i];
     for(let p=0;p<a.length;p+=4){const e=a[p],r=a[p+1];
       if(fm&&!fm[e]||tm&&!tm[r])continue;
       if(lim&&(lim.ex&&!lim.ex[e]||lim.rc&&!lim.rc[r]))continue;
       if(S.xr&&R[e]&&R[e]===R[r])continue;
       if(S.xi&&inc[e]===inc[r])continue;
+      if(S.xh&&inc[e]==="H"&&(inc[r]==="U"||inc[r]==="M"||inc[r]==="L"))continue;
+      if(oe&&oe[e]&&!oe[r])continue;
       const val=(usd?a[p+3]*1000:a[p+2])*w;if(!val)continue;
       tot[i]+=val;if(im)ti[i]+=val;out[e*NY+i]+=val;inn[r*NY+i]+=val;
       if(inc[e]==="H"){hAll[i]+=val;if(inc[r]==="U"||inc[r]==="M"||inc[r]==="L")hl[i]+=val}
@@ -365,7 +370,7 @@ function caption(c){const p=[];
     if(S.from.length)p.push("From "+S.from.map(t=>tokLabel(t)[0]).join(", ")+".");
     if(S.to.length)p.push("To "+S.to.map(t=>tokLabel(t)[0]).join(", ")+".");
     if(S.ts)p.push(`Top ${TOPS[S.ts]} senders.`);if(S.tr)p.push(`Top ${TOPS[S.tr]} receivers.`);
-    if(S.xr)p.push(`Trade within a region left out (${SCHEMES[S.sch]}).`);if(S.xi)p.push("Trade within an income group left out.");
+    if(S.xr)p.push(`Trade within a region left out (${SCHEMES[S.sch]}).`);if(S.xi)p.push("Trade within an income group left out.");if(S.xh)p.push("Trade from high-income to middle- and low-income countries left out.");if(S.xo)p.push("Trade from OECD to non-OECD countries left out (membership by year).");
     const md=D.modelled.filter(y=>y>=Y[0]&&y<=LAST);if(md.length)p.push(md.join(", ")+" modelled.")}
   p.push(`Source: UN Comtrade${c==="W"?"":`, ${Y[0]}–${LAST}`}. Global Waste Trade Data Hub, globalwastetrade.org, CC BY 4.0.`);return p.join(" ")}
 const TITLE={A:()=>"Total",B:()=>$("#hB").textContent,C:()=>"From high-income to middle- and low-income countries",E:()=>$("#hE").textContent,W:()=>"Who reported plastic scrap trade",F:()=>$("#hF").textContent,G:()=>`Compare ${S.ya} and ${S.yb}`};
@@ -488,14 +493,14 @@ function setRange(){const [a,b]=D.span;let y0=S.y0&&D.years.indexOf(S.y0)>=a?D.y
   if(y1<y0)[y0,y1]=[y1,y0];I0=y0;I1=y1;Y=D.years.slice(I0,I1+1);N=Y.length;LAST=Y[N-1]}
 
 function syncUI(){$$(".seg[data-k]").forEach(s=>s.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String(String(S[s.dataset.k])===b.dataset.v))));
-  $("#xr").setAttribute("aria-pressed",String(S.xr));$("#xi").setAttribute("aria-pressed",String(S.xi));
+  for(const k of ["xr","xi","xh","xo"])$("#"+k).setAttribute("aria-pressed",String(S[k]));
   $("#ts").value=S.ts;$("#tr").value=S.tr;$("#tsv").textContent=S.ts?TOPS[S.ts]:"All";$("#trv").textContent=S.tr?TOPS[S.tr]:"All";
   $("#sch").value=S.sch;$("#split").value=S.split;$("#hrows").value=S.hrows;$("#gsort").value=S.gsort;$("#gshow").value=S.gshow;$("#gmin").value=S.gmin;$("#gq").value=S.gq||"";
   $("#csort").value=S.csort;$("#cn").value=S.cn;
   $$(".tabs button").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.tab===S.tab)));
   ["overview","glance","compare"].forEach(t=>$("#p-"+t).hidden=t!==S.tab)}
 function syncURL(){const u=new URL(location.href),p=u.searchParams;const set=(k,v,d)=>{if(v===d||v===""||v==null)p.delete(k);else p.set(k,v)};
-  set("imp",S.imp,"1");set("w",S.mats.join(","),"plastic");set("count",S.count,"plastic");set("v",S.v?"1":"","");set("m",S.m,"t");set("sch",S.sch,"wb");set("xr",S.xr?"1":"","");set("xi",S.xi?"1":"","");
+  set("imp",S.imp,"1");set("w",S.mats.join(","),"plastic");set("count",S.count,"plastic");set("v",S.v?"1":"","");set("m",S.m,"t");set("sch",S.sch,"wb");for(const k of ["xr","xi","xh","xo"])set(k,S[k]?"1":"","");
   set("ts",S.ts?TOPS[S.ts]:"","");set("tr",S.tr?TOPS[S.tr]:"","");set("from",S.from.join(","),"");set("to",S.to.join(","),"");
   set("y0",I0!==D.span[0]?Y[0]:"","");set("y1",I1!==D.span[1]?LAST:"","");set("tab",S.tab,"overview");
   set("split",S.split,"rg");set("cgrp",S.cgrp,"c");set("cdir",S.cdir,"in");set("gdir",S.gdir,"out");
@@ -512,7 +517,7 @@ async function setMats(){matUI();const need=S.mats.includes("all")?STREAMS:S.mat
 // ---------- wiring ----------
 $$(".seg[data-k]").forEach(s=>s.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;const k=s.dataset.k,v=b.dataset.v;S[k]=k==="v"?+v:v;
   if(k==="count"){matUI();setSpan();update()}else if(["v","m","imp"].includes(k))update();else{syncUI();drawTab();syncURL()}}));
-$("#xr").onclick=()=>{S.xr=!S.xr;update()};$("#xi").onclick=()=>{S.xi=!S.xi;update()};
+for(const k of ["xr","xi","xh","xo"])$("#"+k).onclick=()=>{S[k]=!S[k];update()};
 $("#sch").onchange=e=>{S.sch=e.target.value;options();update()};
 $("#ts").oninput=e=>{S.ts=+e.target.value;update()};$("#tr").oninput=e=>{S.tr=+e.target.value;update()};
 const yr=()=>{let a=+$("#y0").value,b=+$("#y1").value;if(a>b)[a,b]=[b,a];S.y0=a;S.y1=b;update()};
@@ -528,6 +533,7 @@ $("#csort").onchange=e=>{S.csort=e.target.value;chartG()};$("#cn").oninput=e=>{S
 let rt;addEventListener("resize",()=>{clearTimeout(rt);rt=setTimeout(()=>D&&drawTab(),150)});
 matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>D&&drawTab());
 S.gq="";
+try{const r=await fetch("data/oecd.json",{cache:"no-cache"});if(r.ok)OECD=(await r.json()).members||{}}catch(e){}
 await setMats();
 if(location.hash){const t=document.getElementById(location.hash.slice(1));if(t)requestAnimationFrame(()=>t.scrollIntoView())}
 })();
