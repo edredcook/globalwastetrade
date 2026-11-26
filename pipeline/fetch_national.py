@@ -25,6 +25,7 @@ import json
 import os
 import sys
 import time
+import unicodedata
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -193,13 +194,12 @@ def census(month):
              ("imports", "M", "I_COMMODITY", "GEN_VAL_MO", "GEN_QY1_MO"))
     errors = []
     for path, flow, comm, val, qty in specs:
-        for h in product_codes_hs6():
-            params = {"get": f"CTY_CODE,CTY_NAME,{val},{qty},UNIT_QY1",
-                      "COMM_LVL": "HS6", comm: h, "time": month}
-            if key:
-                params["key"] = key
+        for h in HS4:
+            # Quantities are only given at the 10-digit level, so ask for HS10 lines.
+            params = {"get": f"CTY_CODE,CTY_NAME,{comm},{val},{qty},UNIT_QY1",
+                      "COMM_LVL": "HS10", comm: h + "*", "time": month, "key": key}
             try:
-                body = get(f"{CENSUS}/{path}/hs?" + urllib.parse.urlencode(params, safe=","), raw=True)
+                body = get(f"{CENSUS}/{path}/hs?" + urllib.parse.urlencode(params, safe=",*"), raw=True)
             except RuntimeError as e:
                 errors.append(str(e))
                 continue
@@ -216,11 +216,107 @@ def census(month):
                 code, name = r[ix["CTY_CODE"]], r[ix["CTY_NAME"]]
                 if not code.isdigit() or code.startswith("0"):
                     continue  # totals and country groups
-                kg = float(r[ix[qty]] or 0) if r[ix["UNIT_QY1"]] == "KG" else 0
-                add(acc, "census", "USA", iso3_from_name(name), name, flow, h, period,
+                unit = r[ix["UNIT_QY1"]]
+                kg = float(r[ix[qty]] or 0) * {"KG": 1, "T": 1000}.get(unit, 0)
+                add(acc, "census", "USA", iso3_from_name(name), name, flow, r[ix[comm]], period,
                     kg, r[ix[val]], "USD")
     if errors and not acc:
         raise RuntimeError(errors[0])
+    return rows_from(acc)
+
+
+ESTAT = "https://api.e-stat.go.jp/rest/3.0/app/json"
+
+
+ESTAT_TABLES = {"X": "Commodity by Country Export", "M": "Commodity by Country Import"}
+MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
+
+
+def _list(x):
+    return x if isinstance(x, list) else ([x] if x else [])
+
+
+def estat_table_ids(app, month):
+    """Japan Customs publishes one commodity-by-country table per year and flow."""
+    res = get(ESTAT + "/getStatsList?" + urllib.parse.urlencode(
+        {"appId": app, "statsCode": "00350300", "surveyYears": month.replace("-", ""), "lang": "E"}))
+    out = {}
+    for t in _list((res.get("GET_STATS_LIST", {}).get("DATALIST_INF") or {}).get("TABLE_INF")):
+        name = str(t.get("STATISTICS_NAME") or "")
+        for flow, key in ESTAT_TABLES.items():
+            if name.endswith("Japan " + key) and flow not in out:
+                out[flow] = t["@id"]
+    return out
+
+
+def estat(month):
+    app = os.environ.get("ESTAT_APP_ID")
+    if not app:
+        raise RuntimeError("Japan e-Stat needs ESTAT_APP_ID; register for a free key and add it as a repo secret.")
+    period = month.replace("-", "")
+    mon = MONTHS[int(month[5:7]) - 1]
+    acc, seen_units = {}, set()
+    for flow, table in estat_table_ids(app, month).items():
+        meta = get(ESTAT + "/getMetaInfo?" + urllib.parse.urlencode(
+            {"appId": app, "statsDataId": table, "lang": "E"}))
+        classes = {o["@id"]: _list(o.get("CLASS")) for o in
+                   _list(meta["GET_META_INFO"]["METADATA_INF"]["CLASS_INF"]["CLASS_OBJ"])}
+        goods = [c["@code"] for c in classes["cat01"] if c["@code"].startswith(tuple(HS4))]
+        cols = {}
+        for c in classes["cat02"]:
+            n = c["@name"].lower()
+            if mon in n and n.startswith("quantity1"):
+                cols["q"] = c["@code"]
+            elif mon in n and n.startswith("quantity2"):
+                cols["q2"] = c["@code"]
+            elif n == "unit2":
+                cols["u2"] = c["@code"]
+            elif mon in n and n.startswith("value"):
+                cols["v"] = c["@code"]
+            elif n == "unit1":
+                cols["u"] = c["@code"]
+        if not goods or "q" not in cols or "v" not in cols:
+            names = [c["@name"] for c in classes["cat02"]]
+            raise RuntimeError(f"e-Stat table {table} layout not recognised: {names[:12]}")
+        areas = {c["@code"]: c["@name"] for c in classes["area"]}
+        cells = defaultdict(dict)
+        start = 1
+        while start:
+            res = get(ESTAT + "/getStatsData?" + urllib.parse.urlencode(
+                {"appId": app, "statsDataId": table, "lang": "E", "cdCat01": ",".join(goods),
+                 "cdCat02": ",".join(cols.values()), "startPosition": start, "limit": 100000}))
+            data = res["GET_STATS_DATA"]["STATISTICAL_DATA"]
+            for v in _list(data.get("DATA_INF", {}).get("VALUE")):
+                cells[(v["@cat01"], v["@area"])][v["@cat02"]] = v.get("$")
+            start = (data.get("RESULT_INF") or {}).get("NEXT_KEY")
+        # Units are columns of their own (full-width text, e.g. "ＫＧ") and may sit only on
+        # some cells of a commodity. Japan gives weight as quantity 1 or quantity 2.
+        units = {}
+        for (good, area), c in cells.items():
+            for k in ("u", "u2"):
+                u = unicodedata.normalize("NFKC", str(c.get(cols.get(k)) or "")).strip().upper()
+                if u and u not in ("-", "***"):
+                    units[(good, k)] = u
+        seen_units.update(units.values())
+        for (good, area), c in cells.items():
+            def num(x):
+                try:
+                    return float(x)
+                except (TypeError, ValueError):
+                    return 0.0
+            val = num(c.get(cols["v"]))
+            kg = 0.0
+            for qk, uk in (("q", "u"), ("q2", "u2")):
+                f = {"KG": 1, "MT": 1000, "TNE": 1000}.get(units.get((good, uk)), 0)
+                if f and cols.get(qk):
+                    kg = num(c.get(cols[qk])) * f
+                    break
+            if not kg and not val:
+                continue
+            name = areas.get(area, area)
+            # Values are published in thousands of yen.
+            add(acc, "estat", "JPN", iso3_from_name(name), name, flow, good, period, kg, val * 1000, "JPY")
+    print(f"e-Stat {month}: quantity units seen {sorted(seen_units)}")
     return rows_from(acc)
 
 
@@ -236,7 +332,7 @@ SOURCES = {
     "comext": comext,
     "hmrc": hmrc,
     "census": census,
-    "estat": needs_key("ESTAT_APP_ID", "Japan e-Stat"),
+    "estat": estat,
     "kcs": needs_key("KCS_SERVICE_KEY", "Korea Customs Service"),
 }
 
