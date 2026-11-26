@@ -159,8 +159,19 @@ input[type=range]{accent-color:var(--out)}
 .save button:hover{border-color:var(--out);color:var(--out)}
 
 .stage{margin-top:16px}
-aside.side{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:16px 28px;align-items:start;min-width:0}
+aside.side{position:relative;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:16px 28px;align-items:start;min-width:0}
 aside.side > *{min-width:0}
+.sideprint{position:absolute;top:12px;right:12px;z-index:2}
+.print-cap{display:none}
+@media print{
+  body.print-side>*:not(main),body.print-side main>*:not(.stage){display:none!important}
+  body.print-side main{padding:0!important;margin:0!important;max-width:none!important}
+  body.print-side{background:#fff!important}
+  body.print-side .stage{margin:0}
+  body.print-side aside.side{border:0;padding:0;grid-template-columns:1fr 1fr;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body.print-side .sideprint{display:none}
+  body.print-side .print-cap{display:block;grid-column:1/-1;font-size:11px;color:#555;border-top:1px solid #ccc;padding-top:6px}
+}
 .side .col{display:flex;flex-direction:column;gap:14px}
 .side h3{margin:0;font-family:var(--display);font-stretch:85%;font-size:26px;line-height:1.1;font-weight:800}
 .side .sub{color:var(--muted);font-size:13px;margin-top:2px}
@@ -195,9 +206,10 @@ aside.side > *{min-width:0}
 .side h4{margin:0 0 4px;font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-weight:600}
 
 section.block{margin-top:36px;scroll-margin-top:64px}
-.cred{padding:16px 20px}
-.cred .made{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 16px;font-size:14px;max-width:560px}
-.cred .made dt{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:600;padding-top:3px}
+.cred{padding:22px 24px}
+.cred .made{margin:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:18px 28px;font-size:15px}
+.cred .made>div{border-left:3px solid var(--border);padding-left:12px}
+.cred .made dt{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:4px}
 .cred .made dd{margin:0}
 .cred a{color:var(--in);text-underline-offset:2px}
 .block > .hd{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:12px}
@@ -207,7 +219,9 @@ section.block{margin-top:36px;scroll-margin-top:64px}
 
 .builder{display:grid;grid-template-columns:280px minmax(0,1fr)}
 @media (max-width:900px){.builder{grid-template-columns:minmax(0,1fr)}}
-.bopts{padding:16px;display:flex;flex-direction:column;gap:14px;border-right:1px solid var(--border)}
+.bopts{padding:14px;display:flex;flex-direction:column;gap:8px;border-right:1px solid var(--border)}
+.bopts>.ctl{border:1px solid var(--border);border-radius:10px;padding:9px 11px 10px;background:var(--panel)}
+.bopts>.ctl[hidden]{display:none}
 @media (max-width:900px){.bopts{border-right:0;border-bottom:1px solid var(--border)}}
 .bopts .seg button{font-size:13px;padding:5px 10px}
 .topn{display:flex;gap:8px;align-items:center}
@@ -220,12 +234,14 @@ section.block{margin-top:36px;scroll-margin-top:64px}
 .cstage{min-width:0;display:flex;flex-direction:column}
 .cstage .chd{padding:14px 16px 0;display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
 .cstage h3{margin:0;font-family:var(--display);font-stretch:85%;font-weight:700;font-size:20px;line-height:1.2;text-wrap:balance}
-.cstage .cnote{font-size:12px;color:var(--muted);margin-top:2px}
+.cstage .cnote{display:none}
 .chartbox{overflow-x:auto;padding:8px 12px}
 .chartbox svg{display:block;width:100%;min-width:640px;height:auto}
 .lnk{fill:none;transition:stroke-opacity .15s}
-.cleg{display:flex;gap:6px 12px;flex-wrap:wrap;font-size:12px;color:var(--muted);padding:0 16px 8px}
-.cleg span{display:flex;gap:5px;align-items:center}
+.cleg{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:6px 16px;font-size:12px;color:var(--muted);padding:4px 16px 10px}
+.cleg>span{display:flex;gap:6px;align-items:flex-start;line-height:1.3}
+.cleg>span>.dot{margin-top:3px}
+.cleg small{display:block;font-size:11px}
 .chk{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:14px}
 .chk label{display:flex;gap:6px;align-items:flex-start;cursor:pointer}
 .chk label input{margin-top:3px;flex:none}
@@ -452,8 +468,8 @@ footer b{color:var(--ink);font-weight:600}
         <div class="ctl" data-for="sankey"><span>Right side</span><div class="seg" id="bto"><button data-v="c" aria-pressed="true">Countries</button><button data-v="r" aria-pressed="false">Regions</button><button data-v="g" aria-pressed="false">Income groups</button></div></div>
         <div class="ctl" data-for="bars treemap scatter"><span>Show</span><div class="seg" id="bside"><button data-v="ex" aria-pressed="true">Senders</button><button data-v="rc" aria-pressed="false">Receivers</button><button data-v="rt" aria-pressed="false" data-only="bars">Routes</button></div></div>
         <div class="ctl" data-for="bars treemap"><span>Group by</span><div class="seg" id="bgroup"><button data-v="c" aria-pressed="true">Countries</button><button data-v="r" aria-pressed="false">Regions</button><button data-v="g" aria-pressed="false">Income groups</button></div></div>
-        <div class="ctl" data-for="sankey bars treemap"><span>Regions by</span><select id="bscheme" aria-label="Region definition for the chart"><option value="un">UN regions (M49)</option><option value="unsub">UN sub-regions (M49)</option><option value="wb" selected>World Bank regions</option><option value="oecd">OECD / non-OECD</option></select></div>
-        <div class="ctl" data-for="sankey bars treemap"><span>Whose figures</span><div class="seg" id="bview"><button data-v="0" aria-pressed="true">Exporters'</button><button data-v="1" aria-pressed="false">Importers'</button><button data-v="2" aria-pressed="false">Resolved</button></div></div>
+        <div class="ctl" data-for="sankey bars treemap"><span>Region type</span><select id="bscheme" aria-label="Region definition for the chart"><option value="un">UN regions (M49)</option><option value="unsub">UN sub-regions (M49)</option><option value="wb" selected>World Bank regions</option><option value="oecd">OECD / non-OECD</option></select></div>
+        <div class="ctl" data-for="sankey bars treemap"><span>Reporter type</span><div class="seg" id="bview"><button data-v="0" aria-pressed="true">Exporters'</button><button data-v="1" aria-pressed="false">Importers'</button><button data-v="2" aria-pressed="false">Resolved</button></div></div>
         <div class="ctl" data-for="sankey bars treemap scatter"><span>Measure</span><div class="seg" id="bmeasure"><button data-v="t" aria-pressed="true">Tonnes</button><button data-v="usd" aria-pressed="false">US$</button><button data-v="ppt" aria-pressed="false" data-only="bars">US$/t</button></div></div>
         <div class="ctl" data-for="sankey bars treemap"><label class="lab" for="btopn">How many on each side</label><div class="topn"><input type="number" id="btopn" min="1" max="200" value="15" aria-label="How many to show"><input type="range" id="btopr" min="1" max="60" value="15" aria-label="How many to show, slider"></div></div>
         <div class="ctl" data-for="sankey bars treemap"><span>Filters</span><div class="chk" style="flex-direction:column;align-items:flex-start">
@@ -504,14 +520,14 @@ footer b{color:var(--ink);font-weight:600}
     <div class="hd"><div><h2>Credits</h2></div></div>
     <div class="card cred">
       <dl class="made">
-        <dt>Created by</dt><dd><a href="about.html">Ed Cook</a></dd>
-        <dt>Data</dt><dd>UN Comtrade</dd>
-        <dt>Income groups</dt><dd>World Bank historical classifications</dd>
-        <dt>Map</dt><dd>Natural Earth</dd>
-        <dt>Built with</dt><dd>Claude, by Anthropic</dd>
-        <dt>Licence</dt><dd><a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener license">CC BY 4.0</a></dd>
-        <dt>Cite as</dt><dd><a href="about.html#cite">Cook, E. (2026) Global Waste Trade Data Hub</a></dd>
-        <dt>Sources</dt><dd><a href="about.html#sources">Sources</a></dd>
+        <div><dt>Created by</dt><dd><a href="about.html">Ed Cook</a></dd></div>
+        <div><dt>Data</dt><dd><a href="about.html#src-comtrade">UN Comtrade</a></dd></div>
+        <div><dt>Income groups</dt><dd><a href="about.html#src-wb-income">World Bank historical classifications</a></dd></div>
+        <div><dt>Map</dt><dd><a href="about.html#src-naturalearth">Natural Earth</a></dd></div>
+        <div><dt>Built with</dt><dd>Claude, by Anthropic</dd></div>
+        <div><dt>Licence</dt><dd><a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener license">CC BY 4.0</a></dd></div>
+        <div><dt>Cite as</dt><dd><a href="about.html#cite">Cook, E. (2026) Global Waste Trade Data Hub</a></dd></div>
+        <div><dt>Sources</dt><dd><a href="about.html#sources">All sources and references</a></dd></div>
       </dl>
     </div>
   </section>
@@ -637,17 +653,17 @@ function resolve(){
     const idx=new Map();for(const r of rows)idx.set(r.v+"|"+r.ex+"|"+r.rc,r);
     for(const k of on){
       for(const h of hViews(k)){const {v,ex,rc}=h,f=shareOf(k,ex),key=v+"|"+ex+"|"+rc;let r=idx.get(key);
-        if(!r){r={v,ex,rc,t:0,usd:0,est:false,basis:"hidden plastic only",hid:0,hu:0,hs:null};rows.push(r);idx.set(key,r)}
+        if(!r){r={v,ex,rc,t:0,usd:0,est:false,basis:"hidden or embedded plastic only",hid:0,hu:0,hs:null};rows.push(r);idx.set(key,r)}
         const tt=h.t*f,uu=h.usd*f;r.t+=tt;r.usd+=uu;r.hid+=tt;r.hu+=uu;(r.hs||(r.hs={}))[k]=(r.hs[k]||0)+tt}}
   }
   R=rows;
 }
-const PW=()=>{const h=hidOn().length;return !h?"plastic waste":S.scrap?"plastic waste and hidden plastic":"hidden plastic"};
+const PW=()=>{const h=hidOn().length;return !h?"plastic waste":S.scrap?"plastic waste and hidden or embedded plastic":"hidden or embedded plastic"};
 const aggS=rs=>{let t=0,usd=0,est=0;for(const r of rs){t+=r.t-(r.hid||0);usd+=r.usd-(r.hu||0);if(r.est)est+=r.t-(r.hid||0)}return{t,usd,est,n:rs.length}};
 const hDesc=k=>{const h=HON[k];return HS[k].n+" "+(h.byInc?"HIC "+h.inc.HIC+"/UMC "+h.inc.UMC+"/LMC "+h.inc.LMC+"/LIC "+h.inc.LIC+"% plastic":h.f+"% plastic")+(isDef(k)?"":" (user value"+(h.usrc.trim()?"; source: "+h.usrc.trim():", no source given")+")")};
 function mapCaption(){const on=hidOn(),v=VIEWS[S.view];
   return `${v[0].toUpperCase()+v.slice(1)}${S.view===2?" ("+RMETH[S.resolve]+")":""}${S.imp?", with gaps imputed":", as reported"}.`+(on.length?` Includes other and embedded plastics: ${on.map(hDesc).join(", ")}.`:"")+(on.length&&!S.scrap?" Plastic scrap left out.":"")+` Source: ${VERSION}. Global Waste Trade Data Hub, globalwastetrade.org, CC BY\u00a04.0.`}
-function hpNote(){const on=hidOn();return on.length?" · hidden plastic: "+on.map(hDesc).join(", ")+" (UN Comtrade "+YEAR+")"+(S.scrap?"":" · plastic scrap left out"):""}
+function hpNote(){const on=hidOn();return on.length?" · hidden or embedded plastic: "+on.map(hDesc).join(", ")+" (UN Comtrade "+YEAR+")"+(S.scrap?"":" · plastic scrap left out"):""}
 resolve();
 const name=c=>C[c]?C[c][1]:c, iso=c=>C[c]?C[c][0]:c, inc=c=>C[c]?C[c][2]:"NS";
 const regOf=(c,sch=S.scheme)=>(SCH[sch]&&SCH[sch][c])||null;
@@ -1049,7 +1065,7 @@ function side(){
       <div><h4>Exports to other regions</h4><div class="bars">${bars(out,k=>rcol(k,sch),mm,k=>k)}</div></div>
       <div><h4>Imports from other regions</h4><div class="bars">${bars(inn,k=>rcol(k,sch),mm,k=>k)}</div></div>`;
     el.querySelectorAll(".row[data-c]").forEach(r=>r.onclick=()=>{if(regionNames(sch).includes(r.dataset.c))setRegion(r.dataset.c)});
-    return;
+    addPrint(el);return;
   }
   if(!S.sel){
     const rs=routes(),tot=agg(rs);
@@ -1081,7 +1097,7 @@ function side(){
       <div class="bar2"><span>${esc(me[0])} says</span><span class="track"><i style="width:${sv/mx*100}%;background:var(--out)"></i></span><span>${fmt(sv,mm)}</span></div>
       <div class="bar2"><span>Partners say</span><span class="track"><i style="width:${mv/mx*100}%;background:var(--in)"></i></span><span>${fmt(mv,mm)}</span></div>
       <div class="bar2"><span>Resolved</span><span class="track"><i style="width:${rv/mx*100}%;background:var(--res)"></i></span><span>${fmt(rv,mm)}</span></div>
-      ${hidOn().length?`<div class="note" style="margin-top:6px">These three bars compare plastic scrap only. Hidden plastic adds ${fT(d3.sum(rs.filter(r=>r.ex===c),r=>r.hid||0))} to exports in this view.</div>`:""}
+      ${hidOn().length?`<div class="note" style="margin-top:6px">These three bars compare plastic scrap only. Hidden or embedded plastic adds ${fT(d3.sum(rs.filter(r=>r.ex===c),r=>r.hid||0))} to exports in this view.</div>`:""}
       ${self.t>0&&self.est/self.t>0.005?`<div class="note" style="margin-top:6px">${d3.format(".0%")(self.est/self.t)} of ${esc(me[0])}'s reported export weight is estimated.</div>`:""}</div></div>
     <div><h4>Where it goes${byReg?" (by region)":""}</h4><div class="bars">${outP.length?bars(outP.slice(0,10),byReg?k=>rcol(k):css("--out"),byReg&&m==="ppt"?"t":m,byReg?k=>k:name):'<div class="note">No exports recorded in this view.</div>'}</div></div>
     <div><h4>Where it comes from${byReg?" (by region)":""}</h4><div class="bars">${inP.length?bars(inP.slice(0,10),byReg?k=>rcol(k):css("--in"),byReg&&m==="ppt"?"t":m,byReg?k=>k:name):'<div class="note">No imports recorded in this view.</div>'}</div>
@@ -1091,7 +1107,13 @@ function side(){
   }
   el.querySelectorAll(".row[data-c]").forEach(r=>r.onclick=()=>{if(C[r.dataset.c])select(r.dataset.c)});
   drawTrend();
+  addPrint(el);
 }
+function addPrint(el){el.insertAdjacentHTML("afterbegin",`<button class="btn ghost sm sideprint" type="button">Print</button>`);el.querySelector(".sideprint").onclick=printSide}
+function printSide(){const H=document.documentElement,th=H.dataset.theme;document.body.classList.add("print-side");H.dataset.theme="light";
+  const done=()=>{document.body.classList.remove("print-side");if(th)H.dataset.theme=th;else delete H.dataset.theme;removeEventListener("afterprint",done)};
+  const el=$("#side");el.querySelector(".print-cap")?.remove();el.insertAdjacentHTML("beforeend",`<div class="print-cap">${esc(mapCaption())} ${esc(location.href)}</div>`);
+  addEventListener("afterprint",done);setTimeout(()=>window.print(),60)}
 function drawTrend(){
   const el=$("#trend");if(!el||!TR||TR.years.length<2){if(el)el.remove();return}
   const m=S.measure,c=S.sel,yrs=TR.years,vs=S.view===2?[0,1]:[S.view],two=vs.length>1;
@@ -1136,7 +1158,7 @@ let LKN=0;// a small sample route for the map legend: a dotted line from colour 
 function lk(a,b,l1,l2){const id="lkg"+(++LKN);
   return `<span class="lk">${l1?`<b>${esc(l1)}</b>`:""}<svg width="58" height="10" viewBox="0 0 58 10" aria-hidden="true"><defs><linearGradient id="${id}" gradientUnits="userSpaceOnUse" x1="3" y1="5" x2="48" y2="5"><stop offset=".15" style="stop-color:var(${a})"/><stop offset=".85" style="stop-color:var(${b})"/></linearGradient></defs><line x1="3" y1="5" x2="48" y2="5" ${a===b?`style="stroke:var(${a})"`:`stroke="url(#${id})"`} stroke-width="3.2" stroke-linecap="round" class="${D.anim?"mv":""}"/><path d="M48 1.2L55.5 5L48 8.8z" style="fill:var(${b})"/></svg>${l2?`<b>${esc(l2)}</b>`:""}</span>`}
 function pk(a,b){return `<span><span class="dot" style="background:conic-gradient(var(--out) 0 38%,var(--in) 0)"></span><b style="color:var(--out)">${a}</b>and<b style="color:var(--in)">${b}</b></span>`}
-function legendFor(kind){if(kind==="s")return ["scrap",...hidOn()].filter(k=>k!=="scrap"||S.scrap).map(k=>`<span><span class="dot" style="background:${HSCOL[k]}"></span>${esc(klabel("s:"+k))}</span>`).join("");if(kind==="g")return GORDER.map(g=>`<span><span class="dot" style="background:var(--g-${g.toLowerCase()})"></span>${INC[g]}</span>`).join("");
+function legendFor(kind){if(kind==="s")return ["scrap",...hidOn()].filter(k=>k!=="scrap"||S.scrap).map(k=>`<span><span class="dot" style="background:${HSCOL[k]}"></span><span>${nm2(klabel("s:"+k))}</span></span>`).join("");if(kind==="g")return GORDER.map(g=>`<span><span class="dot" style="background:var(--g-${g.toLowerCase()})"></span>${INC[g]}</span>`).join("");
   if(kind==="r")return regionNames(B.scheme).map(r=>`<span><span class="dot" style="background:${rcol(r,B.scheme)}"></span>${esc(r)}</span>`).join("");return ""}
 function drawChart(){
   chart.selectAll("*").remove();$("#cleg").innerHTML="";
@@ -1175,7 +1197,10 @@ function sankey(m,who,scope){
     .on("click",(e,d)=>{const k=nodeKey(d.id);if(C[k])select(k)});
   const maxc=Math.floor(lw/(FS()*.62))-(D.vals?8:1);
   ng.filter(d=>d.y1-d.y0>=FS()*.55||g.nodes.length<60).append("text").attr("x",d=>side(d.id)==="L"?d.x0-6:d.x1+6).attr("y",d=>(d.y0+d.y1)/2).attr("dy","0.35em").attr("text-anchor",d=>side(d.id)==="L"?"end":"start")
-    .attr("font-size",FS()).attr("font-family","IBM Plex Sans, system-ui, sans-serif").attr("fill","var(--ink)").text(d=>{const l=klabel(nodeKey(d.id));return (l.length>maxc?l.slice(0,maxc-1)+"…":l)+(D.vals?"  "+fmt(d.value,m):"")});
+    .attr("font-size",FS()).attr("font-family","IBM Plex Sans, system-ui, sans-serif").attr("fill","var(--ink)").each(function(d){// a bracketed qualifier such as "(plastic fraction)" goes on a second line, or is left to the legend when the node is short
+      const full=klabel(nodeKey(d.id)),q=full.match(/^(.*?) (\(.*\))$/),l=q?q[1]:full,t=d3.select(this),two=q&&d.y1-d.y0>=FS()*2.4;
+      t.append("tspan").attr("dy",two?"-0.25em":null).text((l.length>maxc?l.slice(0,maxc-1)+"…":l)+(D.vals?"  "+fmt(d.value,m):""));
+      if(two)t.append("tspan").attr("x",t.attr("x")).attr("dy","1.2em").attr("font-size",FS()-1).attr("fill","var(--muted)").text(q[2])});
   chartRows=g.links.map(d=>({from:klabel(nodeKey(d.source.id)),to:klabel(nodeKey(d.target.id)),[mlabel(m)]:Math.round(d.value)}));chartCols=["from","to",mlabel(m)];
   $("#ctitle").textContent=`Where ${PW()} flows, ${mlabel(m)}, ${YL}${scope}`;
   $("#cnote").textContent=`Top ${N} on each side; the rest are grouped as "Everyone else". Based on ${who}${B.nointra?`; trade within the same ${SCHEMES[B.scheme].replace(/s$/,"")} left out`:""}.${hpNote()}`;
@@ -1268,7 +1293,7 @@ function rank(){
   const sort=S.rankSort||{k:"res",d:-1};
   rows.sort((x,y)=>{const a=x[sort.k],b=y[sort.k];if(a==null)return 1;if(b==null)return -1;return(a>b?1:a<b?-1:0)*sort.d});
   rankRows=rows;
-  const cols=[["name","Country"],["inc","Income"],["region",SCHEMES[S.scheme].replace(/s$/,"")],["own",k?"Exports, own report":"Imports, own report",1],["mir","Partners' reports",1],["ratio","Mirror ratio",1],["res","Resolved",1],...(hidOn().length?[["hid","of which hidden plastic",1]]:[]),["usd","Value (resolved)",1],["ppt","US$ per tonne",1],["np",k?"Destinations":"Origins",1],["est","Estimated weight",1]];
+  const cols=[["name","Country"],["inc","Income"],["region",SCHEMES[S.scheme].replace(/s$/,"")],["own",k?"Exports, own report":"Imports, own report",1],["mir","Partners' reports",1],["ratio","Mirror ratio",1],["res","Resolved",1],...(hidOn().length?[["hid","of which hidden or embedded plastic",1]]:[]),["usd","Value (resolved)",1],["ppt","US$ per tonne",1],["np",k?"Destinations":"Origins",1],["est","Estimated weight",1]];
   $("#rank thead").innerHTML="<tr>"+cols.map(([key,l,n])=>`<th class="${n?"n":""}" data-k="${key}" ${sort.k===key?`aria-sort="${sort.d>0?"ascending":"descending"}"`:""}>${esc(l)}</th>`).join("")+"</tr>";
   const m=d3.max(rows,r=>r.res)||1;
   $("#rank tbody").innerHTML=rows.map(r=>`<tr data-c="${esc(r.code)}"><td>${esc(r.name)}</td><td><span class="inc" style="background:var(--g-${r.inc.toLowerCase()})">${r.inc}</span></td><td>${esc(r.region)}</td><td class="n">${r.own?fT(r.own):"—"}</td><td class="n">${r.mir?fT(r.mir):"—"}</td><td class="n"><span class="ratio ${r.ratio!=null&&(r.ratio<0.67||r.ratio>1.5)?"warn":""}">${r.ratio==null?"—":r.ratio.toFixed(2)}</span></td><td class="n res">${fT(r.res)}<span class="spark" style="width:${r.res/m*50}px;background:var(--res)"></span></td>${hidOn().length?`<td class="n">${r.hid?fT(r.hid):"—"}</td>`:""}<td class="n">${r.usd?fU(r.usd):"—"}</td><td class="n">${fP(r.ppt)}</td><td class="n">${r.np||"—"}</td><td class="n">${r.est>0.005?d3.format(".0%")(r.est):"—"}</td></tr>`).join("");
