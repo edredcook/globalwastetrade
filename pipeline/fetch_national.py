@@ -54,7 +54,7 @@ HS6_OF = {"3915": ["391510", "391520", "391530", "391590"], "6309": ["630900"],
 EU27 = ("AT BE BG HR CY CZ DK EE FI FR DE GR HU IE IT LV LT LU MT NL PL PT RO SK SI ES SE").split()
 
 
-def get(url, headers=None, tries=4, raw=False):
+def get(url, headers=None, tries=4, raw=False, wait=10, retry=(429, 500, 502, 503, 504)):
     h = {"User-Agent": "globalwastetrade-pipeline", "Accept": "application/json"}
     h.update(headers or {})
     for i in range(tries):
@@ -63,8 +63,8 @@ def get(url, headers=None, tries=4, raw=False):
                 body = r.read()
                 return body if raw else json.loads(body)
         except urllib.error.HTTPError as e:
-            if e.code in (429, 500, 502, 503, 504) and i < tries - 1:
-                time.sleep(10 * (i + 1))
+            if e.code in retry and i < tries - 1:
+                time.sleep(wait * (i + 1))
                 continue
             msg = e.read()[:400].decode("utf-8", "replace")
             raise RuntimeError(f"HTTP {e.code} from {url.split('?')[0]}: {msg}")
@@ -179,7 +179,9 @@ def hmrc(month):
         flt = f"MonthId eq {period} and CommodityId ge {lo} and CommodityId le {hi}"
         url = HMRC + "/OTS?" + urllib.parse.urlencode({"$filter": flt}, quote_via=urllib.parse.quote)
         while url:
-            res = get(url)
+            # HMRC answers 403 when its rate limit is hit, so wait and try again.
+            res = get(url, tries=6, wait=30, retry=(403, 429, 500, 502, 503, 504))
+            time.sleep(1)
             for r in res.get("value", []):
                 flow = "M" if r["FlowTypeId"] in (1, 3) else "X"
                 a2, name = countries.get(r["CountryId"], (None, str(r["CountryId"])))
