@@ -33,6 +33,7 @@ body{margin:0}
   --panel:#ffffff; --raise:#eef3f5;
   --out:#e0531f;  /* sent / exports: container orange */
   --in:#0f7f86;   /* received / imports: harbour teal */
+  --net:#8f6a00;  /* net trade: dark gold */
   --res:#6b4fb3;  /* resolved figures */
   --warn:#b7791f; --ok:#2f7d4f; --hi:#ffd9c4;
   --g-hic:#c8423b; --g-umc:#3a9a5b; --g-lmc:#8a5fb8; --g-lic:#2f6fb5; --g-ns:#8a979e;
@@ -42,11 +43,11 @@ body{margin:0}
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --sea:#0c151b; --land:#1b2730; --border:#2e3d47; --ink:#e4ebee; --muted:#93a5af;
-  --panel:#121d24; --raise:#18252d; --out:#ff7a3d; --in:#3cc3c4; --res:#a48ef0; --warn:#e0a84a; --ok:#5cc48a; --hi:#5a2a14;
+  --panel:#121d24; --raise:#18252d; --out:#ff7a3d; --in:#3cc3c4; --net:#e3b84f; --res:#a48ef0; --warn:#e0a84a; --ok:#5cc48a; --hi:#5a2a14;
   --g-hic:#ec6a5e; --g-umc:#5cc483; --g-lmc:#b08de0; --g-lic:#6ea6e8; --g-ns:#7c8a92; color-scheme:dark}}
 :root[data-theme="dark"]{
   --sea:#0c151b; --land:#1b2730; --border:#2e3d47; --ink:#e4ebee; --muted:#93a5af;
-  --panel:#121d24; --raise:#18252d; --out:#ff7a3d; --in:#3cc3c4; --res:#a48ef0; --warn:#e0a84a; --ok:#5cc48a; --hi:#5a2a14;
+  --panel:#121d24; --raise:#18252d; --out:#ff7a3d; --in:#3cc3c4; --net:#e3b84f; --res:#a48ef0; --warn:#e0a84a; --ok:#5cc48a; --hi:#5a2a14;
   --g-hic:#ec6a5e; --g-umc:#5cc483; --g-lmc:#b08de0; --g-lic:#6ea6e8; --g-ns:#7c8a92; color-scheme:dark}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
@@ -111,6 +112,7 @@ input[type=range]{accent-color:var(--out)}
 @keyframes flow{to{stroke-dashoffset:-18}}
 @media (prefers-reduced-motion:reduce){.arc.flow{animation:none;stroke-dasharray:none}}
 .node{stroke:var(--panel);stroke-width:1}
+.node.ring{fill:var(--land);stroke:var(--net);stroke-width:2px;vector-effect:non-scaling-stroke}
 .clabel{pointer-events:none;fill:var(--ink);paint-order:stroke;stroke:var(--land);stroke-linejoin:round;font-family:var(--body);font-weight:600}
 .clabel .l2{font-weight:700}
 .clabel.reg .l1{font-family:var(--display);font-weight:700}
@@ -772,7 +774,7 @@ function labLines(it,k,col){const L=[],nm=k<2.5&&it.l1s?it.l1s:it.l1,showName=D.
       if(D.lval==="in"){if(vi>0)L.push({t:"in "+fmt(vi,m),col:col.in})}
       else if(D.lval==="out"){if(vo>0)L.push({t:"out "+fmt(vo,m),col:col.out})}
       else if(D.lval==="both"){if(vi>0)L.push({t:"in "+fmt(vi,m),col:col.in});if(vo>0)L.push({t:"out "+fmt(vo,m),col:col.out})}
-      else{const n=vi-vo;L.push({t:netLine(n,m),col:n>=0?col.in:col.out})}}
+      else{const n=vi-vo;L.push({t:netLine(n,m),col:col.net})}}
     else if(it.l2)L.push({t:it.l2,col:it.c2})}
   if(L.length===1&&L[0].cls==="l1"&&showVal&&it.dyn&&D.lval!=="net")return [];
   return L}
@@ -784,7 +786,7 @@ function placeLabels(){
   const t=d3.zoomTransform(svg.node()),k=t.k,sel=gL.selectAll("text.clabel");
   gLL.selectAll("*").remove();
   if(D.lab==="none"){sel.attr("display","none");return}
-  const col={in:css("--in"),out:css("--out")};
+  const col={in:css("--in"),out:css("--out"),net:css("--net")};
   const vx0=-t.x/k,vy0=(42-t.y)/k,vx1=(960-t.x)/k,vy1=(500-t.y)/k;
   const items=LAB.map(it=>({it,p:it.force?Infinity:effPri(it)})).sort((a,b)=>b.p-a.p);
   const maxP=d3.max(items,d=>isFinite(d.p)?d.p:0)||1,dens=[0,2,6,20,80,400][D.ldens]||20,pad=2/k;
@@ -829,7 +831,7 @@ function placeLabels(){
 }
 const shortName=c=>{const n=name(c);return n.length>14?iso(c):n};
 const netLine=(n,m)=>`net ${n>=0?"in":"out"} ${fmt(Math.abs(n),m)}`;
-const dirCol=n=>n>=0?css("--in"):css("--out");
+const dirCol=()=>css("--net");
 function arcMid(a,b){const [x1,y1]=a,[x2,y2]=b,dx=x2-x1,dy=y2-y1,d=Math.hypot(dx,dy),cx=(x1+x2)/2-dy*.25,cy=(y1+y2)/2+dx*.25-d*.05;return[.25*x1+.5*cx+.25*x2,.25*y1+.5*cy+.25*y2]}
 function arcD(d,a,b){d.__ab=[a,b];return arcPath(a,b)}
 function arcPath(a,b){const [x1,y1]=a,[x2,y2]=b;const dx=x2-x1,dy=y2-y1,d=Math.hypot(dx,dy);return `M${x1},${y1}Q${(x1+x2)/2-dy*.25},${(y1+y2)/2+dx*.25-d*.05} ${x2},${y2}`}
@@ -873,7 +875,8 @@ function drawMap(){
   gN.selectAll("circle").data([...ends].filter(k=>pos[k]),d=>d).join("circle").attr("class","node")
     .each(function(d){const v=S.sel?(d===S.sel?gmax*1.4:(pv.get(d)||{v:0}).v):gross(d);this.__r=(2+Math.sqrt(v/gmax)*(S.sel?5:6))*Math.sqrt(D.line);nodeR.set(d,this.__r)})
     .datum(function(d){return Object.assign(new String(d),{r:this.__r,k:d})}).attr("cx",d=>pos[d.k][0]).attr("cy",d=>pos[d.k][1])
-    .attr("fill",d=>{const k=d.k;if(S.sel){if(k===S.sel)return css("--ink");const o=pv.get(k);return o&&o.out>=o.in?css("--out"):css("--in")}if(S.hl!=="none"&&!hlOn(k))return css("--g-ns");return dirCol(net(k))});
+    .attr("fill",d=>{const k=d.k;if(S.sel){if(k===S.sel)return css("--ink");const o=pv.get(k);return o&&o.out>=o.in?css("--out"):css("--in")}if(S.hl!=="none"&&!hlOn(k))return css("--g-ns");return D.lval==="in"?css("--in"):D.lval==="out"?css("--out"):D.lval==="both"?css("--g-ns"):css("--net")})
+    .classed("ring",d=>!S.sel&&S.hl==="none"&&D.lval==="net"&&D.lab!=="none"&&net(d.k)>0);
   if(S.sel){
     const n=net(S.sel);
     setLabels([{id:"sel",force:true,x:pos[S.sel][0],y:pos[S.sel][1],r:nodeR.get(S.sel)||6,pri:1e18,l1:name(S.sel),l2:S.fdir==="in"?`receives ${fmt(inM.get(S.sel)||0,w)}`:S.fdir==="out"?`sends ${fmt(outM.get(S.sel)||0,w)}`:netLine(n,w),c2:S.fdir==="in"?css("--in"):S.fdir==="out"?css("--out"):dirCol(n)},
@@ -894,7 +897,7 @@ function drawMap(){
   if(S.imp&&S.view!==2&&m!=="ppt"){const it=agg(rs.filter(r=>r.imp));if(it.t)$("#maptitle").textContent+=`, ${fmt(mval(it,w),w)} of it imputed`}
   $("#legend").innerHTML=S.sel?`<span><span class="dot" style="background:var(--out)"></span>sent by ${esc(name(S.sel))}</span><span><span class="dot" style="background:var(--in)"></span>sent to ${esc(name(S.sel))}</span>`
     :S.hl!=="none"?(S.hl==="lmic"?["UMC","LMC","LIC"]:["HIC"]).map(g=>`<span><span class="dot" style="background:var(--g-${g.toLowerCase()})"></span>${INC[g]}</span>`).join("")+`<span><span class="dot" style="background:var(--out)"></span>leaving them</span><span><span class="dot" style="background:var(--in)"></span>arriving</span>`
-    :D.choro?`<span><span class="dot" style="background:var(--out)"></span>net exporter</span><span><span class="dot" style="background:var(--in)"></span>net importer</span><span>${m==="ppt"?"Export price":"Exports"}, ${VIEWS[S.view]}</span><span class="ramp" style="background:linear-gradient(90deg,var(--land),${c})"></span><span>${m==="ppt"?"dearer":"more"}</span>`:`<span><span class="dot" style="background:${c}"></span>lines: ${VIEWS[S.view]}</span>`+(D.lab!=="none"&&D.lval==="net"?`<span><span class="dot" style="background:var(--out)"></span>net exporter</span><span><span class="dot" style="background:var(--in)"></span>net importer</span>`:"");
+    :D.choro?`<span><span class="dot" style="background:var(--net)"></span>net exporter</span><span><span class="dot" style="background:var(--land);box-shadow:inset 0 0 0 2px var(--net)"></span>net importer</span><span>${m==="ppt"?"Export price":"Exports"}, ${VIEWS[S.view]}</span><span class="ramp" style="background:linear-gradient(90deg,var(--land),${c})"></span><span>${m==="ppt"?"dearer":"more"}</span>`:`<span><span class="dot" style="background:${c}"></span>lines: ${VIEWS[S.view]}</span>`+(D.lab!=="none"&&D.lval==="net"?`<span><span class="dot" style="background:var(--net)"></span>net exporter</span><span><span class="dot" style="background:var(--land);box-shadow:inset 0 0 0 2px var(--net)"></span>net importer</span>`:"");
   if(RP()&&S.hatch)$("#legend").insertAdjacentHTML("beforeend",`<span><span class="dot hatchdot"></span>${noRepText()}</span>`);
   $("#mapnote").textContent=S.sel?"Line width shows the amount. Labels give each partner's share. Try Group partners: By region.":`Lines show the ${list.length} largest routes by ${w==="t"?"tonnes":"value"}. Change the number in Map design. Click any country to see all of its trade.`;
   $("#reset").hidden=!S.sel;
@@ -1287,7 +1290,7 @@ segment("#nrep","v",v=>{S.hatch=v==="on";render()});
 const fitFocus=()=>{if(S.sel&&S.fgrp==="r"&&mapRows.length)zoomToPts(mapRows.map(f=>f.a).concat([pos[S.sel]]),4)};
 segment("#globe","v",v=>{D.globe=v;applyDesign();setProj();placeCountries();anchorCache={};sphereP.attr("d",path({type:"Sphere"}));gratP.attr("d",path(d3.geoGraticule10()));
   countries.attr("d",path).attr("display",f=>D.globe!=="full"&&f.id==="010"?"none":null);svg.call(zoom.transform,d3.zoomIdentity);render()});
-segment("#lval","v",v=>{if(v==="none"){D.lab="none"}else{D.lval=v;if(D.lab==="none")D.lab="both"}applyDesign();drawMap()});
+segment("#lval","v",v=>{if(v==="none"){D.lab="none"}else{D.lval=v;if(D.lab==="none"||D.lab==="name")D.lab="both"}applyDesign();drawMap()});
 segment("#fdir","v",v=>{S.fdir=v;render()});
 segment("#fgrp","v",v=>{S.fgrp=v;render();fitFocus()});
 // ---------- materials: the Plastics group ----------
