@@ -228,23 +228,22 @@ ESTAT = "https://api.e-stat.go.jp/rest/3.0/app/json"
 
 
 def estat(month):
-    """First pass: list e-Stat's trade tables for the month so the right ones can be chosen."""
+    """Second pass: show the dimensions of Japan's commodity-by-country tables."""
     app = os.environ.get("ESTAT_APP_ID")
     if not app:
         raise RuntimeError("Japan e-Stat needs ESTAT_APP_ID; register for a free key and add it as a repo secret.")
-    params = {"appId": app, "statsCode": "00350300", "surveyYears": month.replace("-", ""),
-              "lang": "E", "limit": "100"}
-    res = get(ESTAT + "/getStatsList?" + urllib.parse.urlencode(params))
-    lst = res.get("GET_STATS_LIST", {})
-    tables = (lst.get("DATALIST_INF") or {}).get("TABLE_INF") or []
-    if isinstance(tables, dict):
-        tables = [tables]
-    print(f"e-Stat {month}: {lst.get('RESULT', {})} {len(tables)} tables")
-    for t in tables:
-        title = t.get("TITLE")
-        title = title.get("$") if isinstance(title, dict) else title
-        print(f"  {t.get('@id')} | {t.get('STATISTICS_NAME')} | {title}")
-    raise RuntimeError(f"fetcher not finished: listed {len(tables)} e-Stat tables in the log")
+    for table in ("0004049306", "0004049326"):
+        res = get(ESTAT + "/getMetaInfo?" + urllib.parse.urlencode(
+            {"appId": app, "statsDataId": table, "lang": "E"}))
+        objs = res.get("GET_META_INFO", {}).get("METADATA_INF", {}).get("CLASS_INF", {}).get("CLASS_OBJ", [])
+        for o in objs if isinstance(objs, list) else [objs]:
+            cls = o.get("CLASS", [])
+            cls = cls if isinstance(cls, list) else [cls]
+            sample = [(c.get("@code"), c.get("@name"), c.get("@level"), c.get("@unit")) for c in cls]
+            hs = [x for x in sample if str(x[0]).startswith(("3915", "6309", "4012"))][:6]
+            print(f"{table} {o.get('@id')} {o.get('@name')}: {len(cls)} codes; first {sample[:4]}; waste {hs}")
+        break_after = month
+    raise RuntimeError("fetcher not finished: e-Stat table layout listed in the log")
 
 
 def needs_key(var, what):
