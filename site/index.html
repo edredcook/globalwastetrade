@@ -269,9 +269,28 @@ tbody tr:hover td{background:var(--raise)}
 .spark{display:inline-block;height:6px;border-radius:3px;vertical-align:middle;margin-left:6px;opacity:.75}
 
 .dl{display:flex;flex-direction:column}
-.dlrow{display:flex;flex-wrap:wrap;gap:14px 40px}
+.dlgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;align-items:start}
+.dlgrid>.dlmatbox{grid-column:span 2}
+@media (max-width:600px){.dlgrid>.dlmatbox{grid-column:auto}}
+.dlgrid>.ctl,.dlcolbox{border:1px solid var(--border);border-radius:10px;background:var(--panel);padding:9px 12px 10px;justify-content:flex-start}
+.dlgrid .seg button{font-size:13px;padding:5px 10px}
+.dlgrid select{font-size:13px;width:100%}
+.dlgrid .chk{flex-direction:column;gap:6px;font-size:14px}
+.dlv label{align-items:center}.dlv .dot{margin-right:-2px}
+.dlc select{margin-left:22px;width:calc(100% - 22px)}
+.dlmat{display:flex;flex-wrap:wrap;gap:4px}
+.dlmat span{font-size:12px;border:1px solid var(--border);border-radius:999px;padding:2px 8px;white-space:nowrap}
+.dlmat span i{font-style:normal;color:var(--muted);font-family:var(--mono);font-size:11px;margin-left:4px}
+.dlsum{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin:0}
+.dlsum>div{border:1px solid var(--border);border-radius:10px;padding:8px 12px}
+.dlsum dt{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.dlsum dd{margin:2px 0 0;font-family:var(--mono);font-size:15px;font-variant-numeric:tabular-nums}
+.dlsum dd small{display:block;font-size:12px;color:var(--muted);font-family:var(--body);overflow-wrap:anywhere}
+.dlprev{max-height:260px;border:1px solid var(--border);border-radius:10px}
+.dlprev table{font-size:12px}
+.dlprev td,.dlprev th{white-space:nowrap}
 .dlcols{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;font-size:14px}
-.dlcols fieldset{margin:0;border:1px solid var(--border);border-radius:8px;padding:8px 12px 10px;display:flex;flex-direction:column;gap:6px;background:var(--raise)}
+.dlcols fieldset{margin:0;border:1px solid var(--border);border-radius:8px;padding:8px 12px 10px;display:flex;flex-direction:column;gap:6px;background:var(--panel)}
 .dlcols legend{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:0 4px}
 .dlcols label{display:flex;gap:6px;align-items:flex-start;cursor:pointer}
 .dlcols label input{margin-top:3px;flex:none}
@@ -528,20 +547,26 @@ footer b{color:var(--ink);font-weight:600}
     <div class="hd"><div><h2>Get the data</h2></div></div>
     <div class="card dl">
       <div class="opts">
-        <div class="dlrow">
-        <div class="ctl"><span>Whose figures</span><div class="chk">
-          <label><input type="checkbox" id="dlx" checked> Exporters'</label>
-          <label><input type="checkbox" id="dlm"> Importers'</label>
-          <label><input type="checkbox" id="dlr"> Resolved</label></div></div>
-        <div class="ctl"><span>Countries</span><div class="chk">
-          <label><input type="radio" name="dlc" id="dlc-all" value="all" checked> All</label>
-          <label><input type="radio" name="dlc" id="dlc-map" value="map"> Current map filters</label>
-          <label><input type="radio" name="dlc" id="dlc-sel" value="sel"> Selected country only <em class="note" id="dlselname"></em></label></div></div>
-        <div class="ctl"><span>Format</span><div class="seg" id="dlfmt"><button data-f="csv" aria-pressed="true">CSV</button><button data-f="json" aria-pressed="false">JSON</button></div></div>
+        <div class="dlgrid">
+          <div class="ctl"><span class="hint" tabindex="0" data-tip="One year per file. Changing it here changes the year for the whole page.">Year</span><select id="dlyear" aria-label="Year to download"></select></div>
+          <div class="ctl"><span class="hint" tabindex="0" data-tip="Tick one or more. Each set comes as its own rows, marked in the Figures column, and they are never added together.">Reporter type</span><div class="chk dlv">
+            <label><input type="checkbox" id="dlx"><span class="dot" style="background:var(--out)"></span>Exporters'</label>
+            <label><input type="checkbox" id="dlm"><span class="dot" style="background:var(--in)"></span>Importers'</label>
+            <label><input type="checkbox" id="dlr"><span class="dot" style="background:var(--res)"></span>Resolved</label></div></div>
+          <div class="ctl"><span class="hint" tabindex="0" data-tip="Imputed includes filled-in trade, marked in the Imputed column. Changing it here changes it for the whole page.">Data gaps</span><div class="seg" id="dlimp"><button data-i="1" aria-pressed="true">Imputed</button><button data-i="0" aria-pressed="false">As reported</button></div></div>
+          <div class="ctl"><span>Countries</span><div class="chk dlc">
+            <label><input type="radio" name="dlc" id="dlc-all" value="all" checked> All countries</label>
+            <label><input type="radio" name="dlc" id="dlc-map" value="map"> <span>Map filters: <b id="dlmapdesc"></b></span></label>
+            <label><input type="radio" name="dlc" id="dlc-sel" value="sel"> One country</label>
+            <select id="dlcountry" aria-label="Country to download"></select></div></div>
+          <div class="ctl dlmatbox"><span class="hint" tabindex="0" data-tip="The materials ticked under Plastics at the top of the page. Each row splits into plastic scrap and plastic in other materials.">Materials</span><div class="dlmat" id="dlmat"></div><button class="linkbtn" id="dlmatedit" type="button">Change materials</button></div>
+          <div class="ctl"><span>Format</span><div class="seg" id="dlfmt"><button data-f="csv" aria-pressed="true">CSV</button><button data-f="json" aria-pressed="false">JSON</button></div></div>
         </div>
-        <div class="ctl"><span>Columns</span><div class="dlcols" id="dlcols"></div></div>
+        <div class="ctl dlcolbox"><span>Columns</span><div class="dlcols" id="dlcols"></div></div>
       </div>
       <div class="prev">
+        <dl class="dlsum" id="dlsum"></dl>
+        <div class="tbl dlprev"><table id="dlprev"></table></div>
         <div class="actions"><button class="btn" id="dlgo">Download</button><button class="btn ghost" id="dlcopy">Copy to clipboard</button><a class="btn ghost" href="data/completeness.csv" download="gwt-who-reported-hs3915.csv" style="text-decoration:none">Who reported, all years (CSV)</a><span class="count" id="dlcount"></span></div>
       </div>
     </div>
@@ -623,7 +648,7 @@ catch(e){$("#maptitle").textContent="The data could not load. Refresh the page t
 const MODY=new Set(MAN.modelled||[]),PMODY=new Set(MAN.part_modelled||[]),ylab=y=>y+(MODY.has(y)?" (modelled)":PMODY.has(y)?" (part modelled)":"");
 const C=data.countries,SCH=data.schemes,YEAR=data.meta.year,CODE=data.meta.code,MOD=!!data.meta.modelled,YL=MOD?ylab(YEAR).replace(/^\d+$/,YEAR+" (modelled)"):String(YEAR);
 $("#year").innerHTML=MAN.years.slice().reverse().map(y=>`<option value="${y}" ${y===YEAR?"selected":""}>${ylab(y)}</option>`).join("");
-const goYear=y=>{const u=new URL(location.href);u.searchParams.set("year",y);if(S.sel)u.searchParams.set("c",S.sel);else u.searchParams.delete("c");if(!S.imp)u.searchParams.set("imp","0");else u.searchParams.delete("imp");location.href=u.toString()};
+const goYear=(y,hash)=>{const u=new URL(location.href);if(hash)u.hash=hash;u.searchParams.set("year",y);if(S.sel)u.searchParams.set("c",S.sel);else u.searchParams.delete("c");if(!S.imp)u.searchParams.set("imp","0");else u.searchParams.delete("imp");location.href=u.toString()};
 $("#year").onchange=e=>goYear(e.target.value);
 const NAT=["Eurostat","HMRC"].filter(k=>(data.meta.source||"").includes(k)), NATL=NAT.length?` with provisional ${NAT.join(" and ")} months`:"";
 VERSION=`UN Comtrade ${YL}${NATL}, ${CODE}`+(data.meta.built?` · built ${data.meta.built}`:"");
@@ -1122,7 +1147,7 @@ function side(){
     <div><h4>Where it goes${byReg?" (by region)":""}</h4><div class="bars">${outP.length?bars(outP.slice(0,10),byReg?k=>rcol(k):css("--out"),byReg&&m==="ppt"?"t":m,byReg?k=>k:name):'<div class="note">No exports recorded in this view.</div>'}</div></div>
     <div><h4>Where it comes from${byReg?" (by region)":""}</h4><div class="bars">${inP.length?bars(inP.slice(0,10),byReg?k=>rcol(k):css("--in"),byReg&&m==="ppt"?"t":m,byReg?k=>k:name):'<div class="note">No imports recorded in this view.</div>'}</div>
     <div class="actions" style="margin-top:12px"><button class="btn ghost sm" id="sidechart">Chart ${esc(me[0])}'s flows</button><button class="btn ghost sm" id="sidedl">Get ${esc(me[0])}'s data</button></div></div>`;
-    $("#sidedl").onclick=()=>{$("#dlc-sel").checked=true;buildDL();$("#getdata").scrollIntoView()};
+    $("#sidedl").onclick=()=>{DLC=S.sel;dlOwnC=true;$("#dlc-sel").checked=true;buildDL();$("#getdata").scrollIntoView()};
     $("#sidechart").onclick=()=>{B.focus=true;$("#bfocus").checked=true;setType("sankey");$("#build").scrollIntoView()};
   }
   el.querySelectorAll(".row[data-c]").forEach(r=>r.onclick=()=>{if(C[r.dataset.c])select(r.dataset.c)});
@@ -1371,18 +1396,46 @@ const DLGRP=[["Record",["year","view","basis","code","source"]],["Exporter",["ex
 $("#dlcols").innerHTML=DLGRP.map(([g,ks])=>`<fieldset><legend>${g}</legend>${ks.map(k=>{const [,l,on]=L[k];return `<label><input type="checkbox" id="col-${k}" ${on?"checked":""}> ${short(g,l)}</label>`}).join("")}</fieldset>`).join("")}
 function dlRows(){
   const views=[[0,"#dlx"],[1,"#dlm"],[2,"#dlr"]].filter(([v,id])=>$(id).checked).map(d=>d[0]),mode=document.querySelector("input[name=dlc]:checked").value;
-  return R.filter(r=>views.includes(r.v)&&(mode==="all"||(mode==="map"&&pass(r))||(mode==="sel"&&S.sel&&(r.ex===S.sel||r.rc===S.sel))))
+  return R.filter(r=>views.includes(r.v)&&(mode==="all"||(mode==="map"&&pass(r))||(mode==="sel"&&DLC&&(r.ex===DLC||r.rc===DLC))))
    .sort((a,b)=>b.t-a.t).map(r=>({year:YEAR,view:["exporter","importer","resolved"][r.v],basis:r.v===2?r.basis+(r.basis==="both reported"?` (${RMETH[S.resolve]})`:""):r.basis,exporter_iso:iso(r.ex),exporter:name(r.ex),exporter_income:inc(r.ex),exporter_region:regOf(r.ex)||"",recipient_iso:iso(r.rc),recipient:name(r.rc),recipient_income:inc(r.rc),recipient_region:regOf(r.rc)||"",net_weight_t:+r.t.toFixed(2),value_usd:Math.round(r.usd),usd_per_tonne:r.t>0?Math.round(r.usd/r.t):"",weight_estimated:r.est===2?"cleaning":r.est?"reporter":"",imputed:r.imp?IMPHOW[r.imp]:MODY.has(YEAR)?"modelled year":"",plastic_scrap_t:+(r.t-(r.hid||0)).toFixed(2),hidden_plastic_t:+(r.hid||0).toFixed(2),hidden_detail:r.hs?Object.entries(r.hs).map(([k,v])=>k+":"+v.toFixed(1)).join(";"):"",code:(S.scrap?CODE:"")+(r.hs?(S.scrap?" + ":"")+Object.keys(r.hs).map(k=>HS[k].codes).join(" + "):""),source:VERSION+" · regions: "+SCHEMES[S.scheme]+hpNote()}));
 }
 const csvCell=v=>{v=v==null?"":String(v);return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
 const toCSV=(rows,keys)=>[keys.join(","),...rows.map(r=>keys.map(k=>csvCell(r[k])).join(","))].join("\n");
 const toJSON=(rows,keys,pretty)=>JSON.stringify(rows.map(r=>Object.fromEntries(keys.map(k=>[k,r[k]]))),null,pretty?1:0);
 const dlKeys=()=>DLCOLS.map(c=>c[0]).filter(k=>$("#col-"+k).checked);
+// Get the data mirrors the page filters so the reader can see and change them here: year and data gaps change the
+// whole page; reporter types follow the page until the reader ticks their own; the country follows the map selection
+// until the reader picks one.
+let DLC=null,dlOwnC=false,dlOwnV=false;
+const mapDesc=()=>[S.incf==="hl"?"High → middle- and low-income":"",S.region||""].filter(Boolean).join(" · ")||"none";
+const dlFile=(n,f)=>`gwt-${hidOn().length?"plastic-incl-hidden":"plastic-waste"}-${YL}-${n}-rows.${f}`;
 function buildDL(){
-  $("#dlselname").textContent=S.sel?`(${name(S.sel)})`:"(click a country first)";
-  const rows=dlRows(),keys=dlKeys();$("#dlcount").textContent=`${d3.format(",")(rows.length)} rows`;
-  if($("#dlpre"))$("#dlpre").textContent=rows.length?(S.fmt==="json"?toJSON(rows.slice(0,6),keys,1):toCSV(rows.slice(0,8),keys))+(rows.length>8?"\n…":""):"No rows match. Tick at least one set of figures, or select a country on the map.";
+  if(!dlOwnV)[[0,"#dlx"],[1,"#dlm"],[2,"#dlr"]].forEach(([v,id])=>$(id).checked=v===S.view);
+  if(!dlOwnC&&S.sel)DLC=S.sel;
+  if($("#dlcountry").value!==(DLC||""))$("#dlcountry").value=DLC||"";
+  pressed("#dlimp","i",S.imp?"1":"0");
+  $("#dlmapdesc").textContent=mapDesc();
+  const on=hidOn();
+  $("#dlmat").innerHTML=(S.scrap?`<span>Plastic scrap <i>${CODE}</i></span>`:"")+on.map(k=>{const h=HON[k];return `<span>${esc(HS[k].n)} <i>${h.byInc?"by income":h.f+"%"}</i></span>`}).join("")||`<span>Nothing ticked</span>`;
+  const rows=dlRows(),keys=dlKeys(),views=[[0,"#dlx"],[1,"#dlm"],[2,"#dlr"]].filter(([v,id])=>$(id).checked).map(d=>d[0]),mode=document.querySelector("input[name=dlc]:checked").value;
+  $("#dlcount").textContent=`${d3.format(",")(rows.length)} rows`;
+  const per=views.map(v=>{const rs=rows.filter(r=>r.view===["exporter","importer","resolved"][v]);return `<div><dt>${["Exporters' reports","Importers' reports","Resolved"][v]}</dt><dd>${fT(d3.sum(rs,r=>r.net_weight_t))}<small>${fU(d3.sum(rs,r=>r.value_usd))} · ${d3.format(",")(rs.length)} rows${v===2?" · "+RMETH[S.resolve]:""}</small></dd></div>`}).join("");
+  const imp=rows.filter(r=>r.imputed&&r.imputed!=="modelled year").length;
+  $("#dlsum").innerHTML=`<div><dt>File</dt><dd>${d3.format(",")(rows.length)} rows<small>${esc(dlFile(rows.length,S.fmt))}</small></dd></div>
+    <div><dt>Year and countries</dt><dd>${YL}<small>${mode==="all"?"All countries":mode==="map"?"Map filters: "+esc(mapDesc()):DLC?esc(name(DLC))+", all its partners":"Choose a country"}</small></dd></div>
+    ${per||`<div><dt>Reporter type</dt><dd>None ticked</dd></div>`}
+    <div><dt>Data gaps</dt><dd>${S.imp?"Imputed":"As reported"}<small>${S.imp?d3.format(",")(imp)+" imputed rows":"Reported rows only"}</small></dd></div>`;
+  const head=keys.map(k=>DLCOLS.find(c=>c[0]===k)[1]);
+  $("#dlprev").innerHTML=rows.length&&keys.length?`<thead><tr>${head.map(h=>`<th>${esc(h)}</th>`).join("")}</tr></thead><tbody>${rows.slice(0,6).map(r=>`<tr>${keys.map(k=>`<td>${esc(r[k]??"")}</td>`).join("")}</tr>`).join("")}</tbody>`:`<tbody><tr><td>${!views.length?"Tick a reporter type.":mode==="sel"&&!DLC?"Choose a country.":!keys.length?"Tick at least one column.":"No rows match."}</td></tr></tbody>`;
 }
+{const yrs=[...$("#year").options].map(o=>[o.value,o.textContent]);$("#dlyear").innerHTML=yrs.map(([v,t])=>`<option value="${v}" ${+v===YEAR?"selected":""}>${esc(t)}</option>`).join("");
+ $("#dlyear").onchange=e=>goYear(e.target.value,"getdata");
+ const cs=[...new Set(R.flatMap(r=>[r.ex,r.rc]))].filter(c=>C[c]).sort((a,b)=>name(a).localeCompare(name(b)));
+ $("#dlcountry").innerHTML=`<option value="">Choose a country</option>`+cs.map(c=>`<option value="${c}">${esc(name(c))}</option>`).join("");
+ $("#dlcountry").onchange=e=>{DLC=e.target.value||null;dlOwnC=true;if(DLC)$("#dlc-sel").checked=true;buildDL()};
+ for(const id of ["#dlx","#dlm","#dlr"])$(id).addEventListener("change",()=>{dlOwnV=true});
+ document.querySelectorAll("#dlimp button").forEach(b=>b.onclick=()=>{const t=document.querySelector(`#imp button[data-i="${b.dataset.i}"]`);if(t&&t.getAttribute("aria-pressed")!=="true")t.click()});
+ $("#dlmatedit").onclick=()=>{mgSet(true);$("#explore").scrollIntoView({behavior:"smooth"})};}
 document.querySelectorAll("#getdata input").forEach(i=>i.addEventListener("change",buildDL));
 
 // ---------- SAVING ----------
@@ -1440,7 +1493,7 @@ document.addEventListener("click",async e=>{
     }
   }catch(err){toast("Couldn't build that file. Try another format.")}
 });
-$("#dlgo").onclick=()=>{const rows=dlRows();if(!rows.length){toast("No rows to save yet.");return}const keys=dlKeys();saveFile(`gwt-${hidOn().length?"plastic-incl-hidden":"plastic-waste"}-${YL}-${rows.length}-rows.${S.fmt}`,S.fmt==="json"?toJSON(rows,keys):toCSV(rows,keys))};
+$("#dlgo").onclick=()=>{const rows=dlRows();if(!rows.length){toast("No rows to save yet.");return}const keys=dlKeys();saveFile(dlFile(rows.length,S.fmt),S.fmt==="json"?toJSON(rows,keys):toCSV(rows,keys))};
 $("#dlcopy").onclick=async()=>{const rows=dlRows(),keys=dlKeys(),txt=S.fmt==="json"?toJSON(rows,keys):toCSV(rows,keys);try{await navigator.clipboard.writeText(txt);toast(`Copied ${d3.format(",")(rows.length)} rows.`)}catch(e){toast("Copying was blocked by the browser.")}};
 
 // ---------- CONTROLS ----------
@@ -1570,6 +1623,7 @@ function select(c){if(!c){S.fgrp="c";pressed("#fgrp","v","c")}S.sel=c;if(!c){par
 function render(){hideTip();side();drawMap();drawChart();rank();buildDL()}
 fillRegions();setType("sankey");render();
 {const qc=new URLSearchParams(location.search).get("c");if(qc&&C[qc])select(qc)}
+if(location.hash.length>1){const t=document.getElementById(location.hash.slice(1));if(t)requestAnimationFrame(()=>t.scrollIntoView())}
 })();
 </script>
 </body>
