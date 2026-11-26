@@ -6,8 +6,8 @@ Downloaded 2026-11-26 from the UN Comtrade API (17,897 raw records). Built 2026-
 
 | Figures | Tonnes | Change vs previous file |
 |---|---:|---:|
-| Exporters' reports | 676,766 |  |
-| Importers' reports | 594,733 |  |
+| Exporters' reports | 676,766 | +0.0% |
+| Importers' reports | 594,733 | +0.0% |
 
 ## Largest 15 routes, exporters' reports
 

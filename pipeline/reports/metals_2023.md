@@ -6,8 +6,8 @@ Downloaded 2026-11-26 from the UN Comtrade API (132,182 raw records). Built 2026
 
 | Figures | Tonnes | Change vs previous file |
 |---|---:|---:|
-| Exporters' reports | 114,090,520 | +0.2% |
-| Importers' reports | 113,169,143 | +0.2% |
+| Exporters' reports | 114,090,520 | +0.0% |
+| Importers' reports | 113,169,143 | +0.0% |
 
 ## Countries not in the reference list
 
