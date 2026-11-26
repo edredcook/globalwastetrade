@@ -109,6 +109,8 @@ input[type=range]{accent-color:var(--out)}
 .arc:hover{opacity:1}
 .arc.flow{stroke-dasharray:2 7;animation:flow 1.6s linear infinite}
 .arc.faded{opacity:.1}
+.arc.tail{opacity:.3;pointer-events:none}
+#mapreset{order:99;margin-left:auto;align-self:flex-start}
 @keyframes flow{to{stroke-dashoffset:-18}}
 @media (prefers-reduced-motion:reduce){.arc.flow{animation:none;stroke-dasharray:none}}
 .node{stroke:var(--panel);stroke-width:1}
@@ -373,6 +375,7 @@ footer b{color:var(--ink);font-weight:600}
 <section class="mapfull">
   <div class="mapbox">
     <div class="maptools">
+      <button class="btn ghost sm" id="mapreset">Map reset</button>
       <div class="ctl"><span>Map shows</span><div class="seg" id="mapmode"><button data-v="routes" aria-pressed="true">Country routes</button><button data-v="regions" aria-pressed="false">Region to region</button></div></div>
       <div class="ctl"><span>Regions by</span><select id="scheme" aria-label="Region definition">
         <option value="un">UN regions (M49)</option><option value="unsub">UN sub-regions (M49)</option><option value="wb" selected>World Bank regions</option><option value="oecd">OECD / non-OECD</option></select></div>
@@ -385,7 +388,7 @@ footer b{color:var(--ink);font-weight:600}
     </div>
     <div class="maptools row2">
       <div class="ctl"><span>Country labels show</span><div class="seg" id="lval"><button data-v="net" aria-pressed="true">Net</button><button data-v="in" aria-pressed="false">Imports</button><button data-v="out" aria-pressed="false">Exports</button><button data-v="both" aria-pressed="false">In and out</button><button data-v="none" aria-pressed="false">Off</button></div></div>
-      <label class="mini"><span>Routes shown <output id="mo-maxr"></output></span><input type="range" id="m-maxr" min="10" max="300" step="5"></label>
+      <label class="mini"><span>Routes shown <output id="mo-maxr"></output></span><input type="range" id="m-maxr" min="0" max="24" step="1"></label>
       <label class="mini"><span>Line width <output id="mo-line"></output></span><input type="range" id="m-line" min="0.3" max="3" step="0.1"></label>
       <label class="mini"><span>Label size <output id="mo-lsize"></output></span><input type="range" id="m-lsize" min="8" max="16" step="1"></label>
       <label class="mini"><span>How many labels <output id="mo-ldens"></output></span><input type="range" id="m-ldens" min="1" max="5" step="1"></label>
@@ -398,7 +401,7 @@ footer b{color:var(--ink);font-weight:600}
       <div class="zoomctl"><button id="zin" aria-label="Zoom in">+</button><button id="zout" aria-label="Zoom out">−</button><button id="zreset" aria-label="Reset zoom" style="font-size:13px">⤢</button></div>
     </div>
     <div class="bar"><span id="mapnote" hidden></span>
-      <span class="save"><button class="linkbtn" id="reset" hidden>Back to the world view</button><button class="linkbtn" data-open-design>Map design</button>
+      <span class="save"><button class="linkbtn" data-open-design>Map design</button>
         <span class="lab" style="margin-left:8px">Save map</span><button data-save="map" data-fmt="png">PNG</button><button data-save="map" data-fmt="svg">SVG</button><button data-save="map" data-fmt="csv">CSV</button></span></div>
   </div>
 </section>
@@ -495,7 +498,7 @@ footer b{color:var(--ink);font-weight:600}
     <label class="f">Received / imports colour <input type="color" id="c-in"></label>
     <label class="f">Resolved colour <input type="color" id="c-res"></label>
     <h3>Map</h3>
-    <label class="f">Routes drawn <output id="o-maxr"></output><input type="range" id="d-maxr" min="10" max="300" step="5"></label>
+    <label class="f">Routes drawn <output id="o-maxr"></output><input type="range" id="d-maxr" min="0" max="24" step="1"></label>
     <label class="f">Line thickness <output id="o-line"></output><input type="range" id="d-line" min="0.3" max="3" step="0.1"></label>
     <label class="f">Labels <select id="d-lab"><option value="both">Name and value</option><option value="net">Value only</option><option value="name">Names only</option><option value="none">No labels</option></select></label>
     <label class="f">Label position <select id="d-lpos"><option value="auto">Beside the dot, centred when zoomed in</option><option value="centre">Always centred</option><option value="offset">Always beside the dot</option></select></label>
@@ -556,6 +559,8 @@ function sanitiseH(k,o){const c=v=>Math.max(0,Math.min(100,+v));const d=HDEF(k),
 const shareOf=(k,e)=>{const h=HON[k],g=C[e]?C[e][2]:"NS";return (h.byInc&&h.inc[g]!=null?h.inc[g]:h.f)/100*h.w/100};
 const S={imp:new URLSearchParams(location.search).get("imp")!=="0",hatch:true,scrap:true,fdir:"both",fgrp:"c",view:0,measure:"t",incf:"all",sel:null,region:null,rdir:"both",scheme:"wb",mapMode:"routes",hl:"none",resolve:"mean",rank:"exp",rankSort:null,fmt:"csv"};
 const B={type:"sankey",from:"c",to:"c",side:"ex",group:"c",scheme:"wb",view:0,measure:"t",top:15,focus:false,nointra:false};
+const HEADN=300,RSTEPS=[10,15,20,25,30,40,45,50,60,75,100,125,150,200,250,300,400,500,750,1000,1500,2000,3000,5000,1e9],ALLR=1e9;
+const rIdx=v=>{let b=0;for(let i=0;i<RSTEPS.length;i++)if(Math.abs(RSTEPS[i]-v)<Math.abs(RSTEPS[b]-v))b=i;return b},rLab=v=>v>=ALLR?"All":d3.format(",")(v);
 const DDEF={preset:"container",out:null,in:null,res:null,maxr:45,line:1,lab:"both",lval:"net",globe:"trade",lpos:"auto",ldens:3,lsize:11,anim:true,choro:false,font:12,vals:true,nodew:12,gap:10,op:.35,lcol:"source",h:1};
 let D={...DDEF};try{const s=JSON.parse(localStorage.getItem("gwt-design-v6")||"null");if(s)D={...DDEF,...s}}catch(e){}
 
@@ -635,8 +640,9 @@ function applyDesign(){
   const rs=document.documentElement.style;
   for(const [k,v] of [["--out",D.out],["--in",D.in],["--res",D.res]]){if(v)rs.setProperty(k,v);else rs.removeProperty(k)}
   $("#c-out").value=toHex(css("--out"));$("#c-in").value=toHex(css("--in"));$("#c-res").value=toHex(css("--res"));
-  for(const [id,k,f] of [["ldens","ldens",v=>["","Few","Fewer","Normal","More","Lots"][v]],["lsize","lsize",v=>v+" px"],["maxr","maxr",v=>v],["line","line",v=>v+"×"],["font","font",v=>v+" px"],["nodew","nodew",v=>v+" px"],["gap","gap",v=>v+" px"],["op","op",v=>Math.round(v*100)+"%"],["h","h",v=>v+"×"]]){$("#d-"+id).value=D[k];$("#o-"+id).textContent=f(D[k])}
-  for(const [id,f] of [["maxr",v=>v],["line",v=>v+"×"],["lsize",v=>v+" px"],["ldens",v=>["","Few","Fewer","Normal","More","Lots"][v]]]){$("#m-"+id).value=D[id];$("#mo-"+id).textContent=f(D[id])}
+  for(const [id,k,f] of [["ldens","ldens",v=>["","Few","Fewer","Normal","More","Lots"][v]],["lsize","lsize",v=>v+" px"],["line","line",v=>v+"×"],["font","font",v=>v+" px"],["nodew","nodew",v=>v+" px"],["gap","gap",v=>v+" px"],["op","op",v=>Math.round(v*100)+"%"],["h","h",v=>v+"×"]]){$("#d-"+id).value=D[k];$("#o-"+id).textContent=f(D[k])}
+  for(const p of ["d","m"]){$(`#${p}-maxr`).value=rIdx(D.maxr);$(p==="d"?"#o-maxr":"#mo-maxr").textContent=rLab(D.maxr)}
+  for(const [id,f] of [["line",v=>v+"×"],["lsize",v=>v+" px"],["ldens",v=>["","Few","Fewer","Normal","More","Lots"][v]]]){$("#m-"+id).value=D[id];$("#mo-"+id).textContent=f(D[id])}
   pressed("#lval","v",D.lab==="none"?"none":D.lval);pressed("#globe","v",D.globe);
   $("#d-lab").value=D.lab;$("#d-lpos").value=D.lpos;$("#d-anim").checked=D.anim;$("#d-choro").checked=D.choro;$("#d-vals").checked=D.vals;$("#d-lcol").value=D.lcol;
   document.querySelectorAll("#presets button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.p===D.preset));
@@ -647,8 +653,9 @@ function toHex(c){const x=d3.color(c);return x?x.formatHex():"#000000"}
 $("#presets").innerHTML=Object.entries(PRESETS).map(([k,p])=>`<button data-p="${k}" aria-pressed="false"><i style="background:${p.out||"#e0531f"}"></i><i style="background:${p.in||"#0f7f86"}"></i>${p.n}</button>`).join("");
 $("#presets").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;const p=PRESETS[b.dataset.p];D.preset=b.dataset.p;D.out=p.out;D.in=p.in;D.res=p.res;applyDesign();render()});
 for(const k of ["out","in","res"])$("#c-"+k).addEventListener("input",e=>{D[k]=e.target.value;D.preset="custom";applyDesign();render()});
-for(const [id,k] of [["maxr","maxr"],["line","line"],["font","font"],["nodew","nodew"],["gap","gap"],["op","op"],["h","h"]])$("#d-"+id).addEventListener("input",e=>{D[k]=+e.target.value;applyDesign();if(["maxr","line"].includes(k))drawMap();else drawChart()});
-for(const id of ["maxr","line","lsize","ldens"])$("#m-"+id).addEventListener("input",e=>{D[id]=+e.target.value;applyDesign();if(id==="maxr"||id==="line")drawMap();else rescale()});
+for(const p of ["d","m"])$(`#${p}-maxr`).addEventListener("input",e=>{D.maxr=RSTEPS[+e.target.value];applyDesign();drawMap()});
+for(const [id,k] of [["line","line"],["font","font"],["nodew","nodew"],["gap","gap"],["op","op"],["h","h"]])$("#d-"+id).addEventListener("input",e=>{D[k]=+e.target.value;applyDesign();if(["maxr","line"].includes(k))drawMap();else drawChart()});
+for(const id of ["line","lsize","ldens"])$("#m-"+id).addEventListener("input",e=>{D[id]=+e.target.value;applyDesign();if(id==="line")drawMap();else rescale()});
 for(const k of ["lab","lpos"])$("#d-"+k).onchange=e=>{D[k]=e.target.value;applyDesign();rescale()};
 for(const k of ["ldens","lsize"])$("#d-"+k).addEventListener("input",e=>{D[k]=+e.target.value;applyDesign();rescale()});
 $("#d-anim").onchange=e=>{D.anim=e.target.checked;applyDesign();drawMap()};
@@ -863,16 +870,21 @@ function drawMap(){
   mapRows=list;
   const mx=(S.sel?d3.max(rs,r=>(r.ex===S.sel||r.rc===S.sel)&&r.ex!==r.rc&&pos[r.ex]&&pos[r.rc]?r[w]:0):d3.max(list,r=>r[w]))||1,sw=d3.scaleSqrt().domain([0,mx]).range([.6*D.line,(S.sel?9:8)*D.line]);
   const GRAD=!S.sel&&S.hl==="none"&&!(!S.region&&(S.rdir==="out"||S.rdir==="in"));
-  if(GRAD)gradDefs.selectAll("linearGradient").data(list).join("linearGradient").attr("id",(r,i)=>"lg"+i).attr("gradientUnits","userSpaceOnUse")
+  const head=list.slice(0,HEADN),tail=list.slice(HEADN);
+  if(GRAD)gradDefs.selectAll("linearGradient").data(head).join("linearGradient").attr("id",(r,i)=>"lg"+i).attr("gradientUnits","userSpaceOnUse")
     .attr("x1",r=>pos[r.ex][0]).attr("y1",r=>pos[r.ex][1]).attr("x2",r=>pos[r.rc][0]).attr("y2",r=>pos[r.rc][1])
     .html(`<stop offset="0" stop-color="${css("--out")}"/><stop offset=".2" stop-color="${css("--out")}"/><stop offset=".8" stop-color="${css("--in")}"/><stop offset="1" stop-color="${css("--in")}"/>`);
-  gA.selectAll("path").data(list,r=>r.v+"-"+r.ex+"-"+r.rc).join(en=>en.append("path"))
+  gA.selectAll("path").data(head,r=>r.v+"-"+r.ex+"-"+r.rc).join(en=>en.append("path"))
     .attr("class",r=>"arc"+(D.anim?" flow":"")+(S.hl!=="none"&&!(hlOn(r.ex)||hlOn(r.rc))?" faded":""))
     .each(r=>r.sw=sw(r[w])).attr("vector-effect","non-scaling-stroke").attr("d",r=>arcD(r,pos[r.ex],pos[r.rc]))
     .attr("stroke",(r,i)=>S.sel?(r.ex===S.sel?css("--out"):css("--in")):S.hl!=="none"?(hlOn(r.rc)&&hlOn(r.ex)?c:hlOn(r.rc)?css("--in"):hlOn(r.ex)?css("--out"):c):GRAD?`url(#lg${i})`:S.rdir==="in"?css("--in"):css("--out"))
     .attr("stroke-width",r=>r.sw*Math.pow(K,.25))
     .on("mousemove",(e,r)=>showTip(e,`<b>${esc(name(r.ex))} → ${esc(name(r.rc))}</b><br>${fT(r.t)} · ${fU(r.usd)} · ${fP(r.t>=50?r.usd/r.t:null)}${r.v===2?`<br><em>Resolved: ${esc(r.basis)}</em>`:""}${r.imp?`<br><em>Imputed: ${IMPHOW[r.imp]}</em>`:""}${r.est===2?"<br><em>Weight re-estimated in cleaning</em>":r.est?"<br><em>Weight estimated by reporter</em>":""}`))
     .on("mouseleave",hideTip).on("click",(e,r)=>select(S.sel===r.ex?r.rc:r.ex));
+  if(tail.length){// the long tail as a few merged paths, so thousands of routes stay quick
+    const tcol=r=>S.sel?(r.ex===S.sel?css("--out"):css("--in")):S.hl!=="none"?(hlOn(r.rc)&&hlOn(r.ex)?c:hlOn(r.rc)?css("--in"):hlOn(r.ex)?css("--out"):c):GRAD?c:S.rdir==="in"?css("--in"):css("--out");
+    const bk=new Map();for(const r of tail){const s0=Math.round(sw(r[w])*4)/4,col=tcol(r),k=col+"|"+s0;if(!bk.has(k))bk.set(k,{sw:s0,col,d:[]});bk.get(k).d.push(arcD(r,pos[r.ex],pos[r.rc]))}
+    for(const b of bk.values())gA.insert("path",":first-child").datum({sw:b.sw}).attr("class","arc tail").attr("vector-effect","non-scaling-stroke").attr("d",b.d.join("")).attr("stroke",b.col).attr("stroke-width",b.sw*Math.pow(K,.25))}
   const inM=new Map(),outM=new Map();for(const r of rs){outM.set(r.ex,(outM.get(r.ex)||0)+r[w]);inM.set(r.rc,(inM.get(r.rc)||0)+r[w])}
   const gross=k=>(inM.get(k)||0)+(outM.get(k)||0),net=k=>(inM.get(k)||0)-(outM.get(k)||0);
   const ends=new Set();for(const r of list){ends.add(r.ex);ends.add(r.rc)}
@@ -914,7 +926,6 @@ function drawMap(){
     :D.choro?`<span><span class="dot" style="background:var(--net)"></span>net exporter</span><span><span class="dot" style="background:var(--land);box-shadow:inset 0 0 0 2px var(--net)"></span>net importer</span><span>${m==="ppt"?"Export price":"Exports"}, ${VIEWS[S.view]}</span><span class="ramp" style="background:linear-gradient(90deg,var(--land),${c})"></span><span>${m==="ppt"?"dearer":"more"}</span>`:(GRAD?`<span><span class="dot" style="background:linear-gradient(90deg,var(--out) 50%,var(--in) 50%)"></span>lines: leaving → arriving, ${VIEWS[S.view]}</span>`:`<span><span class="dot" style="background:${S.rdir==="in"?"var(--in)":"var(--out)"}"></span>lines: ${VIEWS[S.view]}</span>`)+(D.lab!=="none"&&LV()==="both"?`<span><span class="dot" style="background:var(--out)"></span>out</span><span><span class="dot" style="background:var(--in)"></span>in</span>`:"")+(D.lab!=="none"&&LV()==="net"?`<span><span class="dot" style="background:var(--net)"></span>net exporter</span><span><span class="dot" style="background:var(--land);box-shadow:inset 0 0 0 2px var(--net)"></span>net importer</span>`:"");
   if(RP()&&S.hatch)$("#legend").insertAdjacentHTML("beforeend",`<span><span class="dot hatchdot"></span>${noRepText()}</span>`);
   $("#mapnote").textContent=S.sel?"Line width shows the amount. Labels give each partner's share. Try Group partners: By region.":`Lines show the ${list.length} largest routes by ${w==="t"?"tonnes":"value"}. Change the number in Map design. Click any country to see all of its trade.`;
-  $("#reset").hidden=!S.sel;
 }
 function drawFocusRegions(rs,w){
   const c0=S.sel,P=pos[c0],sch=S.scheme,g=new Map();
@@ -940,7 +951,6 @@ function drawFocusRegions(rs,w){
   $("#maptitle").textContent=S.fdir==="in"?`Where ${name(c0)}'s ${PW()} comes from, by ${SCHEMES[sch].replace(/s$/,"")}, ${YL}`:S.fdir==="out"?`Where ${name(c0)}'s ${PW()} goes, by ${SCHEMES[sch].replace(/s$/,"")}, ${YL}`:`${name(c0)}'s ${PW()} trade by ${SCHEMES[sch].replace(/s$/,"")}, ${YL}`;
   $("#legend").innerHTML=[...new Set(flows.map(f=>f.reg))].map(r=>`<span><span class="dot" style="background:${rcol(r,sch)}"></span>${esc(r)}</span>`).join("");
   $("#mapnote").textContent=`Each line joins ${name(c0)} to the weighted centre of its partners in one region. Labels give the amount and share. Change the region definition above.`;
-  $("#reset").hidden=false;
 }
 function regionFlows(sch,rs){const f=new Map();for(const r of rs){const a=regOf(r.ex,sch),b=regOf(r.rc,sch);if(!a||!b||a===b)continue;const k=a+">"+b;if(!f.has(k))f.set(k,{a,b,t:0,usd:0});const o=f.get(k);o.t+=r.t;o.usd+=r.usd}return[...f.values()]}
 function drawRegionMap(){
@@ -970,7 +980,6 @@ function drawRegionMap(){
     :`${fmt(total,m)} of ${PW()} ${within?"was traded within":"crossed between"} ${SCHEMES[sch]}, ${YL} (${d3.format(".0%")(total/all)} of all trade)`;
   $("#legend").innerHTML=nodes.map(r=>`<span><span class="dot" style="background:${rcol(r,sch)}"></span>${esc(r)}</span>`).join("");
   $("#mapnote").textContent=within?"Each circle is trade between countries in the same region. Click a region to focus on it.":"Trade between countries in the same region is left out. Click a region to focus on it.";
-  $("#reset").hidden=true;
 }
 
 // ---------- SIDE PANEL ----------
@@ -1403,7 +1412,7 @@ $("#btopr").addEventListener("input",e=>setTop(e.target.value));
 document.querySelectorAll("#btype button").forEach(b=>b.onclick=()=>setType(b.dataset.t));
 $("#bfocus").onchange=e=>{B.focus=e.target.checked;drawChart()};
 $("#bnointra").onchange=e=>{B.nointra=e.target.checked;drawChart()};
-$("#reset").onclick=()=>select(null);
+$("#mapreset").onclick=()=>{if(S.sel)select(null);if(S.region)setRegion(null);svg.transition().duration(600).call(zoom.transform,d3.zoomIdentity)};
 $("#clist").innerHTML=Object.values(C).filter(c=>c[3]||c[4]!=null).sort((a,b)=>a[1].localeCompare(b[1])).map(c=>`<option value="${esc(c[1])}">`).join("");
 $("#find").addEventListener("change",e=>{const q=e.target.value.trim().toLowerCase();if(!q)return;const E=Object.entries(C);const hit=E.find(([k,c])=>c[1].toLowerCase()===q)||E.find(([k,c])=>c[0].toLowerCase()===q)||E.find(([k,c])=>(ALIAS[k]||"").toLowerCase().includes(q))||E.find(([k,c])=>c[1].toLowerCase().includes(q));
   if(hit){if(S.mapMode==="regions"){S.mapMode="routes";pressed("#mapmode","v","routes");$("#hlbox").hidden=false}select(hit[0]);zoomToPts([pos[hit[0]]],3)}else toast(`No country matches "${e.target.value}".`)});
