@@ -209,8 +209,8 @@ input[type=range]{accent-color:var(--out);width:180px;max-width:100%}
   <div class="controls" aria-label="Data">
     <div class="ctl"><span>Material</span><details class="dd" id="mats"><summary id="matsum">Plastic scrap (HS 3915)</summary><div class="ddm" id="matmenu"></div></details></div>
     <div class="ctl" id="countctl" hidden><span class="hint" tabindex="0" data-tip="Plastic content counts each stream at its plastic share, as on the Explorer. Whole material counts the full weight.">Count</span><div class="seg" data-k="count"><button data-v="plastic">Plastic content</button><button data-v="whole">Whole material</button></div></div>
-    <div class="ctl"><span class="hint" tabindex="0" data-tip="Each trade is reported twice, by the exporting country and by the importing country, and the two rarely match.">Reporter type</span><div class="seg" data-k="v"><button data-v="0"><span class="dot" style="background:var(--out)"></span>Exporters'</button><button data-v="1"><span class="dot" style="background:var(--in)"></span>Importers'</button></div></div>
-    <div class="ctl"><span class="hint" tabindex="0" data-tip="Imputed fills trade that a country did not report, from its partners' reports, the years either side or the trend, and labels it as imputed. As reported shows only what countries filed.">Data gaps</span><div class="seg" data-k="imp"><button data-v="1">Imputed</button><button data-v="0">As reported</button></div></div>
+    <div class="ctl"><span class="hint" tabindex="0" data-tip="Each trade is reported twice, by the exporting country and by the importing country, and the two rarely match. Resolved combines them into one figure: the average where both report, otherwise the one report.">Reporter type</span><div class="seg" data-k="v"><button data-v="0"><span class="dot" style="background:var(--out)"></span>Exporters'</button><button data-v="1"><span class="dot" style="background:var(--in)"></span>Importers'</button><button data-v="2"><span class="dot" style="background:var(--res)"></span>Resolved</button></div></div>
+    <div class="ctl" id="impctl"><span class="hint" tabindex="0" data-tip="Imputed fills trade that a country did not report, from its partners' reports, the years either side or the trend, and labels it as imputed. As reported shows only what countries filed.">Data gaps</span><div class="seg" data-k="imp"><button data-v="1">Imputed</button><button data-v="0">As reported</button></div></div>
     <div class="ctl"><span class="hint" tabindex="0" data-tip="Weight in tonnes or value in US dollars.">Measure</span><div class="seg" data-k="m"><button data-v="t">Tonnes</button><button data-v="usd">US$</button></div></div>
   </div>
   <section class="controls filters" aria-label="Filters">
@@ -265,6 +265,6 @@ input[type=range]{accent-color:var(--out);width:180px;max-width:100%}
 <div class="tip" id="tip" hidden></div>
 <div class="toast" id="toast" role="status" hidden></div>
 <script src="vendor/d3-7.8.5.min.js"></script>
-<script src="trends.js?v=17"></script>
+<script src="trends.js?v=18"></script>
 </body>
 </html>
