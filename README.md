@@ -13,6 +13,7 @@ Source for [globalwastetrade.org](https://globalwastetrade.org): an explorer for
 | `pipeline/build_site_data.py` | Applies the data rules, writes `site/data/` and a check report in `pipeline/reports/`. |
 | `pipeline/build_site_data.py --material <paper\|metals\|textiles\|ewaste>` | Builds the other material groups from `pipeline/raw/comtrade_<material>_<year>.json` into `site/data/<material>_<year>.json` (same shape as the plastic file, every stream under `hidden`), with a check report `pipeline/reports/<material>_<year>.md`. The codes of each group are in `MATERIALS` in `build_site_data.py`. Each stream counts in full in its own group; other groups add a sourced share of it (set on the page). Run the plastic build for the year first, since some streams are taken from it. |
 | `pipeline/build_trends.py` | Summarises every year into the trend and flow files, for plastic waste and each mixed stream. |
+| `pipeline/build_flags.py` | Lists every record the cleaning changed or flagged, with the rule, review group and decision, in `site/data/flagged_records.csv`. |
 | `pipeline/build_validation.py` | Compares the site's figures with published studies and official statistics listed in `pipeline/reference/validation_sources.json`, and writes `site/data/validation.json` for the Validation page (`validation.html`). Uses reported routes only, never imputed routes or modelled years. |
 | `pipeline/income_history.py` | Turns the World Bank's historical income classification (OGHIST.xlsx) into `pipeline/reference/income_history.json`. |
 | `pipeline/reference/` | Country names, income groups (the World Bank group for each year), region schemes, and BACI 2023 figures kept only to check the Comtrade figures for plastic traded amongst other materials. |
@@ -30,7 +31,9 @@ Source for [globalwastetrade.org](https://globalwastetrade.org): an explorer for
   - A record with a value but no weight takes the partner's weight. If there is no usable partner report, the weight is the value divided by the median US$ per tonne.
   - A record whose US$ per tonne is more than 10 times above or below the median takes the partner's weight, if the partner's report is in range. Otherwise, if it is more than 100 times out (a units error), its weight is the value at the median US$ per tonne; this is not applied to municipal waste (HS 3825.10), which can genuinely move at near-zero value. Anything else is left as reported and listed.
   - Where Comtrade has replaced a reporter's own weights with its own estimate and the result is out of line, the estimate is replaced: by the partner's weight, or by the value at the reporter's usual US$ per tonne where partners book the trade differently. The cases are listed, with reasons, in `pipeline/reference/estimated_weights.json` (China's 2016 imports and Hong Kong's 2013 exports).
+  - Records left out of range were reviewed in groups on 27 November 2026. Each group, its decision, who agreed it and why are in `pipeline/reference/record_decisions.json`. Records listed there as reporting mistakes (India's 2009 imports from unspecified partners, Yemen's exports in six years) take the value at the median US$ per tonne. The rest are kept as reported.
   - Re-estimated weights are marked as such on the page and in downloads.
+  - `pipeline/build_flags.py` lists every record a cleaning rule changed or flagged, with its group and decision, in `site/data/flagged_records.csv`. The Validation page summarises it and links to it.
 - The build stops without changing the site if either view's tonnes fall below 60% of the previous file, or if a view has fewer than 300 routes.
 
 ## Refreshing the data
@@ -53,6 +56,7 @@ for m in paper metals textiles ewaste; do
   python pipeline/build_site_data.py --year 2023 --material $m
 done
 python pipeline/build_trends.py
+python pipeline/build_flags.py
 python pipeline/build_validation.py
 python -m unittest discover -s pipeline/tests
 python -m http.server -d site 8000  # then open http://localhost:8000

@@ -1,0 +1,261 @@
+{
+ "_about": "Ed Cook's decisions on HS 3915 records whose US$ per tonne is more than 10 times away from the median and that no partner report can fix (cleaning rule C). build_site_data.py applies 'weight_from_value' records as rule F: the reported value is kept and the weight becomes value / that flow's median US$ per tonne. 'keep' records stay as reported. Records listed by [year, reporter, flow, partner] using Comtrade codes. Groups with 'match' instead of 'records' cover every other flagged record of that kind. pipeline/build_flags.py writes every cleaned or flagged record, with its group and decision, to site/data/flagged_records.csv.",
+ "reviewed": "27 November 2026",
+ "groups": [
+  {
+   "id": "india-2009",
+   "title": "India's 2009 imports from an unnamed partner",
+   "verdict": "Mistake in India's reported weight",
+   "action": "weight_from_value",
+   "agreed": "Ed Cook, 27 November 2026",
+   "reason": "324,041 t worth US$9.0 million from 'Areas, nes' (US$28 a tonne) against US$450 to 550 a tonne for India's other 2009 imports. It made India's 2009 imports 478 kt against 98 kt in 2008 and 116 kt in 2010. No partner is named, so no report can confirm it.",
+   "records": [
+    [
+     2009,
+     699,
+     "M",
+     899
+    ]
+   ]
+  },
+  {
+   "id": "yemen",
+   "title": "Yemen's exports",
+   "verdict": "Mistakes in Yemen's reported weights",
+   "action": "weight_from_value",
+   "agreed": "Ed Cook, 27 November 2026",
+   "reason": "Prices of US$6 to 48 a tonne, and none of the receiving countries that report (South Korea, India, Viet Nam to 2023) records the shipments.",
+   "records": [
+    [
+     2012,
+     887,
+     "X",
+     704
+    ],
+    [
+     2013,
+     887,
+     "X",
+     784
+    ],
+    [
+     2015,
+     887,
+     "X",
+     490
+    ],
+    [
+     2015,
+     887,
+     "X",
+     568
+    ],
+    [
+     2018,
+     887,
+     "X",
+     156
+    ],
+    [
+     2023,
+     887,
+     "X",
+     410
+    ],
+    [
+     2023,
+     887,
+     "X",
+     699
+    ],
+    [
+     2023,
+     887,
+     "X",
+     704
+    ],
+    [
+     2024,
+     887,
+     "X",
+     156
+    ],
+    [
+     2024,
+     887,
+     "X",
+     404
+    ],
+    [
+     2024,
+     887,
+     "X",
+     699
+    ],
+    [
+     2024,
+     887,
+     "X",
+     704
+    ],
+    [
+     2024,
+     887,
+     "X",
+     842
+    ]
+   ]
+  },
+  {
+   "id": "europe-fuel",
+   "title": "Cheap bulk imports into Europe",
+   "verdict": "Genuine: low-grade plastic sold as fuel",
+   "action": "keep",
+   "agreed": "Ed Cook, 27 November 2026",
+   "reason": "Latvia, Denmark, Portugal, Slovakia and Slovenia–Bosnia, 2010 to 2020, at US$8 to 67 a tonne. These match known flows of waste fuel to cement kilns and incinerators, where gate fees push prices near zero.",
+   "records": [
+    [
+     2010,
+     208,
+     "M",
+     372
+    ],
+    [
+     2011,
+     208,
+     "M",
+     372
+    ],
+    [
+     2011,
+     428,
+     "M",
+     276
+    ],
+    [
+     2011,
+     428,
+     "M",
+     372
+    ],
+    [
+     2011,
+     428,
+     "M",
+     528
+    ],
+    [
+     2012,
+     208,
+     "M",
+     372
+    ],
+    [
+     2012,
+     428,
+     "M",
+     276
+    ],
+    [
+     2012,
+     428,
+     "M",
+     372
+    ],
+    [
+     2012,
+     428,
+     "M",
+     528
+    ],
+    [
+     2013,
+     428,
+     "M",
+     276
+    ],
+    [
+     2013,
+     428,
+     "M",
+     826
+    ],
+    [
+     2013,
+     703,
+     "M",
+     380
+    ],
+    [
+     2013,
+     703,
+     "M",
+     568
+    ],
+    [
+     2014,
+     620,
+     "M",
+     300
+    ],
+    [
+     2014,
+     620,
+     "M",
+     826
+    ],
+    [
+     2015,
+     620,
+     "M",
+     826
+    ],
+    [
+     2019,
+     620,
+     "M",
+     372
+    ],
+    [
+     2020,
+     70,
+     "M",
+     705
+    ],
+    [
+     2020,
+     705,
+     "X",
+     70
+    ]
+   ]
+  },
+  {
+   "id": "both-agree",
+   "title": "Both sides agree",
+   "verdict": "Genuine: both countries report it",
+   "action": "keep",
+   "agreed": "Ed Cook, 27 November 2026",
+   "reason": "The partner reports between half and double the tonnage at a similarly low price.",
+   "match": "partner_agrees"
+  },
+  {
+   "id": "other-cheap",
+   "title": "Other cheap records, no partner report",
+   "verdict": "Probably genuine, and too small to matter",
+   "action": "keep",
+   "agreed": "Ed Cook, 27 November 2026",
+   "reason": "Mostly small cross-border trade in Africa, the Middle East and Central America.",
+   "match": "low_price"
+  },
+  {
+   "id": "expensive",
+   "title": "Expensive records",
+   "verdict": "Weight may be too low or goods may not be waste; correcting would add more doubt than it removes",
+   "action": "keep",
+   "agreed": "Ed Cook, 27 November 2026",
+   "reason": "Price more than 10 times the median. Re-estimating from value would add about 0.9 Mt across all years, including tonnes of goods that may not be waste.",
+   "match": "high_price"
+  }
+ ]
+}
