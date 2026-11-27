@@ -31,7 +31,7 @@ jobs:
           ESTAT_APP_ID: ${{ secrets.ESTAT_APP_ID }}
           KCS_SERVICE_KEY: ${{ secrets.KCS_SERVICE_KEY }}
           MIXED: 550510,6309,6310,854931,854939,854991,854999,382510,4707,401220,4004,401700
-          MATERIALS: paper metals textiles ewaste
+          MATERIALS: paper metals textiles ewaste batteries
           POLY: 391510,391520,391530,391590
         run: |
           # Codes of each other material group, from build_site_data.MATERIALS
@@ -100,6 +100,13 @@ jobs:
               fi
             done
           done
+          # Electrical and electronic goods shipped as used goods: the year before the
+          # refreshed years seeds the carry-forward for senders not yet reported.
+          for y in $(( $(echo $YEARS | tr ' ' '\n' | sort -n | head -1) - 1 )) $YEARS $Y; do
+            [ -f "pipeline/raw/comtrade_usedeee_${y}.json" ] || python pipeline/fetch_used_eee.py --year "$y" \
+              || echo "$y: no download of used electrical goods" >> failed.txt
+          done
+          python pipeline/build_grey_ewaste.py || echo "used electrical goods: not built" >> failed.txt
           python pipeline/build_trends.py
           python pipeline/build_flags.py
           python pipeline/build_validation.py

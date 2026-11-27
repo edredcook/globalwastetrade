@@ -110,8 +110,8 @@
    "short": "Baldé et al. (2024)",
    "kind": "Official report",
    "cite": "Baldé, C.P. et al. (2024) <i>The Global E-waste Monitor 2024</i>. Geneva and Bonn: ITU and UNITAR.",
-   "url": "https://ewastemonitor.info/wp-content/uploads/2024/03/GEM_2024_18-03_web_executive-Summery.pdf",
-   "data": "E-waste shipped across borders in 2022, p. 15; e-waste composition, p. 11"
+   "url": "https://ewastemonitor.info/wp-content/uploads/2024/03/GEM_2024_18-03_web_page_per_page_web.pdf",
+   "data": "E-waste shipped across borders in 2019, pp. 15 and 38 to 41; e-waste composition, p. 11"
   },
   "usitc2018": {
    "short": "USITC (2018)",
@@ -119,6 +119,13 @@
    "cite": "U.S. International Trade Commission (2018) <i>China's Recycled Wastepaper Import Policies: Part 1</i>. Executive Briefing on Trade, April.",
    "url": "https://www.usitc.gov/publications/332/executive_briefings/ebot_china_recycled_paper_final.pdf",
    "data": "China's imports and US exports of recovered paper, yearly average since 2010"
+  },
+  "balde2022": {
+   "short": "Baldé et al. (2022)",
+   "kind": "Official report",
+   "cite": "Baldé, C.P., D'Angelo, E., Luda, V., Deubzer, O. and Kuehr, R. (2022) <i>Global Transboundary E-waste Flows Monitor – 2022</i>. Bonn: United Nations Institute for Training and Research (UNITAR).",
+   "url": "https://ewastemonitor.info/wp-content/uploads/2022/06/Global-TBM_webversion_june_2_pages.pdf",
+   "data": "Transboundary movements of used EEE and e-waste in 2019 and how they were estimated, pp. 8 to 11 and 22 to 28"
   }
  },
  "checks": [
@@ -920,7 +927,14 @@
     "from": "*",
     "to": "*"
    },
-   "why": "Not like for like. The Monitor's figure includes 3.3 Mt of undocumented shipments, much of it declared as used equipment for reuse, which customs codes for waste and scrap do not capture."
+   "why": "A ballpark: the Monitor's figure is for 2019, before e-waste had its own customs code (HS 8549, from 2022). It is 1.5 Mt from Basel Convention reports, 0.36 Mt of circuit boards and 3.3 Mt of used equipment and e-waste shipped as second-hand goods, which customs records as ordinary goods. The site's figure is customs records of e-waste and circuit-board scrap, without batteries.",
+   "published_year": 2019,
+   "streams": [
+    "eprec",
+    "epcb",
+    "weee",
+    "weeeo"
+   ]
   }
  ],
  "baci_streams": {

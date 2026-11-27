@@ -149,6 +149,12 @@ def clean(selected, factor=10.0, gross=100.0, replace_est=None, decisions=None):
             changes.append({"rule": "A", "key": (rep, flow, par), "old_t": v["t"], "new_t": new, "usd": v["usd"]})
             v.update(t=new, est=2, cleaned=how)
             continue
+        if v["t"] > 0 and v["usd"] > 0 and in_range(v, flow) and decisions.get((rep, flow, par)) == "weight_from_value":
+            # A reviewed mistake can sit inside the usual range (within `factor` of the median).
+            new = v["usd"] / m
+            changes.append({"rule": "F", "key": (rep, flow, par), "old_t": v["t"], "new_t": new, "usd": v["usd"]})
+            v.update(t=new, est=2, cleaned="weight estimated from value (reviewed)")
+            continue
         if v["t"] <= 0 or v["usd"] <= 0 or in_range(v, flow):
             continue
         if mirror and in_range(mirror, mflow):
@@ -236,7 +242,7 @@ MATERIALS = {
         "streams": {
             "fe": ["720410", "720429", "720430", "720441", "720449", "720450"],
             "ss": ["720421"], "al": ["7602"], "cu": ["7404"], "pb": ["7802"], "zn": ["7902"],
-            "ni": ["7503"], "sn": ["8002"], "pm": ["711291", "711292", "711299"],
+            "ni": ["7503"], "sn": ["8002"], "pm": ["711291", "711292", "711299@!1-15"],
             "om": ["810197", "810297", "810330", "810420", "810530", "810730", "810830", "810930",
                    "810931", "810939", "811020", "811213", "811222", "811252", "811261"],
         },
@@ -250,13 +256,42 @@ MATERIALS = {
         "borrow": ["clothing", "rags", "fibre", "rdf"],
     },
     "ewaste": {
-        "name": "E-waste", "code": "HS 8549 (HS 8548.10 before 2022)",
-        "desc": "Electrical and electronic waste and scrap, including batteries",
-        "streams": {"ebatt": ["854810", "854911", "854912", "854913", "854914", "854919"],
-                    "eprec": ["854921", "854929"]},
+        "name": "E-waste", "code": "HS 8549.21 to 8549.99; HS 7112.99 at US$1 to 15 per kg",
+        "desc": "Electrical and electronic waste and scrap, and circuit-board scrap",
+        "streams": {"eprec": ["854921", "854929"], "epcb": ["711299@1-15"]},
         "borrow": ["weee", "weeeo"],
     },
+    # Batteries are not electrical and electronic equipment (Baldé et al. 2024, p. 20), so
+    # they are a group of their own. HS 8548.10 held every type until HS 2017.
+    "batteries": {
+        "name": "Batteries", "code": "HS 8549.11 to 8549.19 (HS 8548.10 before 2022)",
+        "desc": "Waste and scrap of batteries and accumulators",
+        "streams": {"bpba": ["854911"], "bpbo": ["854912"], "bsort": ["854913"], "bunsort": ["854914"],
+                    "both": ["854919"], "ball": ["854810"]},
+        "borrow": [],
+    },
 }
+
+# A stream code can carry a price window in US$ per kg, applied to each cleaned record:
+# "711299@1-15" keeps records priced from 1 to 15 US$/kg, "711299@!1-15" the rest.
+# Circuit-board scrap is picked out of precious-metal scrap this way (Baldé et al. 2022,
+# p. 22: "Prices between $1 to $15 USD/kg are typical for printed circuit board waste").
+# Records with no weight stay on the "!" side.
+def code_window(spec):
+    """'711299@1-15' -> ('711299', (1.0, 15.0, True)); a plain code -> (code, None)."""
+    if "@" not in spec:
+        return spec, None
+    code, w = spec.split("@", 1)
+    inside = not w.startswith("!")
+    lo, hi = (float(x) for x in w.lstrip("!").split("-"))
+    return code, (lo, hi, inside)
+
+
+def in_window(v, win):
+    lo, hi, inside = win
+    kg = v["t"] * 1000
+    ok = kg > 0 and lo <= v["usd"] / kg <= hi
+    return ok if inside else not ok
 
 
 def build_polymers(year, factor=10.0):
@@ -329,10 +364,17 @@ def build_polymers(year, factor=10.0):
 
 
 def material_codes(mat):
-    return [c for cs in MATERIALS[mat]["streams"].values() for c in cs]
+    """The HS codes to download for a group, each once (price windows stripped)."""
+    out = []
+    for cs in MATERIALS[mat]["streams"].values():
+        for spec in cs:
+            c = code_window(spec)[0]
+            if c not in out:
+                out.append(c)
+    return out
 
 
-def mixed_streams(rows, factor=10.0, streams=None):
+def mixed_streams(rows, factor=10.0, streams=None, year=None):
     """Comtrade routes for each mixed stream, in the site's route format.
 
     Returns ({stream: routes}, {stream: {"A": n, "B": n, "C": n}}).
@@ -344,11 +386,17 @@ def mixed_streams(rows, factor=10.0, streams=None):
     for k, codes in (streams or STREAMS).items():
         merged = {}
         rules[k] = {"A": 0, "B": 0, "C": 0, "D": 0}
-        for code in codes:
+        for spec in codes:
+            code, win = code_window(spec)
             sel = select(by_code.get(code, []))
-            changes, _ = clean(sel, factor, None if code in NO_RULE_D else 100.0)
+            changes, _ = clean(sel, factor, None if code in NO_RULE_D else 100.0,
+                               decisions=record_decisions(year, code) if year else None)
+            if win:
+                keep = {key for key, v in sel.items() if in_window(v, win)}
+                changes = [c for c in changes if c["key"] in keep]
+                sel = {key: v for key, v in sel.items() if key in keep}
             for c in changes:
-                rules[k][c["rule"]] += 1
+                rules[k][c["rule"]] = rules[k].get(c["rule"], 0) + 1
             for v, ex, rc, t, usd, est in routes_from(sel):
                 m = merged.setdefault((v, ex, rc), [v, ex, rc, 0.0, 0, 0])
                 m[3] = round(m[3] + t, 2)
@@ -537,14 +585,16 @@ def estimated_weights(year):
     return out
 
 
-def record_decisions(year):
-    """(reporter, flow, partner) -> action for this year's listed records in
-    pipeline/reference/record_decisions.json."""
+def record_decisions(year, cmd="3915"):
+    """(reporter, flow, partner) -> action for this year's listed records of one HS code
+    in pipeline/reference/record_decisions.json. A group without "cmd" is HS 3915."""
     path = REF / "record_decisions.json"
     if not path.exists():
         return {}
     out = {}
     for g in load(path)["groups"]:
+        if cmd not in g.get("cmd", ["3915"]):
+            continue
         for y, rep, flow, par in g.get("records", []):
             if y == year:
                 out[(rep, flow, par)] = g["action"]
@@ -565,7 +615,7 @@ def build_material(year, mat, factor=10.0, min_ratio=0.6):
     ref = load(REF / "countries.json")
     world = load(SITE_DATA / "world-110m.json")
     map_ids = {g.get("id") for g in world["objects"]["countries"]["geometries"]}
-    own, rules = mixed_streams(rows, factor, cfg["streams"])
+    own, rules = mixed_streams(rows, factor, cfg["streams"], year)
     ppath = SITE_DATA / f"plastic_{year}.json"
     plastic = load(ppath) if ppath.exists() else {"hidden": {}, "countries": {}, "meta": {}}
     borrowed = {k: plastic["hidden"].get(k, []) for k in cfg["borrow"]}

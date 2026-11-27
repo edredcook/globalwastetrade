@@ -1,7 +1,7 @@
-// Home, Plastics and Tyres pages: text, sources and charts. Data: data/stories.json (pipeline/build_stories.py).
+// Home, Plastics, Tyres and E-waste pages: text, sources and charts. Data: data/stories.json (pipeline/build_stories.py).
 // ---------------- page footer: last updated, cite this page, credits ----------------
 function renderFoot(DATA_BUILT){
-  const PAGES={home:{name:null,url:"https://globalwastetrade.org/",refs:"h-refs"},plastics:{name:"Plastics",url:"https://globalwastetrade.org/plastics.html",refs:"p-refs"},tyres:{name:"Used tyres and rubber",url:"https://globalwastetrade.org/tyres.html",refs:"t-refs"}};
+  const PAGES={home:{name:null,url:"https://globalwastetrade.org/",refs:"h-refs"},plastics:{name:"Plastics",url:"https://globalwastetrade.org/plastics.html",refs:"p-refs"},tyres:{name:"Used tyres and rubber",url:"https://globalwastetrade.org/tyres.html",refs:"t-refs"},ewaste:{name:"E-waste trade",url:"https://globalwastetrade.org/ewaste.html",refs:"e-refs"}};
   const M=["January","February","March","April","May","June","July","August","September","October","November","December"];
   const fmt=d=>`${d.getUTCDate()} ${M[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
   const now=new Date();
@@ -55,6 +55,8 @@ aperkoh:{t:"Aperkoh, P. and Perry, P. (2026) 'The final stop in the fast fashion
 cottom:{t:"Cottom, J.W., Cook, E. and Velis, C.A. (2024) 'A local-to-global emissions inventory of macroplastic pollution', Nature, 633(8028), pp. 101–108.",u:"https://doi.org/10.1038/s41586-024-07758-6"},
 waw3:{t:"Cook, E., Ionkova, K., Bhada-Tata, P., Yadav, S. and van Woerden, F. (2026) What a Waste 3.0: Global Snapshot of Solid Waste Management Toward Circularity until 2050. Urban Development Series. Washington, DC: World Bank. doi:10.1596/978-1-4648-2309-1.",u:"https://doi.org/10.1596/978-1-4648-2309-1"},
 interpol:{t:"INTERPOL (2020) Strategic analysis report: emerging criminal trends in the global plastic waste market since January 2018. Lyon: INTERPOL, August.",u:"https://www.interpol.int/en/News-and-Events/News/2020/INTERPOL-report-alerts-to-sharp-rise-in-plastic-waste-crime"},
+balde2022:{t:"Baldé, C.P., D'Angelo, E., Luda, V., Deubzer, O. and Kuehr, R. (2022) Global Transboundary E-waste Flows Monitor – 2022. Bonn: United Nations Institute for Training and Research (UNITAR).",u:"https://ewastemonitor.info/wp-content/uploads/2022/06/Global-TBM_webversion_june_2_pages.pdf"},
+lysaght:{t:"Lysaght, O., Forti, V., Bel, G. et al. (2026) E-waste Statistics: Guidelines on Classifications, Reporting and Indicators. 3rd edn. Bonn: UNITAR SCYCLE.",u:"https://doi.org/10.5281/zenodo.18328494"},
 gem:{t:"Baldé, C.P., Kuehr, R., Yamamoto, T., McDonald, R. et al. (2024) Global E-waste Monitor 2024. Geneva and Bonn: International Telecommunication Union and United Nations Institute for Training and Research.",u:"https://www.itu.int/pub/D-GEN-E_WASTE.01-2024"},
 pip:{t:"Odeyingbo, O., Nnorom, I. and Deubzer, O. (2017) Person in the Port Project: Assessing Import of Used Electrical and Electronic Equipment into Nigeria. Bonn: UNU-ViE SCYCLE and BCCC Africa.",u:"https://collections.unu.edu/view/UNU:6349"},
 eurostat:{t:"Eurostat (2026) EU trade since 1988 by HS2-4-6 and CN8 (DS-045409). Luxembourg: Eurostat. (Accessed: 25 November 2026).",u:"https://ec.europa.eu/eurostat/web/international-trade-in-goods/database"},
@@ -123,7 +125,7 @@ const TEXT={
 };
 
 // citation rendering: numbers in order of first use on each page
-const CITES={home:[],plastics:[],tyres:[]};
+const CITES={home:[],plastics:[],tyres:[],ewaste:["comtrade","balde2022","gem","lysaght"]};
 function cited(page,txt){
   txt=txt.replace(/((?:\[\[[^\]]+\]\])+)([,;:])/g,"$2$1");
   return txt.replace(/((?:\[\[[^\]]+\]\])+)/g,run=>'<span class="cites">'+citeRun(page,run)+'</span>');
@@ -167,14 +169,14 @@ const css=n=>getComputedStyle(cssEl()).getPropertyValue(n).trim();
 const fmtMt=t=>(t/1e6).toFixed(t>=1e8?0:1);
 const fmtBn=u=>(u/1e9).toFixed(u>=1e10?0:1);
 const VIEW={"0":"exporters' reports","1":"importers' reports","2":"resolved figures"};
-const S={hv:"2",hpk:"all",hps:"dest",pv:"2",pk:"all",hk:"in",pm:"t",ry:2023};
-let D,W,drawn={};
+const S={hv:"2",hpk:"all",hps:"dest",pv:"2",pk:"all",hk:"in",pm:"t",ry:2023,ey:"2023"};
+let D,W,G=null,drawn={};
 let cur=document.body.dataset.page;
 function show(){
   const p=cur;
   document.querySelectorAll("main.page").forEach(m=>m.classList.toggle("dk",plDark));
   pop.hidden=true;
-  if(D){ p==="home"?drawHome():p==="tyres"?drawTyres():drawPlastics(); }
+  if(D){ p==="home"?drawHome():p==="tyres"?drawTyres():p==="ewaste"?drawEwaste():drawPlastics(); }
   if(p!=="plastics") stopPlay();
 }
 document.querySelectorAll(".seg[data-k]").forEach(seg=>seg.addEventListener("click",e=>{
@@ -337,7 +339,7 @@ function paperChart(){
 function drawHome(){
   if(drawn.home) return; drawn.home=true;
   const i23=D.years.indexOf(2023), v=S.hv;
-  const order=[["Metals","--m1"],["Paper and card","--m2"],["Textiles","--m3"],["Plastic","--m4"],["Rubber and tyres","--m5"],["E-waste","--m6"]];
+  const order=[["Metals","--m1"],["Paper and card","--m2"],["Textiles","--m3"],["Plastic","--m4"],["Rubber and tyres","--m5"],["E-waste","--m6"],["Batteries","--m7"]];
   const tot=w=>order.reduce((s,k)=>s+D.materials[w][k[0]].t[i23],0);
   const usd=w=>order.reduce((s,k)=>s+D.materials[w][k[0]].usd[i23],0);
   document.getElementById("h-big").innerHTML=
@@ -831,5 +833,86 @@ function stopPlay(){clearInterval(bTimer);bTimer=null;const b=document.getElemen
 document.getElementById("b-play")?.addEventListener("click",e=>{if(bTimer){stopPlay();e.target.dataset.paused="1"}else startPlay()});
 document.getElementById("b-range")?.addEventListener("input",e=>{stopPlay();document.getElementById("b-play").dataset.paused="1";setYear(+e.target.value)});
 
-Promise.all([fetch("data/stories.json").then(r=>r.json()),fetch("data/world-110m.json").then(r=>r.json())]).then(([d,w])=>{D=d;W=w;renderFoot(d.built||"");show()});
+// ================= E-WASTE =================
+const EKEYS=[["epcb","Circuit-board scrap (HS 7112.99 at US$1 to 15 per kg)","--m1"],["eprec","Scrap for precious-metal recovery (HS 8549.21, 8549.29)","--m7"],["weee","Electronic assemblies and boards (HS 8549.31, 8549.39)","--m2"],["weeeo","Other electrical and electronic scrap (HS 8549.91, 8549.99)","--m6"]];
+const BKEYS=[["ball","All waste batteries, to 2021 (HS 8548.10)","--m5"],["bpba","Lead-acid (HS 8549.11)","--m1"],["bpbo","Other with lead, cadmium or mercury (HS 8549.12)","--d5"],["bsort","Sorted by type, no lead, cadmium or mercury (HS 8549.13)","--m6"],["bunsort","Unsorted, no lead, cadmium or mercury (HS 8549.14)","--m7"],["both","Other battery waste (HS 8549.19)","--m3"]];
+const IKEYS=[["H","High-income","--g-hic"],["U","Upper-middle-income","--g-umc"],["M","Lower-middle-income","--g-lmc"],["L","Low-income","--g-lic"]];
+const GINC={H:"HIC",U:"UMC",M:"LMC",L:"LIC"};
+const GREYLAB="Shipped as used goods, estimate (exporters' reports)";
+const greyAt=y=>G&&G.years.find(r=>r.year===y);
+const fmtR=(a,b)=>`${fmtMt(a)} to ${fmtMt(b)}`;
+function drawEwaste(){
+  if(drawn.ewaste) return; drawn.ewaste=true;
+  const v=S.pv, E=D.ewaste, n=D.years.length, i23=D.years.indexOf(2023);
+  const cust=i=>EKEYS.reduce((t,k)=>t+(E.streams[v][k[0]][i]||0),0);
+  const bat=i=>BKEYS.reduce((t,k)=>t+((E.batteries[v][k[0]]||[])[i]||0),0);
+  // tiles
+  const g23=greyAt(2023), ml=d3.sum(["U","M","L"],g=>E.toInc[v][g][i23]);
+  document.getElementById("e-tiles").innerHTML=
+    `<div class="all"><b class="num">${fmtMt(cust(i23))}<small>Mt</small></b><span>E-waste in customs records</span></div>`+
+    (g23?`<div><b class="num">${fmtR(g23.low_t,g23.high_t)}<small>Mt</small></b><span>Shipped as used goods (estimate)</span></div>`:"")+
+    `<div><b class="num">${Math.round(ml/cust(i23)*100)}%</b><span>In customs records, sent to middle- and low-income countries</span></div>`+
+    `<div><b class="num">${fmtMt(bat(i23))}<small>Mt</small></b><span>Waste batteries</span></div>`;
+  // 1. customs e-waste by type, with the used-goods estimate on top
+  const band=D.years.map((y,i)=>{const r=greyAt(y),b=cust(i);return r?{y,b,lo:b+r.low_t,mid:b+r.central_t,hi:b+r.high_t,r}:null});
+  const top=d3.max(D.years.map((y,i)=>band[i]?band[i].hi:cust(i)));
+  const ymax=d3.scaleLinear().domain([0,top*1.05]).nice(5).domain()[1];
+  legend("#e-all-leg",EKEYS);
+  d3.select("#e-all-leg").append("li").html(`<i style="background:var(--res);opacity:.45"></i><span>${GREYLAB}<small>(band: 33% to 70% of flagged used goods counted as e-waste; line: central estimate)</small></span>`);
+  const c=stackChart("#e-all",EKEYS,(k,i)=>E.streams[v][k][i],{ymax});
+  if(G){
+    const pts=band.filter(Boolean), {f,x,y}=c;
+    f.g.append("path").attr("d",d3.area().x(d=>x(d.y)).y0(d=>y(d.lo)).y1(d=>y(d.hi)).curve(d3.curveMonotoneX)(pts)).attr("fill",css("--res")).attr("opacity",.42);
+    f.g.append("path").attr("d",d3.line().x(d=>x(d.y)).y(d=>y(d.mid)).curve(d3.curveMonotoneX)(pts)).attr("fill","none").attr("stroke",css("--res")).attr("stroke-width",2).attr("stroke-dasharray","5 4");
+    const L=pts.find(d=>d.y===2019);
+    if(L&&innerWidth>760) f.g.append("text").attr("x",x(2019)).attr("y",y(L.hi)-10).attr("text-anchor","middle").attr("font-size",13.5).attr("font-weight",600).style("fill",css("--ink")).text("Shipped as used goods (estimate)");
+    // hover: one strip per year with every figure for that year
+    const w=x(2009)-x(2008);
+    f.g.selectAll(".hv").data(D.years).join("rect").attr("x",yy=>x(yy)-w/2).attr("y",0).attr("width",w).attr("height",f.ih).attr("fill","transparent")
+      .append("title").text((yy,i)=>{const b=band[i];return `${yy}${yy>=2026?" (modelled)":yy>=2025?" (partly modelled)":""}\n`+EKEYS.map(k=>`${k[1].replace(/ \(.*$/,"")}: ${fmtMt(E.streams[v][k[0]][i])} Mt`).join("\n")+
+        `\nIn customs records: ${fmtMt(cust(i))} Mt`+(b?`\nShipped as used goods (estimate): ${fmtR(b.r.low_t,b.r.high_t)} Mt, central ${fmtMt(b.r.central_t)} Mt`+(b.r.carried_t?`\n  of the flagged goods, ${Math.round(b.r.carried_t/b.r.scaled_t*100)}% carried forward from senders' earlier reports`:""):"")});
+  }
+  // 2. by receiving income group
+  legend("#e-inc-leg",IKEYS); legend("#e-ginc-leg",IKEYS);
+  stackChart("#e-inc",IKEYS,(k,i)=>E.toInc[v][k[0]][i],{h:innerWidth>760?300:240});
+  if(G) stackChart("#e-ginc",IKEYS,(k,i)=>{const r=greyAt(D.years[i]);return r?(r.to_income[GINC[k[0]]]||0):0},{h:innerWidth>760?300:240});
+  // 3. largest senders and receivers
+  const yr=+S.ey, iy=D.years.indexOf(yr), gy=greyAt(yr);
+  document.getElementById("e-top-title").textContent=`Largest senders and receivers of e-waste, ${yr}`;
+  const nm=c=>(E.names[c]||(G&&G.names[c])||c);
+  const TK=[["c","E-waste in customs records","--m2"],["g","Shipped as used goods (central estimate, line shows the range)","--res"]];
+  legend("#e-top-leg",TK);
+  [["from","#e-from"],["to","#e-to"]].forEach(([side,sel])=>{
+    const cu=Object.fromEntries((E[side][v][iy]||[]).map(([cc,t])=>[cc,t])), gr=gy?(gy[side]||{}):{};
+    const lo=gy?gy.low_t/gy.central_t:1, hi=gy?gy.high_t/gy.central_t:1;
+    const cs=[...new Set([...Object.keys(cu),...Object.keys(gr)])].map(cc=>({cc,c:cu[cc]||0,g:gr[cc]||0})).sort((a,b)=>(b.c+b.g)-(a.c+a.g)).slice(0,12);
+    ebars(sel,cs.map(r=>({label:nm(r.cc),c:r.c,g:r.g,glo:r.g*lo,ghi:r.g*hi})),TK);
+  });
+  // 4. batteries
+  legend("#e-bat-leg",BKEYS);
+  stackChart("#e-bat",BKEYS,(k,i)=>(E.batteries[v][k[0]]||[])[i]||0,{});
+  refList("ewaste","#e-refs");
+}
+function ebars(sel,rows,keys){
+  const rh=26, f=frame(sel,rows.length*rh+30,{t:4,r:64,b:24,l:innerWidth>760?170:120});
+  const max=d3.max(rows,r=>r.c+r.ghi)||1;
+  const x=d3.scaleLinear().domain([0,max]).nice(4).range([0,f.iw]);
+  const kt=t=>t>=1e6?fmtMt(t)+" Mt":Math.round(t/1e3)+" kt";
+  f.g.append("g").attr("class","ax").attr("transform",`translate(0,${rows.length*rh})`).call(d3.axisBottom(x).ticks(4).tickFormat(v=>v?kt(v):"0").tickSizeOuter(0));
+  rows.forEach((r,i)=>{
+    const g=f.g.append("g").attr("transform",`translate(0,${i*rh})`);
+    g.append("text").attr("x",-8).attr("y",rh/2+4).attr("text-anchor","end").attr("font-size",14).style("fill",css("--ink")).text(r.label);
+    g.append("rect").attr("x",0).attr("y",4).attr("height",rh-8).attr("width",x(r.c)).attr("fill",css(keys[0][2]));
+    if(r.g){
+      g.append("rect").attr("x",x(r.c)).attr("y",4).attr("height",rh-8).attr("width",x(r.c+r.g)-x(r.c)).attr("fill",css(keys[1][2])).attr("opacity",.75);
+      g.append("line").attr("x1",x(r.c+r.glo)).attr("x2",x(r.c+r.ghi)).attr("y1",rh/2).attr("y2",rh/2).attr("stroke",css("--ink")).attr("stroke-width",1.4);
+      [r.glo,r.ghi].forEach(t=>g.append("line").attr("x1",x(r.c+t)).attr("x2",x(r.c+t)).attr("y1",rh/2-5).attr("y2",rh/2+5).attr("stroke",css("--ink")).attr("stroke-width",1.4));
+    }
+    g.append("text").attr("x",x(r.c+Math.max(r.g,r.ghi))+6).attr("y",rh/2+4).attr("font-size",13).style("fill",css("--ink")).text(kt(r.c+r.g));
+    g.append("title").text(`${r.label}\nIn customs records: ${kt(r.c)}`+(r.g?`\nShipped as used goods (estimate): ${kt(r.glo)} to ${kt(r.ghi)}, central ${kt(r.g)}`:""));
+  });
+}
+
+Promise.all([fetch("data/stories.json").then(r=>r.json()),fetch("data/world-110m.json").then(r=>r.json()),
+  cur==="ewaste"?fetch("data/grey_ewaste.json").then(r=>r.json()).catch(()=>null):null]).then(([d,w,g])=>{D=d;W=w;G=g;renderFoot(d.built||"");show()});
 show();

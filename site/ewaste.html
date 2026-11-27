@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>E-waste trade · Global Waste Trade Data Hub</title>
+<meta name="description" content="E-waste traded between countries since 2008: customs records of e-waste and circuit-board scrap, an estimate of e-waste shipped as used goods, and waste batteries.">
+<link rel="canonical" href="https://globalwastetrade.org/ewaste.html">
+<meta property="og:site_name" content="Global Waste Trade Data Hub">
+<meta property="og:title" content="E-waste trade · Global Waste Trade Data Hub">
+<meta property="og:description" content="E-waste traded between countries since 2008: customs records of e-waste and circuit-board scrap, an estimate of e-waste shipped as used goods, and waste batteries.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://globalwastetrade.org/ewaste.html">
+<meta property="og:image" content="https://globalwastetrade.org/img/social-card.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Map of waste trade routes between countries">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#13212a">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,500..900&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="stories.css?v=3">
+</head>
+<body data-page="ewaste">
+
+<header class="mast"><div class="wrap">
+  <a class="brand" href="./"><i aria-hidden="true"></i>Global Waste Trade Data Hub</a>
+  <span class="betab">Beta</span>
+  <nav class="top" aria-label="Pages"><a href="./">Home</a><a href="plastics.html">Plastics</a><a href="tyres.html">Tyres</a><a href="ewaste.html" aria-current="page">E-waste</a><a href="explorer.html">Explorer</a><a href="trends.html">Trends</a><a href="validation.html">Validation</a><a href="about.html">About</a></nav>
+</div></header>
+
+<main class="page dk" id="p-ewaste">
+  <section class="wrap p-hero">
+    <div><h1>E-waste trade</h1></div>
+    <div>
+      <div class="c-row" style="margin:0 0 10px"><span class="c-kicker" style="margin:0" id="e-tiles-title">E-waste traded, 2023</span><div class="ctl"><div class="seg" data-k="pv"><button aria-pressed="false" data-v="0">Exporters'</button><button aria-pressed="false" data-v="1">Importers'</button><button aria-pressed="true" data-v="2" title="Resolved: the mean of the two reports where both countries report, otherwise whichever reported. The method is still being agreed.">Resolved</button></div></div></div>
+      <div class="p-tiles" id="e-tiles"></div>
+    </div>
+  </section>
+  <section class="wrap" style="padding-bottom:34px">
+    <div class="card">
+      <header><h2>E-waste traded: customs records and shipments as used goods</h2>
+        <div class="ctls"><div class="ctl"><span>Reporter type</span><div class="seg" data-k="pv"><button aria-pressed="false" data-v="0">Exporters'</button><button aria-pressed="false" data-v="1">Importers'</button><button aria-pressed="true" data-v="2" title="Resolved: the mean of the two reports where both countries report, otherwise whichever reported. The method is still being agreed.">Resolved</button></div></div></div></header>
+      <svg class="chart" id="e-all" role="img" aria-label="E-waste traded each year, 2008 to 2026: customs records by type, and an estimate with its range for e-waste shipped as used goods"></svg>
+      <ul class="legend below" id="e-all-leg"></ul>
+    </div>
+  </section>
+  <section class="wrap">
+    <div class="p-sec">
+      <div class="p-grid2">
+        <div class="card"><header><h2>E-waste in customs records, by the receiving country's income group</h2></header>
+          <svg class="chart" id="e-inc" role="img" aria-label="E-waste in customs records each year by the receiving country's income group"></svg><ul class="legend below" id="e-inc-leg"></ul></div>
+        <div class="card"><header><h2>E-waste shipped as used goods, by the receiving country's income group (estimate)</h2></header>
+          <svg class="chart" id="e-ginc" role="img" aria-label="Estimated e-waste shipped as used goods each year by the receiving country's income group"></svg><ul class="legend below" id="e-ginc-leg"></ul></div>
+      </div>
+    </div>
+    <div class="p-sec">
+      <div class="card"><header><h2 id="e-top-title">Largest senders and receivers of e-waste, 2023</h2>
+        <div class="ctls"><div class="ctl"><span>Year</span><div class="seg" data-k="ey"><button aria-pressed="false" data-v="2019">2019</button><button aria-pressed="false" data-v="2022">2022</button><button aria-pressed="true" data-v="2023">2023</button><button aria-pressed="false" data-v="2024">2024</button></div></div><div class="ctl"><span>Reporter type</span><div class="seg" data-k="pv"><button aria-pressed="false" data-v="0">Exporters'</button><button aria-pressed="false" data-v="1">Importers'</button><button aria-pressed="true" data-v="2" title="Resolved: the mean of the two reports where both countries report, otherwise whichever reported. The method is still being agreed.">Resolved</button></div></div></div></header>
+        <div class="p-grid2"><div><h3 class="e-sub">Senders</h3><svg class="chart" id="e-from" role="img" aria-label="Largest senders of e-waste"></svg></div>
+          <div><h3 class="e-sub">Receivers</h3><svg class="chart" id="e-to" role="img" aria-label="Largest receivers of e-waste"></svg></div></div>
+        <ul class="legend below" id="e-top-leg"></ul>
+      </div>
+    </div>
+    <div class="p-sec">
+      <div class="card"><header><h2>Waste batteries traded, by type</h2>
+        <div class="ctls"><div class="ctl"><span>Reporter type</span><div class="seg" data-k="pv"><button aria-pressed="false" data-v="0">Exporters'</button><button aria-pressed="false" data-v="1">Importers'</button><button aria-pressed="true" data-v="2" title="Resolved: the mean of the two reports where both countries report, otherwise whichever reported. The method is still being agreed.">Resolved</button></div></div></div></header>
+        <svg class="chart" id="e-bat" role="img" aria-label="Waste batteries traded each year by type, 2008 to 2026"></svg>
+        <ul class="legend below" id="e-bat-leg"></ul>
+      </div>
+    </div>
+
+    <div class="refs" id="e-refs"><h2>Sources</h2><ol></ol></div>
+    <footer class="pfoot" data-page="ewaste" data-updated="2026-11-27"></footer>
+  </section>
+</main>
+
+<div id="pop" hidden role="dialog" aria-label="Source"></div>
+<script src="vendor/d3-7.8.5.min.js"></script>
+<script src="vendor/topojson-client.min.js"></script>
+<script src="stories.js?v=4"></script>
+</body>
+</html>

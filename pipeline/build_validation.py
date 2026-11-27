@@ -170,6 +170,8 @@ def build():
         row = {
             "group": c["group"], "label": c["label"],
             "year": f"{ys[0]}–{ys[-1]}" if len(ys) > 1 else ys[0],
+            # A published figure for another year, compared as a ballpark (Ed, 27 Nov 2026).
+            **({"year": f"{c['published_year']} (site: {ys[0]})"} if c.get("published_year") else {}),
             "unit": unit, "published": pub, "source": c["source"],
             "x": rnd(x, unit), "m": rnd(m, unit),
             "dx": diff(x, pub), "dm": diff(m, pub),

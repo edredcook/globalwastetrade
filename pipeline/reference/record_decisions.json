@@ -1,5 +1,5 @@
 {
- "_about": "Ed Cook's decisions on HS 3915 records whose US$ per tonne is more than 10 times away from the median and that no partner report can fix (cleaning rule C). build_site_data.py applies 'weight_from_value' records as rule F: the reported value is kept and the weight becomes value / that flow's median US$ per tonne. 'keep' records stay as reported. Records listed by [year, reporter, flow, partner] using Comtrade codes. Groups with 'match' instead of 'records' cover every other flagged record of that kind. pipeline/build_flags.py writes every cleaned or flagged record, with its group and decision, to site/data/flagged_records.csv.",
+ "_about": "Ed Cook's decisions on records whose US$ per tonne is more than 10 times away from the median and that no partner report can fix (cleaning rule C). build_site_data.py applies 'weight_from_value' records as rule F: the reported value is kept and the weight becomes value / that flow's median US$ per tonne. 'keep' records stay as reported. Records listed by [year, reporter, flow, partner] using Comtrade codes. Groups with 'match' instead of 'records' cover every other flagged record of that kind. pipeline/build_flags.py writes every cleaned or flagged record, with its group and decision, to site/data/flagged_records.csv. A group with 'cmd' covers those HS codes instead of HS 3915.",
  "reviewed": "27 November 2026",
  "groups": [
   {
@@ -256,6 +256,44 @@
    "agreed": "Ed Cook, 27 November 2026",
    "reason": "Price more than 10 times the median. Re-estimating from value would add about 0.9 Mt across all years, including tonnes of goods that may not be waste.",
    "match": "high_price"
+  },
+  {
+   "id": "nl-batteries",
+   "title": "Netherlands' exports of waste batteries to Germany",
+   "verdict": "Mistakes in the Netherlands' reported weights",
+   "action": "weight_from_value",
+   "agreed": "Ed Cook, 27 November 2026",
+   "reason": "339 kt (2021), 262 kt (2023), 415 kt (2024) and 382 kt (2025) at US$50 to 130 a tonne, against about US$900 a tonne in other years. The values are normal, and Germany reports importing about 25 to 32 kt of waste batteries a year from the Netherlands.",
+   "cmd": [
+    "854810",
+    "854912"
+   ],
+   "records": [
+    [
+     2021,
+     528,
+     "X",
+     276
+    ],
+    [
+     2023,
+     528,
+     "X",
+     276
+    ],
+    [
+     2024,
+     528,
+     "X",
+     276
+    ],
+    [
+     2025,
+     528,
+     "X",
+     276
+    ]
+   ]
   }
  ]
 }

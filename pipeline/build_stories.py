@@ -1,4 +1,4 @@
-"""Build site/data/stories.json for the Home, Plastics and Tyres pages.
+"""Build site/data/stories.json for the Home, Plastics, Tyres and E-waste pages.
 
 Reads the per-stream flow files written by build_site_data.py (site/data/flows*.json and the
 country files) and pre-computes every series those pages draw, for each reporter type:
@@ -60,7 +60,7 @@ def stage1(store):
         hic[v]=[[round(x) for x in r] for r in hh]; routes[v]=rr
     out['dest']=dest; out['hic']=hic; out['routes']=routes
     G={'Metals':['fe','ss','al','cu','pb','zn','ni','sn','pm','om'],'Paper and card':['pkraft','pbleach','pmech','pmixed'],
-    'Textiles':['clothing','rags','fibre','tartif','tcotton','twool','tsilk'],'Plastic':['flows'],'Rubber and tyres':['tyres','rubber','hardrubber'],'E-waste':['weee','weeeo','ebatt','eprec']}
+    'Textiles':['clothing','rags','fibre','tartif','tcotton','twool','tsilk'],'Plastic':['flows'],'Rubber and tyres':['tyres','rubber','hardrubber'],'E-waste':['weee','weeeo','eprec','epcb'],'Batteries':['bpba','bpbo','bsort','bunsort','both','ball']}
     mat={'0':{},'1':{}}
     paper={}
     cache={}
@@ -181,7 +181,7 @@ def stage3(store):
             u=(r[2]+r[3])/2 if r[2]>0 and r[3]>0 else max(r[2],r[3])
             yield key[0],key[1],t,u
     G={'Metals':['fe','ss','al','cu','pb','zn','ni','sn','pm','om'],'Paper and card':['pkraft','pbleach','pmech','pmixed'],
-    'Textiles':['clothing','rags','fibre','tartif','tcotton','twool','tsilk'],'Plastic':['flows'],'Rubber and tyres':['tyres','rubber','hardrubber'],'E-waste':['weee','weeeo','ebatt','eprec']}
+    'Textiles':['clothing','rags','fibre','tartif','tcotton','twool','tsilk'],'Plastic':['flows'],'Rubber and tyres':['tyres','rubber','hardrubber'],'E-waste':['weee','weeeo','eprec','epcb'],'Batteries':['bpba','bpbo','bsort','bunsort','both','ball']}
     mat={}
     for g,ss in G.items():
         T=[0]*n;U=[0]*n
@@ -422,9 +422,62 @@ def stage8(store):
 
 
 
+def stage9(store):
+    # E-waste page: customs e-waste and circuit-board scrap by stream, by the receiver's income
+    # group and by sender and receiver; waste batteries by type; every view, every year.
+    EW = ['eprec', 'weee', 'weeeo', 'epcb']
+    BT = ['bpba', 'bpbo', 'bsort', 'bunsort', 'both', 'ball']
+    cache = {s: json.load(open(D + f'flows_{s}.json')) for s in EW + BT if os.path.exists(D + f'flows_{s}.json')}
+    if not all(s in cache for s in EW):
+        return
+    ys = cache['epcb']['years']; n = len(ys)
+    inc = {}
+    for d in cache.values():
+        for c, ii in zip(d['codes'], d['inc']): inc[c] = ii
+    def view(d, v, i):
+        out = {}
+        for part in ('flows', 'imputed'):
+            A = d.get(part, {}).get(v, [[]] * n)[i]
+            for k in range(0, len(A), 4):
+                key = (d['codes'][A[k]], d['codes'][A[k + 1]]); out[key] = out.get(key, 0) + A[k + 2]
+        return out
+    def routes(s, v, i):
+        if v != '2':
+            return view(cache[s], v, i)
+        x = view(cache[s], '0', i); m = view(cache[s], '1', i)
+        return {k: ((x[k] + m[k]) / 2 if k in x and k in m else x.get(k, m.get(k))) for k in set(x) | set(m)}
+    ew = {'streams': {}, 'toInc': {}, 'from': {}, 'to': {}, 'batteries': {}}
+    for v in '012':
+        st = {s: [0] * n for s in EW}; ti = {g: [0] * n for g in 'HUML'}
+        fr = [dict() for _ in range(n)]; to = [dict() for _ in range(n)]
+        bt = {s: [0] * n for s in BT if s in cache}
+        for i in range(n):
+            for s in EW:
+                for (a, b), t in routes(s, v, i).items():
+                    if a == b: continue
+                    st[s][i] += t
+                    g = (inc.get(b) or 'N' * n)[i]
+                    if g in ti: ti[g][i] += t
+                    fr[i][a] = fr[i].get(a, 0) + t; to[i][b] = to[i].get(b, 0) + t
+            for s in bt:
+                for (a, b), t in routes(s, v, i).items():
+                    if a != b: bt[s][i] += t
+        top = lambda dd: [[c, round(t)] for c, t in sorted(dd.items(), key=lambda kv: -kv[1])[:15] if t >= 500]
+        ew['streams'][v] = {s: [round(x) for x in a] for s, a in st.items()}
+        ew['toInc'][v] = {g: [round(x) for x in a] for g, a in ti.items()}
+        ew['from'][v] = [top(dd) for dd in fr]; ew['to'][v] = [top(dd) for dd in to]
+        ew['batteries'][v] = {s: [round(x) for x in a] for s, a in bt.items()}
+    names = {}
+    for d in cache.values():
+        for c, nm in zip(d['codes'], d['names']): names[c] = nm[1]
+    ew['names'] = names
+    ew['inc'] = {c: ii for c, ii in inc.items()}
+    store['ewaste'] = ew
+
+
 def build():
     store = {}
-    for stage in (stage1, stage2, stage3, stage4, stage5, stage6, stage7, stage8):
+    for stage in (stage1, stage2, stage3, stage4, stage5, stage6, stage7, stage8, stage9):
         stage(store)
     store["built"] = datetime.date.today().isoformat()
     return store

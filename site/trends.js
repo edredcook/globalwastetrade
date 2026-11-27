@@ -16,9 +16,10 @@ const MATS=[
   ["Rubber and tyres",[["tyres","Used tyres","HS 4012.20"],["rubber","Rubber waste and scrap","HS 4004"],["hardrubber","Hard rubber","HS 4017"]],OEP],
   ["Paper and card",[["paper","Paper and card (plastic contamination)","HS 4707"]],OEP],
   ["Paper and card grades",[["pkraft","Kraft and corrugated","HS 4707.10"],["pbleach","Bleached paper and board","HS 4707.20"],["pmech","Newspapers and magazines","HS 4707.30"],["pmixed","Mixed and unsorted","HS 4707.90"]]],
-  ["Metals",[["fe","Iron and steel","HS 7204, not 7204.21"],["ss","Stainless steel","HS 7204.21"],["al","Aluminium","HS 7602"],["cu","Copper","HS 7404"],["pb","Lead","HS 7802"],["zn","Zinc","HS 7902"],["ni","Nickel","HS 7503"],["sn","Tin","HS 8002"],["pm","Precious metals","HS 7112.91 to 7112.99"],["om","Other metals","HS 81 waste and scrap"]]],
+  ["Metals",[["fe","Iron and steel","HS 7204, not 7204.21"],["ss","Stainless steel","HS 7204.21"],["al","Aluminium","HS 7602"],["cu","Copper","HS 7404"],["pb","Lead","HS 7802"],["zn","Zinc","HS 7902"],["ni","Nickel","HS 7503"],["sn","Tin","HS 8002"],["pm","Precious metals","HS 7112.91, 7112.92, 7112.99 outside US$1 to 15 per kg"],["om","Other metals","HS 81 waste and scrap"]]],
   ["Other textiles",[["tartif","Artificial fibres","HS 5505.20"],["tcotton","Cotton","HS 5202"],["twool","Wool and animal hair","HS 5103, 5104"],["tsilk","Silk and flax","HS 5003, 5301.30"]]],
-  ["Other e-waste",[["ebatt","Batteries","HS 8549.11 to 8549.19, 8548.10"],["eprec","Scrap for precious-metal recovery","HS 8549.21, 8549.29"]]]];
+  ["Other e-waste",[["eprec","Scrap for precious-metal recovery","HS 8549.21, 8549.29"],["epcb","Circuit-board scrap","HS 7112.99 at US$1 to 15 per kg"]]],
+  ["Batteries",[["bpba","Lead-acid batteries","HS 8549.11"],["bpbo","Other batteries with lead, cadmium or mercury","HS 8549.12"],["bsort","Sorted by type, no lead, cadmium or mercury","HS 8549.13"],["bunsort","Unsorted, no lead, cadmium or mercury","HS 8549.14"],["both","Other battery waste","HS 8549.19"],["ball","All waste batteries (to 2021)","HS 8548.10"]]]];
 const MATN=Object.fromEntries(MATS.flatMap(g=>g[1].map(([k,n])=>[k,n])));
 const MATC=Object.fromEntries(MATS.flatMap(g=>g[1].map(([k,,c])=>[k,c])));
 const STREAMS=MATS.flatMap(g=>g[1].map(i=>i[0])).filter(k=>k!=="all");
@@ -28,7 +29,7 @@ const POLYK=["pe","ps","pvc","pother"];
 const SHARE={plastic:1,clothing:.65,rags:.65,fibre:1,weee:.247,weeeo:.247,rdf:.3325,tyres:1,rubber:1,hardrubber:1,paper:.02};
 // Streams of the other material groups carry no plastic share here; "All plastic" leaves them out.
 const PSTREAMS=STREAMS.filter(k=>SHARE[k]);
-const MATCOL={pe:"#b8460f",ps:"#f4a261",pvc:"#6a3d9a",pother:"#2a9d8f",pkraft:"#9c755f",pbleach:"#edc948",pmech:"#c9b27a",pmixed:"#bab0ac",fe:"#4e79a7",ss:"#a0cbe8",al:"#86bcb6",cu:"#d37295",pb:"#5f5f5f",zn:"#76b7b2",ni:"#59a14f",sn:"#8cd17d",pm:"#f1ce63",om:"#b6992d",tartif:"#d4a6c8",tcotton:"#499894",twool:"#a47764",tsilk:"#f28e2b",ebatt:"#9d7660",eprec:"#d7b5a6",plastic:"#e0531f",clothing:"#4e79a7",rags:"#76b7b2",fibre:"#b07aa1",weee:"#59a14f",weeeo:"#8cd17d",rdf:"#9c755f",tyres:"#3d3d3d",rubber:"#8a8a8a",hardrubber:"#5f5f5f",paper:"#edc948"};
+const MATCOL={pe:"#b8460f",ps:"#f4a261",pvc:"#6a3d9a",pother:"#2a9d8f",pkraft:"#9c755f",pbleach:"#edc948",pmech:"#c9b27a",pmixed:"#bab0ac",fe:"#4e79a7",ss:"#a0cbe8",al:"#86bcb6",cu:"#d37295",pb:"#5f5f5f",zn:"#76b7b2",ni:"#59a14f",sn:"#8cd17d",pm:"#f1ce63",om:"#b6992d",tartif:"#d4a6c8",tcotton:"#499894",twool:"#a47764",tsilk:"#f28e2b",eprec:"#d7b5a6",epcb:"#9d7660",bpba:"#5f5f5f",bpbo:"#e15759",bsort:"#59a14f",bunsort:"#edc948",both:"#bab0ac",ball:"#8a8a8a",plastic:"#e0531f",clothing:"#4e79a7",rags:"#76b7b2",fibre:"#b07aa1",weee:"#59a14f",weeeo:"#8cd17d",rdf:"#9c755f",tyres:"#3d3d3d",rubber:"#8a8a8a",hardrubber:"#5f5f5f",paper:"#edc948"};
 const GL=["H","U","M","L","N"],GKEY={HIC:"H",UMC:"U",LMC:"M",LIC:"L",NS:"N"};
 const GC={H:"--g-hic",U:"--g-umc",M:"--g-lmc",L:"--g-lic",N:"--g-ns"};
 const GN={H:"High income",U:"Upper-middle income",M:"Lower-middle income",L:"Low income",N:"Not classified"};
@@ -172,8 +173,15 @@ function chartA(){const el=$("#cA");const w0=sl(A[0].tot),w1=sl(A[1].tot),w2=sl(
   {const u=unit(),t0=sl(A[0].ti),t1=sl(A[1].ti);ROWS.A=()=>[["year","modelled","exporters_reports_"+u,"importers_reports_"+u,"resolved_"+u,...(S.imp==="1"?["imputed_in_exporters_reports_"+u,"imputed_in_importers_reports_"+u]:[])],
     Y.map((y,i)=>({year:y,modelled:D.modelled.includes(y)?"yes":"",["exporters_reports_"+u]:rnd(w0[i]),["importers_reports_"+u]:rnd(w1[i]),["resolved_"+u]:rnd(w2[i]),["imputed_in_exporters_reports_"+u]:rnd(t0[i]),["imputed_in_importers_reports_"+u]:rnd(t1[i])}))]}
   const f=frame(el,300,{l:62,r:120,t:30,b:28});const {svg,x}=f;
-  const y=d3.scaleLinear().domain([0,(d3.max([...w0,...w1,...w2])||1)*1.08]).nice().range([300-28,30]);
+  const gr=greyRows(),gs=W[S.v],ghi=gr?Y.map((yy,i)=>gs[i]+gr[i].high_t):[];
+  const y=d3.scaleLinear().domain([0,(d3.max([...w0,...w1,...w2,...ghi])||1)*1.08]).nice().range([300-28,30]);
   axes(f,y,fAx);marks(f);
+  if(gr){const c=css("--res"),at=k=>Y.map((yy,i)=>gs[i]+gr[i][k]),lo=at("low_t"),mid=at("central_t");
+    const g=svg.append("g").attr("data-k","grey");g.append("title").text("Estimate, not customs records: the Global E-waste Monitor's method (Baldé et al. 2022). Exports of electrical goods from high-income countries priced far below normal, scaled so that 2019 matches its 3.3 Mt, of which 33 to 70% is e-waste. The band is that range, added to the customs figures.");
+    g.append("path").attr("fill",c).attr("opacity",.16).attr("stroke","none").attr("d",d3.area().x((d,i)=>x(Y[i])).y0((d,i)=>y(lo[i])).y1((d,i)=>y(ghi[i])).curve(d3.curveMonotoneX)(Y));
+    g.append("path").attr("fill","none").attr("stroke",c).attr("stroke-width",1.4).attr("stroke-dasharray","2 4").attr("d",d3.line().x((d,i)=>x(Y[i])).y((d,i)=>y(mid[i])).curve(d3.curveMonotoneX)(Y));
+    g.append("text").attr("class","lbl").attr("x",x(LAST)+8).attr("y",y(ghi[N-1])-12).attr("fill",c).text("With e-waste shipped").append("tspan").attr("x",x(LAST)+8).attr("dy",13).text("as used goods (est.)");
+    const R0=ROWS.A;ROWS.A=()=>{const [h,r]=R0();return [h.concat(["ewaste_as_used_goods_low_t","ewaste_as_used_goods_central_t","ewaste_as_used_goods_high_t"]),r.map((o,i)=>({...o,ewaste_as_used_goods_low_t:gr[i].low_t,ewaste_as_used_goods_central_t:gr[i].central_t,ewaste_as_used_goods_high_t:gr[i].high_t}))]}}
   if(S.imp==="1"&&S.v!==2){const s=W[S.v],ti=sl(A[S.v].ti);ensureHatch(svg);
     svg.append("path").attr("fill","url(#mhatch)").attr("stroke","none").attr("d",d3.area().x((d,i)=>x(Y[i])).y0((d,i)=>y(s[i]-ti[i])).y1(d=>y(d)).curve(d3.curveMonotoneX)(s))}
   const LN=[[0,w0,"--out","Exporters' reports",null],[1,w1,"--in","Importers' reports","5 4"],[2,w2,"--res","Resolved","1.5 3.5"]];
@@ -188,7 +196,12 @@ function chartA(){const el=$("#cA");const w0=sl(A[0].tot),w1=sl(A[1].tot),w2=sl(
   const s=W[S.v],pk=d3.maxIndex(s);
   if(N>2&&s[pk])svg.append("text").attr("class","lbl").attr("x",Math.min(x(Y[pk]),f.W-200)).attr("y",y(s[pk])-10).attr("text-anchor","middle").attr("fill",css("--ink")).text("Peak "+fV(s[pk])+", "+Y[pk]);
   const t0=sl(A[0].ti),t1=sl(A[1].ti),im=i=>S.imp==="1"&&S.v!==2?[t0,t1][S.v][i]:0;
-  hover(f,i=>`<b>${Y[i]}${D.modelled.includes(Y[i])?" (modelled)":""}</b><br>Exporters' reports ${fV(w0[i])}<br>Importers' reports ${fV(w1[i])}<br>Resolved ${fV(w2[i])}${im(i)?`<br>of which imputed ${fV(im(i))}`:""}`)}
+  hover(f,i=>`<b>${Y[i]}${D.modelled.includes(Y[i])?" (modelled)":""}</b><br>Exporters' reports ${fV(w0[i])}<br>Importers' reports ${fV(w1[i])}<br>Resolved ${fV(w2[i])}${im(i)?`<br>of which imputed ${fV(im(i))}`:""}${gr?`<br>E-waste shipped as used goods, estimate: ${fV(gr[i].low_t)} to ${fV(gr[i].high_t)}`:""}`)}
+// The Global E-waste Monitor's estimate of e-waste shipped as used goods, added as a band to the
+// world total of e-waste in whole tonnes. It has no routes, so any filter or other material hides it.
+const EWK=["eprec","epcb","weee","weeeo"];
+function greyRows(){if(!GREY||S.m!=="t"||S.count!=="whole"||!S.mats.length||!S.mats.every(k=>EWK.includes(k))||S.from.length||S.to.length||S.ts||S.tr||S.xr||S.xi||S.xm||S.xe)return null;
+  const by=new Map(GREY.years.map(r=>[r.year,r]));if(!Y.every(y=>by.has(y)))return null;return Y.map(y=>by.get(y))}
 
 const BTITLE={rg:"Where it goes",sg:"Where it comes from",rr:"Where it goes",sr:"Where it comes from",mt:"By material"};
 function chartB(){const el=$("#cB");$("#hB").textContent=BTITLE[S.split];const sp=cur().split,inc=S.split[1]==="g",mt=S.split==="mt";
@@ -373,7 +386,7 @@ function slope(el,rows){const W=Math.max(320,el.clientWidth||700),narrow=W<600,H
 // ---------- saving ----------
 // Every chart saves as PNG, SVG (title, legend and a source caption) and CSV.
 const CITE="Cook, E. (2026) Global Waste Trade Data Hub. Available at: https://globalwastetrade.org. Licence: CC BY 4.0";
-const ROWS={};
+const ROWS={};let GREY=null;
 const unit=()=>S.m==="usd"?"usd":"t";
 const rnd=v=>v==null?"":Math.round(v);
 const wide=(list,who)=>[[who,"iso3","figures",...Y.map(String)],list.map(d=>Object.assign({[who]:name(d.j),iso3:D.names[d.j][0],figures:VN[S.v]},Object.fromEntries(Y.map((y,i)=>[String(y),rnd(d.s[i])]))))];
@@ -556,6 +569,7 @@ let rt;addEventListener("resize",()=>{clearTimeout(rt);rt=setTimeout(()=>D&&draw
 matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>D&&drawTab());
 S.gq="";
 try{const r=await fetch("data/oecd.json",{cache:"no-cache"});if(r.ok)OECD=(await r.json()).members||{}}catch(e){}
+try{const r=await fetch("data/grey_ewaste.json",{cache:"no-cache"});if(r.ok)GREY=await r.json()}catch(e){}
 await setMats();
 if(location.hash){const t=document.getElementById(location.hash.slice(1));if(t)requestAnimationFrame(()=>t.scrollIntoView())}
 })();

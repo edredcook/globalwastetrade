@@ -7,7 +7,7 @@ from pathlib import Path
 
 SITE = Path(__file__).resolve().parents[2] / "site"
 BASE = "https://globalwastetrade.org/"
-PAGES = {"index.html": "", "plastics.html": "plastics.html", "tyres.html": "tyres.html", "explorer.html": "explorer.html",
+PAGES = {"index.html": "", "plastics.html": "plastics.html", "tyres.html": "tyres.html", "ewaste.html": "ewaste.html", "explorer.html": "explorer.html",
          "trends.html": "trends.html", "validation.html": "validation.html", "about.html": "about.html"}
 
 
