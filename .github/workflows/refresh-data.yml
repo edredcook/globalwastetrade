@@ -32,6 +32,7 @@ jobs:
           KCS_SERVICE_KEY: ${{ secrets.KCS_SERVICE_KEY }}
           MIXED: 550510,6309,6310,854931,854939,854991,854999,382510,4707,401220,4004,401700
           MATERIALS: paper metals textiles ewaste
+          POLY: 391510,391520,391530,391590
         run: |
           # Codes of each other material group, from build_site_data.MATERIALS
           codes() { python -c "import sys; sys.path.insert(0, 'pipeline'); import build_site_data as b; print(','.join(b.material_codes('$1')))"; }
@@ -46,6 +47,12 @@ jobs:
               echo "$y: no download of the mixed streams" >> failed.txt; continue
             fi
             python pipeline/build_site_data.py --year "$y" || echo "$y: build stopped, see the report" >> failed.txt
+            # HS 3915 by polymer (shares only)
+            if python pipeline/fetch_comtrade.py --year "$y" --name poly --cmd "$POLY"; then
+              python pipeline/build_site_data.py --year "$y" --polymers || echo "$y polymers: build stopped" >> failed.txt
+            else
+              echo "$y: no download of HS 3915 by polymer" >> failed.txt
+            fi
             for m in $MATERIALS; do
               if python pipeline/fetch_comtrade.py --year "$y" --name "$m" --cmd "$(codes $m)"; then
                 python pipeline/build_site_data.py --year "$y" --material "$m" || echo "$y $m: build stopped, see the report" >> failed.txt
@@ -73,6 +80,13 @@ jobs:
           done; done
           python pipeline/fetch_national.py --source all $MONTHS || echo "national data: some months not fetched" >> failed.txt
           for y in $((Y-1)) $Y; do
+            # Polymer shares for reporters with no annual return yet, from their months so far
+            if python pipeline/fetch_comtrade.py --year "$y" --monthly --name poly --cmd "$POLY"; then
+              [ -f "pipeline/raw/comtrade_poly_${y}.json" ] || python pipeline/fetch_comtrade.py --year "$y" --name poly --cmd "$POLY" || true
+              python pipeline/build_site_data.py --year "$y" --polymers || echo "$y polymers (months): build stopped" >> failed.txt
+            else
+              echo "$y: no monthly download of HS 3915 by polymer" >> failed.txt
+            fi
             if python pipeline/model_part_year.py --year "$y" && python pipeline/model_part_year.py --year "$y" --name mixed; then
               python pipeline/build_site_data.py --year "$y" || echo "$y (modelled): build stopped, see the report" >> failed.txt
             else

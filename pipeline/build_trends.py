@@ -16,7 +16,9 @@ reported exports and imports each year, and what partners recorded with those wh
 It also writes site/data/flows.json and flows_<stream>.json: every route for every
 year, per view, so the Trends page can filter by country, region and income group,
 with the imputed routes for economies that did not report (see impute.py) kept apart
-under "imputed". site/data/imputed_<year>.json holds the same imputed routes for the
+under "imputed". HS 3915 is also split by polymer (see polymers.py) into
+trends_<polymer>.json and flows_<polymer>.json, reported and imputed routes alike.
+site/data/imputed_<year>.json holds the same imputed routes for the
 explorer, and manifest.json gets "default": the most recent year with normal coverage.
 """
 import csv
@@ -26,6 +28,7 @@ from pathlib import Path
 
 from build_site_data import MATERIALS
 from impute import impute
+import polymers
 
 GROUPS = ["HIC", "UMC", "LMC", "LIC", "NS"]
 SITE_DATA = Path(__file__).resolve().parent.parent / "site" / "data"
@@ -85,7 +88,8 @@ def flows(years, per_year, schemes, imputed=None, modelled=()):
     """Compact route table. flows[view][i] is a flat list [ex, rc, tonnes, kUS$, ...] for
     year i, with ex and rc as indexes into codes. inc[k] holds one letter per year
     (H, U, M, L, N) for that year's World Bank group."""
-    codes = sorted({str(c) for routes, _ in per_year for r in routes for c in (r[1], r[2])}, key=int)
+    codes = sorted({str(c) for routes in [r for r, _ in per_year] + list(imputed or []) for r in routes
+                    for c in (r[1], r[2])}, key=int)
     idx = {c: k for k, c in enumerate(codes)}
     names, inc = {}, {c: ["N"] * len(years) for c in codes}
     for i, (_, cs) in enumerate(per_year):
@@ -236,6 +240,18 @@ def main():
     write("flows.json", flows(years, per, schemes, imp, modelled))
     write("oecd.json", oecd_members())
     by_year = [{"plastic": rs} for rs in imp]
+    # HS 3915 by polymer: every route, reported and imputed, split in its polymer shares.
+    pidx = []
+    for y in years:
+        p = SITE_DATA / f"polymers_{y}.json"
+        pidx.append(polymers.index(json.loads(p.read_text(encoding="utf-8"))["routes"]) if p.exists() else None)
+    if any(pidx):
+        rep = [polymers.split(d["routes"], ix) for d, ix in zip(data, pidx)]
+        pim = [polymers.split(rs, ix) for rs, ix in zip(imp, pidx)]
+        for k in polymers.KEYS:
+            per = [(r[k], d["countries"]) for r, d in zip(rep, data)]
+            write(f"trends_{k}.json", summarise(years, per))
+            write(f"flows_{k}.json", flows(years, per, schemes, [m[k] for m in pim], modelled))
     streams = sorted({k for d in data for k in d.get("hidden", {})})
     for k in streams:
         per = [(d.get("hidden", {}).get(k, []), d["countries"]) for d in data]
@@ -277,7 +293,8 @@ def main():
                 write(f"imputed_{mat}_{y}.json", mi)
     for y, d in zip(years, by_year):
         write(f"imputed_{y}.json", d)
-    print(f"Wrote trends for {len(years)} years: plastic and {len(streams)} mixed streams ({', '.join(streams)}); "
+    print(f"Wrote trends for {len(years)} years: plastic ({sum(1 for x in pidx if x)} years by polymer) and "
+          f"{len(streams)} mixed streams ({', '.join(streams)}); "
           f"other groups: {', '.join(mats) or 'none'}.")
 
 
