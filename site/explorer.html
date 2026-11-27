@@ -281,8 +281,25 @@ section.block{margin-top:36px;scroll-margin-top:104px}
 .block .hd p{margin:4px 0 0;color:var(--muted);font-size:14px;max-width:72ch}
 .card{background:var(--panel);border:1px solid var(--border);border-radius:10px;min-width:0}
 
-.builder{display:grid;grid-template-columns:280px minmax(0,1fr)}
-@media (max-width:900px){.builder{grid-template-columns:minmax(0,1fr)}}
+.builder{display:grid;grid-template-columns:300px minmax(0,1fr)}
+.builder.noside{grid-template-columns:40px minmax(0,1fr)}
+.builder.noside .bopts{display:none}
+.builder.noside .sidetab{display:flex;flex-direction:column;align-items:center;gap:12px;padding:14px 0;margin:0;border:0;border-right:1px solid var(--border);border-radius:0;background:var(--raise);color:var(--ink);cursor:pointer;font:600 13px/1 var(--body);letter-spacing:.02em}
+.builder .sidetab .st-arr svg{display:block;width:14px;height:14px}
+.btop{grid-column:1/-1;padding:12px 14px;border-bottom:1px solid var(--border)}
+.btop .charttype{grid-template-columns:repeat(5,minmax(0,1fr))}
+.btop .charttype button{flex-direction:row;align-items:center;gap:10px;padding:8px 12px;font-size:14px}
+.btop .charttype button svg{width:46px;height:22px;flex:none}
+.bopts .mshd{padding:0 2px 2px}
+.lvs{display:flex;flex-direction:column;gap:6px;margin-top:4px}
+.lv{display:flex;align-items:center;gap:5px}
+.lv .lvn{flex:none;width:18px;height:18px;border-radius:50%;background:var(--raise);border:1px solid var(--border);font:600 11px/16px var(--body);text-align:center;color:var(--muted)}
+.lv select{flex:1;min-width:0;font-size:13px;padding-left:6px;padding-right:2px}
+.lv button{flex:none;font:inherit;font-size:15px;line-height:1;width:24px;height:24px;border:1px solid var(--border);border-radius:6px;background:var(--panel);color:var(--muted);cursor:pointer;padding:0}
+.lv button:hover{color:var(--out);border-color:var(--out)}
+.lv button:disabled{opacity:.35;cursor:default;color:var(--muted);border-color:var(--border)}
+.lvadd{margin-top:6px;align-self:flex-start}
+@media (max-width:900px){.builder{grid-template-columns:minmax(0,1fr)}.builder.noside{grid-template-columns:minmax(0,1fr)}.builder.noside .sidetab{flex-direction:row;justify-content:center;padding:10px;border-right:0;border-bottom:1px solid var(--border)}.builder .sidetab .st-arr svg{transform:rotate(90deg)}.btop .charttype{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}}
 .bopts{padding:14px;display:flex;flex-direction:column;gap:8px;border-right:1px solid var(--border)}
 .bopts>.ctl{border:1px solid var(--border);border-radius:10px;padding:9px 11px 10px;background:var(--panel)}
 .bopts>.ctl[hidden]{display:none}
@@ -296,6 +313,7 @@ section.block{margin-top:36px;scroll-margin-top:104px}
 .charttype button svg{width:100%;height:26px}
 .charttype button[aria-pressed="true"]{border-color:var(--out);box-shadow:inset 0 0 0 1px var(--out)}
 .cstage{min-width:0;display:flex;flex-direction:column}
+#chart .snl{paint-order:stroke;stroke:var(--panel);stroke-width:3px;stroke-linejoin:round}
 .cstage .chd{padding:14px 16px 0;display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
 .cstage h3{margin:0;font-family:var(--display);font-stretch:85%;font-weight:700;font-size:20px;line-height:1.2;text-wrap:balance}
 .cstage .cnote{display:none}
@@ -581,18 +599,19 @@ footer b{color:var(--ink);font-weight:600}
 
   <section class="block" id="build">
     <div class="hd"><div><h2>Build a chart</h2></div></div>
-    <div class="card builder">
-      <div class="bopts">
-        <div class="ctl"><span>Chart</span>
+    <div class="card builder" id="builder">
+      <div class="btop">
           <div class="charttype" id="btype">
             <button data-t="sankey" aria-pressed="true"><svg viewBox="0 0 60 26" aria-hidden="true"><rect x="0" y="2" width="4" height="10" fill="var(--out)"/><rect x="0" y="15" width="4" height="9" fill="var(--out)"/><rect x="56" y="1" width="4" height="7" fill="var(--in)"/><rect x="56" y="11" width="4" height="14" fill="var(--in)"/><path d="M4 7C30 7 30 5 56 5M4 19C30 19 30 18 56 18M4 9C30 9 30 15 56 15" stroke="var(--muted)" stroke-width="3" fill="none" opacity=".5"/></svg>Flows (Sankey)</button>
             <button data-t="bars" aria-pressed="false"><svg viewBox="0 0 60 26" aria-hidden="true"><rect x="0" y="1" width="58" height="5" fill="var(--out)"/><rect x="0" y="9" width="42" height="5" fill="var(--out)"/><rect x="0" y="17" width="27" height="5" fill="var(--out)"/></svg>Ranking</button>
             <button data-t="treemap" aria-pressed="false"><svg viewBox="0 0 60 26" aria-hidden="true"><rect x="0" y="0" width="32" height="26" fill="var(--g-hic)"/><rect x="34" y="0" width="26" height="14" fill="var(--g-umc)"/><rect x="34" y="16" width="14" height="10" fill="var(--g-lmc)"/><rect x="50" y="16" width="10" height="10" fill="var(--g-lic)"/></svg>Shares (treemap)</button>
             <button data-t="scatter" aria-pressed="false"><svg viewBox="0 0 60 26" aria-hidden="true"><path d="M2 24L58 2" stroke="var(--muted)" stroke-dasharray="2 2"/><circle cx="12" cy="19" r="3" fill="var(--g-hic)"/><circle cx="25" cy="12" r="3" fill="var(--g-umc)"/><circle cx="40" cy="12" r="3" fill="var(--g-lmc)"/><circle cx="48" cy="5" r="3" fill="var(--g-hic)"/></svg>Mirror check</button>
             <button data-t="stack" aria-pressed="false"><svg viewBox="0 0 60 26" aria-hidden="true"><rect x="0" y="1" width="30" height="6" fill="var(--g-hic)"/><rect x="30" y="1" width="18" height="6" fill="var(--g-umc)"/><rect x="48" y="1" width="10" height="6" fill="var(--g-lmc)"/><rect x="0" y="10" width="20" height="6" fill="var(--g-hic)"/><rect x="20" y="10" width="16" height="6" fill="var(--g-umc)"/><rect x="36" y="10" width="6" height="6" fill="var(--g-lic)"/><rect x="0" y="19" width="12" height="6" fill="var(--g-hic)"/><rect x="12" y="19" width="14" height="6" fill="var(--g-lmc)"/></svg>Stacked bars</button>
-          </div></div>
-        <div class="ctl" data-for="sankey"><span>Left side</span><div class="seg" id="bfrom"><button data-v="c" aria-pressed="true">Countries</button><button data-v="r" aria-pressed="false">Regions</button><button data-v="g" aria-pressed="false">Income groups</button><button data-v="s" aria-pressed="false">Material stream</button></div></div>
-        <div class="ctl" data-for="sankey"><span>Right side</span><div class="seg" id="bto"><button data-v="c" aria-pressed="true">Countries</button><button data-v="r" aria-pressed="false">Regions</button><button data-v="g" aria-pressed="false">Income groups</button></div></div>
+          </div>
+      </div>
+      <div class="bopts" id="bopts">
+        <div class="mshd"><b>Chart controls</b><button class="linkbtn" id="bclose" type="button" aria-controls="bopts" aria-expanded="true"><span aria-hidden="true">‹ </span>Hide</button></div>
+        <div class="ctl" data-for="sankey"><span class="hint" tabindex="0" data-tip="Up to five levels, left to right. Each level groups the trade by the sender, the material or the receiver.">Levels</span><div class="lvs" id="blevels"></div><button class="linkbtn lvadd" id="blvadd" type="button">+ Add a level</button></div>
         <div class="ctl" data-for="bars treemap scatter stack"><span>Show</span><div class="seg" id="bside"><button data-v="ex" aria-pressed="true">Senders</button><button data-v="rc" aria-pressed="false">Receivers</button><button data-v="rt" aria-pressed="false" data-only="bars">Routes</button></div></div>
         <div class="ctl" data-for="bars treemap stack"><span>Group by</span><div class="seg" id="bgroup"><button data-v="c" aria-pressed="true">Countries</button><button data-v="r" aria-pressed="false">Regions</button><button data-v="g" aria-pressed="false">Income groups</button></div></div>
         <div class="ctl" data-for="stack"><span class="hint" tabindex="0" data-tip="Each bar is divided by where its trade goes to (for senders) or comes from (for receivers).">Split by partner</span><div class="seg" id="bsplit"><button data-v="r" aria-pressed="true">Region</button><button data-v="g" aria-pressed="false">Income group</button></div></div>
@@ -621,6 +640,7 @@ footer b{color:var(--ink);font-weight:600}
           <label class="mini"><span>Chart height <output id="o-h"></output></span><input type="range" id="d-h" min="0.6" max="2" step="0.1"></label>
         </details>
       </div>
+      <button class="sidetab" id="bopen" type="button" aria-controls="bopts" aria-expanded="false" title="Show chart controls"><span class="st-arr" aria-hidden="true"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3l5 5-5 5"/></svg></span><span class="st-txt">Chart controls</span></button>
       <div class="cstage">
         <div class="chd"><div><h3 id="ctitle"></h3><div class="cnote" id="cnote"></div></div></div>
         <div class="chartbox"><svg id="chart" role="img" aria-label="Chart"></svg></div>
@@ -831,7 +851,7 @@ function sanitiseH(k,o){const c=v=>Math.max(0,Math.min(100,+v));const d=HDEF(k),
 const shareOf=(k,e)=>{const h=HON[k],g=C[e]?C[e][2]:"NS";return (h.byInc&&h.inc[g]!=null?h.inc[g]:h.f)/100*h.w/100};
 const S={imp:new URLSearchParams(location.search).get("imp")!=="0",hatch:true,scrap:true,fdir:"both",fgrp:"c",view:2,measure:"t",incf:"all",lo:(new URLSearchParams(location.search).get("lo")||"").split(",").filter(x=>x&&"rime".includes(x)),sel:null,region:null,rdir:"both",scheme:"wb",mapMode:"routes",hl:"none",resolve:"mean",rank:"exp",rankSort:null,fmt:"csv"};
 if(!PLAS)S.scrap=COMBO&&GROUPS.includes("plastic");
-const B={type:"sankey",from:"c",to:"c",side:"ex",group:"c",scheme:"wb",view:2,measure:"t",top:15,focus:false,split:"r",norm:"abs",tcol:"shade",nlab:15,labt:"c"};
+const B={type:"sankey",lv:["ex:c","rc:c"],side:"ex",group:"c",scheme:"wb",view:2,measure:"t",top:15,focus:false,split:"r",norm:"abs",tcol:"shade",nlab:15,labt:"c"};
 const HEADN=300,RSTEPS=[10,15,20,25,30,40,45,50,60,75,100,125,150,200,250,300,400,500,750,1000,1500,2000,3000,5000,1e9],ALLR=1e9;
 const rIdx=v=>{let b=0;for(let i=0;i<RSTEPS.length;i++)if(Math.abs(RSTEPS[i]-v)<Math.abs(RSTEPS[b]-v))b=i;return b},rLab=v=>v>=ALLR?"All":d3.format(",")(v);
 const DDEF={preset:"container",dec:1,linc:false,rcol:"io",out:null,in:null,res:null,maxr:60,line:1,lab:"both",lval:"net",globe:"trade",lpos:"auto",ldens:3,lsize:11,anim:true,choro:false,font:12,vals:true,nodew:12,gap:10,op:.35,lcol:"source",h:1};
@@ -1528,44 +1548,75 @@ function drawChart(){
   if(B.type==="sankey")sankey(m,who,scope);else if(B.type==="bars")barChart(m,who,scope);else if(B.type==="treemap")treemap(m,who,scope);else if(B.type==="stack")stacked(m,who,scope);else scatter(m);
 }
 const FS=()=>D.font;
+// Sankey levels: "ex:c|r|g" sender country, region or income group; "s" material stream; "rc:c|r|g" the receiver's
+const LVOPT=[["ex:c","From countries"],["ex:r","From regions"],["ex:g","From income groups"],["s","Material"],["rc:g","To income groups"],["rc:r","To regions"],["rc:c","To countries"]];
+const LVNAME=Object.fromEntries(LVOPT),LVRANK=Object.fromEntries(LVOPT.map((o,i)=>[o[0],i])),LVMAX=5;
+const lvSide=l=>l==="s"?"s":l.slice(0,2),lvGrp=l=>l==="s"?"s":l.slice(3);
 function sankey(m,who,scope){
   if(m==="ppt")m="t";
-  let rs=dropNS(bRoutes(),[B.from==="g"&&"ex",B.to==="g"&&"rc"]);const N=B.top;
-  if(B.from==="s"){const x=[];for(const r of rs){for(const [k,t,u] of scrapParts(r))x.push({...r,s:k,t,usd:u});if(r.hs)for(const [k,v] of Object.entries(r.hs))x.push({...r,s:k,t:v,usd:r.t>0?r.usd*v/r.t:0})}rs=x}
-  const L=d3.rollups(rs,v=>d3.sum(v,r=>r[m]),r=>key(r,"ex",B.from)).sort((a,b)=>b[1]-a[1]),Rt=d3.rollups(rs,v=>d3.sum(v,r=>r[m]),r=>key(r,"rc",B.to)).sort((a,b)=>b[1]-a[1]);
-  const keepL=new Set(L.slice(0,N).map(d=>d[0])),keepR=new Set(Rt.slice(0,N).map(d=>d[0]));
+  const LV=B.lv,NL=LV.length,N=B.top;
+  let rs=dropNS(bRoutes(),LV.filter(l=>lvGrp(l)==="g").map(lvSide));
+  if(LV.includes("s")){const x=[];for(const r of rs){for(const [k,t,u] of scrapParts(r))x.push({...r,s:k,t,usd:u});if(r.hs)for(const [k,v] of Object.entries(r.hs))x.push({...r,s:k,t:v,usd:r.t>0?r.usd*v/r.t:0})}rs=x}
+  const kf=LV.map(l=>r=>key(r,lvSide(l),lvGrp(l)));
+  const keep=kf.map(f=>new Set(d3.rollups(rs,v=>d3.sum(v,r=>r[m]),f).sort((a,b)=>b[1]-a[1]).slice(0,N).map(d=>d[0])));
   const links=new Map();
-  for(const r of rs){let a=key(r,"ex",B.from),b=key(r,"rc",B.to);if(!keepL.has(a))a="other";if(!keepR.has(b))b="other";const k="L|"+a+"→R|"+b;links.set(k,(links.get(k)||0)+r[m])}
+  for(const r of rs){const v=r[m];if(!(v>0))continue;const ks=kf.map((f,i)=>{const k=f(r);return i+"|"+(keep[i].has(k)?k:"other")});
+    for(let i=0;i<NL-1;i++){const k=ks[i]+"→"+ks[i+1];links.set(k,(links.get(k)||0)+v)}}
   const nodes=new Map(),lk=[];
   for(const [k,v] of links){if(v<=0)continue;const [a,b]=k.split("→");for(const n of [a,b])if(!nodes.has(n))nodes.set(n,{id:n});lk.push({source:a,target:b,value:v})}
-  const perSide=Math.max(keepL.size,keepR.size)+1;
-  const H=Math.round(Math.max(380,Math.min(2400,perSide*(D.gap+FS()+6)+60))*D.h),W=960,lw=Math.min(260,60+FS()*14);
+  const perSide=Math.max(...keep.map(k=>k.size))+1;
+  const bw=$(".chartbox").clientWidth-24,W=Math.max(760,Math.min(2400,Math.round(bw>0?bw:960)));SKW=W;
+  const H=Math.round(Math.max(380,Math.min(2400,perSide*(D.gap+FS()+6)+60))*D.h),lw=Math.min(NL>2?190:260,60+FS()*14);
   chart.attr("viewBox",`0 0 ${W} ${H}`);
   if(!lk.length){emptyChart(W,H);return}
-  const sk=d3.sankey().nodeId(d=>d.id).nodeWidth(D.nodew).nodePadding(Math.max(1,Math.min(D.gap,(H-40)/perSide*.6))).nodeSort((a,b)=>(a.id.endsWith("other")?1:0)-(b.id.endsWith("other")?1:0)||b.value-a.value).extent([[lw,10],[W-lw,H-10]]);
+  const sk=d3.sankey().nodeId(d=>d.id).nodeAlign(d=>+d.id.split("|")[0]).nodeWidth(D.nodew).nodePadding(Math.max(1,Math.min(D.gap,(H-40)/perSide*.6))).nodeSort((a,b)=>(a.id.endsWith("other")?1:0)-(b.id.endsWith("other")?1:0)||b.value-a.value).extent([[lw,10],[W-lw,H-10]]);
   const g=sk({nodes:[...nodes.values()].map(d=>({...d})),links:lk.map(d=>({...d}))});
-  const nodeKey=id=>id.slice(2),side=id=>id[0];
-  const ncol=d=>kcolor(nodeKey(d.id),side(d.id)==="L"?css("--out"):css("--in"));
+  const lvl=id=>+id.split("|")[0],nodeKey=id=>id.slice(id.indexOf("|")+1),sideOf=id=>lvSide(LV[lvl(id)]);
+  const ncol=d=>kcolor(nodeKey(d.id),sideOf(d.id)==="ex"?css("--out"):css("--in"));
   const lc=d=>D.lcol==="grey"?css("--muted"):ncol(D.lcol==="target"?d.target:d.source);
   chart.append("g").selectAll("path").data(g.links).join("path").attr("class","lnk").attr("d",d3.sankeyLinkHorizontal())
     .attr("stroke",lc).attr("stroke-opacity",D.op).attr("stroke-width",d=>Math.max(1,d.width))
     .on("mouseenter",function(){d3.select(this).attr("stroke-opacity",Math.min(1,D.op+.35))}).on("mouseleave",function(){d3.select(this).attr("stroke-opacity",D.op);hideTip()})
     .on("mousemove",(e,d)=>showTip(e,`<b>${esc(klabel(nodeKey(d.source.id)))} → ${esc(klabel(nodeKey(d.target.id)))}</b><br>${fmt(d.value,m)}`));
   const ng=chart.append("g").selectAll("g").data(g.nodes).join("g");
+  const verb=id=>({ex:"Sent",rc:"Received",s:"Traded"})[sideOf(id)];
   ng.append("rect").attr("x",d=>d.x0).attr("y",d=>d.y0).attr("width",d=>d.x1-d.x0).attr("height",d=>Math.max(1,d.y1-d.y0)).attr("fill",ncol).style("cursor","pointer")
-    .on("mousemove",(e,d)=>showTip(e,`<b>${esc(klabel(nodeKey(d.id)))}</b><br>${side(d.id)==="L"?"Sent":"Received"} ${fmt(d.value,m)}`)).on("mouseleave",hideTip)
+    .on("mousemove",(e,d)=>showTip(e,`<b>${esc(klabel(nodeKey(d.id)))}</b><br>${verb(d.id)} ${fmt(d.value,m)}`)).on("mouseleave",hideTip)
     .on("click",(e,d)=>{const k=nodeKey(d.id);if(C[k])select(k)});
-  const maxc=Math.floor(lw/(FS()*.62))-(D.vals?8:1);
-  ng.filter(d=>d.y1-d.y0>=FS()*.55||g.nodes.length<60).append("text").attr("x",d=>side(d.id)==="L"?d.x0-6:d.x1+6).attr("y",d=>(d.y0+d.y1)/2).attr("dy","0.35em").attr("text-anchor",d=>side(d.id)==="L"?"end":"start")
+  // the first level is labelled on its left; the others on their right, inside the gap before the next level
+  const colGap=NL>1?(W-2*lw-D.nodew)/(NL-1):W,room=i=>i===0||i===NL-1?lw-8:colGap-D.nodew-14;
+  const maxc=i=>Math.max(4,Math.floor(room(i)/(FS()*.6))-(D.vals&&(i===0||i===NL-1)?8:1));
+  ng.filter(d=>d.y1-d.y0>=FS()*.55||g.nodes.length<60).append("text").attr("class",d=>lvl(d.id)>0&&lvl(d.id)<NL-1?"snl":null).attr("x",d=>lvl(d.id)===0?d.x0-6:d.x1+6).attr("y",d=>(d.y0+d.y1)/2).attr("dy","0.35em").attr("text-anchor",d=>lvl(d.id)===0?"end":"start")
     .attr("font-size",FS()).attr("font-family","IBM Plex Sans, system-ui, sans-serif").attr("fill","var(--ink)").each(function(d){// a bracketed qualifier such as "(plastic fraction)" goes on a second line, or is left to the legend when the node is short
-      const full=klabel(nodeKey(d.id)),q=full.match(/^(.*?) (\(.*\))$/),l=q?q[1]:full,t=d3.select(this),two=q&&d.y1-d.y0>=FS()*2.4;
-      t.append("tspan").attr("dy",two?"-0.25em":null).text((l.length>maxc?l.slice(0,maxc-1)+"…":l)+(D.vals?"  "+fmt(d.value,m):""));
+      const i=lvl(d.id),mc=maxc(i),mid=i>0&&i<NL-1,full=klabel(nodeKey(d.id)),q=full.match(/^(.*?) (\(.*\))$/),l=q?q[1]:full,t=d3.select(this),two=q&&d.y1-d.y0>=FS()*2.4;
+      const val=D.vals?(mid?" ":"  ")+fmt(d.value,m):"",cut=l.length>mc?l.slice(0,mc-1)+"…":l,lt=mid&&(l+val).length>mc?cut:cut+val;
+      t.append("tspan").attr("dy",two?"-0.25em":null).text(lt);
       if(two)t.append("tspan").attr("x",t.attr("x")).attr("dy","1.2em").attr("font-size",FS()-1).attr("fill","var(--muted)").text(q[2])});
-  chartRows=g.links.map(d=>({from:klabel(nodeKey(d.source.id)),to:klabel(nodeKey(d.target.id)),[mlabel(m)]:Math.round(d.value)}));chartCols=["from","to",mlabel(m)];
+  // in each level, a label that would overlap a bigger node's label is dropped (the tooltip still names it)
+  {const kept=new Map();ng.selectAll("text").nodes().map(n=>[n,d3.select(n).datum()]).sort((a,b)=>b[1].value-a[1].value).forEach(([n,d])=>{
+    const i=lvl(d.id),y=(d.y0+d.y1)/2,h=n.childNodes.length>1?FS()*2.4:FS()*1.15,arr=kept.get(i)||[];
+    if(arr.some(o=>Math.abs(o.y-y)<(o.h+h)/2)){n.remove();return}arr.push({y,h});kept.set(i,arr)})}
+  const LN=i=>({"ex:c":"Sender country","ex:r":"Sender region","ex:g":"Sender income group",s:"Material stream","rc:g":"Receiver income group","rc:r":"Receiver region","rc:c":"Receiver country"})[LV[i]];
+  chartRows=g.links.map(d=>({from_level:LN(lvl(d.source.id)),from:klabel(nodeKey(d.source.id)),to_level:LN(lvl(d.target.id)),to:klabel(nodeKey(d.target.id)),[mlabel(m)]:Math.round(d.value)}));chartCols=["from_level","from","to_level","to",mlabel(m)];
   $("#ctitle").textContent=`Where ${PW()} flows, ${mlabel(m)}, ${YL}${scope}`;
-  $("#cnote").textContent=`Top ${N} on each side; the rest are grouped as "Everyone else". Based on ${who}.${S.lo.length?" "+loNote(B.scheme):""}${hpNote()}`;
-  $("#cleg").innerHTML=[...new Set([B.from,B.to])].map(legendFor).join("");
+  $("#cnote").textContent=`${LV.map(l=>LVNAME[l]).join(" → ")}. Top ${N} in each level; the rest are grouped as "Everyone else". Based on ${who}.${S.lo.length?" "+loNote(B.scheme):""}${hpNote()}`;
+  $("#cleg").innerHTML=[...new Set(LV.map(lvGrp))].map(legendFor).join("");
 }
+let SKW=0;
+function lvUI(){const box=$("#blevels"),n=B.lv.length;
+  box.innerHTML=B.lv.map((l,i)=>`<div class="lv"><span class="lvn">${i+1}</span><select data-i="${i}" aria-label="Level ${i+1}">${LVOPT.map(([v,t])=>`<option value="${v}"${v===l?" selected":""}${v!==l&&B.lv.includes(v)?" disabled":""}>${t}</option>`).join("")}</select><button type="button" data-up="${i}" title="Move left" aria-label="Move level ${i+1} left"${i?"":" disabled"}>↑</button><button type="button" data-x="${i}" title="Remove" aria-label="Remove level ${i+1}"${n>2?"":" disabled"}>×</button></div>`).join("");
+  $("#blvadd").hidden=n>=LVMAX}
+$("#blevels").addEventListener("change",e=>{const i=+e.target.dataset.i;if(isNaN(i))return;B.lv[i]=e.target.value;lvUI();drawChart()});
+$("#blevels").addEventListener("click",e=>{const b=e.target.closest("button");if(!b||b.disabled)return;
+  if(b.dataset.x!=null)B.lv.splice(+b.dataset.x,1);else if(b.dataset.up!=null){const i=+b.dataset.up;[B.lv[i-1],B.lv[i]]=[B.lv[i],B.lv[i-1]]}
+  lvUI();drawChart()});
+$("#blvadd").onclick=()=>{if(B.lv.length>=LVMAX)return;const nx=["s","ex:g","rc:g","ex:r","rc:r","ex:c","rc:c"].find(v=>!B.lv.includes(v));
+  let at=B.lv.findIndex(l=>LVRANK[l]>LVRANK[nx]);if(at<0)at=B.lv.length;B.lv.splice(at,0,nx);lvUI();drawChart()};
+lvUI();
+if(window.ResizeObserver)new ResizeObserver(()=>{const w=$(".chartbox").clientWidth-24;if(B.type==="sankey"&&w>0&&Math.abs(Math.max(760,Math.min(2400,w))-SKW)>24)drawChart()}).observe($(".chartbox"));
+{const bx=$("#builder"),set=(open,save=true)=>{bx.classList.toggle("noside",!open);$("#bclose").setAttribute("aria-expanded",String(open));$("#bopen").setAttribute("aria-expanded",String(!open));if(save)try{localStorage.setItem("gwt-cside",open?"1":"0")}catch(e){}};
+ $("#bclose").onclick=()=>{set(false);$("#bopen").focus({preventScroll:true})};$("#bopen").onclick=()=>{set(true);$("#bclose").focus({preventScroll:true})};
+ let open=true;try{open=localStorage.getItem("gwt-cside")!=="0"}catch(e){}set(open,false)}
 function barChart(m,who,scope){
   const rs=dropNS(bRoutes(),[B.side!=="rt"&&B.group==="g"&&B.side]),N=B.top;let items;
   if(B.side==="rt")items=d3.rollups(rs,agg,r=>r.ex+">"+r.rc).map(([k,a])=>{const [x,y]=k.split(">");return{k,label:`${name(x)} → ${name(y)}`,a,col:css(VCOL[B.view]),link:x}});
@@ -2003,8 +2054,6 @@ function setRegion(r){S.region=r;$("#region").value=r||"";rdirUI();S.sel=null;pa
 segment("#rdir","d",v=>{S.rdir=v;render()});rdirUI();
 segment("#rankmode","r",v=>{S.rank=v;S.rankSort=null;rank()});
 segment("#dlfmt","f",v=>{S.fmt=v;buildDL()});
-segment("#bfrom","v",v=>{B.from=v;drawChart()});
-segment("#bto","v",v=>{B.to=v;drawChart()});
 segment("#bside","v",v=>{B.side=v;drawChart()});
 segment("#bgroup","v",v=>{B.group=v;drawChart()});
 segment("#bview","v",v=>{B.view=+v;drawChart()});
