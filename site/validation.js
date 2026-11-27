@@ -48,6 +48,18 @@ fetch("data/validation.json",{cache:"no-cache"}).then(function(r){return r.json(
     return '<div class="finding"><h3>'+esc(f.title)+'</h3><span class="st">'+esc(f.status)+"</span><p>"+esc(f.text)+"</p></div>";
   }).join("");
 
+  // Corrections to reported records
+  var C=v.corrections;
+  if(C&&C.groups.length){
+    document.getElementById("corrections").hidden=false;
+    var rule={A:"No weight",B:"Partner's weight",D:"From value",E:"Comtrade estimate",F:"Reviewed",C:"Reviewed"};
+    document.querySelector("#corrtable tbody").innerHTML=C.groups.map(function(g){
+      return "<tr><td>"+esc(g.rule)+" · "+esc(rule[g.rule]||"")+"</td><td>"+esc(g.group)+"</td><td>"+esc(g.years)+'</td><td class="n">'+
+        g.records.toLocaleString("en-GB")+'</td><td class="n">'+fmt(g.t_reported,"t")+'</td><td class="n">'+fmt(g.t_used,"t")+
+        "</td><td>"+esc(g.decision)+(g.reason?'<span class="use">'+esc(g.reason)+"</span>":"")+"</td><td>"+esc(g.agreed)+"</td></tr>";
+    }).join("");
+  }
+
   // Sources (Harvard, alphabetical)
   var keys=Object.keys(S).sort(function(a,b){return S[a].cite.localeCompare(S[b].cite)});
   document.getElementById("refs").innerHTML=keys.map(function(k){var s=S[k];

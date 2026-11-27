@@ -101,6 +101,7 @@ jobs:
             done
           done
           python pipeline/build_trends.py
+          python pipeline/build_flags.py
           python pipeline/build_validation.py
           python pipeline/build_stories.py
       - name: Keep the check report even if the build stopped

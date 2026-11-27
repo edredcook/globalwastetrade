@@ -89,6 +89,8 @@ h1{margin:0 0 16px;font-family:var(--display);font-stretch:85%;font-weight:800;f
 .refs{list-style:none;padding:0!important;margin:0}
 .refs li{overflow-wrap:anywhere;margin:0 0 14px;padding-left:24px;text-indent:-24px}
 .refs .use{display:block;text-indent:0;color:var(--muted);font-size:14px;margin-top:2px}
+.vt .use{display:block;color:var(--muted);font-size:13px;margin-top:2px}
+a.copy{text-decoration:none;display:inline-block}
 .shares{border-collapse:collapse;font-size:14px;margin:6px 0 4px;width:100%;max-width:760px}
 .shares th,.shares td{text-align:left;padding:6px 10px 6px 0;border-bottom:1px solid var(--border);vertical-align:top}
 .shares th{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
@@ -164,6 +166,14 @@ h1{margin:0 0 16px;font-family:var(--display);font-stretch:85%;font-weight:800;f
     <div class="findings" id="findings"></div>
   </section>
 
+  <section class="card sec" id="corrections" hidden>
+    <div class="bar"><h2>Corrections to reported records</h2><a class="copy" id="flagdl" href="data/flagged_records.csv" download="globalwastetrade-corrected-records.csv">Download every record (CSV)</a></div>
+    <div class="tw"><table class="vt" id="corrtable">
+      <thead><tr><th>Rule</th><th>Group</th><th>Years</th><th class="n">Records</th><th class="n">Tonnes reported</th><th class="n">Tonnes used</th><th>Decision</th><th>Agreed</th></tr></thead>
+      <tbody></tbody>
+    </table></div>
+  </section>
+
   <section class="card sec" id="sources">
     <h2>Sources compared</h2>
     <ol class="refs" id="refs"></ol>
@@ -171,6 +181,6 @@ h1{margin:0 0 16px;font-family:var(--display);font-stretch:85%;font-weight:800;f
 </main>
 <div class="tip" id="tip" hidden></div>
 <script src="vendor/d3-7.8.5.min.js"></script>
-<script src="validation.js?v=1"></script>
+<script src="validation.js?v=2"></script>
 </body>
 </html>

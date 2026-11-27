@@ -11,6 +11,7 @@ that comparison only.
 
 Writes site/data/validation.json for the Validation page.
 """
+import csv
 import json
 from pathlib import Path
 
@@ -110,6 +111,35 @@ def rnd(v, unit):
     return round(v, 1) if unit == "%" else round(v)
 
 
+def corrections():
+    """Each cleaning rule and reviewed group, with its record count and tonnes, from
+    site/data/flagged_records.csv (written by build_flags.py) and record_decisions.json."""
+    path = SITE_DATA / "flagged_records.csv"
+    if not path.exists():
+        return None
+    with open(REFERENCE / "record_decisions.json", encoding="utf-8") as f:
+        ref = json.load(f)
+    with open(path, newline="", encoding="utf-8") as f:
+        rows = list(csv.DictReader(f))
+    groups = {}
+    for r in rows:
+        g = groups.setdefault((r["rule"], r["group"]), {
+            "rule": r["rule"], "group": r["group"], "decision": r["decision"], "agreed": r["agreed"],
+            "reason": r["reason"], "records": 0, "t_reported": 0.0, "t_used": 0.0, "years": set()})
+        g["records"] += 1
+        g["t_reported"] += float(r["tonnes_reported"] or 0)
+        g["t_used"] += float(r["tonnes_used"] or 0)
+        g["years"].add(int(r["year"]))
+    order = {"A": 0, "B": 1, "D": 2, "E": 3, "F": 4, "C": 5}
+    out = []
+    for g in sorted(groups.values(), key=lambda g: (order.get(g["rule"], 9), -g["t_reported"])):
+        ys = sorted(g.pop("years"))
+        g["years"] = f"{ys[0]}–{ys[-1]}" if len(ys) > 1 else str(ys[0])
+        g["t_reported"], g["t_used"] = round(g["t_reported"]), round(g["t_used"])
+        out.append(g)
+    return {"reviewed": ref.get("reviewed"), "file": "data/flagged_records.csv", "groups": out}
+
+
 def build():
     with open(REFERENCE / "validation_sources.json", encoding="utf-8") as f:
         ref = json.load(f)
@@ -178,6 +208,7 @@ def build():
 
     out = {
         "built": manifest.get("built") or None,
+        "corrections": corrections(),
         "sources": ref["sources"],
         "checks": checks,
         "streams": {"year": bs["year"], "source": bs["source"], "rows": streams},

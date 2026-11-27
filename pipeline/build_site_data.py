@@ -87,7 +87,7 @@ def view_medians(selected):
     return med
 
 
-def clean(selected, factor=10.0, gross=100.0, replace_est=None):
+def clean(selected, factor=10.0, gross=100.0, replace_est=None, decisions=None):
     """Repair weights in place. Returns a list of changes for the check report.
 
     E. Weights that Comtrade estimated for a reporter and flow listed in
@@ -105,7 +105,12 @@ def clean(selected, factor=10.0, gross=100.0, replace_est=None):
        the median (a units error, such as 2.4 Mt of clothing at US$1 a tonne):
        weight = value / that flow's median US$ per tonne.
     C. Other out-of-range records are left as reported and listed.
+    F. A rule C record that pipeline/reference/record_decisions.json marks
+       "weight_from_value" (decisions maps (reporter, flow, partner) to the action):
+       weight = value / that flow's median US$ per tonne.
     Re-estimated weights are marked est = 2 (1 means the reporter estimated it).
+    A rule F record's partner is compared with the F record as reported, so the
+    reviewed estimate is not passed on to the other side of the route.
     """
     med = view_medians(selected)
     changes = []
@@ -115,12 +120,16 @@ def clean(selected, factor=10.0, gross=100.0, replace_est=None):
         return m and v["t"] > 0 and v["usd"] > 0 and m / factor <= v["usd"] / v["t"] <= m * factor
 
     replace_est = replace_est or {}
+    decisions = decisions or {}
+    reported = {k: dict(selected[k]) for k in decisions if k in selected}
     for (rep, flow, par), v in selected.items():
         m = med[flow]
         if not m:
             continue
         mflow = "M" if flow == "X" else "X"
         mirror = selected.get((par, mflow, rep))
+        if (par, mflow, rep) in decisions and mirror:
+            mirror = reported[(par, mflow, rep)]
         how_e = replace_est.get((rep, flow))
         if how_e is not None and v["est"] and v["usd"] > 0:
             if how_e == "partner" and mirror and in_range(mirror, mflow):
@@ -149,6 +158,10 @@ def clean(selected, factor=10.0, gross=100.0, replace_est=None):
             new = v["usd"] / m
             changes.append({"rule": "D", "key": (rep, flow, par), "old_t": v["t"], "new_t": new, "usd": v["usd"]})
             v.update(t=new, est=2, cleaned="weight estimated from value")
+        elif decisions.get((rep, flow, par)) == "weight_from_value":
+            new = v["usd"] / m
+            changes.append({"rule": "F", "key": (rep, flow, par), "old_t": v["t"], "new_t": new, "usd": v["usd"]})
+            v.update(t=new, est=2, cleaned="weight estimated from value (reviewed)")
         else:
             changes.append({"rule": "C", "key": (rep, flow, par), "old_t": v["t"], "new_t": v["t"], "usd": v["usd"]})
     return changes, med
@@ -410,7 +423,8 @@ def cleaning_section(changes, med, factor, names):
              "B": "US$ per tonne out of range: weight taken from the partner's report",
              "D": "US$ per tonne 100 times out, no usable partner report: value at the median US$ per tonne",
              "C": "US$ per tonne out of range, no usable partner report: left as reported",
-             "E": "Comtrade's own weight estimate replaced (see pipeline/reference/estimated_weights.json)"}
+             "E": "Comtrade's own weight estimate replaced (see pipeline/reference/estimated_weights.json)",
+             "F": "Reviewed as a reporting mistake: value at the median US$ per tonne (see pipeline/reference/record_decisions.json)"}
     lines = ["## Cleaning", "",
              "Median US$ per tonne: " + ", ".join(f"{flows[f]} {m:,.0f}" for f, m in med.items() if m) +
              f". Out of range means more than {factor:g} times above or below the median.", "",
@@ -419,7 +433,7 @@ def cleaning_section(changes, med, factor, names):
         cs = [c for c in changes if c["rule"] == k]
         lines.append(f"| {label} | {len(cs):,} | {sum(c['old_t'] for c in cs):,.0f} | {sum(c['new_t'] for c in cs):,.0f} |")
     lines.append("")
-    for k in ("E", "B", "D", "C"):
+    for k in ("E", "F", "B", "D", "C"):
         cs = sorted((c for c in changes if c["rule"] == k), key=lambda c: -max(c["old_t"], c["new_t"], c["usd"] / 1e4))[:25]
         if not cs:
             continue
@@ -520,6 +534,20 @@ def estimated_weights(year):
                         usd += u
             how = usd / t
         out[(e["reporter"], e["flow"])] = how
+    return out
+
+
+def record_decisions(year):
+    """(reporter, flow, partner) -> action for this year's listed records in
+    pipeline/reference/record_decisions.json."""
+    path = REF / "record_decisions.json"
+    if not path.exists():
+        return {}
+    out = {}
+    for g in load(path)["groups"]:
+        for y, rep, flow, par in g.get("records", []):
+            if y == year:
+                out[(rep, flow, par)] = g["action"]
     return out
 
 
@@ -638,7 +666,8 @@ def main():
     map_ids = {g.get("id") for g in world["objects"]["countries"]["geometries"]}
 
     selected = select(rows)
-    changes, med = clean(selected, a.outlier_factor, replace_est=estimated_weights(a.year))
+    changes, med = clean(selected, a.outlier_factor, replace_est=estimated_weights(a.year),
+                         decisions=record_decisions(a.year))
     routes = routes_from(selected)
     mixed_path = RAW / f"comtrade_mixed_{a.year}.json"
     mixed, mixed_rules, mixed_meta = {}, {}, None

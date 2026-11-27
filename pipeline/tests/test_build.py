@@ -139,6 +139,25 @@ class Cleaning(unittest.TestCase):
         self.assertEqual(s[(156, "M", 2)]["est"], 2)
         self.assertEqual(sorted(c["rule"] for c in changes), ["E", "E", "E"])
 
+    def test_reviewed_record_reestimated_from_value(self):
+        s = self.base()
+        s[(699, "M", 899)] = sel(100000, 2_000_000)   # 20 US$/t, reviewed as a mistake
+        s[(887, "X", 704)] = sel(100000, 2_000_000)   # same price, not reviewed
+        changes, _ = b.clean(s, decisions={(699, "M", 899): "weight_from_value"})
+        self.assertAlmostEqual(s[(699, "M", 899)]["t"], 4000)
+        self.assertEqual(s[(699, "M", 899)]["est"], 2)
+        self.assertEqual(s[(887, "X", 704)]["t"], 100000)
+        self.assertEqual({c["key"]: c["rule"] for c in changes}, {(699, "M", 899): "F", (887, "X", 704): "C"})
+
+    def test_record_decisions_listed_for_their_year(self):
+        d = b.record_decisions(2009)
+        self.assertEqual(d.get((699, "M", 899)), "weight_from_value")
+        self.assertNotIn((699, "M", 899), b.record_decisions(2010))
+        ref = json.loads((b.REF / "record_decisions.json").read_text(encoding="utf-8"))
+        for g in ref["groups"]:
+            self.assertIn(g["action"], ("weight_from_value", "keep"))
+            self.assertTrue(g["agreed"] and g["reason"], g["id"])
+
     def test_in_range_records_untouched(self):
         s = self.base()
         before = {k: dict(v) for k, v in s.items()}
