@@ -246,6 +246,75 @@ MATERIALS = {
 }
 
 
+def build_polymers(year, factor=10.0):
+    """Build site/data/polymers_<year>.json: HS 3915 by polymer, six-digit routes.
+
+    Reads pipeline/raw/comtrade_poly_<year>.json (annual returns) and, where it exists,
+    comtrade_poly_<year>_monthly.json: reporters and flows with no annual return yet are
+    taken from the months they have filed, each month cleaned on its own and summed.
+    Rows: [view, exporter, recipient, tonnes by polymer (4), US$ by polymer (4)], in the
+    order of polymers.KEYS. The site uses them only as shares of the HS 3915 routes.
+    """
+    from polymers import KEYS, CODES
+    streams = {k: [CODES[k]] for k in KEYS}
+    apath, mpath = RAW / f"comtrade_poly_{year}.json", RAW / f"comtrade_poly_{year}_monthly.json"
+    annual = load(apath) if apath.exists() else {"meta": {}, "data": []}
+    st, rules = mixed_streams(annual["data"], factor, streams)
+    filed = {(int(r["reporterCode"]), s(r.get("flowCode"))) for r in annual["data"]}
+    months, dl = [], annual["meta"].get("downloaded")
+    if mpath.exists():
+        mon = load(mpath)
+        dl = dl or mon["meta"].get("downloaded")
+        months = mon["meta"].get("months", [])
+        by_p = defaultdict(list)
+        for r in mon["data"]:
+            if (int(r["reporterCode"]), s(r.get("flowCode"))) not in filed:
+                by_p[s(r.get("period"))].append(r)
+        for p in sorted(by_p):
+            part, _ = mixed_streams(by_p[p], factor, streams)
+            for k, rs in part.items():
+                st[k] = st.get(k, []) + rs
+    rows = {}
+    for i, k in enumerate(KEYS):
+        for v, ex, rc, t, usd, est in st.get(k, []):
+            r = rows.setdefault((v, ex, rc), [v, ex, rc] + [0.0] * 4 + [0] * 4)
+            r[3 + i] += t
+            r[7 + i] += usd
+    out = sorted(([*r[:3], *(round(x, 1) for x in r[3:7]), *(round(x) for x in r[7:])] for r in rows.values()),
+                 key=lambda r: (r[0], -sum(r[3:7])))
+    if not out:
+        raise SystemExit(f"No HS 3915 six-digit routes for {year}; the site data was not changed.")
+    meta = {"year": year, "keys": KEYS, "codes": ["HS " + CODES[k][:4] + "." + CODES[k][4:] for k in KEYS],
+            "source": f"UN Comtrade API, HS as reported, downloaded {dl}; "
+                      "same selection and cleaning as HS 3915, code by code",
+            "built": dt.date.today().isoformat()}
+    if months:
+        meta["months"] = months
+        meta["source"] += "; reporters with no annual return yet from the months they have filed"
+    with open(SITE_DATA / f"polymers_{year}.json", "w", encoding="utf-8") as f:
+        json.dump({"meta": meta, "routes": out}, f, separators=(",", ":"))
+    # Check report: polymer totals beside HS 3915.
+    plas = SITE_DATA / f"plastic_{year}.json"
+    p3915 = totals(load(plas)["routes"]) if plas.exists() else None
+    lines = [f"# HS 3915 by polymer, {year}: data check", "",
+             meta["source"] + f". Built {meta['built']}.", "",
+             "| Polymer | HS | Exporters' reports, t | Importers' reports, t | Cleaned A / B / D / C |", "|---|---|---:|---:|---|"]
+    tv = {0: 0.0, 1: 0.0}
+    for i, k in enumerate(KEYS):
+        x = {v: sum(r[3 + i] for r in out if r[0] == v) for v in (0, 1)}
+        tv[0] += x[0]
+        tv[1] += x[1]
+        ru = rules.get(k, {})
+        lines.append(f"| {k} | {meta['codes'][i]} | {x[0]:,.0f} | {x[1]:,.0f} | "
+                     f"{ru.get('A', 0)} / {ru.get('B', 0)} / {ru.get('D', 0)} / {ru.get('C', 0)} |")
+    lines.append(f"| All four | | {tv[0]:,.0f} | {tv[1]:,.0f} | |")
+    if p3915:
+        lines.append(f"| HS 3915 on the site | | {p3915[0][1]:,.0f} | {p3915[1][1]:,.0f} | |")
+    REPORTS.mkdir(exist_ok=True)
+    (REPORTS / f"polymers_{year}.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    print(f"Wrote polymers_{year}.json: {len(out):,} routes" + (f", months {months}" if months else ""))
+
+
 def material_codes(mat):
     return [c for cs in MATERIALS[mat]["streams"].values() for c in cs]
 
@@ -547,12 +616,16 @@ def main():
     ap.add_argument("--year", type=int, required=True)
     ap.add_argument("--material", choices=sorted(MATERIALS),
                     help="build one of the other material groups from comtrade_<material>_<year>.json")
+    ap.add_argument("--polymers", action="store_true",
+                    help="build polymers_<year>.json (HS 3915 by polymer) from comtrade_poly_<year>.json")
     ap.add_argument("--cmd", default="3915")
     ap.add_argument("--outlier-factor", type=float, default=10.0,
                     help="US$ per tonne this many times above or below the median counts as out of range")
     ap.add_argument("--min-ratio", type=float, default=0.6,
                     help="stop if a view's tonnes fall below this share of the previous file")
     a = ap.parse_args()
+    if a.polymers:
+        return build_polymers(a.year, a.outlier_factor)
     if a.material:
         return build_material(a.year, a.material, a.outlier_factor, a.min_ratio)
 

@@ -9,6 +9,7 @@ const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const OEP="Other and embedded plastics";
 const MATS=[
   ["Plastics",[["all","All plastic",""],["plastic","Plastic scrap","HS 3915"]]],
+  ["Plastic scrap by polymer",[["pe","Ethylene polymers (PE)","HS 3915.10"],["ps","Styrene polymers (PS)","HS 3915.20"],["pvc","Vinyl chloride polymers (PVC)","HS 3915.30"],["pother","Other plastics (incl. PET and PP)","HS 3915.90"]]],
   ["Textiles",[["clothing","Used clothing (plastic fraction)","HS 6309"],["rags","Rags, twine and rope (plastic fraction)","HS 6310"],["fibre","Synthetic fibres","HS 5505.10"]],OEP],
   ["E-waste",[["weee","Electronic waste (plastic fraction)","HS 8549.31, 8549.39"],["weeeo","Electrical waste (plastic fraction)","HS 8549.91, 8549.99"]],OEP],
   ["Refuse-derived fuel",[["rdf","Refuse-derived fuel (plastic fraction)","HS 3825.10"]],OEP],
@@ -21,11 +22,13 @@ const MATS=[
 const MATN=Object.fromEntries(MATS.flatMap(g=>g[1].map(([k,n])=>[k,n])));
 const MATC=Object.fromEntries(MATS.flatMap(g=>g[1].map(([k,,c])=>[k,c])));
 const STREAMS=MATS.flatMap(g=>g[1].map(i=>i[0])).filter(k=>k!=="all");
+// The polymers split HS 3915, so they replace "Plastic scrap" when ticked and are never added to it.
+const POLYK=["pe","ps","pvc","pother"];
 // Plastic shares, as in the explorer's Plastics group (sources on the About page).
 const SHARE={plastic:1,clothing:.65,rags:.65,fibre:1,weee:.247,weeeo:.247,rdf:.3325,tyres:1,rubber:1,hardrubber:1,paper:.02};
 // Streams of the other material groups carry no plastic share here; "All plastic" leaves them out.
 const PSTREAMS=STREAMS.filter(k=>SHARE[k]);
-const MATCOL={pkraft:"#9c755f",pbleach:"#edc948",pmech:"#c9b27a",pmixed:"#bab0ac",fe:"#4e79a7",ss:"#a0cbe8",al:"#86bcb6",cu:"#d37295",pb:"#5f5f5f",zn:"#76b7b2",ni:"#59a14f",sn:"#8cd17d",pm:"#f1ce63",om:"#b6992d",tartif:"#d4a6c8",tcotton:"#499894",twool:"#a47764",tsilk:"#f28e2b",ebatt:"#9d7660",eprec:"#d7b5a6",plastic:"#e0531f",clothing:"#4e79a7",rags:"#76b7b2",fibre:"#b07aa1",weee:"#59a14f",weeeo:"#8cd17d",rdf:"#9c755f",tyres:"#3d3d3d",rubber:"#8a8a8a",hardrubber:"#5f5f5f",paper:"#edc948"};
+const MATCOL={pe:"#b8460f",ps:"#f4a261",pvc:"#6a3d9a",pother:"#2a9d8f",pkraft:"#9c755f",pbleach:"#edc948",pmech:"#c9b27a",pmixed:"#bab0ac",fe:"#4e79a7",ss:"#a0cbe8",al:"#86bcb6",cu:"#d37295",pb:"#5f5f5f",zn:"#76b7b2",ni:"#59a14f",sn:"#8cd17d",pm:"#f1ce63",om:"#b6992d",tartif:"#d4a6c8",tcotton:"#499894",twool:"#a47764",tsilk:"#f28e2b",ebatt:"#9d7660",eprec:"#d7b5a6",plastic:"#e0531f",clothing:"#4e79a7",rags:"#76b7b2",fibre:"#b07aa1",weee:"#59a14f",weeeo:"#8cd17d",rdf:"#9c755f",tyres:"#3d3d3d",rubber:"#8a8a8a",hardrubber:"#5f5f5f",paper:"#edc948"};
 const GL=["H","U","M","L","N"],GKEY={HIC:"H",UMC:"U",LMC:"M",LIC:"L",NS:"N"};
 const GC={H:"--g-hic",U:"--g-umc",M:"--g-lmc",L:"--g-lic",N:"--g-ns"};
 const GN={H:"High income",U:"Upper-middle income",M:"Lower-middle income",L:"Low income",N:"Not classified"};
@@ -90,7 +93,7 @@ let I0=0,I1=0,Y=[],N=0,LAST=0;
 const sl=a=>Array.from(a.slice(I0,I1+1));
 const name=j=>D.nm[j];
 const regCol=nm=>{if(!nm||nm==="Other")return css("--g-ns");const all=[...new Set(D.regions[S.sch])].filter(Boolean).sort();return REGPAL[Math.max(0,all.indexOf(nm))%REGPAL.length]};
-const events=()=>S.mats.some(k=>k==="plastic"||k==="all")?[[2018,"China ban"],[2021,"Basel amendments"]]:[[2018,"China ban"]];
+const events=()=>S.mats.some(k=>k==="plastic"||k==="all"||POLYK.includes(k))?[[2018,"China ban"],[2021,"Basel amendments"]]:[[2018,"China ban"]];
 
 // OECD members in year i (by accession year).
 const oecdMask=i=>{const y=D.years[i],m=new Uint8Array(D.nc);for(let j=0;j<D.nc;j++){const a=OECD[D.codes[j]];if(a!=null&&a<=y)m[j]=1}return m};
@@ -484,7 +487,7 @@ const matShort=code=>S.mats[0]==="all"?"All plastic":S.mats.length===1?nm(S.mats
 // and ticking every stream again counts as "All plastic".
 $("#matmenu").addEventListener("change",e=>{const k=e.target.value;let m=S.mats[0]==="all"?PSTREAMS.slice():S.mats.slice();
   if(k==="all")m=e.target.checked?["all"]:["plastic"];
-  else{if(S.mats[0]==="all")S.count="plastic";if(e.target.checked)m.push(k);else m=m.filter(x=>x!==k);if(PSTREAMS.every(x=>m.includes(x))&&m.every(x=>PSTREAMS.includes(x)))m=["all"]}
+  else{if(S.mats[0]==="all")S.count="plastic";if(e.target.checked){m.push(k);if(k==="plastic")m=m.filter(x=>!POLYK.includes(x));if(POLYK.includes(k))m=m.filter(x=>x!=="plastic")}else m=m.filter(x=>x!==k);if(PSTREAMS.every(x=>m.includes(x))&&m.every(x=>PSTREAMS.includes(x)))m=["all"]}
   if(!m.length)m=["plastic"];const before=S.mats.length;S.mats=STREAMS.concat("all").filter(x=>m.includes(x));
   if((S.mats.length>1||S.mats[0]==="all")&&before<2&&S.split!=="mt")S.split="mt";
   setMats()});
