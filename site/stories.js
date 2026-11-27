@@ -196,7 +196,7 @@ function xAxis(f,x,every){
   const yrs=D.years.filter(y=>((y-2008)%every===0&&y<=2026-every)||y===2026);
   const ax=f.g.append("g").attr("class","ax").attr("transform",`translate(0,${f.ih})`)
     .call(d3.axisBottom(x).tickValues(yrs).tickFormat(y=>y).tickSizeOuter(0).tickPadding(7));
-  ax.selectAll(".tick").filter(d=>d===2026).select("text").append("tspan").attr("x",0).attr("dy","1.25em").attr("font-size",11).text("(modelled)");
+  ax.selectAll(".tick").filter(d=>d===2026).select("text").append("tspan").attr("x",0).attr("dy","1.25em").attr("font-size",12).text("(modelled)");
 }
 function yAxis(f,y,n,fmt,title){
   f.g.append("g").attr("class","ax").call(d3.axisLeft(y).ticks(n).tickFormat(fmt).tickSize(-f.iw).tickPadding(9)).call(g=>g.select(".domain").remove()).selectAll("line").attr("opacity",.45);
@@ -209,7 +209,7 @@ const mt=v=>v?String(+(v/1e6).toFixed(1)):"0";
 function stackChart(sel,keys,get,o={}){
   const wide=innerWidth>760;
   const ev=o.events||[];
-  const fs=wide?12.5:11.5, lh=Math.round(fs*1.25), mr=wide?40:30, ml=62;
+  const fs=wide?13.5:12, lh=Math.round(fs*1.25), mr=wide?40:30, ml=62;
   const iw0=(d3.select(sel).node().getBoundingClientRect().width||600)-ml-mr;
   const x0s=d3.scaleLinear().domain([2008,2026]).range([0,iw0]);
   const EL=ev.map(([yr,t])=>({yr,t,xx:x0s(yr)}));
@@ -238,10 +238,10 @@ function stackChart(sel,keys,get,o={}){
     const xx=x(e.yr);
     f.g.append("line").attr("x1",xx).attr("x2",xx).attr("y1",-8).attr("y2",f.ih).attr("stroke",css("--ink")).attr("stroke-opacity",.55).attr("stroke-dasharray","2 3");
     f.g.append("circle").attr("cx",xx).attr("cy",-15).attr("r",8).attr("fill",css("--ink"));
-    f.g.append("text").attr("x",xx).attr("y",-11).attr("text-anchor","middle").attr("font-size",11).attr("font-weight",700).style("fill",css("--panel")).text(k+1);
+    f.g.append("text").attr("x",xx).attr("y",-11).attr("text-anchor","middle").attr("font-size",12).attr("font-weight",700).style("fill",css("--panel")).text(k+1);
     const ky=f.ih+44+k*lh+6, kx=-f.m.l+4;
     f.g.append("circle").attr("cx",kx+7).attr("cy",ky-4).attr("r",7).attr("fill",css("--ink"));
-    f.g.append("text").attr("x",kx+7).attr("y",ky).attr("text-anchor","middle").attr("font-size",10).attr("font-weight",700).style("fill",css("--panel")).text(k+1);
+    f.g.append("text").attr("x",kx+7).attr("y",ky).attr("text-anchor","middle").attr("font-size",11).attr("font-weight",700).style("fill",css("--panel")).text(k+1);
     const t=f.g.append("text").attr("x",kx+20).attr("y",ky).attr("font-size",fs).style("fill",css("--ink"));
     t.append("tspan").attr("font-weight",700).text(e.yr+" ");t.append("tspan").attr("font-weight",500).text(e.t);
   });
@@ -280,9 +280,9 @@ function hbars(sel,rows,keys,o={}){
   f.g.append("g").attr("class","ax").attr("transform",`translate(0,${rows.length*rh})`).call(d3.axisBottom(x).ticks(4).tickFormat(v=>v?mt(v)+" Mt":"0").tickSizeOuter(0));
   rows.forEach((r,i)=>{
     let x0=0; const g=f.g.append("g").attr("transform",`translate(0,${i*rh})`);
-    g.append("text").attr("x",-8).attr("y",rh/2+4).attr("text-anchor","end").attr("font-size",13).style("fill",css("--ink")).text(r.label);
+    g.append("text").attr("x",-8).attr("y",rh/2+4).attr("text-anchor","end").attr("font-size",14).style("fill",css("--ink")).text(r.label);
     keys.forEach(k=>{const v=r.vals[k[0]]||0; if(!v)return; g.append("rect").attr("x",x(x0)).attr("y",4).attr("height",rh-8).attr("width",Math.max(0,x(x0+v)-x(x0))).attr("fill",css(k[2])); x0+=v;});
-    g.append("text").attr("x",x(x0)+6).attr("y",rh/2+4).attr("font-size",12).text(fmtMt(x0));
+    g.append("text").attr("x",x(x0)+6).attr("y",rh/2+4).attr("font-size",13).text(fmtMt(x0));
   });
 }
 
@@ -311,7 +311,7 @@ function paperChart(){
   // 2021 ban marker
   const xb=x(2021);
   f.g.append("line").attr("x1",xb).attr("x2",xb).attr("y1",-22).attr("y2",f.ih).attr("stroke",css("--ink")).attr("stroke-opacity",.5).attr("stroke-dasharray","2 3");
-  const bt=f.g.append("text").attr("x",xb+6).attr("y",-12).attr("font-size",12).style("fill",css("--ink"));
+  const bt=f.g.append("text").attr("x",xb+6).attr("y",-12).attr("font-size",13).style("fill",css("--ink"));
   bt.append("tspan").attr("font-weight",700).text("2021 ");bt.append("tspan").text("China bans all solid waste imports");
   [[C,"--d1"],[I,"--d5"]].forEach(([s,c])=>{
     const p=pts(s);
@@ -321,13 +321,13 @@ function paperChart(){
   // peak for China, end labels
   const i16=D.years.indexOf(2016);
   f.g.append("circle").attr("cx",x(2016)).attr("cy",y(C[i16])).attr("r",4).attr("fill",css("--panel")).attr("stroke",K("--d1")).attr("stroke-width",2);
-  f.g.append("text").attr("x",x(2016)).attr("y",y(C[i16])-10).attr("text-anchor","middle").attr("font-size",12).attr("font-weight",600).style("fill",K("--d1")).text(fmtMt(C[i16])+" Mt in 2016");
+  f.g.append("text").attr("x",x(2016)).attr("y",y(C[i16])-10).attr("text-anchor","middle").attr("font-size",13).attr("font-weight",600).style("fill",K("--d1")).text(fmtMt(C[i16])+" Mt in 2016");
   const iE=D.years.indexOf(2025);
   const ends=[["China",C[iE],"--d1"],["India",I[iE],"--d5"]];
   ends.forEach(([n,v,c],k)=>{
     const yy=y(v)+(k===0?6:-2);
     f.g.append("circle").attr("cx",x(2025)).attr("cy",y(v)).attr("r",3.5).attr("fill",K(c));
-    const t=f.g.append("text").attr("x",f.iw+8).attr("y",Math.min(yy,f.ih-2)).attr("font-size",12.5).style("fill",K(c));
+    const t=f.g.append("text").attr("x",f.iw+8).attr("y",Math.min(yy,f.ih-2)).attr("font-size",13.5).style("fill",K(c));
     t.append("tspan").attr("font-weight",700).text(n+" ");t.append("tspan").text(fmtMt(v));
   });
   f.g.append("g").attr("class","ax").attr("transform",`translate(0,${f.ih})`).call(d3.axisBottom(x).tickValues([2008,2012,2016,2020,2025]).tickFormat(d3.format("d")).tickSizeOuter(0).tickPadding(7));
@@ -521,7 +521,7 @@ function setTyYear(y,instant){
   svg.select(".g-fl").selectAll("path").data(ind.slice(0,30),key).join("path").attr("class","fl").attr("d",r=>setTyArc(cen[r[0]],cen[r[1]])).attr("stroke-width",r=>Math.max(1,wS(r[2])*.4));
   svg.select(".pulse").attr("r",(narrow?10:16)+wS(tot)*1.4);
   // name the suppliers: European ones in a column out in the Atlantic with leader lines, the rest beside their country, never overlapping
-  const fv=t=>t>=1e5?fmtMt(t)+" Mt":Math.round(t/1e3)+" kt", tw=r=>(D.countries[r[0]].n.length+fv(r[2]).length+1)*6.6;
+  const fv=t=>t>=1e5?fmtMt(t)+" Mt":Math.round(t/1e3)+" kt", tw=r=>(D.countries[r[0]].n.length+fv(r[2]).length+1)*7.2;
   const [ex0,ey0]=proj([-12,71]), [ex1,ey1]=proj([32,35]), eu=p=>p[0]>ex0&&p[0]<ex1&&p[1]>ey0&&p[1]<ey1;
   const cand=ind.filter(r=>r[2]>=(narrow?3e4:6e3)).slice(0,narrow?5:22), boxes=[], labs=[], col=[];
   const [ix,iy]=cen["699"]; boxes.push([ix+6,iy+8,ix+70,iy+30]);
@@ -566,8 +566,8 @@ function tyShare(T){
   const df=f.svg.append("defs"), gi=df.append("linearGradient").attr("id","tyA").attr("x1",0).attr("x2",0).attr("y1",0).attr("y2",1);
   gi.append("stop").attr("offset",0).attr("stop-color","#ff7a3d").attr("stop-opacity",.95);gi.append("stop").attr("offset",1).attr("stop-color","#ff4d2e").attr("stop-opacity",.35);
   f.g.append("g").selectAll("line").data(y.ticks(4)).join("line").attr("x1",0).attr("x2",f.iw).attr("y1",y).attr("y2",y).attr("stroke","var(--hero-line)");
-  f.g.append("g").selectAll("text").data(y.ticks(4)).join("text").attr("x",-8).attr("y",d=>y(d)+4).attr("text-anchor","end").style("fill","var(--hero-muted)").attr("font-size",11).style("font-family","var(--mono)").text(d=>d?+(d/1e6).toFixed(1):"0");
-  f.g.append("text").attr("x",-f.m.l).attr("y",-12).attr("text-anchor","start").style("fill","var(--hero-muted)").attr("font-size",11).text("Million tonnes");
+  f.g.append("g").selectAll("text").data(y.ticks(4)).join("text").attr("x",-8).attr("y",d=>y(d)+4).attr("text-anchor","end").style("fill","var(--hero-muted)").attr("font-size",12).style("font-family","var(--mono)").text(d=>d?+(d/1e6).toFixed(1):"0");
+  f.g.append("text").attr("x",-f.m.l).attr("y",-12).attr("text-anchor","start").style("fill","var(--hero-muted)").attr("font-size",12).text("Million tonnes");
   const ar=(lo,hi)=>d3.area().x((d,i)=>x(Y[i])).y0((d,i)=>y(lo(i))).y1((d,i)=>y(hi(i))).curve(d3.curveMonotoneX)(T.world);
   f.g.append("path").attr("d",ar(()=>0,i=>T.world[i])).style("fill","var(--hero-land)");
   f.g.append("path").attr("d",d3.line().x((d,i)=>x(Y[i])).y(d=>y(d)).curve(d3.curveMonotoneX)(T.world)).style("fill","none").attr("stroke","var(--hero-muted)").attr("stroke-width",1.2);
@@ -576,15 +576,15 @@ function tyShare(T){
   f.g.append("path").attr("d",d3.line().x((d,i)=>x(Y[i])).y(d=>y(d)).curve(d3.curveMonotoneX)(T.india)).style("fill","none").attr("stroke","#ffd166").attr("stroke-width",2);
   // the 2022 ban on importing waste tyres for pyrolysis
   const bx=x(2022.5); f.g.append("line").attr("x1",bx).attr("x2",bx).attr("y1",-4).attr("y2",f.ih).attr("stroke","var(--hero-ink)").attr("stroke-dasharray","2 3").attr("opacity",.6);
-  f.g.append("text").attr("x",bx-6).attr("y",innerWidth<500?20:4).attr("text-anchor","end").style("fill","var(--hero-ink)").attr("font-size",11).attr("font-weight",600).style("paint-order","stroke").style("stroke","var(--hero)").style("stroke-width","6px").style("stroke-linejoin","round").text(innerWidth<500?"2022 ban":"July 2022: pyrolysis import ban");
+  f.g.append("text").attr("x",bx-6).attr("y",innerWidth<500?20:4).attr("text-anchor","end").style("fill","var(--hero-ink)").attr("font-size",12).attr("font-weight",600).style("paint-order","stroke").style("stroke","var(--hero)").style("stroke-width","6px").style("stroke-linejoin","round").text(innerWidth<500?"2022 ban":"July 2022: pyrolysis import ban");
   // shares at a few points
   [2008,2016,2025].forEach(yy=>{const i=Y.indexOf(yy),px=x(yy),py=y(T.india[i]);
     f.g.append("circle").attr("cx",px).attr("cy",py).attr("r",4).style("fill","#ffd166").attr("stroke","var(--hero)").attr("stroke-width",1.5);
-    f.g.append("text").attr("x",px+(yy===2008?6:0)).attr("y",py-10).attr("text-anchor",yy===2008?"start":"middle").style("fill","#ffd166").attr("font-size",12).attr("font-weight",700).text(Math.round(T.india[i]/T.world[i]*100)+"%")});
+    f.g.append("text").attr("x",px+(yy===2008?6:0)).attr("y",py-10).attr("text-anchor",yy===2008?"start":"middle").style("fill","#ffd166").attr("font-size",13).attr("font-weight",700).text(Math.round(T.india[i]/T.world[i]*100)+"%")});
   // end labels
   const ex=f.iw+8;
-  f.g.append("text").attr("x",ex).attr("y",y(T.world[last])+4).style("fill","var(--hero-ink)").attr("font-size",12).attr("font-weight",600).html(`World <tspan fill="var(--hero-muted)" font-weight="500">${fmtMt(T.world[last])} Mt</tspan>`);
-  f.g.append("text").attr("x",ex).attr("y",y(T.india[last])+4).style("fill","#ff9a5c").attr("font-size",12).attr("font-weight",700).html(`India <tspan font-weight="500">${fmtMt(T.india[last])} Mt</tspan>`);
+  f.g.append("text").attr("x",ex).attr("y",y(T.world[last])+4).style("fill","var(--hero-ink)").attr("font-size",13).attr("font-weight",600).html(`World <tspan fill="var(--hero-muted)" font-weight="500">${fmtMt(T.world[last])} Mt</tspan>`);
+  f.g.append("text").attr("x",ex).attr("y",y(T.india[last])+4).style("fill","#ff9a5c").attr("font-size",13).attr("font-weight",700).html(`India <tspan font-weight="500">${fmtMt(T.india[last])} Mt</tspan>`);
   f.g.append("g").attr("transform",`translate(0,${f.ih})`).call(d3.axisBottom(x).tickValues(d3.range(2008,2027,innerWidth<500?6:3)).tickFormat(d3.format("d")).tickSizeOuter(0)).call(g=>{g.selectAll("text").style("fill","var(--hero-muted)").style("font-family","var(--mono)");g.selectAll("line,path").attr("stroke","var(--hero-line)")});
 }
 // India's suppliers in 2025: ranked glowing bars that grow in when scrolled into view
@@ -594,9 +594,9 @@ function tySuppliers(v){
   const x=d3.scaleLinear().domain([0,top[0][2]]).range([0,f.iw]), df=f.svg.append("defs"), g=df.append("linearGradient").attr("id","tyB");
   g.append("stop").attr("offset",0).attr("stop-color","#ff4d2e");g.append("stop").attr("offset",1).attr("stop-color","#ffd166");
   const rows=f.g.selectAll("g").data(top).join("g").attr("transform",(r,k)=>`translate(0,${k*rh})`);
-  rows.append("text").attr("x",-10).attr("y",rh/2+4).attr("text-anchor","end").style("fill","var(--hero-ink)").attr("font-size",13).attr("font-weight",600).text(r=>D.countries[r[0]].n);
+  rows.append("text").attr("x",-10).attr("y",rh/2+4).attr("text-anchor","end").style("fill","var(--hero-ink)").attr("font-size",14).attr("font-weight",600).text(r=>D.countries[r[0]].n);
   rows.append("rect").attr("y",4).attr("height",rh-8).attr("rx",3).style("fill","url(#tyB)").attr("width",0).attr("class","tyb");
-  rows.append("text").attr("class","tyv").attr("y",rh/2+4).attr("x",6).style("fill","var(--hero-ink)").attr("font-size",12).style("font-family","var(--mono)").attr("opacity",0)
+  rows.append("text").attr("class","tyv").attr("y",rh/2+4).attr("x",6).style("fill","var(--hero-ink)").attr("font-size",13).style("font-family","var(--mono)").attr("opacity",0)
     .html(r=>`${r[2]>=1e5?fmtMt(r[2])+" Mt":Math.round(r[2]/1e3)+" kt"} <tspan fill="#ffb37a">${Math.round(r[2]/tot*100)}%</tspan>`);
   const grow=()=>{rows.select(".tyb").transition().duration(1100).delay((r,k)=>k*90).ease(d3.easeCubicOut).attr("width",r=>x(r[2]));
     rows.select(".tyv").transition().duration(1100).delay((r,k)=>k*90).ease(d3.easeCubicOut).attr("x",r=>x(r[2])+6).attr("opacity",1)};
@@ -658,7 +658,7 @@ function setRaceYear(y,dt){
   const step=[0.25,0.5,1,2,5].find(s=>max/1e6/s<=(narrow?6:10))||10;
   const x=d3.scaleLinear().domain([0,max*1.04]).range([0,f.iw]);
   const ticks=d3.range(0,max*1.04/1e6+1e-9,step).map(v=>v*1e6);
-  f.g.select(".grid").selectAll("g").data(ticks,d=>d).join(en=>{const g=en.append("g");g.append("line").attr("y1",-6).attr("y2",(N+1)*rh+10).attr("stroke",css("--border"));g.append("text").attr("y",-10).attr("text-anchor","middle").attr("font-size",11).style("fill",css("--muted")).style("font-family","var(--mono)");return g})
+  f.g.select(".grid").selectAll("g").data(ticks,d=>d).join(en=>{const g=en.append("g");g.append("line").attr("y1",-6).attr("y2",(N+1)*rh+10).attr("stroke",css("--border"));g.append("text").attr("y",-10).attr("text-anchor","middle").attr("font-size",12).style("fill",css("--muted")).style("font-family","var(--mono)");return g})
     .attr("transform",d=>`translate(${x(d)},0)`).call(g=>g.select("text").text(d=>d?`${+(d/1e6).toFixed(2)}`:"0 Mt"));
   // rows ease towards their rank, so countries glide past each other
   const k=dt?Math.min(1,dt/160):1, keep=new Set(top.map(r=>r.c));
@@ -773,11 +773,11 @@ function setSankeyYear(y,instant){
   const rg=f.g.select(".risk").selectAll("g").data([0]).join(en=>{const g=en.append("g");g.append("rect").attr("class","bar");g.append("path").attr("class","head");g.append("text").attr("class","rl");g.append("text").attr("class","lo");g.append("text").attr("class","hi");return g});
   rg.select(".bar").attr("x",rx-(narrow?6:8)).attr("width",narrow?12:16).attr("rx",3).attr("fill",`url(#${SK.gid})`).transition(t).attr("y",rt).attr("height",Math.max(10,rb-rt-8));
   rg.select(".head").attr("fill",css("--risk1")).transition(t).attr("d",`M${rx-(narrow?12:16)},${rb-10}L${rx+(narrow?12:16)},${rb-10}L${rx},${rb+(narrow?6:9)}Z`);
-  rg.select(".rl").attr("text-anchor","middle").attr("font-size",narrow?10.5:12).attr("font-weight",700).style("fill",css("--risk1"))
+  rg.select(".rl").attr("text-anchor","middle").attr("font-size",narrow?11.5:13).attr("font-weight",700).style("fill",css("--risk1"))
     .text(narrow?"":"Risk of mismanagement").transition(t).attr("transform",`translate(${rx-(narrow?12:16)},${(rt+rb)/2}) rotate(-90)`);
-  rg.select(".lo").attr("text-anchor","middle").attr("font-size",11).attr("font-weight",700).style("fill",css("--muted")).text("Low").transition(t).attr("x",rx).attr("y",rt-4);
-  rg.select(".hi").attr("text-anchor","middle").attr("font-size",11).attr("font-weight",700).style("fill",css("--risk1")).text("High").transition(t).attr("x",rx).attr("y",rb+(narrow?32:23));
-  const spread=(arr,gap)=>{const G=typeof gap==="function"?gap:()=>gap, lo=-6, hi=f.ih+f.m.b-26;
+  rg.select(".lo").attr("text-anchor","middle").attr("font-size",12).attr("font-weight",700).style("fill",css("--muted")).text("Low").transition(t).attr("x",rx).attr("y",rt-4);
+  rg.select(".hi").attr("text-anchor","middle").attr("font-size",12).attr("font-weight",700).style("fill",css("--risk1")).text("High").transition(t).attr("x",rx).attr("y",rb+(narrow?32:23));
+  const spread=(arr,gap)=>{const G=typeof gap==="function"?gap:()=>gap, lo=5, hi=f.ih+f.m.b-26;
     arr.forEach(n=>n.ly=n.y0+Math.max(n.h,1)/2-8);
     // least-displacement placement: merge overlapping labels into blocks centred on their targets
     let B=[];arr.forEach(n=>{let b={it:[n],h:G(n),want:n.ly};b.top=b.want;B.push(b);
@@ -786,8 +786,8 @@ function setSankeyYear(y,instant){
         const m={it,h:a.h+c.h,want:0};m.top=acc/it.length;B.splice(-2,2,m)}});
     B.forEach(b=>{b.top=Math.max(lo,b.top)});for(let a=B.length-1;a>=0;a--){const lim=a===B.length-1?hi+G(B[a].it[B[a].it.length-1]):B[a+1].top;if(B[a].top+B[a].h>lim)B[a].top=lim-B[a].h}
     B.forEach(b=>{let y=b.top;b.it.forEach(m=>{m.ly=y;y+=G(m)})});return arr};
-  const nl=n=>(n.nm||[1]).length, LH=15;
-  const lab=[...spread(LN.map(n=>({...n})),n=>narrow?17:(nl(n)+1)*LH+2),...spread(MN.map(n=>({...n})),narrow?17:(MN.some(n=>n.sub)?32:17)),...spread(RN.map(n=>({...n})),n=>narrow?44:(nl(n)+2)*LH-1)];
+  const nl=n=>(n.nm||[1]).length, LH=16.5;
+  const lab=[...spread(LN.map(n=>({...n})),n=>narrow?18:(nl(n)+1)*LH+2),...spread(MN.map(n=>({...n})),narrow?18:(MN.some(n=>n.sub)?34:18)),...spread(RN.map(n=>({...n})),n=>narrow?47:(nl(n)+2)*LH-1)];
   const lx=n=>n.side==="l"?(narrow?-16:-26):n.side==="r"?f.iw+8:xm+nw+6;
   const gl=f.g.select(".labs").selectAll("g").data(lab,n=>n.key).join(en=>{const g=en.append("g");g.append("text").attr("class","nl");g.append("text").attr("class","nv");g.append("text").attr("class","ns").attr("dy","1.25em");return g});
   gl.attr("class",n=>"sk-"+n.side).attr("text-anchor",n=>n.side==="l"?"end":"start");
