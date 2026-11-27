@@ -34,7 +34,9 @@ const GC={H:"--g-hic",U:"--g-umc",M:"--g-lmc",L:"--g-lic",N:"--g-ns"};
 const GN={H:"High income",U:"Upper-middle income",M:"Lower-middle income",L:"Low income",N:"Not classified"};
 const SCHEMES={un:"UN regions",unsub:"UN sub-regions",wb:"World Bank regions",oecd2:"OECD members / non-OECD",oecd:"OECD regions"};
 const REGPAL=["#4e79a7","#f28e2b","#59a14f","#e15759","#76b7b2","#edc948","#b07aa1","#ff9da7","#9c755f","#8cd17d","#499894","#d37295","#a0cbe8","#bab0ac","#86bcb6","#f1ce63"];
-const VN=["exporters' reports","importers' reports"];
+const VN=["exporters' reports","importers' reports","resolved figures"];
+// Who-reported charts have no resolved view: they show the exporters' side then.
+const WV=()=>S.v===2?0:S.v;
 const TOPS=[0,100,50,30,20,10,5,3,1];
 const SHOWS=[12,24,48,96,200,0];
 const MINS=[0,100,1e3,1e4,1e5,1e6,1e7];
@@ -44,11 +46,11 @@ const NONC=/nes$|^Areas|^Special Categories|^Free Zones|^Bunkers/;
 const q=new URLSearchParams(location.search);
 const toks=s=>(s||"").split(",").filter(t=>/^(c|g|r):/.test(t));
 const pick=(v,ok,d)=>ok.includes(v)?v:d;
-const DEF={imp:"1",count:"plastic",v:0,m:"t",sch:"wb",xr:false,xi:false,xm:false,xe:false,ts:0,tr:0,from:[],to:[],split:"rg",bmode:"t",hdir:"in",hrows:20,gdir:"out",gsort:"total",gshow:1,gmin:0,gscale:"own",cdir:"in",cgrp:"c",csort:"b",cn:12,cchart:"dumb",cscale:"lin"};
+const DEF={imp:"1",count:"plastic",v:2,m:"t",sch:"wb",xr:false,xi:false,xm:false,xe:false,ts:0,tr:0,from:[],to:[],split:"rg",bmode:"t",hdir:"in",hrows:20,gdir:"out",gsort:"total",gshow:1,gmin:0,gscale:"own",cdir:"in",cgrp:"c",csort:"b",cn:12,cchart:"dumb",cscale:"lin"};
 const S={...DEF,
   mats:(()=>{const w=(q.get("w")||"plastic").split(","),m=["all",...STREAMS].filter(k=>w.includes(k));return m.includes("all")?["all"]:m.length?m:["plastic"]})(),
   count:q.get("count")==="whole"?"whole":"plastic", imp:q.get("imp")==="0"?"0":"1",
-  v:q.get("v")==="1"?1:0, m:pick(q.get("m"),["t","usd"],"t"), sch:pick(q.get("sch"),Object.keys(SCHEMES),"wb"),
+  v:q.get("v")==="0"?0:q.get("v")==="1"?1:2, m:pick(q.get("m"),["t","usd"],"t"), sch:pick(q.get("sch"),Object.keys(SCHEMES),"wb"),
   xr:q.get("xr")==="1", xi:q.get("xi")==="1", xm:q.get("xm")==="1", xe:q.get("xe")==="1",
   ts:Math.max(0,TOPS.indexOf(+q.get("ts"))), tr:Math.max(0,TOPS.indexOf(+q.get("tr"))),
   from:toks(q.get("from")), to:toks(q.get("to")),
@@ -68,7 +70,7 @@ const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"
 const tip=$("#tip");
 const showTip=(e,h)=>{tip.innerHTML=h;tip.hidden=false;let x=e.clientX+14,y=e.clientY+14;if(x>innerWidth-270)x=e.clientX-270;if(y>innerHeight-130)y=e.clientY-120;tip.style.left=x+"px";tip.style.top=y+"px"};
 const hideTip=()=>tip.hidden=true;
-const sent=()=>S.v?"received":"sent";
+const sent=()=>S.v===1?"received":S.v===2?"traded":"sent";
 // Explorer names count the plastic share; with "Whole material" the bracket is dropped.
 const nm=k=>S.count==="whole"&&!S.mats.includes("all")?MATN[k].replace(/ \(plastic (fraction|contamination)\)$/,""):MATN[k];
 const nmShare=k=>SHARE[k]<1&&MATN[k].endsWith(")")&&(S.mats.includes("all")||S.count==="plastic")?MATN[k].replace(/\)$/,`, ${d3.format(".4~p")(SHARE[k])})`):nm(k);
@@ -85,6 +87,13 @@ async function load(k){if(D.mats[k])return;const r=await fetch(k==="plastic"?"da
   D.mats[k]={F,FI};
   D.nc=D.codes.length;D.nm=D.names.map(n=>n[1]);D.real=D.nm.map(n=>!NONC.test(n));D.incY=D.years.map((y,i)=>D.inc.map(s=>s[i]));
   const o=D.regions.oecd||[];D.regions.oecd2=D.codes.map((c,j)=>o[j]?(o[j].startsWith("OECD")?"OECD members":"Non-OECD"):"")}
+// Resolved routes for material k in year i: the average where exporter and importer both report, otherwise the one report.
+function resolvedArr(k,i){const M=D.mats[k];M.R=M.R||[];if(M.R[i])return M.R[i];
+  const x=M.F[0][i],m=M.F[1][i],idx=new Map(),out=[];
+  for(let p=0;p<x.length;p+=4){idx.set(x[p]*1e6+x[p+1],out.length);out.push(x[p],x[p+1],x[p+2],x[p+3])}
+  for(let p=0;p<m.length;p+=4){const j=idx.get(m[p]*1e6+m[p+1]);
+    if(j==null)out.push(m[p],m[p+1],m[p+2],m[p+3]);else{out[j+2]=(out[j+2]+m[p+2])/2;out[j+3]=(out[j+3]+m[p+3])/2}}
+  return M.R[i]=Float64Array.from(out)}
 // Selected materials as [key, weight]: "all" = every stream at its plastic share.
 const matList=()=>S.mats.includes("all")?PSTREAMS.map(k=>[k,SHARE[k]]):S.mats.map(k=>[k,S.count==="plastic"&&SHARE[k]!=null?SHARE[k]:1]);
 function setSpan(){const ml=matList(),has=D.years.map((y,i)=>ml.some(([k])=>D.mats[k].F[0][i].length+D.mats[k].F[1][i].length>0));
@@ -110,7 +119,7 @@ function agg(v,lim){const NY=D.years.length,nc=D.nc,R=D.regions[S.sch],usd=S.m==
   const tot=new Float64Array(NY),ti=new Float64Array(NY),out=new Float64Array(nc*NY),inn=new Float64Array(nc*NY),hl=new Float64Array(NY),hAll=new Float64Array(NY),split=new Map();
   const ml=matList();
   for(let i=I0;i<=I1;i++){const fm=mask(S.from,i),tm=mask(S.to,i),inc=D.incY[i],oe=S.xe?oecdMask(i):null;
-   for(const [mk,w] of ml)for(const im of S.imp==="1"?[0,1]:[0]){const a=D.mats[mk][im?"FI":"F"][v][i];
+   for(const [mk,w] of ml)for(const im of S.imp==="1"&&v!==2?[0,1]:[0]){const a=v===2?resolvedArr(mk,i):D.mats[mk][im?"FI":"F"][v][i];
     for(let p=0;p<a.length;p+=4){const e=a[p],r=a[p+1];
       if(fm&&!fm[e]||tm&&!tm[r])continue;
       if(lim&&(lim.ex&&!lim.ex[e]||lim.rc&&!lim.rc[r]))continue;
@@ -130,7 +139,7 @@ function limits(){if(!S.ts&&!S.tr)return null;const base=agg(S.v,null),NY=D.year
     s.sort((a,b)=>b[1]-a[1]);const m=new Uint8Array(D.nc);s.slice(0,n).forEach(([j])=>m[j]=1);return m};
   return {ex:S.ts?top(base.out,TOPS[S.ts]):null,rc:S.tr?top(base.inn,TOPS[S.tr]):null}}
 let A=[null,null];
-function compute(){const lim=limits();A=[agg(0,lim),agg(1,lim)]}
+function compute(){const lim=limits();A=[agg(0,lim),agg(1,lim),agg(2,lim)]}
 const cur=()=>A[S.v];
 
 // ---------- chart scaffolding ----------
@@ -158,24 +167,28 @@ function ensureHatch(svg){if(svg.select("#mhatch").size())return;
 const empty=(el,lg)=>{el.innerHTML=`<div class="empty">No trade for this selection.</div>`;if(lg)lg.innerHTML=""};
 
 // ---------- overview ----------
-function chartA(){const el=$("#cA");const w0=sl(A[0].tot),w1=sl(A[1].tot);ROWS.A=null;
-  if(!d3.max([...w0,...w1]))return empty(el);
-  {const u=unit(),t0=sl(A[0].ti),t1=sl(A[1].ti);ROWS.A=()=>[["year","modelled","exporters_reports_"+u,"importers_reports_"+u,...(S.imp==="1"?["imputed_in_exporters_reports_"+u,"imputed_in_importers_reports_"+u]:[])],
-    Y.map((y,i)=>({year:y,modelled:D.modelled.includes(y)?"yes":"",["exporters_reports_"+u]:rnd(w0[i]),["importers_reports_"+u]:rnd(w1[i]),["imputed_in_exporters_reports_"+u]:rnd(t0[i]),["imputed_in_importers_reports_"+u]:rnd(t1[i])}))]}
+function chartA(){const el=$("#cA");const w0=sl(A[0].tot),w1=sl(A[1].tot),w2=sl(A[2].tot),W=[w0,w1,w2];ROWS.A=null;
+  if(!d3.max([...w0,...w1,...w2]))return empty(el);
+  {const u=unit(),t0=sl(A[0].ti),t1=sl(A[1].ti);ROWS.A=()=>[["year","modelled","exporters_reports_"+u,"importers_reports_"+u,"resolved_"+u,...(S.imp==="1"?["imputed_in_exporters_reports_"+u,"imputed_in_importers_reports_"+u]:[])],
+    Y.map((y,i)=>({year:y,modelled:D.modelled.includes(y)?"yes":"",["exporters_reports_"+u]:rnd(w0[i]),["importers_reports_"+u]:rnd(w1[i]),["resolved_"+u]:rnd(w2[i]),["imputed_in_exporters_reports_"+u]:rnd(t0[i]),["imputed_in_importers_reports_"+u]:rnd(t1[i])}))]}
   const f=frame(el,300,{l:62,r:120,t:30,b:28});const {svg,x}=f;
-  const y=d3.scaleLinear().domain([0,(d3.max([...w0,...w1])||1)*1.08]).nice().range([300-28,30]);
+  const y=d3.scaleLinear().domain([0,(d3.max([...w0,...w1,...w2])||1)*1.08]).nice().range([300-28,30]);
   axes(f,y,fAx);marks(f);
-  if(S.imp==="1"){const s=S.v?w1:w0,ti=sl(A[S.v].ti);ensureHatch(svg);
+  if(S.imp==="1"&&S.v!==2){const s=W[S.v],ti=sl(A[S.v].ti);ensureHatch(svg);
     svg.append("path").attr("fill","url(#mhatch)").attr("stroke","none").attr("d",d3.area().x((d,i)=>x(Y[i])).y0((d,i)=>y(s[i]-ti[i])).y1(d=>y(d)).curve(d3.curveMonotoneX)(s))}
-  [[0,w0,"--out"],[1,w1,"--in"]].forEach(([v,s,c])=>{
-    svg.append("path").attr("fill","none").attr("stroke",css(c)).attr("stroke-width",v===S.v?3:1.6).attr("opacity",v===S.v?1:.6).attr("stroke-dasharray",v===1?"5 4":null)
+  const LN=[[0,w0,"--out","Exporters' reports",null],[1,w1,"--in","Importers' reports","5 4"],[2,w2,"--res","Resolved","1.5 3.5"]];
+  // end labels, nudged apart so they never overlap
+  const ends=LN.map(([v,s])=>({v,y:y(s[N-1])})).sort((a,b)=>a.y-b.y);for(let k=1;k<ends.length;k++)if(ends[k].y-ends[k-1].y<14)ends[k].y=ends[k-1].y+14;
+  const ly=Object.fromEntries(ends.map(e=>[e.v,e.y]));
+  LN.sort((a,b)=>(a[0]===S.v)-(b[0]===S.v)).forEach(([v,s,c,name,dash])=>{
+    svg.append("path").attr("fill","none").attr("stroke",css(c)).attr("stroke-width",v===S.v?3:1.6).attr("opacity",v===S.v?1:.6).attr("stroke-dasharray",v===S.v?null:dash).attr("stroke-linecap","round")
       .attr("d",d3.line().x((d,i)=>x(Y[i])).y(d=>y(d)).curve(d3.curveMonotoneX)(s));
     svg.append("circle").attr("cx",x(LAST)).attr("cy",y(s[N-1])).attr("r",3.5).attr("fill",css(c));
-    svg.append("text").attr("class","lbl").attr("x",x(LAST)+8).attr("y",y(s[N-1])+(s[N-1]>=(v?w0:w1)[N-1]?-4:12)).attr("fill",css(c)).text(v===0?"Exporters' reports":"Importers' reports")});
-  const s=S.v?w1:w0,pk=d3.maxIndex(s);
+    svg.append("text").attr("class","lbl").attr("x",x(LAST)+8).attr("y",ly[v]+4).attr("fill",css(c)).attr("font-weight",v===S.v?700:null).text(name)});
+  const s=W[S.v],pk=d3.maxIndex(s);
   if(N>2&&s[pk])svg.append("text").attr("class","lbl").attr("x",Math.min(x(Y[pk]),f.W-200)).attr("y",y(s[pk])-10).attr("text-anchor","middle").attr("fill",css("--ink")).text("Peak "+fV(s[pk])+", "+Y[pk]);
-  const t0=sl(A[0].ti),t1=sl(A[1].ti),im=i=>S.imp==="1"?[t0,t1][S.v][i]:0;
-  hover(f,i=>`<b>${Y[i]}${D.modelled.includes(Y[i])?" (modelled)":""}</b><br>Exporters' reports ${fV(w0[i])}<br>Importers' reports ${fV(w1[i])}${im(i)?`<br>of which imputed ${fV(im(i))}`:""}`)}
+  const t0=sl(A[0].ti),t1=sl(A[1].ti),im=i=>S.imp==="1"&&S.v!==2?[t0,t1][S.v][i]:0;
+  hover(f,i=>`<b>${Y[i]}${D.modelled.includes(Y[i])?" (modelled)":""}</b><br>Exporters' reports ${fV(w0[i])}<br>Importers' reports ${fV(w1[i])}<br>Resolved ${fV(w2[i])}${im(i)?`<br>of which imputed ${fV(im(i))}`:""}`)}
 
 const BTITLE={rg:"Where it goes",sg:"Where it comes from",rr:"Where it goes",sr:"Where it comes from",mt:"By material"};
 function chartB(){const el=$("#cB");$("#hB").textContent=BTITLE[S.split];const sp=cur().split,inc=S.split[1]==="g",mt=S.split==="mt";
@@ -236,7 +249,7 @@ function chartW(){const el=$("#cW");if(!WR){loadWR().then(chartW).catch(()=>empt
   const W0=WR,yrs=W0.years.filter((y,i)=>W0.universe[i]!=null),ix=y=>W0.years.indexOf(y);
   if(!yrs.length)return empty(el,$("#lW"));
   if(!yrs.includes(WY))WY=yrs.at(-1);
-  const v=String(S.v),o=S.v?"0":"1",share=y=>{const i=ix(y),t=W0.total_t[o][i];return t?W0.partner_only_t[v][i]/t:0};
+  const v=String(WV()),o=WV()?"0":"1",share=y=>{const i=ix(y),t=W0.total_t[o][i];return t?W0.partner_only_t[v][i]/t:0};
   const up=y=>W0.both[ix(y)]+W0.x_only[ix(y)]+W0.m_only[ix(y)],dn=y=>W0.none[ix(y)];
   const Wd=Math.max(300,el.clientWidth||600),H=310,m={l:44,r:52,t:22,b:40};el.innerHTML="";
   const svg=d3.select(el).append("svg").attr("viewBox",`0 0 ${Wd} ${H}`);
@@ -247,7 +260,7 @@ function chartW(){const el=$("#cW");if(!WR){loadWR().then(chartW).catch(()=>empt
   const muted=css("--muted"),out=css("--out");
   yrs.forEach(y=>{const i=ix(y),b=W0.both[i],one=W0.x_only[i]+W0.m_only[i],n=W0.none[i],xx=x(y),sel=y===WY;
     const g=svg.append("g").style("cursor","pointer").on("click",()=>{WY=y;chartW()})
-      .on("mousemove",e=>showTip(e,`<b>${y}</b> · ${W0.universe[i]} economies<br>Exports and imports: ${b}<br>Exports only: ${W0.x_only[i]}<br>Imports only: ${W0.m_only[i]}<br>Nothing: ${n}<br>Seen only in partners' reports: ${d3.format(".1%")(share(y))} (${VN[S.v]})`)).on("mouseleave",hideTip);
+      .on("mousemove",e=>showTip(e,`<b>${y}</b> · ${W0.universe[i]} economies<br>Exports and imports: ${b}<br>Exports only: ${W0.x_only[i]}<br>Imports only: ${W0.m_only[i]}<br>Nothing: ${n}<br>Seen only in partners' reports: ${d3.format(".1%")(share(y))} (${VN[WV()]})`)).on("mouseleave",hideTip);
     g.append("rect").attr("x",xx-2).attr("width",bw+4).attr("y",m.t).attr("height",H-m.t-m.b).attr("fill",sel?css("--raise"):"transparent").attr("rx",3);
     g.append("rect").attr("x",xx).attr("width",bw).attr("y",z-b*k).attr("height",b*k).attr("fill",muted).attr("opacity",.6);
     g.append("rect").attr("x",xx).attr("width",bw).attr("y",z-(b+one)*k).attr("height",one*k).attr("fill",muted).attr("opacity",.25);
@@ -258,12 +271,12 @@ function chartW(){const el=$("#cW");if(!WR){loadWR().then(chartW).catch(()=>empt
   svg.append("line").attr("x1",m.l).attr("x2",Wd-m.r).attr("y1",z).attr("y2",z).attr("stroke",css("--ink")).attr("stroke-width",1);
   svg.append("path").attr("fill","none").attr("stroke",css("--in")).attr("stroke-width",2).attr("pointer-events","none").attr("d",d3.line().x(y=>x(y)+bw/2).y(y=>ys(share(y)))(yrs));
   svg.append("g").attr("pointer-events","none").selectAll("circle").data(yrs).join("circle").attr("cx",y=>x(y)+bw/2).attr("cy",y=>ys(share(y))).attr("r",2.5).attr("fill",css("--in"));
-  $("#lW").innerHTML=`<span><i style="background:var(--muted);opacity:.6"></i>Reported exports and imports</span><span><i style="background:var(--muted);opacity:.25"></i>One flow only</span><span><i style="background:var(--out)"></i>Reported nothing</span><span><i style="background:var(--in);height:3px"></i>Seen only in partners' reports, ${VN[S.v]} (right)</span>`;
+  $("#lW").innerHTML=`<span><i style="background:var(--muted);opacity:.6"></i>Reported exports and imports</span><span><i style="background:var(--muted);opacity:.25"></i>One flow only</span><span><i style="background:var(--out)"></i>Reported nothing</span><span><i style="background:var(--in);height:3px"></i>Seen only in partners' reports, ${VN[WV()]} (right)</span>`;
   nrList()}
 
 // Non-reporters for the chosen year: largest first, or grouped by World Bank region.
 let NRM="top",NRALL=false,NRQ="";
-function nrList(){const W0=WR,el=$("#wlist");if(!W0||!W0.nonrep)return;const v=String(S.v),i=W0.years.indexOf(WY);
+function nrList(){const W0=WR,el=$("#wlist");if(!W0||!W0.nonrep)return;const v=String(WV()),i=W0.years.indexOf(WY);
   const all=(W0.nonrep[v][i]||[]).map(([c,t,g])=>{const n=W0.names[c]||[c,c,""];return {c,t,g,nm:n[1],rg:n[2]||"Other"}});
   const q=NRQ.trim().toLowerCase(),L=q?all.filter(d=>d.nm.toLowerCase().includes(q)||d.rg.toLowerCase().includes(q)):all;
   const tot=d3.sum(all,d=>d.t),mx=d3.max(all,d=>d.t)||1,dot=g=>`<i class="nrdot" style="background:var(${GC[g]||"--g-ns"})" title="${GN[g]||""}"></i>`;
@@ -274,7 +287,7 @@ function nrList(){const W0=WR,el=$("#wlist");if(!W0||!W0.nonrep)return;const v=S
       (!q&&L.length>12?`<button class="nrmore">${NRALL?"Show the largest 12":`Show all ${L.length}`}</button>`:"")}
   else{const g=d3.groups(L,d=>d.rg).sort((a,b)=>d3.sum(b[1],d=>d.t)-d3.sum(a[1],d=>d.t)||a[0].localeCompare(b[0]));
     body=`<div class="nrg">${g.map(([r,ds])=>`<div><h4>${esc(r)} <span>${ds.length}</span></h4><ul>${ds.map(d=>`<li>${dot(d.g)}<span>${esc(d.nm)}</span><em>${d.t?val(d.t):""}</em></li>`).join("")}</ul></div>`).join("")}</div>`}
-  el.innerHTML=`<div class="nrhd"><b>No ${S.v?"import":"export"} report, ${WY}</b><span>${all.length} economies · partners recorded ${fTn(tot)} with them</span>
+  el.innerHTML=`<div class="nrhd"><b>No ${WV()?"import":"export"} report, ${WY}</b><span>${all.length} economies · partners recorded ${fTn(tot)} with them</span>
     <div class="seg sm" id="nrm"><button data-m="top" aria-pressed="${NRM==="top"}">Largest first</button><button data-m="reg" aria-pressed="${NRM==="reg"}">By region</button></div>
     <input id="nrq" type="search" placeholder="Find a country or region" value="${esc(NRQ)}" aria-label="Find a country or region"></div>${body||""}
     <div class="nrleg">${["H","U","M","L"].map(g=>`<span>${dot(g)}${GN[g]}</span>`).join("")}</div>`;
@@ -374,8 +387,8 @@ async function saveFile(fn,data){const type=fn.endsWith(".csv")?"text/csv":fn.en
 function matDesc(){if(S.mats.includes("all"))return "All plastic: Plastic scrap (HS 3915) with "+PSTREAMS.filter(k=>k!=="plastic").map(k=>`${nmShare(k)} (${MATC[k]})`).join(", ");
   return S.mats.map(k=>`${S.count==="plastic"?nmShare(k):nm(k)} (${MATC[k]})`).join(", ")}
 function caption(c){const p=[];
-  if(c==="W")p.push(`Plastic scrap (HS 3915). ${VN[S.v][0].toUpperCase()+VN[S.v].slice(1)}.`);
-  else{p.push(matDesc()+".",`${VN[S.v][0].toUpperCase()+VN[S.v].slice(1)}, ${S.imp==="1"?"with gaps imputed":"as reported"}.`,S.m==="usd"?"US$.":"Tonnes.");
+  if(c==="W")p.push(`Plastic scrap (HS 3915). ${VN[WV()][0].toUpperCase()+VN[WV()].slice(1)}.`);
+  else{p.push(matDesc()+".",(S.v===2?"Resolved figures (average where both report).":`${VN[S.v][0].toUpperCase()+VN[S.v].slice(1)}, ${S.imp==="1"?"with gaps imputed":"as reported"}.`),S.m==="usd"?"US$.":"Tonnes.");
     if(S.from.length)p.push("From "+S.from.map(t=>tokLabel(t)[0]).join(", ")+".");
     if(S.to.length)p.push("To "+S.to.map(t=>tokLabel(t)[0]).join(", ")+".");
     if(S.ts)p.push(`Top ${TOPS[S.ts]} senders.`);if(S.tr)p.push(`Top ${TOPS[S.tr]} receivers.`);
@@ -501,7 +514,7 @@ function cmpYears(){const opts=Y.map(y=>`<option value="${y}">${y}</option>`).jo
 function setRange(){const [a,b]=D.span;let y0=S.y0&&D.years.indexOf(S.y0)>=a?D.years.indexOf(S.y0):a,y1=S.y1&&D.years.indexOf(S.y1)>=0&&D.years.indexOf(S.y1)<=b?D.years.indexOf(S.y1):b;
   if(y1<y0)[y0,y1]=[y1,y0];I0=y0;I1=y1;Y=D.years.slice(I0,I1+1);N=Y.length;LAST=Y[N-1]}
 
-function syncUI(){$$(".seg[data-k]").forEach(s=>s.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String(String(S[s.dataset.k])===b.dataset.v))));
+function syncUI(){$("#impctl").hidden=S.v===2;$$(".seg[data-k]").forEach(s=>s.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String(String(S[s.dataset.k])===b.dataset.v))));
   for(const k of ["xr","xi","xm","xe"])$("#"+k).setAttribute("aria-pressed",String(S[k]));
   $("#ts").value=S.ts;$("#tr").value=S.tr;$("#tsv").textContent=S.ts?TOPS[S.ts]:"All";$("#trv").textContent=S.tr?TOPS[S.tr]:"All";
   $("#sch").value=S.sch;$("#split").value=S.split;$("#hrows").value=S.hrows;$("#gsort").value=S.gsort;$("#gshow").value=S.gshow;$("#gmin").value=S.gmin;$("#gq").value=S.gq||"";
@@ -509,7 +522,7 @@ function syncUI(){$$(".seg[data-k]").forEach(s=>s.querySelectorAll("button").for
   $$(".tabs button").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.tab===S.tab)));
   ["overview","glance","compare"].forEach(t=>$("#p-"+t).hidden=t!==S.tab)}
 function syncURL(){const u=new URL(location.href),p=u.searchParams;const set=(k,v,d)=>{if(v===d||v===""||v==null)p.delete(k);else p.set(k,v)};
-  set("imp",S.imp,"1");set("w",S.mats.join(","),"plastic");set("count",S.count,"plastic");set("v",S.v?"1":"","");set("m",S.m,"t");set("sch",S.sch,"wb");for(const k of ["xr","xi","xm","xe"])set(k,S[k]?"1":"","");
+  set("imp",S.imp,"1");set("w",S.mats.join(","),"plastic");set("count",S.count,"plastic");set("v",String(S.v),"2");set("m",S.m,"t");set("sch",S.sch,"wb");for(const k of ["xr","xi","xm","xe"])set(k,S[k]?"1":"","");
   set("ts",S.ts?TOPS[S.ts]:"","");set("tr",S.tr?TOPS[S.tr]:"","");set("from",S.from.join(","),"");set("to",S.to.join(","),"");
   set("y0",I0!==D.span[0]?Y[0]:"","");set("y1",I1!==D.span[1]?LAST:"","");set("tab",S.tab,"overview");
   set("split",S.split,"rg");set("cgrp",S.cgrp,"c");set("cdir",S.cdir,"in");set("gdir",S.gdir,"out");

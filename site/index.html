@@ -488,13 +488,13 @@ footer b{color:var(--ink);font-weight:600}
       <select id="year" aria-label="Year"></select></div>
     <div class="ctl"><span class="hint" tabindex="0" data-tip="Each trade is reported twice, by the exporting country and by the importing country, and the two rarely match. Resolved combines them into one figure.">Reporter type</span>
       <div class="seg" id="view">
-        <button data-v="0" aria-pressed="true"><span class="dot" style="background:var(--out)"></span>Exporters'</button>
+        <button data-v="0" aria-pressed="false"><span class="dot" style="background:var(--out)"></span>Exporters'</button>
         <button data-v="1" aria-pressed="false"><span class="dot" style="background:var(--in)"></span>Importers'</button>
-        <button data-v="2" aria-pressed="false" data-def="res"><span class="dot" style="background:var(--res)"></span>Resolved</button>
+        <button data-v="2" aria-pressed="true" data-def="res"><span class="dot" style="background:var(--res)"></span>Resolved</button>
       </div></div>
     <div class="ctl" id="impbox"><div class="ctlh"><span class="hint" tabindex="0" data-tip="Imputed fills trade that a country did not report, from its partners' reports, the years either side or the trend, and labels it as imputed. As reported shows only what countries filed.">Data gaps</span><a class="sublink" href="trends.html#reported">Who reported</a></div>
       <div class="seg" id="imp"><button data-i="1" aria-pressed="true">Imputed</button><button data-i="0" aria-pressed="false">As reported</button></div></div>
-    <div class="ctl" id="resmethodbox" hidden><span class="hint" tabindex="0" data-tip="How the exporter's and importer's figures for the same route are combined into one.">Resolve by</span>
+    <div class="ctl" id="resmethodbox"><span class="hint" tabindex="0" data-tip="How the exporter's and importer's figures for the same route are combined into one.">Resolve by</span>
       <select id="resmethod" aria-label="How to resolve the two sets of figures">
         <option value="mean">Average where both report</option>
         <option value="imp">Prefer importer's figure</option>
@@ -602,7 +602,7 @@ footer b{color:var(--ink);font-weight:600}
         <div class="ctl" data-for="scatter"><label class="lab hint" for="bnlab" tabindex="0" data-tip="Labels the largest countries first. A label that would overlap another label or a dot is skipped and the next country is tried.">Number of labels <output id="o-bnlab"></output></label><input type="range" id="bnlab" min="0" max="80" step="1" value="15" aria-label="Number of labels"></div>
         <div class="ctl" data-for="scatter"><span>Label text</span><div class="seg" id="blabt"><button data-v="c" aria-pressed="true">Codes</button><button data-v="n" aria-pressed="false">Names</button></div></div>
         <div class="ctl" data-for="sankey bars treemap stack"><span>Region type</span><select id="bscheme" aria-label="Region definition for the chart"><option value="un">UN regions (M49)</option><option value="unsub">UN sub-regions (M49)</option><option value="wb" selected>World Bank regions</option><option value="oecd">OECD / non-OECD</option></select></div>
-        <div class="ctl" data-for="sankey bars treemap stack"><span>Reporter type</span><div class="seg" id="bview"><button data-v="0" aria-pressed="true">Exporters'</button><button data-v="1" aria-pressed="false">Importers'</button><button data-v="2" aria-pressed="false" data-def="res">Resolved</button></div></div>
+        <div class="ctl" data-for="sankey bars treemap stack"><span>Reporter type</span><div class="seg" id="bview"><button data-v="0" aria-pressed="false">Exporters'</button><button data-v="1" aria-pressed="false">Importers'</button><button data-v="2" aria-pressed="true" data-def="res">Resolved</button></div></div>
         <div class="ctl" data-for="sankey bars treemap scatter stack"><span>Measure</span><div class="seg" id="bmeasure"><button data-v="t" aria-pressed="true">Tonnes</button><button data-v="usd" aria-pressed="false">US$</button><button data-v="ppt" aria-pressed="false" data-only="bars">US$/t</button></div></div>
         <div class="ctl" data-for="sankey bars treemap stack"><label class="lab hint" for="btopn" tabindex="0" data-tip="Keeps the largest traders by the chosen measure, biggest first. In Flows this many are kept on each side and the rest are grouped as Everyone else; in Shares the rest are grouped too.">Number of countries</label><div class="topn"><input type="number" id="btopn" min="1" max="200" value="15" aria-label="Number of countries"><input type="range" id="btopr" min="1" max="60" value="15" aria-label="Number of countries, slider"></div></div>
         <div class="ctl" data-for="sankey bars treemap scatter stack"><span class="hint" tabindex="0" data-tip="The same choices as Leave out trade in the Routes box at the top, which change together. In charts, within a region uses the chart's region type.">Leave out trade</span><div class="chk" id="blout" style="flex-direction:column;align-items:flex-start">
@@ -830,9 +830,9 @@ else try{let sv=JSON.parse(localStorage.getItem(ASSUME)||"null"),old=false;if(!s
 function sanitiseH(k,o){const c=v=>Math.max(0,Math.min(100,+v));const d=HDEF(k),n=x=>x!=null&&isFinite(+x);
   return{on:!!o.on,usrc:typeof o.usrc==="string"?o.usrc.slice(0,300):typeof o.source==="string"&&o.source!==HS[k].src?o.source.slice(0,300):"",f:n(o.f)?c(o.f):d.f,w:100,byInc:!!o.byInc,inc:Object.fromEntries(["HIC","UMC","LMC","LIC"].map(g=>[g,o.inc&&n(o.inc[g])?c(o.inc[g]):d.inc[g]]))}}
 const shareOf=(k,e)=>{const h=HON[k],g=C[e]?C[e][2]:"NS";return (h.byInc&&h.inc[g]!=null?h.inc[g]:h.f)/100*h.w/100};
-const S={imp:new URLSearchParams(location.search).get("imp")!=="0",hatch:true,scrap:true,fdir:"both",fgrp:"c",view:0,measure:"t",incf:"all",lo:(new URLSearchParams(location.search).get("lo")||"").split(",").filter(x=>x&&"rime".includes(x)),sel:null,region:null,rdir:"both",scheme:"wb",mapMode:"routes",hl:"none",resolve:"mean",rank:"exp",rankSort:null,fmt:"csv"};
+const S={imp:new URLSearchParams(location.search).get("imp")!=="0",hatch:true,scrap:true,fdir:"both",fgrp:"c",view:2,measure:"t",incf:"all",lo:(new URLSearchParams(location.search).get("lo")||"").split(",").filter(x=>x&&"rime".includes(x)),sel:null,region:null,rdir:"both",scheme:"wb",mapMode:"routes",hl:"none",resolve:"mean",rank:"exp",rankSort:null,fmt:"csv"};
 if(!PLAS)S.scrap=COMBO&&GROUPS.includes("plastic");
-const B={type:"sankey",from:"c",to:"c",side:"ex",group:"c",scheme:"wb",view:0,measure:"t",top:15,focus:false,split:"r",norm:"abs",tcol:"shade",nlab:15,labt:"c"};
+const B={type:"sankey",from:"c",to:"c",side:"ex",group:"c",scheme:"wb",view:2,measure:"t",top:15,focus:false,split:"r",norm:"abs",tcol:"shade",nlab:15,labt:"c"};
 const HEADN=300,RSTEPS=[10,15,20,25,30,40,45,50,60,75,100,125,150,200,250,300,400,500,750,1000,1500,2000,3000,5000,1e9],ALLR=1e9;
 const rIdx=v=>{let b=0;for(let i=0;i<RSTEPS.length;i++)if(Math.abs(RSTEPS[i]-v)<Math.abs(RSTEPS[b]-v))b=i;return b},rLab=v=>v>=ALLR?"All":d3.format(",")(v);
 const DDEF={preset:"container",dec:1,linc:false,rcol:"io",out:null,in:null,res:null,maxr:60,line:1,lab:"both",lval:"net",globe:"trade",lpos:"auto",ldens:3,lsize:11,anim:true,choro:false,font:12,vals:true,nodew:12,gap:10,op:.35,lcol:"source",h:1};
@@ -1828,7 +1828,7 @@ $("#dlcopy").onclick=async()=>{const rows=dlRows(),keys=dlKeys(),txt=S.fmt==="js
 // ---------- CONTROLS ----------
 function segment(sel,attr,fn){const btns=[...document.querySelectorAll(sel+" button")];btns.forEach(b=>b.addEventListener("click",()=>{if(b.disabled||b.dataset[attr]===undefined)return;btns.forEach(x=>x.setAttribute("aria-pressed",x===b?"true":"false"));fn(b.dataset[attr])}))}
 segment("#imp","i",v=>{S.imp=v==="1";const u=new URL(location.href);if(!S.imp)u.searchParams.set("imp","0");else u.searchParams.delete("imp");history.replaceState(null,"",u);resolve();render();hpRefresh()});
-pressed("#imp","i",S.imp?"1":"0");if(!IMP)$("#impbox").hidden=true;
+pressed("#imp","i",S.imp?"1":"0");$("#impbox").hidden=S.view===2||!IMP;$("#resmethodbox").hidden=S.view!==2;
 segment("#view","v",v=>{S.view=+v;$("#resmethodbox").hidden=S.view!==2;$("#impbox").hidden=S.view===2||!IMP;B.view=S.view;pressed("#bview","v",B.view);render();hpRefresh()});
 $("#resmethod").onchange=e=>{S.resolve=e.target.value;resolve();render();hpRefresh()};
 segment("#measure","m",v=>{S.measure=v;render()});
