@@ -11,6 +11,7 @@ Source for [globalwastetrade.org](https://globalwastetrade.org): an explorer for
 | `site/vendor/` | d3 7.8.5, d3-sankey 0.12.3 and topojson-client 3.1.0, kept locally. |
 | `pipeline/fetch_comtrade.py` | Downloads one year of HS 3915 records from the Comtrade API, or with `--name mixed` the wastes that carry plastic amongst other materials. |
 | `pipeline/build_site_data.py` | Applies the data rules, writes `site/data/` and a check report in `pipeline/reports/`. |
+| `pipeline/build_site_data.py --material <paper\|metals\|textiles\|ewaste>` | Builds the other material groups from `pipeline/raw/comtrade_<material>_<year>.json` into `site/data/<material>_<year>.json` (same shape as the plastic file, every stream under `hidden`), with a check report `pipeline/reports/<material>_<year>.md`. The codes of each group are in `MATERIALS` in `build_site_data.py`. Each stream counts in full in its own group; other groups add a sourced share of it (set on the page). Run the plastic build for the year first, since some streams are taken from it. |
 | `pipeline/build_trends.py` | Summarises every year into the trend and flow files, for plastic waste and each mixed stream. |
 | `pipeline/build_validation.py` | Compares the site's figures with published studies and official statistics listed in `pipeline/reference/validation_sources.json`, and writes `site/data/validation.json` for the Validation page (`validation.html`). Uses reported routes only, never imputed routes or modelled years. |
 | `pipeline/income_history.py` | Turns the World Bank's historical income classification (OGHIST.xlsx) into `pipeline/reference/income_history.json`. |
@@ -46,6 +47,11 @@ python pipeline/fetch_comtrade.py --year 2023
 python pipeline/fetch_comtrade.py --year 2023 --name mixed \
   --cmd 550510,6309,6310,854931,854939,854991,854999,382510,4707
 python pipeline/build_site_data.py --year 2023
+for m in paper metals textiles ewaste; do
+  python pipeline/fetch_comtrade.py --year 2023 --name $m \
+    --cmd "$(python -c "import sys; sys.path.insert(0,'pipeline'); import build_site_data as b; print(','.join(b.material_codes('$m')))")"
+  python pipeline/build_site_data.py --year 2023 --material $m
+done
 python pipeline/build_trends.py
 python pipeline/build_validation.py
 python -m unittest discover -s pipeline/tests
