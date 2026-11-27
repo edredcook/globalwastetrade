@@ -1089,10 +1089,10 @@ svg.append("defs").html(`<pattern id="hatch" width="6" height="6" patternUnits="
  addEventListener("keydown",e=>{if(e.key==="Escape"&&box.classList.contains("fs")&&!fsEl())setFS(false)});
  addEventListener("resize",fitMap);
  if(window.ResizeObserver){const ro=new ResizeObserver(()=>requestAnimationFrame(fitMap));[main,...box.querySelectorAll(".bar")].forEach(n=>ro.observe(n))}
- const setSide=open=>{box.classList.toggle("noside",!open);$("#sideclose").setAttribute("aria-expanded",String(open));try{localStorage.setItem("gwt-side",open?"1":"0")}catch(e){}requestAnimationFrame(fitMap)};
+ const setSide=(open,save=true)=>{box.classList.toggle("noside",!open);$("#sideclose").setAttribute("aria-expanded",String(open));if(save)try{localStorage.setItem("gwt-side2",open?"1":"0")}catch(e){}requestAnimationFrame(fitMap)};
  $("#sideclose").onclick=()=>{setSide(false);$("#sideopen").focus({preventScroll:true})};$("#sideopen").onclick=()=>{setSide(true);$("#sideclose").focus({preventScroll:true});$("#mapside").scrollIntoView({block:"nearest"})};
- let open=true;try{open=localStorage.getItem("gwt-side")!=="0"}catch(e){}
- setSide(open);
+ let open=false;try{open=localStorage.getItem("gwt-side2")==="1"}catch(e){}
+ setSide(open,false);
  fitMap()}
 const zg=svg.append("g");
 const sphereP=zg.append("path").attr("d",path({type:"Sphere"})).attr("fill","var(--sea)");
