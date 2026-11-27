@@ -9,7 +9,12 @@ countries, then scaled the result up to 3.3 Mt for 2019 to match the Countering 
 Illegal Trade study. They describe these flows as going from high-income to middle- and
 low-income countries, and checked the largest records by hand; here that check is a rule:
 the sending country must be high-income (World Bank group for that year) and outside the
-Gulf, which keeps out cheap new goods from China and Gulf re-export hubs. This script runs the same screen on every year downloaded by
+Gulf, which keeps out cheap new goods from China and Gulf re-export hubs. A record priced
+under 1/100 of its code's median is a weight error, not used goods, and is left out (the
+same 100-times test the site's cleaning uses; Korea's 2014 exports of static converters
+to China, 473 kt at US$0.29 per kg, are one). So is a route whose tonnes of one code
+jump to more than five times their usual level for a single year (Russia's 2013 exports of
+refrigerators and washing machines to Belarus, 99 kt against about 6 kt in other years). This script runs the same screen on every year downloaded by
 fetch_used_eee.py (pipeline/raw/comtrade_usedeee_<year>.json), applies the one factor
 that makes 2019 equal 3.3 Mt, and takes 33% to 70% of the result as e-waste (Baldé et
 al. 2024, p. 38); the rest is working second-hand equipment.
@@ -37,6 +42,8 @@ import build_site_data as b  # noqa: E402
 
 REF = b.REF / "used_eee_codes.json"
 OUT = b.SITE_DATA / "grey_ewaste.json"
+GROSS = 0.01  # records priced under this share of the median are taken as weight errors
+SPIKE = 5  # a route's code more than this many times its usual tonnes in one year is a weight error
 CARRY = 2  # years a sending country's last report is carried forward
 
 
@@ -45,8 +52,9 @@ def oecd_in(year):
     return {int(k) for k, v in m.items() if v["joined"] <= year}
 
 
-def screen(year, ref, group):
-    """Screened records for one year: [(exporter, importer, tonnes, code)]."""
+def screen(year, ref, group, every=None):
+    """Screened records for one year: [(exporter, importer, tonnes, code)]. If `every` is a
+    dict, it also gets the tonnes of every record, screened or not, by (exporter, importer, code)."""
     raw = b.load(b.RAW / f"comtrade_usedeee_{year}.json")["data"]
     cat = {c: k["cat"] for k in ref["keys"].values() for c in k["hs"] + k.get("older", [])}
     by = defaultdict(list)
@@ -63,9 +71,26 @@ def screen(year, ref, group):
         med = statistics.median(u / k for _, _, k, u in rs)
         cut = ref["threshold"][cat[code]] * med
         for ex, im, kg, usd in rs:
-            if usd / kg < cut and im not in skip and ex not in gulf and group(ex, year) == "HIC":
+            if every is not None:
+                every[(ex, im, code)] = every.get((ex, im, code), 0) + kg / 1000
+            # under 1/100 of the median is a weight error, not used goods (the site's rule D)
+            if GROSS * med <= usd / kg < cut and im not in skip and ex not in gulf and group(ex, year) == "HIC":
                 out.append((ex, im, kg / 1000, code))
     return out
+
+
+def drop_spikes(per, every, k=SPIKE, floor=1000):
+    """Leave out a screened record when its tonnes are more than k times the median tonnes of
+    the same route and code over the downloaded years (screened or not, years with no record
+    counting as zero; at least three years) and above `floor` tonnes: a one-year jump like
+    that is a weight error, not used goods."""
+    years = sorted(every)
+    if len(years) < 3:
+        return per
+    keys = {key for d in every.values() for key in d}
+    med = {key: statistics.median(every[y].get(key, 0) for y in years) for key in keys}
+    return {y: [r for r in rs if not (r[2] > floor and r[2] > k * max(med.get((r[0], r[1], r[3]), 0), 1))]
+            for y, rs in per.items()}
 
 
 def main():
@@ -85,7 +110,8 @@ def main():
         return (g or {}).get(str(min(y, income["years"][1])), "NS") if g else "NS"
 
     lo, hi = cal["ewaste_share"]
-    per = {y: screen(y, ref, group) for y in years}
+    every = {y: {} for y in years}
+    per = drop_spikes({y: screen(y, ref, group, every[y]) for y in years}, every)
     rows = {r["year"]: r for r in old["years"]}
     # The first downloaded year only seeds the carry-forward when an earlier build has
     # the year before it (the refresh downloads one year more than it rebuilds).
