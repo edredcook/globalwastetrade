@@ -109,7 +109,7 @@ const TEXT={
 "p.hic2":[
 "The impacts of open burning are considerable. Around 2 billion people have no waste collection, and many burn their discarded plastic in open, uncontrolled fires.[[velis2021]] Open burning of waste has been linked to an estimated 270,000 premature deaths a year worldwide,[[velis2021|Citing Kodros et al. (2016).]] and a systematic review of the evidence found an overwhelmingly high risk of harm to the estimated 11.4 million waste pickers who work close to waste fires, often without protective equipment.[[velis2021]] In the Global South most plastic pollution comes from uncollected waste, and rejects from recycling account for about 1 million of the 52 million tonnes emitted worldwide each year.[[cottom|2020: 52.1 Mt of plastic emitted, 57% open burned and 43% as unburned debris. Uncollected waste is 68% of emissions in the Global South; rejects from recycling 1.0 Mt.]] But that pollution falls on the communities that receive the waste.",
 "The total mass of plastic traded worldwide masks the flows most likely to damage human health and the environment. Looking only at exports from high-income to middle- and low-income countries shows the true scale of the problem.",
-"Counting plastic scrap alone, high-income countries now send less than half what they did before China's ban: 2.2 million tonnes in 2025, against 4.7 million tonnes in 2016. Counting the <a href='about.html#embedded-plastic'>plastic in tyres, clothing and other wastes</a>, the flow is now larger than before the ban: 8.7 million tonnes in 2025, against 8.4 million tonnes in 2016.[[gwt|Resolved, leaving out Hong Kong's re-exports. Exporters' reports: 4.9 to 2.3 Mt of plastic scrap and 8.3 to 8.1 Mt including embedded plastic; importers' reports: 4.5 to 2.0 Mt and 8.3 to 8.9 Mt. 2025 is partly modelled.]][[shares]][[wb]]"],
+"Counting plastic scrap alone, high-income countries now send less than a third of what they did before China's ban: 2.2 million tonnes in 2025, against 7.6 million tonnes in 2016. Counting the <a href='about.html#embedded-plastic'>plastic in tyres, clothing and other wastes</a>, the fall is much smaller: 8.8 million tonnes in 2025, against 11.3 million tonnes in 2016.[[gwt|Resolved, including Hong Kong's exports, much of them re-exports to mainland China. Exporters' reports: 7.7 to 2.3 Mt of plastic scrap and 11.2 to 8.2 Mt including embedded plastic; importers' reports: 7.3 to 2.0 Mt and 11.1 to 9.0 Mt. 2025 is partly modelled.]][[shares]][[wb]]"],
 "p.receivers":[
 "India, Turkey and Malaysia are now the largest middle-income receivers. India mostly takes tyres and used clothing. Turkey takes plastic scrap and tyres in roughly equal amounts, and Malaysia mostly takes plastic scrap.[[gwt|2023, exporters' reports. India 1.6 Mt, Turkey 1.1 Mt, Malaysia 1.0 Mt of plastic including embedded plastic.]]",
 "Turkey is now the largest single destination for plastic scrap, most of it from Europe.[[gwt|2025, exporters' reports: 0.68 Mt, 87% from Europe and Central Asia.]]"],
@@ -167,7 +167,7 @@ const css=n=>getComputedStyle(cssEl()).getPropertyValue(n).trim();
 const fmtMt=t=>(t/1e6).toFixed(t>=1e8?0:1);
 const fmtBn=u=>(u/1e9).toFixed(u>=1e10?0:1);
 const VIEW={"0":"exporters' reports","1":"importers' reports","2":"resolved figures"};
-const S={hv:"2",hpk:"all",hps:"dest",pv:"2",pk:"all",hk:"out",pm:"t",ry:2023};
+const S={hv:"2",hpk:"all",hps:"dest",pv:"2",pk:"all",hk:"in",pm:"t",ry:2023};
 let D,W,drawn={};
 let cur=document.body.dataset.page;
 function show(){
