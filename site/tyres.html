@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Used tyres and rubber shipped to India · Global Waste Trade Data Hub</title>
+<meta name="description" content="India now takes around 40% of the world's traded used tyres and rubber, much of it for pyrolysis. Where it comes from, year by year since 2008, with sources.">
+<link rel="canonical" href="https://globalwastetrade.org/tyres.html">
+<meta property="og:site_name" content="Global Waste Trade Data Hub">
+<meta property="og:title" content="Used tyres and rubber shipped to India · Global Waste Trade Data Hub">
+<meta property="og:description" content="India now takes around 40% of the world's traded used tyres and rubber, much of it for pyrolysis. Where it comes from, year by year since 2008, with sources.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://globalwastetrade.org/tyres.html">
+<meta property="og:image" content="https://globalwastetrade.org/img/social-card.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Map of waste trade routes between countries">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#13212a">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,500..900&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="stories.css?v=1">
+</head>
+<body data-page="tyres">
+
+<header class="mast"><div class="wrap">
+  <a class="brand" href="./"><i aria-hidden="true"></i>Global Waste Trade Data Hub</a>
+  <span class="betab">Beta</span>
+  <nav class="top" aria-label="Pages"><a href="./">Home</a><a href="plastics.html">Plastics</a><a href="tyres.html" aria-current="page">Tyres</a><a href="explorer.html">Explorer</a><a href="trends.html">Trends</a><a href="validation.html">Validation</a><a href="about.html">About</a></nav>
+</div></header>
+
+<main class="page dk" id="p-tyres">
+  <section class="wrap p-hero t-hero">
+    <div><h1>Used tyres and rubber</h1><div class="p-intro prose" data-text="t.intro"></div></div>
+  </section>
+  <section class="wrap">
+    <div class="p-sec">
+      <div class="ty-card">
+        <div class="ty-head"><div><h3>Used tyres and rubber shipped to India</h3><p class="ty-sum"><b id="ty-t"></b><span id="ty-s"></span></p></div><div class="ty-yr" id="ty-yr">2008</div></div>
+        <div class="ty-box" id="ty-box"></div>
+        <div class="sk-bar ty-bar"><button type="button" class="sk-play" id="ty-play">Play</button>
+          <div class="sk-track" style="padding-top:6px"><input type="range" id="ty-range" min="2008" max="2026" step="0.05" value="2008" aria-label="Year"><div class="sk-ticks" id="ty-ticks"></div></div></div>
+      </div>
+      <div class="top"><h2>Pyrolysis in India</h2><div class="prose" data-text="t.pyro"></div></div>
+      <div class="p-grid2 ty-pair">
+        <div class="ty-card ty-sm"><h3>India's share of world trade in used tyres and rubber</h3><svg class="chart" id="t-share" role="img" aria-label="Used tyres and rubber traded each year: India's imports and the rest of the world"></svg></div>
+        <div class="ty-card ty-sm"><h3 id="t-from-title">Where India's used tyres and rubber came from, 2025</h3><svg class="chart" id="t-from" role="img" aria-label="Largest suppliers of used tyres and rubber to India"></svg></div>
+      </div>
+    </div>
+
+    <div class="refs" id="t-refs"><h2>Sources</h2><ol></ol></div>
+    <footer class="pfoot" data-page="tyres" data-updated="2026-11-27"></footer>
+  </section>
+</main>
+
+<div id="pop" hidden role="dialog" aria-label="Source"></div>
+<script src="vendor/d3-7.8.5.min.js"></script>
+<script src="vendor/topojson-client.min.js"></script>
+<script src="stories.js?v=1"></script>
+</body>
+</html>

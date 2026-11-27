@@ -39,7 +39,7 @@ class Materials(unittest.TestCase):
         self.assertIn([1, 842, 792, 2500.0, 700_000, 0], out["fe"])
 
     def test_page_names_every_stream_and_sources_every_share(self):
-        page = (ROOT / "site" / "index.html").read_text(encoding="utf-8")
+        page = (ROOT / "site" / "explorer.html").read_text(encoding="utf-8")
         for mat, cfg in b.MATERIALS.items():
             block = page[page.index(f"  {mat}:{{n:\"{cfg['name']}\",noun:"):]
             block = block[:block.index("dlk:")]

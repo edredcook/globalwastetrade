@@ -102,6 +102,7 @@ jobs:
           done
           python pipeline/build_trends.py
           python pipeline/build_validation.py
+          python pipeline/build_stories.py
       - name: Keep the check report even if the build stopped
         if: always()
         uses: actions/upload-artifact@v4

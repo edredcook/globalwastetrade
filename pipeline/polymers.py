@@ -14,7 +14,7 @@ first of these that has six-digit tonnes, so the polymers always add up to HS 39
 5. the world, in this view, then in the other view.
 
 US$ shares come from the same record's US$, or its tonnes where it has no US$.
-site/index.html does the same in JavaScript (polyShares); keep the two in step.
+site/explorer.html does the same in JavaScript (polyShares); keep the two in step.
 """
 from collections import defaultdict
 

@@ -98,6 +98,7 @@ h1{margin:0 0 16px;font-family:var(--display);font-stretch:85%;font-weight:800;f
 .refs{list-style:none;padding:0!important;margin:0}
 .refs li{overflow-wrap:anywhere;margin:0 0 14px;padding-left:24px;text-indent:-24px}
 .refs .use{display:block;text-indent:0;color:var(--muted);font-size:14px;margin-top:2px}
+#embedded-plastic{scroll-margin-top:80px}
 .refs li{scroll-margin-top:80px;border-radius:6px;transition:background .3s}
 .refs li:target{background:color-mix(in srgb,var(--out) 12%,transparent)}
 .shares{border-collapse:collapse;font-size:14px;margin:6px 0 4px;width:100%;max-width:760px}
@@ -113,7 +114,7 @@ h1{margin:0 0 16px;font-family:var(--display);font-stretch:85%;font-weight:800;f
   <a class="brand" href="./"><i aria-hidden="true"></i>Global Waste Trade Data Hub</a>
   <span class="betab">Beta</span>
   <nav class="top" aria-label="Pages">
-    <a href="./">Explorer</a><a href="trends.html">Trends</a><a href="validation.html">Validation</a><a href="about.html" aria-current="page">About</a>
+    <a href="./">Home</a><a href="plastics.html">Plastics</a><a href="tyres.html">Tyres</a><a href="explorer.html">Explorer</a><a href="trends.html">Trends</a><a href="validation.html">Validation</a><a href="about.html" aria-current="page">About</a>
   </nav>
 </div></header>
 <main class="wrap">
@@ -173,7 +174,7 @@ h1{margin:0 0 16px;font-family:var(--display);font-stretch:85%;font-weight:800;f
     <h3>Income groups</h3>
     <p>Income groups follow the World Bank's classification for the year in which the trade takes place, so a country that moves group is counted in the group it was in at the time.</p>
 
-    <h3>Other and embedded plastics</h3>
+    <h3 id="embedded-plastic">Other and embedded plastics</h3>
     <p>Many waste materials and products are composites, assemblies or mixtures. Used clothing, e-waste and refuse-derived fuel, for example, all contain plastic. Users can include these flows in the charts so that the full range of plastic in traded waste can be analysed. Their tonnages also come from UN Comtrade and are cleaned in the same way.</p>
     <p>The quantity of plastic in each stream rests on an assumption. Each is set to the default value shown below, with its source, and can be edited by users as new information becomes available. Scientifically justified suggestions or improvements to these assumptions are welcome; please contact the site owner at <a href="mailto:ed@globalwastetrade.org">ed@globalwastetrade.org</a>.</p>
 
@@ -229,7 +230,7 @@ h1{margin:0 0 16px;font-family:var(--display);font-stretch:85%;font-weight:800;f
 
   <section class="card sec" id="built">
     <h2>Built with</h2>
-    <p>Built with Claude, by Anthropic. The Explorer, Trends and Validation pages draw their maps and charts with d3; the Explorer also uses d3-sankey for its flow charts and topojson-client for the world map. All pages use the Archivo and IBM Plex typefaces.</p>
+    <p>Built with Claude, by Anthropic. The Home, Plastics, Tyres, Explorer, Trends and Validation pages draw their maps and charts with d3; the Explorer also uses d3-sankey for its flow charts and topojson-client for the world map. All pages use the Archivo and IBM Plex typefaces.</p>
   </section>
 </main>
 <script>
