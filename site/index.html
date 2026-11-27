@@ -753,9 +753,10 @@ const MCFG={
     grp:[["Batteries",["ebatt"],1],["Electrical and electronic",["eprec","weee","weeeo"],1]],
     dlk:{plastic_scrap_t:"ewaste_t",hidden_plastic_t:"other_t",hidden_detail:"by_stream"}}};
 const QS=new URLSearchParams(location.search);
-const GORD=["plastic","paper","metals","textiles","ewaste"],PARTOK={paper:1,textiles:1,ewaste:1},INCS=["HIC","UMC","LMC","LIC"];
+const GORD=["plastic","paper","metals","textiles","ewaste"],PARTOK={textiles:[["p","Synthetic"],["o","Natural and other"]],ewaste:[["p","Plastic"],["m","Metal"],["o","Other materials"]]},INCS=["HIC","UMC","LMC","LIC"];
 const GROUPS=GORD.filter(g=>(QS.get("mat")||"plastic").split(/[ ,+]/).includes(g));if(!GROUPS.length)GROUPS.push("plastic");
-const PARTS={};for(const x of (QS.get("part")||"").split(",")){const [g,p]=x.split("-");if(GROUPS.includes(g)&&PARTOK[g]&&(p==="p"||p==="o"))PARTS[g]=p}
+// Each group's own make-up: textiles by fibre, e-waste by material. PARTS[g] holds the ticked letters; none means all.
+const PARTS={};for(const x of (QS.get("part")||"").split(",")){const [g,p]=x.split("-");if(!GROUPS.includes(g)||!PARTOK[g]||!p)continue;const L=PARTOK[g].map(q=>q[0]).filter(l=>p.includes(l));if(L.length&&L.length<PARTOK[g].length)PARTS[g]=L.join("")}
 const OVOUT=GROUPS.length>1&&QS.get("ov")==="0";
 // Several groups at once, or one group cut to its plastic or other parts.
 const COMBO=GROUPS.length>1||Object.keys(PARTS).length>0;
@@ -776,12 +777,13 @@ function atoms(k,i){const h=HOME[k]||null,P=gsh("plastic",k,i),T=gsh("textiles",
   const s=d3.sum(A,a=>a.f);if(s>1)A.forEach(a=>a.f/=s);A.push({n:"other",f:Math.max(0,1-s),p:0,g:[]});
   if(h)A.forEach(a=>{if(!a.g.includes(h))a.g=a.g.concat(h)});
   return A.filter(a=>a.f>1e-9)}
-const inG=(a,g)=>a.g.includes(g)&&(PARTS[g]==null||(PARTS[g]==="p")===!!a.p);
+const kindOf=a=>a.p?"p":a.n==="metal"?"m":"o";
+const inG=(a,g)=>a.g.includes(g)&&(PARTS[g]==null||PARTS[g].includes(kindOf(a)));
 const cntG=a=>GROUPS.reduce((n,g)=>n+inG(a,g),0);
 // mode: a group, "u" (each part once), "x" (parts in one group only) or "s" (groups added up).
 const comboSh=(k,i,mode)=>d3.sum(atoms(k,i),a=>{const n=cntG(a);return mode==="u"?(n?a.f:0):mode==="x"?(n===1?a.f:0):mode==="s"?a.f*n:inG(a,mode)?a.f:0});
 const CMODE=OVOUT?"x":"u";
-const partLab=g=>PARTS[g]?(PARTS[g]==="p"?" (plastic part)":" (other parts)"):"";
+const partLab=g=>PARTS[g]?" ("+PARTOK[g].filter(q=>PARTS[g].includes(q[0])).map(q=>q[1].toLowerCase()).join(", ")+")":"";
 const gLab=g=>MCFG[g].n+partLab(g);
 const pct=f=>d3.format(".3~r")(f*100)+"%";
 let MAT,MC,HS,HSCOL,HGRP;
@@ -1825,7 +1827,7 @@ function chip(k){
 function hpUI(){
   const bx=core=>HGRP.filter(g=>!!g[2]===core).map(([g,ks])=>{const kk=ks.filter(k=>k==="scrap"||HROWS[k].length&&(!COMBO||HON[k].f>0||INCS.some(i=>HON[k].inc[i]>0)));return kk.length?`<div class="mbox"><b>${g}</b>${kk.map(chip).join("")}</div>`:""}).join("");
   const boxes=bx(false),cores=bx(true);
-  const pg=GROUPS.filter(g=>PARTOK[g]),top=pg.map(g=>`<span class="mparts" data-g="${g}"><b>${esc(MCFG[g].n)}</b><label><input type="checkbox" data-part="p" ${PARTS[g]!=="o"?"checked":""}>Plastic part</label><label><input type="checkbox" data-part="o" ${PARTS[g]!=="p"?"checked":""}>Other parts</label></span>`).join("")
+  const pg=GROUPS.filter(g=>PARTOK[g]),top=pg.map(g=>`<span class="mparts" data-g="${g}"><b>${esc(MCFG[g].n)}</b>${PARTOK[g].map(([l,n])=>`<label><input type="checkbox" data-part="${l}" ${!PARTS[g]||PARTS[g].includes(l)?"checked":""}>${n}</label>`).join("")}</span>`).join("")
     +(GROUPS.length>1?`<span class="mov"><b class="hint" tabindex="0" data-tip="Parts that belong to more than one ticked group, such as the plastic in used clothing for Plastics and Textiles. Count once keeps them in the total a single time; Leave out drops them.">Overlap</b><span class="seg"><button type="button" data-ov="1" aria-pressed="${!OVOUT}">Count once</button><button type="button" data-ov="0" aria-pressed="${OVOUT}">Leave out</button></span></span>`:"");
   $("#hpgrid").innerHTML=(top?`<div class="mtop">${top}</div>`:"")+(PLAS?`<div class="mscrap">${chip("scrap")}</div>`:cores?`<div class="mboxes">${cores}</div>`:"")+(boxes?`<div><span class="lab hint" tabindex="0" data-tip="${esc(MC.embTip)}">${esc(MC.embHead)}</span><div class="mboxes">${boxes}</div></div>`:"");
   $(".macts").hidden=!HAS_HID||$("#mgplas").getAttribute("aria-expanded")==="false";
@@ -1898,8 +1900,8 @@ document.querySelectorAll(".mtabs [data-mat]").forEach(b=>{const g=b.dataset.mat
   if(on&&GROUPS.length===1)return;
   const x=document.createElement("button");x.type="button";x.className="madd";x.textContent=on?"×":"+";x.title=on?`Take out ${MCFG[g].n}`:`Add ${MCFG[g].n}`;x.setAttribute("aria-label",x.title);
   x.onclick=()=>{try{localStorage.setItem("gwt-mg2","1")}catch(e){}goMat(on?GROUPS.filter(q=>q!==g):GROUPS.concat(g))};w.append(x)});
-$("#hpgrid").addEventListener("change",e=>{const t=e.target;if(!t.dataset.part)return;const box=t.closest("[data-g]"),g=box.dataset.g,P=box.querySelector('[data-part="p"]').checked,O=box.querySelector('[data-part="o"]').checked;
-  if(!P&&!O){t.checked=true;return}goMat(GROUPS,{...PARTS,[g]:P&&O?null:P?"p":"o"})});
+$("#hpgrid").addEventListener("change",e=>{const t=e.target;if(!t.dataset.part)return;const box=t.closest("[data-g]"),g=box.dataset.g,L=[...box.querySelectorAll("[data-part]")].filter(c=>c.checked).map(c=>c.dataset.part).join("");
+  if(!L){t.checked=true;return}goMat(GROUPS,{...PARTS,[g]:L.length===PARTOK[g].length?null:L})});
 $("#hpgrid").addEventListener("click",e=>{const b=e.target.closest("[data-ov]");if(b&&(b.dataset.ov==="0")!==OVOUT)goMat(GROUPS,PARTS,b.dataset.ov==="0")});
 $("#hpsave").onclick=()=>saveFile(PLAS?"gwt-hidden-plastic-assumptions.json":`gwt-embedded-${MAT}-assumptions.json`,JSON.stringify({about:`Global Waste Trade Data Hub ${PLAS?"hidden-plastic":"embedded "+MC.noun} assumptions. f = ${MC.noun} share %`+", source = source for the value used, inc = share % by exporter income group (used when byInc is true), ",version:VERSION,streams:Object.fromEntries(Object.entries(HON).map(([k,o])=>[k,{name:HS[k].n,codes:HS[k].codes,...o,default_f:HS[k].f,source:isDef(k)?HS[k].src:o.usrc.trim()||"No source given"}]))},null,1));
 $("#hpload").onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const j=JSON.parse(await f.text());if(!j||!j.streams)throw 0;let n=0;for(const k in HS)if(j.streams[k]){HON[k]=sanitiseH(k,j.streams[k]);n++}hpUI();hpApply();toast(`Loaded assumptions for ${n} stream${n===1?"":"s"}.`)}catch(err){toast("That file isn't a set of assumptions from this site.")}e.target.value=""};
