@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Plastic waste trade since 2008 · Global Waste Trade Data Hub</title>
+<meta name="description" content="Where the world's traded plastic waste goes, including the plastic in used clothing, tyres and other wastes: China's ban, exports from high-income countries and the largest receivers.">
+<link rel="canonical" href="https://globalwastetrade.org/plastics.html">
+<meta property="og:site_name" content="Global Waste Trade Data Hub">
+<meta property="og:title" content="Plastic waste trade since 2008 · Global Waste Trade Data Hub">
+<meta property="og:description" content="Where the world's traded plastic waste goes, including the plastic in used clothing, tyres and other wastes: China's ban, exports from high-income countries and the largest receivers.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://globalwastetrade.org/plastics.html">
+<meta property="og:image" content="https://globalwastetrade.org/img/social-card.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Map of waste trade routes between countries">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#13212a">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,500..900&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="stories.css?v=1">
+</head>
+<body data-page="plastics">
+
+<header class="mast"><div class="wrap">
+  <a class="brand" href="./"><i aria-hidden="true"></i>Global Waste Trade Data Hub</a>
+  <span class="betab">Beta</span>
+  <nav class="top" aria-label="Pages"><a href="./">Home</a><a href="plastics.html" aria-current="page">Plastics</a><a href="tyres.html">Tyres</a><a href="explorer.html">Explorer</a><a href="trends.html">Trends</a><a href="validation.html">Validation</a><a href="about.html">About</a></nav>
+</div></header>
+
+<main class="page dk" id="p-plastics">
+  <section class="wrap p-hero">
+    <div><h1>Plastic waste trade</h1><div class="p-intro prose" data-text="p.intro"></div></div>
+    <div>
+      <div class="c-row" style="margin:0 0 10px"><span class="c-kicker" style="margin:0">Plastic traded, 2023</span><div class="ctl"><div class="seg" data-k="pv"><button aria-pressed="false" data-v="0">Exporters'</button><button aria-pressed="false" data-v="1">Importers'</button><button aria-pressed="true" data-v="2" title="Resolved: the mean of the two reports where both countries report, otherwise whichever reported. The method is still being agreed.">Resolved</button></div></div></div>
+      <div class="p-tiles" id="p-tiles"></div>
+    </div>
+  </section>
+  <section class="wrap" style="padding-bottom:34px">
+    <div class="card">
+      <header><h2>Plastic traded, by material</h2>
+        <div class="ctls"><div class="ctl"><span>Reporter type</span><div class="seg" data-k="pv"><button aria-pressed="false" data-v="0">Exporters'</button><button aria-pressed="false" data-v="1">Importers'</button><button aria-pressed="true" data-v="2" title="Resolved: the mean of the two reports where both countries report, otherwise whichever reported. The method is still being agreed.">Resolved</button></div></div></div></header>
+      <svg class="chart" id="p-mat" role="img" aria-label="Plastic traded each year by material, 2008 to 2026"></svg>
+      <ul class="legend below" id="p-mat-leg"></ul>
+    </div>
+  </section>
+
+
+  <section class="wrap">
+    <div class="p-sec"><div class="top"><h2>Before and after China's ban</h2><div class="prose" data-text="p.history"></div></div>
+      <div class="card"><header><h2 id="p-dest-title">Plastic traded, including embedded plastic, by destination</h2>
+          <div class="ctls">
+            <div class="ctl"><span>Plastic</span><div class="seg" data-k="pk"><button aria-pressed="false" data-v="scrap">Plastic scrap</button><button aria-pressed="true" data-v="all">Including embedded</button></div></div>
+            <div class="ctl"><span>Reporter type</span><div class="seg" data-k="pv"><button aria-pressed="false" data-v="0">Exporters'</button><button aria-pressed="false" data-v="1">Importers'</button><button aria-pressed="true" data-v="2" title="Resolved: the mean of the two reports where both countries report, otherwise whichever reported. The method is still being agreed.">Resolved</button></div></div>
+          </div></header><svg class="chart" id="p-dest" role="img" aria-label="Plastic traded each year by destination"></svg><ul class="legend below" id="p-dest-leg"></ul></div>
+    </div>
+
+
+    <div class="p-sec"><div class="top"><h2>From high-income countries</h2><div class="prose" data-text="p.hic"></div></div>
+      <div class="card">
+        <header><h2>Plastic exported by high-income countries: exporter, material and the recipient's income group</h2>
+          <div class="ctls">
+            <div class="ctl"><span>Plastic</span><div class="seg" data-k="pk"><button aria-pressed="false" data-v="scrap">Plastic scrap</button><button aria-pressed="true" data-v="all">Including embedded</button></div></div>
+            <div class="ctl"><span>Hong Kong</span><div class="seg" data-k="hk"><button aria-pressed="false" data-v="in">Include</button><button aria-pressed="true" data-v="out">Leave out</button></div></div>
+            <div class="ctl"><span>Reporter type</span><div class="seg" data-k="pv"><button aria-pressed="false" data-v="0">Exporters'</button><button aria-pressed="false" data-v="1">Importers'</button><button aria-pressed="true" data-v="2" title="Resolved: the mean of the two reports where both countries report, otherwise whichever reported. The method is still being agreed.">Resolved</button></div></div>
+          </div></header>
+        <div class="sk-yr"><b id="sk-year">2016</b><span id="sk-total"></span></div>
+        <svg class="chart" id="p-hic" role="img" aria-label="Plastic exported by high-income countries, flowing from the exporter to each material and on to the recipient's income group, by year"></svg>
+        <div class="sk-key prose" data-text="p.riskkey"></div>
+        <div class="sk-bar"><button type="button" class="sk-play" id="sk-play">Play</button>
+          <div class="sk-track"><div class="sk-ev" id="sk-ev"></div><input type="range" id="sk-range" min="2008" max="2026" step="0.25" value="2016" aria-label="Year"><div class="sk-ticks" id="sk-ticks"></div><ul class="sk-evkey" id="sk-evkey"></ul></div></div>
+      </div>
+      <div class="top"><div></div><div class="prose" data-text="p.hic2"></div></div>
+    </div>
+
+    <div class="p-sec"><div class="top"><h2>The largest receivers</h2><div><div class="prose" data-text="p.receivers"></div><p style="margin:14px 0 0"><a class="more" href="tyres.html">Used tyres and rubber</a></p></div></div>
+      <div class="card">
+        <header><h2 id="p-recv-title">Middle- and low-income countries receiving the most plastic</h2></header>
+        <div class="rc-wrap"><svg class="chart" id="p-recv" role="img" aria-label="Largest middle- and low-income receivers of plastic by material, by year"></svg><div class="rc-cap prose" id="rc-cap" aria-live="polite"></div></div>
+        <ul class="legend p-matleg rc-leg"></ul>
+        <div class="sk-bar rc-bar"><button type="button" class="sk-play" id="rc-play">Play</button><button type="button" class="sk-play rc-com" id="rc-com" aria-pressed="true">Commentary on</button>
+          <div class="sk-track" style="padding-top:6px"><input type="range" id="rc-range" min="2008" max="2026" step="0.25" value="2008" aria-label="Year"><div class="sk-ticks" id="rc-ticks"></div></div></div>
+      </div>
+      <div class="p-cards" id="p-cards"></div>
+    </div>
+
+    <div class="refs" id="p-refs"><h2>Sources</h2><ol></ol></div>
+    <footer class="pfoot" data-page="plastics" data-updated="2026-11-27"></footer>
+  </section>
+</main>
+
+<div id="pop" hidden role="dialog" aria-label="Source"></div>
+<script src="vendor/d3-7.8.5.min.js"></script>
+<script src="vendor/topojson-client.min.js"></script>
+<script src="stories.js?v=1"></script>
+</body>
+</html>
