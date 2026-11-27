@@ -223,6 +223,8 @@ STREAMS = {
 # Codes are HS as reported, so a stream can list codes from several HS editions
 # (HS 8548.10 batteries until HS 2017, HS 8549.11-.19 from HS 2022); a reporter uses
 # one edition a year, so summing them never counts the same trade twice.
+# "raw" names a download shared by several groups (comtrade_<raw>_<year>.json), which keeps
+# the number of Comtrade calls down; "shares" scales a stream to the part of it counted.
 MATERIALS = {
     "paper": {
         "name": "Paper and card", "code": "HS 4707",
@@ -239,6 +241,8 @@ MATERIALS = {
             "ni": ["7503"], "sn": ["8002"], "pm": ["711291", "711292", "711299"],
             "om": ["810197", "810297", "810330", "810420", "810530", "810730", "810830", "810930",
                    "810931", "810939", "811020", "811213", "811222", "811252", "811261"],
+            # Codes that hold the metal and its articles as well as its waste and scrap
+            "omix": ["810600", "810610", "810690", "811100", "811231", "811241", "811292", "811300"],
         },
         "borrow": ["weee", "weeeo"],
     },
@@ -246,7 +250,9 @@ MATERIALS = {
         "name": "Textiles", "code": "HS 6309, 6310 and textile fibre waste",
         "desc": "Used clothing, rags and textile fibre waste",
         "streams": {"tartif": ["550520"], "tcotton": ["5202"], "twool": ["5103", "5104"],
-                    "tsilk": ["5003", "530130"]},
+                    "tsilk": ["5003", "530130"],
+                    # Processed plant fibres with their tow and waste, in one code each
+                    "tplant": ["530290", "530390", "530500"]},
         "borrow": ["clothing", "rags", "fibre", "rdf"],
     },
     "ewaste": {
@@ -255,6 +261,55 @@ MATERIALS = {
         "streams": {"ebatt": ["854810", "854911", "854912", "854913", "854914", "854919"],
                     "eprec": ["854921", "854929"]},
         "borrow": ["weee", "weeeo"],
+    },
+    "glass": {
+        "raw": "others", "name": "Glass", "code": "HS 7001",
+        "desc": "Cullet and other waste and scrap of glass",
+        "streams": {"gcullet": ["700100"]},
+        "borrow": [],
+    },
+    # HS 4401.3 and 4401.4 change in every edition: HS 2007 has one code (4401.30); HS 2012 splits
+    # off pellets (4401.31), its 4401.39 still holding loose sawdust and scrap; HS 2017 moves those
+    # to 4401.40; HS 2022 splits briquettes (4401.32) and sawdust (4401.41) from the rest.
+    "wood": {
+        "raw": "others", "name": "Wood", "code": "HS 4401.31 to 4401.49, 4501.90",
+        "desc": "Sawdust, wood waste and scrap, loose or agglomerated, and cork waste",
+        "streams": {"wsaw": ["440130", "440140", "440141", "440149"], "wpellet": ["440131"],
+                    "wagglo": ["440132", "440139"], "wcork": ["450190"]},
+        "borrow": ["rdf"],
+    },
+    "slag": {
+        "raw": "others", "name": "Slag and ash", "code": "HS 2618 to 2621 and other slag, ash and mineral waste",
+        "desc": "Slag, dross, ash and residues from metal making and incineration",
+        "streams": {"sgran": ["261800"], "sslag": ["261900"],
+                    "sash": ["262011", "262019", "262021", "262029", "262030", "262040", "262060",
+                             "262091", "262099", "711230"],
+                    "sinc": ["262110"], "sother": ["262190"], "smac": ["251720"], "smica": ["252530"]},
+        "borrow": [],
+    },
+    # Radioactive residues have their own code (2844.44) only from HS 2022.
+    "hazardous": {
+        "raw": "others", "name": "Hazardous", "code": "HS 2710.91, 2710.99, 3825.20 to 3825.69, 3006.92, 2844.44, 2844.50",
+        "desc": "Waste oils, sewage sludge, clinical, chemical, pharmaceutical and radioactive waste",
+        "streams": {"zoil": ["271091", "271099"], "zsludge": ["382520"], "zclin": ["382530"],
+                    "zsolv": ["382541", "382549"], "zfluid": ["382550"], "zchem": ["382561", "382569"],
+                    "zpharm": ["300692"], "zrad": ["284444", "284450"]},
+        "borrow": [],
+    },
+    "organic": {
+        "raw": "others", "name": "Animal and organic", "code": "HS 0501, 0505.90, 0506.90, 0511.99, 1522, 4115.20",
+        "desc": "Hair, feathers, bones, other animal waste, fat residues and leather waste",
+        "streams": {"ohair": ["050100"], "ofeath": ["050590"], "obone": ["050690"], "oanim": ["051199"],
+                    "odegras": ["152200"], "oleather": ["411520"]},
+        "borrow": [],
+        # These codes hold products as well as waste: this share of each is counted (assumption).
+        "shares": {"ohair": 0.8, "ofeath": 0.8, "obone": 0.8, "oanim": 0.8},
+    },
+    "ships": {
+        "raw": "others", "name": "Ships for breaking", "code": "HS 8908",
+        "desc": "Vessels and other floating structures for breaking up",
+        "streams": {"vship": ["890800"]},
+        "borrow": [],
     },
 }
 
@@ -330,6 +385,23 @@ def build_polymers(year, factor=10.0):
 
 def material_codes(mat):
     return [c for cs in MATERIALS[mat]["streams"].values() for c in cs]
+
+
+def apply_shares(streams, shares):
+    """Scale each listed stream's routes (tonnes and US$) to the share of it counted."""
+    for k, f in shares.items():
+        streams[k] = [[v, ex, rc, round(t * f, 2), round(usd * f), est] for v, ex, rc, t, usd, est in streams.get(k, [])]
+    return streams
+
+
+def raw_names():
+    """Raw download names of the material groups: the group's own, or a file it shares."""
+    return sorted({cfg.get("raw", m) for m, cfg in MATERIALS.items()})
+
+
+def raw_codes(name):
+    """Every HS code fetched into comtrade_<name>_<year>.json."""
+    return [c for m, cfg in MATERIALS.items() if cfg.get("raw", m) == name for c in material_codes(m)]
 
 
 def mixed_streams(rows, factor=10.0, streams=None):
@@ -560,12 +632,14 @@ def build_material(year, mat, factor=10.0, min_ratio=0.6):
     the group's own and the borrowed ones, is under "hidden".
     """
     cfg = MATERIALS[mat]
-    raw = load(RAW / f"comtrade_{mat}_{year}.json")
-    rows = raw["data"]
+    raw = load(RAW / f"comtrade_{cfg.get('raw', mat)}_{year}.json")
+    codes = set(material_codes(mat))
+    rows = [r for r in raw["data"] if s(r.get("cmdCode")) in codes]
     ref = load(REF / "countries.json")
     world = load(SITE_DATA / "world-110m.json")
     map_ids = {g.get("id") for g in world["objects"]["countries"]["geometries"]}
     own, rules = mixed_streams(rows, factor, cfg["streams"])
+    apply_shares(own, cfg.get("shares", {}))
     ppath = SITE_DATA / f"plastic_{year}.json"
     plastic = load(ppath) if ppath.exists() else {"hidden": {}, "countries": {}, "meta": {}}
     borrowed = {k: plastic["hidden"].get(k, []) for k in cfg["borrow"]}
@@ -605,6 +679,8 @@ def build_material(year, mat, factor=10.0, min_ratio=0.6):
         "hidden": hidden,
         "reporting": reporting(rows, ref, income, year),
     }
+    if cfg.get("shares"):
+        data["meta"]["shares"] = cfg["shares"]
     if m.get("modelled"):
         data["meta"].update(modelled=True, months=m.get("months"), modelled_share=m.get("modelled_share", 1.0))
         data["meta"]["source"] += "; modelled: " + m["method"]
@@ -627,8 +703,11 @@ def build_material(year, mat, factor=10.0, min_ratio=0.6):
         st = {tuple(r): k for k in cfg["streams"] for r in own.get(k, [])}
         for r in top:
             lines.append(f"| {st.get(tuple(r), '')} | {names.get(str(r[1]), r[1])} | {names.get(str(r[2]), r[2])} | {r[3]:,.0f} | {r[4]:,.0f} |")
+    lead = "Whole stream tonnes, code by code." + (
+        " Counted share applied: " + ", ".join(f"{k} {f:.0%}" for k, f in cfg["shares"].items()) + "."
+        if cfg.get("shares") else "")
     rep = "\n".join(lines) + "\n" + mixed_report(year, own, rules, cfg["streams"], f"{cfg['name']}: streams",
-                                                  "Whole stream tonnes, code by code.", f"baci_{mat}")
+                                                  lead, f"baci_{mat}")
     REPORTS.mkdir(exist_ok=True)
     (REPORTS / f"{mat}_{year}.md").write_text(rep, encoding="utf-8")
     if warn:
