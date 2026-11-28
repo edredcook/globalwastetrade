@@ -50,6 +50,29 @@ class Materials(unittest.TestCase):
                 if "core:true" not in (m.group(3) or ""):
                     self.assertRegex(m.group(3) or "", r"src:\"(Source|Assumption)", (mat, m.group(1)))
 
+    def test_codes_and_stream_keys_unique_across_groups(self):
+        codes = [c for m in b.MATERIALS for c in b.material_codes(m)]
+        self.assertEqual(len(codes), len(set(codes)))
+        keys = [k for cfg in b.MATERIALS.values() for k in cfg["streams"]] + list(b.STREAMS)
+        self.assertEqual(len(keys), len(set(keys)))
+        for c in codes:
+            self.assertFalse(any(c != d and d.startswith(c) for d in codes), c)
+
+    def test_shared_downloads_cover_every_code_once(self):
+        fetched = [c for r in b.raw_names() for c in b.raw_codes(r)]
+        self.assertEqual(sorted(fetched), sorted(c for m in b.MATERIALS for c in b.material_codes(m)))
+        self.assertIn("others", b.raw_names())
+
+    def test_counted_share_scales_tonnes_and_value(self):
+        out = b.apply_shares({"obone": [[0, 842, 156, 100.0, 5000, 0]], "odegras": [[1, 4, 5, 10.0, 20, 0]]},
+                             {"obone": 0.8})
+        self.assertEqual(out["obone"], [[0, 842, 156, 80.0, 4000, 0]])
+        self.assertEqual(out["odegras"], [[1, 4, 5, 10.0, 20, 0]])
+        for cfg in b.MATERIALS.values():
+            for k, f in cfg.get("shares", {}).items():
+                self.assertIn(k, cfg["streams"])
+                self.assertTrue(0 < f <= 1)
+
 
 if __name__ == "__main__":
     unittest.main()

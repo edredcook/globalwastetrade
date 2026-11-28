@@ -493,6 +493,12 @@ footer b{color:var(--ink);font-weight:600}
         <button data-mat="metals" aria-pressed="false">Metals</button>
         <button data-mat="textiles" aria-pressed="false">Textiles</button>
         <button data-mat="ewaste" aria-pressed="false">E-waste</button>
+        <button data-mat="glass" aria-pressed="false">Glass</button>
+        <button data-mat="wood" aria-pressed="false">Wood</button>
+        <button data-mat="slag" aria-pressed="false">Slag &amp; ash</button>
+        <button data-mat="hazardous" aria-pressed="false">Hazardous</button>
+        <button data-mat="organic" aria-pressed="false">Animal &amp; organic</button>
+        <button data-mat="ships" aria-pressed="false">Ships for breaking</button>
       </div>
       <span id="hpsum"></span>
       <span class="macts"><button class="linkbtn" id="hpshape">Select all</button><button class="linkbtn" id="hpclear">Clear all</button><button class="linkbtn" id="hpoff">Plastic scrap only</button><button class="linkbtn" id="hpreset">Reset values</button><button class="linkbtn" id="hpsave">Save assumptions</button><label class="linkbtn">Load assumptions<input type="file" id="hpload" accept=".json,application/json" hidden></label></span>
@@ -761,10 +767,11 @@ const MCFG={
       al:{n:"Aluminium",codes:"HS 7602",f:100,core:true},cu:{n:"Copper",codes:"HS 7404",f:100,core:true},pb:{n:"Lead",codes:"HS 7802",f:100,core:true},
       zn:{n:"Zinc",codes:"HS 7902",f:100,core:true},ni:{n:"Nickel",codes:"HS 7503",f:100,core:true},sn:{n:"Tin",codes:"HS 8002",f:100,core:true},
       pm:{n:"Precious metals",codes:"HS 7112.91, 7112.92, 7112.99",f:100,core:true},om:{n:"Other metals",codes:"HS 81 waste and scrap",f:100,core:true},
+      omix:{n:"Minor metals with unwrought metal and articles",codes:"HS 8106, 8111, 8112.31, 8112.41, 8112.92, 8113 (codes include products)",f:100,core:true},
       weee:{n:"Electronic assemblies and boards (metal fraction)",codes:"HS 8549.31, 8549.39",f:50,src:"Source: "+GEM},
       weeeo:{n:"Other electrical scrap (metal fraction)",codes:"HS 8549.91, 8549.99",f:50,src:"Assumption, using "+GEM}},
-    col:{fe:"#4e79a7",ss:"#a0cbe8",al:"#bab0ac",cu:"#e15759",pb:"#5f5f5f",zn:"#76b7b2",ni:"#59a14f",sn:"#8cd17d",pm:"#edc948",om:"#9c755f",weee:"#b07aa1",weeeo:"#ff9da7"},
-    grp:[["Ferrous",["fe","ss"],1],["Non-ferrous",["al","cu","pb","zn","ni","sn"],1],["Precious and other",["pm","om"],1],["E-waste",["weee","weeeo"]]],
+    col:{fe:"#4e79a7",ss:"#a0cbe8",al:"#bab0ac",cu:"#e15759",pb:"#5f5f5f",zn:"#76b7b2",ni:"#59a14f",sn:"#8cd17d",pm:"#edc948",om:"#9c755f",omix:"#d7b5a6",weee:"#b07aa1",weeeo:"#ff9da7"},
+    grp:[["Ferrous",["fe","ss"],1],["Non-ferrous",["al","cu","pb","zn","ni","sn"],1],["Precious and other",["pm","om","omix"],1],["E-waste",["weee","weeeo"]]],
     dlk:{plastic_scrap_t:"metal_scrap_t",hidden_plastic_t:"metal_in_other_materials_t",hidden_detail:"by_stream"}},
   textiles:{n:"Textiles",noun:"textiles",word:"used textiles",core:"Used textiles",emb:"Textiles in other materials",embHead:"Other and embedded textiles",only:"Textiles only",
     embTip:"Textiles carried inside other traded wastes. Each stream's tonnage is multiplied by its textile share, which you can change with the sliders button.",
@@ -772,21 +779,66 @@ const MCFG={
       fibre:{n:"Synthetic fibres",codes:"HS 5505.10",f:100,core:true},tartif:{n:"Artificial fibres",codes:"HS 5505.20",f:100,core:true},
       tcotton:{n:"Cotton",codes:"HS 5202",f:100,core:true},twool:{n:"Wool and animal hair",codes:"HS 5103, 5104",f:100,core:true},
       tsilk:{n:"Silk and flax",codes:"HS 5003, 5301.30",f:100,core:true},
+      tplant:{n:"Hemp, jute, coir and other plant fibres",codes:"HS 5302.90, 5303.90, 5305 (codes include processed fibre)",f:100,core:true},
       rdf:{n:"Refuse-derived fuel (textile fraction)",codes:"HS 3825.10",f:5,src:"Source: "+GER+" (5% textiles)."}},
-    col:{clothing:"#e15759",rags:"#ff9da7",fibre:"#b07aa1",tartif:"#d4a6c8",tcotton:"#4e79a7",twool:"#9c755f",tsilk:"#edc948",rdf:"#59a14f"},
-    grp:[["Clothing and rags",["clothing","rags"],1],["Fibres",["fibre","tartif","tcotton","twool","tsilk"],1],["Refuse-derived fuel",["rdf"]]],
+    col:{clothing:"#e15759",rags:"#ff9da7",fibre:"#b07aa1",tartif:"#d4a6c8",tcotton:"#4e79a7",twool:"#9c755f",tsilk:"#edc948",tplant:"#8cd17d",rdf:"#59a14f"},
+    grp:[["Clothing and rags",["clothing","rags"],1],["Fibres",["fibre","tartif","tcotton","twool","tsilk","tplant"],1],["Refuse-derived fuel",["rdf"]]],
     dlk:{plastic_scrap_t:"used_textiles_t",hidden_plastic_t:"textiles_in_other_materials_t",hidden_detail:"by_stream"}},
   ewaste:{n:"E-waste",noun:"e-waste",word:"e-waste",core:"E-waste",emb:"",embHead:"",only:"",embTip:"",
     hs:{ebatt:{n:"Batteries",codes:"HS 8549.11 to 8549.19 (HS 8548.10 before 2022)",f:100,core:true},eprec:{n:"Scrap for precious-metal recovery",codes:"HS 8549.21, 8549.29",f:100,core:true},
       weee:{n:"Electronic assemblies and boards",codes:"HS 8549.31, 8549.39",f:100,core:true},weeeo:{n:"Other electrical and electronic scrap",codes:"HS 8549.91, 8549.99",f:100,core:true}},
     col:{ebatt:"#e15759",eprec:"#edc948",weee:"#4e79a7",weeeo:"#a0cbe8"},
     grp:[["Batteries",["ebatt"],1],["Electrical and electronic",["eprec","weee","weeeo"],1]],
-    dlk:{plastic_scrap_t:"ewaste_t",hidden_plastic_t:"other_t",hidden_detail:"by_stream"}}};
+    dlk:{plastic_scrap_t:"ewaste_t",hidden_plastic_t:"other_t",hidden_detail:"by_stream"}},
+  glass:{n:"Glass",noun:"glass",word:"glass cullet",core:"Glass",emb:"",embHead:"",only:"",embTip:"",
+    hs:{gcullet:{n:"Cullet and glass scrap",codes:"HS 7001",f:100,core:true}},
+    col:{gcullet:"#76b7b2"},
+    grp:[["Glass",["gcullet"],1]],
+    dlk:{plastic_scrap_t:"glass_t",hidden_plastic_t:"other_t",hidden_detail:"by_stream"}},
+  wood:{n:"Wood",noun:"wood",word:"wood waste",core:"Wood",emb:"Wood in other materials",embHead:"Other and embedded wood",only:"Wood only",
+    embTip:"Wood carried inside other traded wastes. Each stream's tonnage is multiplied by its wood share, which you can change with the sliders button.",
+    hs:{wsaw:{n:"Sawdust and wood scrap",codes:"HS 4401.41, 4401.49 (4401.40 in HS 2017; 4401.30 before 2012)",f:100,core:true},
+      wpellet:{n:"Wood pellets",codes:"HS 4401.31",f:100,core:true},
+      wagglo:{n:"Briquettes, logs and other agglomerated wood",codes:"HS 4401.32, 4401.39 (4401.39 also loose sawdust and scrap in HS 2012)",f:100,core:true},
+      wcork:{n:"Cork",codes:"HS 4501.90",f:100,core:true},
+      rdf:{n:"Refuse-derived fuel (wood fraction)",codes:"HS 3825.10",f:5,src:"Source: "+GER+" (5% wood)."}},
+    col:{wsaw:"#9c755f",wpellet:"#b6992d",wagglo:"#d4a6c8",wcork:"#f1ce63",rdf:"#59a14f"},
+    grp:[["Wood and cork",["wsaw","wpellet","wagglo","wcork"],1],["Refuse-derived fuel",["rdf"]]],
+    dlk:{plastic_scrap_t:"wood_t",hidden_plastic_t:"wood_in_other_materials_t",hidden_detail:"by_stream"}},
+  slag:{n:"Slag and ash",noun:"slag and ash",word:"slag and ash",core:"Slag and ash",emb:"",embHead:"",only:"",embTip:"",
+    hs:{sgran:{n:"Granulated slag",codes:"HS 2618",f:100,core:true},sslag:{n:"Slag, dross and scale from iron and steel",codes:"HS 2619",f:100,core:true},
+      sash:{n:"Metal-bearing ash and residues",codes:"HS 2620, 7112.30",f:100,core:true},sinc:{n:"Ash from municipal waste incineration",codes:"HS 2621.10",f:100,core:true},
+      sother:{n:"Other slag and ash",codes:"HS 2621.90",f:100,core:true},smac:{n:"Slag macadam",codes:"HS 2517.20",f:100,core:true},
+      smica:{n:"Mica",codes:"HS 2525.30",f:100,core:true}},
+    col:{sgran:"#4e79a7",sslag:"#a0cbe8",sash:"#e15759",sinc:"#f28e2b",sother:"#bab0ac",smac:"#79706e",smica:"#d7b5a6"},
+    grp:[["Iron and steel",["sgran","sslag","smac"],1],["Metal-bearing",["sash"],1],["Incineration and other",["sinc","sother","smica"],1]],
+    dlk:{plastic_scrap_t:"slag_and_ash_t",hidden_plastic_t:"other_t",hidden_detail:"by_stream"}},
+  hazardous:{n:"Hazardous",noun:"hazardous waste",word:"hazardous waste",core:"Hazardous",emb:"",embHead:"",only:"",embTip:"",
+    hs:{zoil:{n:"Waste oils",codes:"HS 2710.91, 2710.99",f:100,core:true},zsludge:{n:"Sewage sludge",codes:"HS 3825.20",f:100,core:true},
+      zclin:{n:"Clinical waste",codes:"HS 3825.30",f:100,core:true},zsolv:{n:"Solvents",codes:"HS 3825.41, 3825.49",f:100,core:true},
+      zfluid:{n:"Pickling liquors, hydraulic, brake and anti-freeze fluids",codes:"HS 3825.50",f:100,core:true},
+      zchem:{n:"Chemical industry wastes",codes:"HS 3825.61, 3825.69",f:100,core:true},zpharm:{n:"Pharmaceuticals",codes:"HS 3006.92",f:100,core:true},
+      zrad:{n:"Radioactive",codes:"HS 2844.44 (from 2022), 2844.50",f:100,core:true}},
+    col:{zoil:"#3d3d3d",zsludge:"#9c755f",zclin:"#e15759",zsolv:"#4e79a7",zfluid:"#76b7b2",zchem:"#b07aa1",zpharm:"#ff9da7",zrad:"#edc948"},
+    grp:[["Oils and chemicals",["zoil","zsolv","zfluid","zchem"],1],["Sludge, clinical and pharmaceutical",["zsludge","zclin","zpharm"],1],["Radioactive",["zrad"],1]],
+    dlk:{plastic_scrap_t:"hazardous_t",hidden_plastic_t:"other_t",hidden_detail:"by_stream"}},
+  organic:{n:"Animal and organic",noun:"animal and organic",word:"animal and organic waste",core:"Animal and organic",emb:"",embHead:"",only:"",embTip:"",
+    hs:{ohair:{n:"Human hair",codes:"HS 0501, 80% counted (assumption)",f:100,core:true},ofeath:{n:"Feathers and down",codes:"HS 0505.90, 80% counted (assumption)",f:100,core:true},
+      obone:{n:"Bones and horn",codes:"HS 0506.90, 80% counted (assumption)",f:100,core:true},oanim:{n:"Other animal products",codes:"HS 0511.99, 80% counted (assumption)",f:100,core:true},
+      odegras:{n:"Degras and fat residues",codes:"HS 1522",f:100,core:true},oleather:{n:"Leather",codes:"HS 4115.20",f:100,core:true}},
+    col:{ohair:"#9c755f",ofeath:"#bab0ac",obone:"#f1ce63",oanim:"#e15759",odegras:"#b6992d",oleather:"#8c564b"},
+    grp:[["Animal",["ohair","ofeath","obone","oanim"],1],["Fats and leather",["odegras","oleather"],1]],
+    dlk:{plastic_scrap_t:"animal_and_organic_t",hidden_plastic_t:"other_t",hidden_detail:"by_stream"}},
+  ships:{n:"Ships for breaking",noun:"ships",word:"ships for breaking",core:"Ships for breaking",emb:"",embHead:"",only:"",embTip:"",
+    hs:{vship:{n:"Vessels for breaking up",codes:"HS 8908",f:100,core:true}},
+    col:{vship:"#4e79a7"},
+    grp:[["Ships",["vship"],1]],
+    dlk:{plastic_scrap_t:"ships_t",hidden_plastic_t:"other_t",hidden_detail:"by_stream"}}};
 // HS 3915 by polymer: the four six-digit codes under plastic scrap.
 const POLY={pe:{n:"Ethylene polymers (PE)",s:"PE",codes:"HS 3915.10",col:"#0f7f86"},ps:{n:"Styrene polymers (PS)",s:"PS",codes:"HS 3915.20",col:"#86bcb6"},
   pvc:{n:"Vinyl chloride polymers (PVC)",s:"PVC",codes:"HS 3915.30",col:"#b6992d"},pother:{n:"Other plastics (incl. PET and PP)",s:"other plastics",codes:"HS 3915.90",col:"#59a14f"}},PKEYS=Object.keys(POLY);
 const QS=new URLSearchParams(location.search);
-const GORD=["plastic","paper","metals","textiles","ewaste"],PARTOK={textiles:[["p","Synthetic"],["o","Natural and other"]],ewaste:[["p","Plastic"],["m","Metal"],["o","Other materials"]]},INCS=["HIC","UMC","LMC","LIC"];
+const GORD=["plastic","paper","metals","textiles","ewaste","glass","wood","slag","hazardous","organic","ships"],PARTOK={textiles:[["p","Synthetic"],["o","Natural and other"]],ewaste:[["p","Plastic"],["m","Metal"],["o","Other materials"]]},INCS=["HIC","UMC","LMC","LIC"];
 const GROUPS=GORD.filter(g=>(QS.get("mat")||"plastic").split(/[ ,+]/).includes(g));if(!GROUPS.length)GROUPS.push("plastic");
 // Each group's own make-up: textiles by fibre, e-waste by material. PARTS[g] holds the ticked letters; none means all.
 const PARTS={};for(const x of (QS.get("part")||"").split(",")){const [g,p]=x.split("-");if(!GROUPS.includes(g)||!PARTOK[g]||!p)continue;const L=PARTOK[g].map(q=>q[0]).filter(l=>p.includes(l));if(L.length&&L.length<PARTOK[g].length)PARTS[g]=L.join("")}
@@ -803,10 +855,10 @@ const GSH={};for(const g of GORD){const hs=MCFG[g].hs,o=GSH[g]={};let sv=null;tr
   const n=x=>x!=null&&isFinite(+x)?Math.max(0,Math.min(100,+x)):null;
   for(const k in hs){const s=sv&&sv.streams&&sv.streams[k],f=s&&n(s.f)!=null?n(s.f):hs[k].f;o[k]={f,byInc:!!(s&&s.byInc),inc:Object.fromEntries(INCS.map(i=>[i,s&&s.byInc&&s.inc&&n(s.inc[i])!=null?n(s.inc[i]):f]))}}}
 const gsh=(g,k,i)=>{if(k==="scrap")return g==="plastic"?1:0;const kk=g==="plastic"&&HOME[k]==="paper"?"paper":k,h=MCFG[g].hs[kk],s=GSH[g][kk];if(!h)return 0;if(h.core)return 1;return (s.byInc&&i&&s.inc[i]!=null?s.inc[i]:s.f)/100};
-function atoms(k,i){const h=HOME[k]||null,P=gsh("plastic",k,i),T=gsh("textiles",k,i);let Q=gsh("paper",k,i),M=gsh("metals",k,i);
+function atoms(k,i){const h=HOME[k]||null,P=gsh("plastic",k,i),T=gsh("textiles",k,i),W=gsh("wood",k,i);let Q=gsh("paper",k,i),M=gsh("metals",k,i);
   if(h==="paper")Q=Math.max(0,1-P);if(h==="metals")M=Math.max(0,1-P);
   const o=h==="textiles"?Math.min(P,1):k==="rdf"?Math.min(.65*T,P,T):0;
-  const A=[{n:"synthetic textile",f:o,p:1,g:["plastic","textiles"]},{n:"plastic",f:P-o,p:1,g:["plastic"]},{n:h==="textiles"?"natural and other textile":"other textile",f:T-o,p:0,g:["textiles"]},{n:"paper",f:Q,p:0,g:["paper"]},{n:"metal",f:M,p:0,g:["metals"]}].filter(a=>a.f>1e-9);
+  const A=[{n:"synthetic textile",f:o,p:1,g:["plastic","textiles"]},{n:"plastic",f:P-o,p:1,g:["plastic"]},{n:h==="textiles"?"natural and other textile":"other textile",f:T-o,p:0,g:["textiles"]},{n:"paper",f:Q,p:0,g:["paper"]},{n:"metal",f:M,p:0,g:["metals"]},{n:"wood",f:W,p:0,g:["wood"]}].filter(a=>a.f>1e-9);
   const s=d3.sum(A,a=>a.f);if(s>1)A.forEach(a=>a.f/=s);A.push({n:"other",f:Math.max(0,1-s),p:0,g:[]});
   if(h)A.forEach(a=>{if(!a.g.includes(h))a.g=a.g.concat(h)});
   return A.filter(a=>a.f>1e-9)}
@@ -822,7 +874,7 @@ const pct=f=>d3.format(".3~r")(f*100)+"%";
 let MAT,MC,HS,HSCOL,HGRP;
 if(!COMBO){MAT=GROUPS[0];MC=MCFG[MAT];HS=MC.hs;HSCOL=MC.col;HGRP=MC.grp}
 else{MAT=GROUPS.join("-and-");HS={};HSCOL={};
-  const strip=n=>n.replace(/ \((plastic|paper|metal|textile) (fraction|contamination)\)$/,"");
+  const strip=n=>n.replace(/ \((plastic|paper|metal|textile|wood) (fraction|contamination)\)$/,"");
   for(const g of GROUPS){Object.assign(HSCOL,Object.fromEntries(Object.entries(MCFG[g].col).filter(([k])=>!(k in HSCOL))));
     for(const k in MCFG[g].hs){if(k==="paper"&&GROUPS.includes("paper"))continue;const home=GROUPS.includes(HOME[k])?MCFG[HOME[k]].hs[k]||MCFG[g].hs[k]:MCFG[g].hs[k];
       if(!HS[k]){const u=comboSh(k,null,CMODE);HS[k]={n:strip(home.n)+(u>0&&u<.9995?` (${pct(u)} counted)`:""),codes:home.codes,f:100,core:true,
