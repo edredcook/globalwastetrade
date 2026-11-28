@@ -1,53 +1,53 @@
 # E-waste, 2023: data check
 
-Downloaded 2026-11-26 from the UN Comtrade API (13,465 raw records). Built 2026-11-26.
+Downloaded 2026-11-28 from the UN Comtrade API (12,951 raw records). Built 2026-11-28.
 
 ## Totals of this group's own streams
 
 | Figures | Tonnes | Change vs previous file |
 |---|---:|---:|
-| Exporters' reports | 1,657,236 | +0.0% |
-| Importers' reports | 2,317,638 | +0.0% |
+| Exporters' reports | 257,037 |  |
+| Importers' reports | 439,588 |  |
 
 ## Largest 15 routes, exporters' reports
 
 | Stream | From | To | Tonnes | US$ |
 |---|---|---|---:|---:|
-| ebatt | United States | Mexico | 414,410 | 363,313,456 |
-| ebatt | Netherlands | Germany | 281,541 | 47,038,340 |
-| ebatt | United States | South Korea | 63,224 | 67,604,569 |
-| ebatt | France | Germany | 44,615 | 52,966,631 |
-| ebatt | Canada | South Korea | 43,701 | 39,336,655 |
 | eprec | Netherlands | Japan | 42,872 | 129,561,009 |
-| ebatt | United States | Canada | 40,396 | 75,538,350 |
-| ebatt | France | Spain | 38,216 | 35,450,750 |
-| ebatt | Romania | Bulgaria | 26,294 | 27,891,482 |
-| ebatt | Canada | Pakistan | 20,975 | 18,880,136 |
-| ebatt | Denmark | Sweden | 20,787 | 17,297,864 |
-| ebatt | Singapore | India | 19,422 | 19,496,557 |
-| ebatt | Italy | Spain | 19,164 | 18,431,122 |
-| ebatt | United States | India | 18,546 | 34,251,789 |
-| ebatt | United Kingdom | Spain | 17,542 | 9,203,812 |
+| epcb | Netherlands | Germany | 34,167 | 180,006,674 |
+| eprec | United States | Canada | 16,184 | 79,268,109 |
+| epcb | Germany | Sweden | 8,199 | 33,388,359 |
+| eprec | Canada | Japan | 6,821 | 3,431,649 |
+| eprec | France | Netherlands | 6,125 | 6,086,556 |
+| epcb | Germany | Spain | 5,751 | 13,125,108 |
+| epcb | Finland | Sweden | 5,360 | 12,315,176 |
+| epcb | Germany | France | 4,699 | 15,190,069 |
+| epcb | Singapore | China | 4,405 | 33,437,969 |
+| eprec | Japan | South Korea | 4,401 | 7,796,155 |
+| epcb | Italy | Belgium | 3,711 | 37,178,248 |
+| epcb | Poland | Germany | 3,543 | 26,586,476 |
+| epcb | United Kingdom | Sweden | 3,052 | 7,142,549 |
+| epcb | Brazil | Japan | 3,033 | 44,747,968 |
 
 ## Largest 15 routes, importers' reports
 
 | Stream | From | To | Tonnes | US$ |
 |---|---|---|---:|---:|
-| ebatt | United States | Mexico | 465,094 | 350,997,905 |
-| ebatt | United States | South Korea | 351,209 | 261,053,657 |
-| ebatt | United States | India | 66,018 | 73,956,621 |
-| ebatt | United States | Canada | 55,362 | 70,695,325 |
-| ebatt | Yemen | India | 51,483 | 59,606,351 |
-| ebatt | Canada | South Korea | 48,170 | 35,315,853 |
-| ebatt | United Arab Emirates | India | 47,225 | 61,961,954 |
 | eprec | Netherlands | Japan | 43,505 | 185,414,883 |
-| ebatt | France | Spain | 41,808 | 38,004,244 |
-| ebatt | Netherlands | Belgium | 38,829 | 39,363,677 |
-| ebatt | Italy | Bulgaria | 33,970 | 29,703,840 |
-| ebatt | Dominican Republic | India | 33,548 | 33,338,575 |
-| ebatt | New Zealand | South Korea | 27,205 | 20,133,323 |
+| epcb | Netherlands | Germany | 34,167 | 96,924,800 |
 | eprec | United States | Japan | 25,511 | 173,598,393 |
-| ebatt | Netherlands | Germany | 25,417 | 21,242,263 |
+| eprec | Taiwan | Japan | 17,206 | 91,924,239 |
+| eprec | United States | South Korea | 16,834 | 46,762,829 |
+| eprec | United States | Canada | 16,184 | 71,248,052 |
+| epcb | Spain | Belgium | 11,509 | 28,137,351 |
+| epcb | Germany | Belgium | 10,943 | 55,510,539 |
+| eprec | Netherlands | Belgium | 9,559 | 12,148,609 |
+| eprec | Germany | Belgium | 8,950 | 8,659,442 |
+| eprec | Germany | Canada | 8,737 | 15,271,364 |
+| eprec | United Kingdom | Japan | 8,702 | 28,246,532 |
+| eprec | United Kingdom | Belgium | 7,397 | 12,562,022 |
+| eprec | Canada | Japan | 6,990 | 16,652,588 |
+| eprec | Poland | Japan | 6,725 | 29,462,551 |
 
 ## E-waste: streams
 
@@ -55,5 +55,5 @@ Whole stream tonnes, code by code.
 
 | Stream | HS | Exporters' reports, t | Importers' reports, t | Cleaned A / B / D / C |
 |---|---|---:|---:|---|
-| ebatt | 854810, 854911, 854912, 854913, 854914, 854919 | 1,517,502 | 1,981,121 | 85 / 51 / 90 / 318 |
 | eprec | 854921, 854929 | 139,734 | 336,517 | 11 / 37 / 54 / 161 |
+| epcb | 711299@1-15 | 117,303 | 103,071 | 7 / 50 / 0 / 179 |

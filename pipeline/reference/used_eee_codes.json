@@ -1,0 +1,42 @@
+{
+ "_about": "Product codes for the used-equipment price screen, copying Baldé et al. (2022), Global Transboundary E-waste Flows Monitor 2022, pp. 22-23: exports of temperature exchange equipment, screens and monitors, large equipment and small IT priced below 30% of the code's median US$ per kg (10% for small IT), to countries outside the OECD and the Gulf, are taken as used equipment or e-waste. HS codes per UNU-KEY from Annex 3 of the E-waste Statistics Guidelines, Third Edition (2026), HS 2022 (zenodo.org/records/18328494). UNU-KEYs 0704, 0802, 0902, 1001 and 1002 are left out: their rows could not be read. 'older' lists the HS 2007-2017 codes for the same goods, for years reported in earlier editions.",
+ "threshold": {"1": 0.30, "2": 0.30, "4": 0.30, "6": 0.10},
+ "categories": {"1": "Temperature exchange equipment", "2": "Screens and monitors", "4": "Large equipment", "6": "Small IT and telecommunication equipment"},
+ "keys": {
+  "0108": {"cat": "1", "name": "Refrigerators", "hs": ["841810", "841821", "841829"]},
+  "0109": {"cat": "1", "name": "Freezers", "hs": ["841830", "841840"]},
+  "0111": {"cat": "1", "name": "Air conditioners", "hs": ["841510", "841581", "841582"]},
+  "0112": {"cat": "1", "name": "Other cooling equipment", "hs": ["841861", "841869"]},
+  "0113": {"cat": "1", "name": "Professional cooling equipment", "hs": ["841583", "841850"]},
+  "0303": {"cat": "2", "name": "Laptops", "hs": ["847130"]},
+  "0308": {"cat": "2", "name": "Cathode ray tube monitors", "hs": ["852842", "852849"], "older": ["852841"]},
+  "0309": {"cat": "2", "name": "Flat-panel monitors", "hs": ["852852", "852859", "853120"], "older": ["852851"]},
+  "0407": {"cat": "2", "name": "Cathode ray tube TVs", "hs": ["852873"]},
+  "0408": {"cat": "2", "name": "Flat-panel TVs", "hs": ["852872"]},
+  "0001": {"cat": "4", "name": "Central heating", "hs": ["840310"]},
+  "0101": {"cat": "4", "name": "Professional heating and ventilation", "hs": ["845110", "845130"]},
+  "0102": {"cat": "4", "name": "Dishwashers", "hs": ["842211", "842219"]},
+  "0103": {"cat": "4", "name": "Kitchen equipment", "hs": ["851660"]},
+  "0104": {"cat": "4", "name": "Washing machines", "hs": ["845011", "845012", "845019", "845020"]},
+  "0105": {"cat": "4", "name": "Dryers", "hs": ["842112", "845121", "845129"]},
+  "0106": {"cat": "4", "name": "Household heating and ventilation", "hs": ["841460", "851621", "851629"]},
+  "0307": {"cat": "4", "name": "Other IT equipment", "hs": ["844312", "844339", "847050", "847090", "847210", "847230"]},
+  "0602": {"cat": "4", "name": "Professional tools", "hs": ["843311", "843319", "851519", "843061", "845819", "846090", "846596", "847431"]},
+  "0703": {"cat": "4", "name": "Leisure equipment", "hs": ["851920", "871390"]},
+  "0705": {"cat": "4", "name": "Charging stations", "hs": ["850440", "853710"]},
+  "0301": {"cat": "6", "name": "Small IT equipment", "hs": ["847010", "847021", "847029", "847160", "847170", "847180", "847190", "852351"]},
+  "0302": {"cat": "6", "name": "Desktop PCs", "hs": ["847141", "847149"]},
+  "0304": {"cat": "6", "name": "Printers", "hs": ["844315", "844319", "844331", "844332", "848510", "848520", "848530", "848580"]},
+  "0305": {"cat": "6", "name": "Telecommunications equipment", "hs": ["851711", "851718", "851761", "851762", "851769", "903040"]},
+  "0306": {"cat": "6", "name": "Mobile phones", "hs": ["851713", "851714"], "older": ["851712"]},
+  "0310": {"cat": "6", "name": "Servers", "hs": ["847150"]},
+  "0702": {"cat": "6", "name": "Game consoles", "hs": ["950450"]}
+ },
+ "calibration": {
+  "year": 2019,
+  "total_t": 3300000,
+  "ewaste_share": [0.33, 0.70],
+  "source": "Baldé et al. (2022), p. 27: 3.3 Mt of uncontrolled transboundary movements in 2019; Baldé et al. (2024), p. 38: 33 to 70 per cent of it e-waste declared as used goods."
+ },
+ "gulf": ["682", "784", "634", "414", "48", "512"]
+}

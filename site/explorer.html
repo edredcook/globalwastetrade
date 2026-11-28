@@ -488,7 +488,7 @@ footer b{color:var(--ink);font-weight:600}
   <a class="brand" href="./"><i aria-hidden="true"></i>Global Waste Trade Data Hub</a>
   <span class="betab">Beta</span>
   <nav class="top" aria-label="Pages">
-    <a href="./">Home</a><a href="plastics.html">Plastics</a><a href="tyres.html">Tyres</a><a href="explorer.html" aria-current="page">Explorer</a><a href="trends.html">Trends</a><a href="validation.html">Validation</a><a href="about.html">About</a>
+    <a href="./">Home</a><a href="plastics.html">Plastics</a><a href="tyres.html">Tyres</a><a href="ewaste.html">E-waste</a><a href="explorer.html" aria-current="page">Explorer</a><a href="trends.html">Trends</a><a href="validation.html">Validation</a><a href="about.html">About</a>
   </nav>
 </div>
 <div class="subbar"><div class="wrap"><span id="srcline">UN Comtrade</span>
@@ -510,6 +510,7 @@ footer b{color:var(--ink);font-weight:600}
         <button data-mat="metals" aria-pressed="false">Metals</button>
         <button data-mat="textiles" aria-pressed="false">Textiles</button>
         <button data-mat="ewaste" aria-pressed="false">E-waste</button>
+        <button data-mat="batteries" aria-pressed="false">Batteries</button>
         <button data-mat="glass" aria-pressed="false">Glass</button>
         <button data-mat="wood" aria-pressed="false">Wood</button>
         <button data-mat="slag" aria-pressed="false">Slag &amp; ash</button>
@@ -784,7 +785,7 @@ const MCFG={
     hs:{fe:{n:"Iron and steel",codes:"HS 7204 (not 7204.21)",f:100,core:true},ss:{n:"Stainless steel",codes:"HS 7204.21",f:100,core:true},
       al:{n:"Aluminium",codes:"HS 7602",f:100,core:true},cu:{n:"Copper",codes:"HS 7404",f:100,core:true},pb:{n:"Lead",codes:"HS 7802",f:100,core:true},
       zn:{n:"Zinc",codes:"HS 7902",f:100,core:true},ni:{n:"Nickel",codes:"HS 7503",f:100,core:true},sn:{n:"Tin",codes:"HS 8002",f:100,core:true},
-      pm:{n:"Precious metals",codes:"HS 7112.91, 7112.92, 7112.99",f:100,core:true},om:{n:"Other metals",codes:"HS 81 waste and scrap",f:100,core:true},
+      pm:{n:"Precious metals",codes:"HS 7112.91, 7112.92; HS 7112.99 outside US$1 to 15 per kg",f:100,core:true},om:{n:"Other metals",codes:"HS 81 waste and scrap",f:100,core:true},
       omix:{n:"Minor metals with unwrought metal and articles",codes:"HS 8106, 8111, 8112.31, 8112.41, 8112.92, 8113 (codes include products)",f:100,core:true},
       weee:{n:"Electronic assemblies and boards (metal fraction)",codes:"HS 8549.31, 8549.39",f:50,src:"Source: "+GEM},
       weeeo:{n:"Other electrical scrap (metal fraction)",codes:"HS 8549.91, 8549.99",f:50,src:"Assumption, using "+GEM}},
@@ -803,11 +804,18 @@ const MCFG={
     grp:[["Clothing and rags",["clothing","rags"],1],["Fibres",["fibre","tartif","tcotton","twool","tsilk","tplant"],1],["Refuse-derived fuel",["rdf"]]],
     dlk:{plastic_scrap_t:"used_textiles_t",hidden_plastic_t:"textiles_in_other_materials_t",hidden_detail:"by_stream"}},
   ewaste:{n:"E-waste",noun:"e-waste",word:"e-waste",core:"E-waste",emb:"",embHead:"",only:"",embTip:"",
-    hs:{ebatt:{n:"Batteries",codes:"HS 8549.11 to 8549.19 (HS 8548.10 before 2022)",f:100,core:true},eprec:{n:"Scrap for precious-metal recovery",codes:"HS 8549.21, 8549.29",f:100,core:true},
+    hs:{eprec:{n:"Scrap for precious-metal recovery",codes:"HS 8549.21, 8549.29",f:100,core:true},epcb:{n:"Circuit-board scrap",codes:"HS 7112.99 at US$1 to 15 per kg",f:100,core:true},
       weee:{n:"Electronic assemblies and boards",codes:"HS 8549.31, 8549.39",f:100,core:true},weeeo:{n:"Other electrical and electronic scrap",codes:"HS 8549.91, 8549.99",f:100,core:true}},
-    col:{ebatt:"#e15759",eprec:"#edc948",weee:"#4e79a7",weeeo:"#a0cbe8"},
-    grp:[["Batteries",["ebatt"],1],["Electrical and electronic",["eprec","weee","weeeo"],1]],
+    col:{eprec:"#edc948",epcb:"#9d7660",weee:"#4e79a7",weeeo:"#a0cbe8"},
+    grp:[["Electrical and electronic",["eprec","weee","weeeo"],1],["Circuit boards in precious-metal scrap",["epcb"],1]],
     dlk:{plastic_scrap_t:"ewaste_t",hidden_plastic_t:"other_t",hidden_detail:"by_stream"}},
+  batteries:{n:"Batteries",noun:"batteries",word:"waste batteries",core:"Waste batteries",emb:"",embHead:"",only:"",embTip:"",
+    hs:{bpba:{n:"Lead-acid batteries",codes:"HS 8549.11",f:100,core:true},bpbo:{n:"Other batteries with lead, cadmium or mercury",codes:"HS 8549.12",f:100,core:true},
+      bsort:{n:"Sorted by type, no lead, cadmium or mercury",codes:"HS 8549.13",f:100,core:true},bunsort:{n:"Unsorted, no lead, cadmium or mercury",codes:"HS 8549.14",f:100,core:true},
+      both:{n:"Other battery waste",codes:"HS 8549.19",f:100,core:true},ball:{n:"All waste batteries (to 2021)",codes:"HS 8548.10",f:100,core:true}},
+    col:{bpba:"#5f5f5f",bpbo:"#e15759",bsort:"#59a14f",bunsort:"#edc948",both:"#bab0ac",ball:"#8a8a8a"},
+    grp:[["From 2022",["bpba","bpbo","bsort","bunsort","both"],1],["To 2021",["ball"],1]],
+    dlk:{plastic_scrap_t:"batteries_t",hidden_plastic_t:"other_t",hidden_detail:"by_stream"}},
   glass:{n:"Glass",noun:"glass",word:"glass cullet",core:"Glass",emb:"",embHead:"",only:"",embTip:"",
     hs:{gcullet:{n:"Cullet and glass scrap",codes:"HS 7001",f:100,core:true}},
     col:{gcullet:"#76b7b2"},
@@ -856,8 +864,8 @@ const MCFG={
 const POLY={pe:{n:"Ethylene polymers (PE)",s:"PE",codes:"HS 3915.10",col:"#0f7f86"},ps:{n:"Styrene polymers (PS)",s:"PS",codes:"HS 3915.20",col:"#86bcb6"},
   pvc:{n:"Vinyl chloride polymers (PVC)",s:"PVC",codes:"HS 3915.30",col:"#b6992d"},pother:{n:"Other plastics (incl. PET and PP)",s:"other plastics",codes:"HS 3915.90",col:"#59a14f"}},PKEYS=Object.keys(POLY);
 const QS=new URLSearchParams(location.search);
-const GORD=["plastic","paper","metals","textiles","ewaste","glass","wood","slag","hazardous","organic","ships"],INCS=["HIC","UMC","LMC","LIC"];
-const GCOL={plastic:"#0f7f86",paper:"#c9a227",metals:"#4e79a7",textiles:"#b07aa1",ewaste:"#e15759",glass:"#76b7b2",wood:"#9c755f",slag:"#79706e",hazardous:"#6b4fb3",organic:"#59a14f",ships:"#3d5a73"};
+const GORD=["plastic","paper","metals","textiles","ewaste","batteries","glass","wood","slag","hazardous","organic","ships"],INCS=["HIC","UMC","LMC","LIC"];
+const GCOL={plastic:"#0f7f86",paper:"#c9a227",metals:"#4e79a7",textiles:"#b07aa1",ewaste:"#e15759",batteries:"#8a8a8a",glass:"#76b7b2",wood:"#9c755f",slag:"#79706e",hazardous:"#6b4fb3",organic:"#59a14f",ships:"#3d5a73"};
 const GROUPS=GORD.filter(g=>(QS.get("mat")||"plastic").split(/[ ,+]/).includes(g));if(!GROUPS.length)GROUPS.push("plastic");
 // Count (Ed, 28 Nov 2026): whole shipments, each product code at its full weight in its own group (the default), or
 // material content, where every stream is split into parts and each part sits in exactly one material's total.
@@ -930,6 +938,7 @@ const DDEF={preset:"container",dec:1,linc:false,rcol:"io",out:null,in:null,res:n
 // v7: 60 routes by default (Ed, 26 Nov 2026); other saved design choices carry over from v6.
 let D={...DDEF};try{let s=JSON.parse(localStorage.getItem("gwt-design-v7")||"null");if(!s){s=JSON.parse(localStorage.getItem("gwt-design-v6")||"null");if(s)s.maxr=DDEF.maxr}if(s)D={...DDEF,...s}}catch(e){}
 
+let GREY=null;fetch("data/grey_ewaste.json",{cache:"no-cache"}).then(r=>r.ok?r.json():null).then(d=>{GREY=d}).catch(()=>{});
 let data,world,TR=null,MAN=null,IMP=null,MYEARS=[],PD=null,TRCORE=null,getPD=Promise.resolve(null);
 const yearsOf=gs=>{let y=null;for(const g of gs){const a=g==="plastic"?MAN.years:(MAN.materials||{})[g]||[];y=y?y.filter(x=>a.includes(x)):a.slice()}return y||[]};
 // Trend series of several streams added together (same years in every file).
@@ -1496,7 +1505,7 @@ function side(){
   if(!S.sel){
     const rs=routes(),tot=agg(rs);
     el.innerHTML=`<div class="col"><div><span class="pill">${esc(S.region||"World")} · ${YL} · ${VIEWS[S.view]}</span><h3 style="margin-top:8px">${fmt(mval(tot,m),m)}</h3><div class="sub">${S.incf==="hl"?"high-income to middle- and low-income routes":S.incf==="oe"?"OECD to non-OECD routes":PW()+" traded"}, ${d3.format(",")(rs.length)} country-to-country records</div></div>
-    <div class="kpis"><div class="kpi"><span>Weight</span><b>${fT(tot.t)}</b></div><div class="kpi"><span>Value</span><b>${fU(tot.usd)}</b><em>${fP(mval(tot,"ppt"))} average</em></div></div>
+    <div class="kpis"><div class="kpi"><span>Weight</span><b>${fT(tot.t)}</b></div><div class="kpi"><span>Value</span><b>${fU(tot.usd)}</b><em>${fP(mval(tot,"ppt"))} average</em></div>${greyKpi()}</div>
     <div class="trend" id="trend"></div>
     <div class="mirror">${ledger()} ${tot.t?d3.format(".0%")(tot.est/tot.t)+" of the tonnage here is an estimated weight.":""}</div>${hidBars(rs)}</div>
     <div><h4>Biggest senders ${m==="ppt"?"(price, largest by weight)":""}</h4><div class="bars">${bars(topBy(rs,"ex",m,10),css("--out"),m)}</div></div>
@@ -1535,6 +1544,9 @@ function side(){
   drawTrend();
   addSave(el);
 }
+// E-waste shipped as used goods: the Global E-waste Monitor's estimate, world total only (it has no routes).
+function greyKpi(){const g=GREY&&(GREY.years||[]).find(r=>r.year===YEAR);if(!g||GROUPS.join()!=="ewaste"||CONTENT||S.region||S.incf!=="all"||(S.lo||[]).length||!Object.keys(HS).every(k=>HON[k].on))return "";
+  return `<div class="kpi"><span class="hint" tabindex="0" data-tip="Estimate, not customs records. The Global E-waste Monitor's method (Baldé et al. 2022): exports of electrical goods from high-income countries priced far below normal, scaled so that 2019 matches its 3.3 Mt, of which 33 to 70% is e-waste.">Shipped as used goods (estimate)</span><b>${fT(g.low_t)} to ${fT(g.high_t)}</b><em>not in the map or the totals</em></div>`}
 function addSave(el){el.insertAdjacentHTML("afterbegin",`<span class="save sidesave"><span class="lab">Save panel</span><button type="button" data-save="side" data-fmt="png">PNG</button><button type="button" data-save="side" data-fmt="svg">SVG</button></span>`)}
 // Draws the summary panel as a plain SVG (boxes, bars, text and the trend chart) from its on-screen layout,
 // so it opens in any editor; the PNG is rendered from that SVG.

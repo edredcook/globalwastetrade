@@ -213,6 +213,18 @@ def write(name, out):
         json.dump(out, f, separators=(",", ":"), ensure_ascii=False)
 
 
+
+def in_use(per, imk, share=0.05):
+    """No imputed routes before a stream's codes came into use or after they were replaced
+    (HS 8549 before 2022, HS 8548.10 after 2021): the years at either end in which the stream
+    was reported at under `share` of its largest year."""
+    tot = [sum(r[3] for r in rs if r[1] != r[2]) for rs, _ in per]
+    top = max(tot) if tot else 0
+    used = [i for i, t in enumerate(tot) if top and t >= share * top]
+    if not used:
+        return [[] for _ in imk]
+    return [rs if used[0] <= i <= used[-1] else [] for i, rs in enumerate(imk)]
+
 def main():
     files = sorted(SITE_DATA.glob("plastic_*.json"), key=lambda p: int(p.stem.split("_")[1]))
     years = [int(p.stem.split("_")[1]) for p in files]
@@ -255,7 +267,7 @@ def main():
     streams = sorted({k for d in data for k in d.get("hidden", {})})
     for k in streams:
         per = [(d.get("hidden", {}).get(k, []), d["countries"]) for d in data]
-        imk = impute(years, [r for r, _ in per], universes)
+        imk = in_use(per, impute(years, [r for r, _ in per], universes))
         write(f"trends_{k}.json", summarise(years, per))
         write(f"flows_{k}.json", flows(years, per, schemes, imk, modelled))
         for i, rs in enumerate(imk):
@@ -281,7 +293,7 @@ def main():
                         mimp[i][k] = by_year[i][k]
                 continue
             per = [((d or {}).get("hidden", {}).get(k, []), (d or data[i])["countries"]) for i, d in enumerate(mdata)]
-            imk = impute(years, [r for r, _ in per], munis)
+            imk = in_use(per, impute(years, [r for r, _ in per], munis))
             write(f"trends_{k}.json", summarise(years, per))
             write(f"flows_{k}.json", flows(years, per, schemes, imk, modelled))
             done.add(k)
