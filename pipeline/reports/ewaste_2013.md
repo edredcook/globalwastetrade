@@ -1,53 +1,53 @@
 # E-waste, 2013: data check
 
-Downloaded 2026-11-26 from the UN Comtrade API (3,787 raw records). Built 2026-11-26.
+Downloaded 2026-11-27 from the UN Comtrade API (4,461 raw records). Built 2026-11-28.
 
 ## Totals of this group's own streams
 
 | Figures | Tonnes | Change vs previous file |
 |---|---:|---:|
-| Exporters' reports | 1,256,956 |  |
-| Importers' reports | 1,396,110 |  |
+| Exporters' reports | 46,157 |  |
+| Importers' reports | 110,673 |  |
 
 ## Largest 15 routes, exporters' reports
 
 | Stream | From | To | Tonnes | US$ |
 |---|---|---|---:|---:|
-| ebatt | United States | Mexico | 398,424 | 111,964,290 |
-| ebatt | Netherlands | Germany | 122,046 | 39,244,642 |
-| ebatt | Japan | South Korea | 87,070 | 77,740,972 |
-| ebatt | France | Germany | 70,842 | 86,100,464 |
-| ebatt | Netherlands | Belgium | 49,126 | 15,017,335 |
-| ebatt | United States | Canada | 31,677 | 95,557,570 |
-| ebatt | Canada | United States | 29,182 | 26,146,308 |
-| ebatt | Netherlands | France | 21,962 | 15,084,690 |
-| ebatt | Belgium | France | 19,375 | 19,543,789 |
-| ebatt | United Arab Emirates | South Korea | 19,205 | 8,309,570 |
-| ebatt | France | Spain | 17,912 | 17,032,088 |
-| ebatt | Switzerland | Germany | 16,712 | 15,037,093 |
-| ebatt | Indonesia | Hong Kong | 16,630 | 25,383,310 |
-| ebatt | Denmark | Sweden | 15,149 | 13,261,324 |
-| ebatt | South Africa | South Korea | 11,917 | 10,922,056 |
+| epcb | Germany | Netherlands | 9,663 | 40,378,786 |
+| epcb | Mexico | Belgium | 6,908 | 30,567,421 |
+| epcb | Hungary | Italy | 3,307 | 6,446,138 |
+| epcb | Switzerland | Sweden | 3,022 | 7,276,451 |
+| epcb | South Korea | Mexico | 2,430 | 19,549,776 |
+| epcb | Germany | Austria | 2,112 | 20,457,155 |
+| epcb | United Kingdom | Belgium | 1,903 | 21,498,304 |
+| epcb | Ireland | Germany | 1,586 | 2,091,087 |
+| epcb | Finland | Japan | 1,363 | 1,550,636 |
+| epcb | Czechia | Sweden | 1,050 | 3,283,109 |
+| epcb | Japan | Belgium | 1,013 | 7,439,509 |
+| epcb | Australia | China | 992 | 1,732,714 |
+| epcb | China | United States | 951 | 2,677,875 |
+| epcb | Brazil | Belgium | 733 | 4,773,762 |
+| epcb | Japan | South Korea | 704 | 7,297,610 |
 
 ## Largest 15 routes, importers' reports
 
 | Stream | From | To | Tonnes | US$ |
 |---|---|---|---:|---:|
-| ebatt | United States | Mexico | 476,626 | 120,062,030 |
-| ebatt | Japan | South Korea | 89,064 | 82,953,318 |
-| ebatt | Sudan | South Korea | 38,943 | 41,176,441 |
-| ebatt | United Arab Emirates | South Korea | 38,838 | 38,892,023 |
-| ebatt | United States | South Korea | 33,433 | 35,786,368 |
-| ebatt | United States | Canada | 31,677 | 86,772,647 |
-| ebatt | Canada | United States | 29,182 | 25,150,546 |
-| ebatt | Germany | Czechia | 29,129 | 25,361,618 |
-| ebatt | United Arab Emirates | Iran | 25,499 | 20,566,494 |
-| ebatt | Netherlands | Belgium | 21,700 | 24,193,751 |
-| ebatt | France | Spain | 17,912 | 22,199,336 |
-| ebatt | Belgium | France | 17,422 | 18,284,090 |
-| ebatt | Netherlands | Germany | 17,277 | 15,053,309 |
-| ebatt | Singapore | South Korea | 17,102 | 16,838,475 |
-| ebatt | Switzerland | Germany | 16,232 | 13,021,510 |
+| epcb | United States | Canada | 27,389 | 195,749,727 |
+| epcb | Netherlands | Japan | 11,648 | 18,508,922 |
+| epcb | South Korea | Japan | 8,043 | 54,374,101 |
+| epcb | Australia | Japan | 7,433 | 35,733,930 |
+| epcb | Italy | Germany | 6,998 | 26,339,125 |
+| epcb | Germany | Canada | 6,917 | 12,159,937 |
+| epcb | Canada | Japan | 3,970 | 9,515,190 |
+| epcb | Czechia | Hungary | 3,305 | 4,409,672 |
+| epcb | France | Germany | 3,213 | 23,805,123 |
+| epcb | Philippines | Japan | 3,002 | 24,787,010 |
+| epcb | South Korea | Mexico | 2,224 | 18,848,732 |
+| epcb | Spain | Germany | 1,856 | 9,483,650 |
+| epcb | Thailand | Japan | 1,748 | 23,637,144 |
+| epcb | Czechia | Germany | 1,612 | 14,608,390 |
+| epcb | Brazil | Canada | 1,517 | 10,538,850 |
 
 ## E-waste: streams
 
@@ -55,5 +55,5 @@ Whole stream tonnes, code by code.
 
 | Stream | HS | Exporters' reports, t | Importers' reports, t | Cleaned A / B / D / C |
 |---|---|---:|---:|---|
-| ebatt | 854810, 854911, 854912, 854913, 854914, 854919 | 1,256,956 | 1,396,110 | 121 / 67 / 95 / 229 |
 | eprec | 854921, 854929 | 0 | 0 | 0 / 0 / 0 / 0 |
+| epcb | 711299@1-15 | 46,157 | 110,673 | 2 / 26 / 0 / 133 |

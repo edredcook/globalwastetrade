@@ -263,7 +263,7 @@
    "verdict": "Mistakes in the Netherlands' reported weights",
    "action": "weight_from_value",
    "agreed": "Ed Cook, 27 November 2026",
-   "reason": "339 kt (2021), 262 kt (2023), 415 kt (2024) and 382 kt (2025) at US$50 to 130 a tonne, against about US$900 a tonne in other years. The values are normal, and Germany reports importing about 25 to 32 kt of waste batteries a year from the Netherlands.",
+   "reason": "339 kt (2021), 262 kt (2023), 415 kt (2024), 382 kt (2025) and 320 kt (January to September 2026) at US$50 to 130 a tonne, against about US$900 a tonne in other years. The values are normal, and Germany reports importing about 25 to 32 kt of waste batteries a year from the Netherlands.",
    "cmd": [
     "854810",
     "854912"
@@ -289,6 +289,12 @@
     ],
     [
      2025,
+     528,
+     "X",
+     276
+    ],
+    [
+     2026,
      528,
      "X",
      276

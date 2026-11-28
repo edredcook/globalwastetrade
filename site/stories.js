@@ -874,8 +874,8 @@ function drawEwaste(){
   }
   // 2. by receiving income group
   legend("#e-inc-leg",IKEYS); legend("#e-ginc-leg",IKEYS);
-  stackChart("#e-inc",IKEYS,(k,i)=>E.toInc[v][k[0]][i],{h:innerWidth>760?300:240});
-  if(G) stackChart("#e-ginc",IKEYS,(k,i)=>{const r=greyAt(D.years[i]);return r?(r.to_income[GINC[k[0]]]||0):0},{h:innerWidth>760?300:240});
+  stackChart("#e-inc",IKEYS,(k,i)=>E.toInc[v][k][i],{h:innerWidth>760?300:240});
+  if(G) stackChart("#e-ginc",IKEYS,(k,i)=>{const r=greyAt(D.years[i]);return r?(r.to_income[GINC[k]]||0):0},{h:innerWidth>760?300:240});
   // 3. largest senders and receivers
   const yr=+S.ey, iy=D.years.indexOf(yr), gy=greyAt(yr);
   document.getElementById("e-top-title").textContent=`Largest senders and receivers of e-waste, ${yr}`;
@@ -890,7 +890,7 @@ function drawEwaste(){
   });
   // 4. batteries
   legend("#e-bat-leg",BKEYS);
-  stackChart("#e-bat",BKEYS,(k,i)=>(E.batteries[v][k[0]]||[])[i]||0,{});
+  stackChart("#e-bat",BKEYS,(k,i)=>(E.batteries[v][k]||[])[i]||0,{});
   refList("ewaste","#e-refs");
 }
 function ebars(sel,rows,keys){

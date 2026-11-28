@@ -1,13 +1,13 @@
 # Metals, 2021: data check
 
-Downloaded 2026-11-26 from the UN Comtrade API (123,562 raw records). Built 2026-11-26.
+Downloaded 2026-11-28 from the UN Comtrade API (123,562 raw records). Built 2026-11-28.
 
 ## Totals of this group's own streams
 
 | Figures | Tonnes | Change vs previous file |
 |---|---:|---:|
-| Exporters' reports | 127,354,208 |  |
-| Importers' reports | 129,387,436 |  |
+| Exporters' reports | 127,188,235 | -0.1% |
+| Importers' reports | 129,121,606 | -0.2% |
 
 ## Countries not in the reference list
 
@@ -67,5 +67,5 @@ Whole stream tonnes, code by code.
 | zn | 7902 | 432,901 | 361,242 | 10 / 7 / 4 / 24 |
 | ni | 7503 | 361,829 | 114,843 | 1 / 12 / 2 / 50 |
 | sn | 8002 | 44,691 | 29,434 | 1 / 9 / 7 / 51 |
-| pm | 711291, 711292, 711299 | 339,235 | 507,818 | 187 / 408 / 289 / 749 |
+| pm | 711291, 711292, 711299@!1-15 | 173,262 | 241,989 | 183 / 347 / 289 / 538 |
 | om | 810197, 810297, 810330, 810420, 810530, 810730, 810830, 810930, 810931, 810939, 811020, 811213, 811222, 811252, 811261 | 182,203 | 163,052 | 9 / 30 / 19 / 152 |
