@@ -718,11 +718,47 @@ def build_material(year, mat, factor=10.0, min_ratio=0.6):
     print(f"Wrote {out_path}: {sum(len(v) for v in hidden.values()):,} routes in {len(hidden)} streams, {len(new)} new countries.")
 
 
+def add_streams(year, mat, name, factor=10.0):
+    """Add streams to an existing site/data/<mat>_<year>.json from pipeline/raw/comtrade_<name>_<year>.json.
+
+    For codes that join a group after its years were built: only the group's streams found
+    in that download are (re)built, with the same selection and cleaning; the others are kept
+    as built. The next full build of the group fetches every code and replaces this.
+    """
+    cfg = MATERIALS[mat]
+    out_path = SITE_DATA / f"{mat}_{year}.json"
+    data = load(out_path)
+    rows = load(RAW / f"comtrade_{name}_{year}.json")["data"]
+    got = {s(r.get("cmdCode")) for r in rows}
+    keys = {k: cs for k, cs in cfg["streams"].items() if got & set(cs)}
+    if not keys:
+        raise SystemExit(f"No {mat} codes in comtrade_{name}_{year}.json.")
+    own, rules = mixed_streams(rows, factor, keys)
+    apply_shares(own, {k: f for k, f in cfg.get("shares", {}).items() if k in keys})
+    data["hidden"].update({k: v for k, v in own.items() if v})
+    world = load(SITE_DATA / "world-110m.json")
+    map_ids = {g.get("id") for g in world["objects"]["countries"]["geometries"]}
+    countries, new = countries_for([r for rs in own.values() for r in rs], rows, data["countries"], map_ids)
+    apply_income(countries, load(REF / "income_history.json"), year)
+    data["countries"] = countries
+    with open(out_path, "w", encoding="utf-8") as f:
+        json.dump(data, f, separators=(",", ":"), ensure_ascii=False)
+    rep = REPORTS / f"{mat}_{year}.md"
+    if rep.exists():
+        with open(rep, "a", encoding="utf-8") as f:
+            f.write(mixed_report(year, own, rules, keys, f"{cfg['name']}: streams added from {name}",
+                                 "Whole stream tonnes, code by code.", f"baci_{mat}"))
+    print(f"Added {', '.join(keys)} to {out_path.name}: {sum(len(v) for v in own.values()):,} routes, {len(new)} new countries.")
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--year", type=int, required=True)
     ap.add_argument("--material", choices=sorted(MATERIALS),
                     help="build one of the other material groups from comtrade_<material>_<year>.json")
+    ap.add_argument("--add-from", metavar="NAME",
+                    help="with --material: add the group's streams found in comtrade_NAME_<year>.json "
+                         "to its existing site file, keeping the rest")
     ap.add_argument("--polymers", action="store_true",
                     help="build polymers_<year>.json (HS 3915 by polymer) from comtrade_poly_<year>.json")
     ap.add_argument("--cmd", default="3915")
@@ -733,6 +769,8 @@ def main():
     a = ap.parse_args()
     if a.polymers:
         return build_polymers(a.year, a.outlier_factor)
+    if a.material and a.add_from:
+        return add_streams(a.year, a.material, a.add_from, a.outlier_factor)
     if a.material:
         return build_material(a.year, a.material, a.outlier_factor, a.min_ratio)
 

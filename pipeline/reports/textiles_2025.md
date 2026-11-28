@@ -59,3 +59,11 @@ Whole stream tonnes, code by code.
 | tcotton | 5202 | 321,099 | 301,517 | 19 / 38 / 14 / 179 |
 | twool | 5103, 5104 | 18,321 | 16,225 | 12 / 20 / 5 / 60 |
 | tsilk | 5003, 530130 | 265,265 | 293,683 | 1 / 16 / 1 / 99 |
+
+## Textiles: streams added from addon
+
+Whole stream tonnes, code by code.
+
+| Stream | HS | Exporters' reports, t | Importers' reports, t | Cleaned A / B / D / C |
+|---|---|---:|---:|---|
+| tplant | 530290, 530390, 530500 | 2,208,741 | 1,272,795 | 53 / 160 / 43 / 384 |
