@@ -52,10 +52,10 @@ const NONC=/nes$|^Areas|^Special Categories|^Free Zones|^Bunkers/;
 const q=new URLSearchParams(location.search);
 const toks=s=>(s||"").split(",").filter(t=>/^(c|g|r):/.test(t));
 const pick=(v,ok,d)=>ok.includes(v)?v:d;
-const DEF={imp:"1",count:"plastic",v:2,m:"t",sch:"wb",xr:false,xi:false,xm:false,xe:false,ts:0,tr:0,from:[],to:[],split:"rg",bmode:"t",hdir:"in",hrows:20,gdir:"out",gsort:"total",gshow:1,gmin:0,gscale:"own",cdir:"in",cgrp:"c",csort:"b",cn:12,cchart:"dumb",cscale:"lin"};
+const DEF={imp:"1",count:"whole",v:2,m:"t",sch:"wb",xr:false,xi:false,xm:false,xe:false,ts:0,tr:0,from:[],to:[],split:"rg",bmode:"t",hdir:"in",hrows:20,gdir:"out",gsort:"total",gshow:1,gmin:0,gscale:"own",cdir:"in",cgrp:"c",csort:"b",cn:12,cchart:"dumb",cscale:"lin"};
 const S={...DEF,
   mats:(()=>{const w=(q.get("w")||"plastic").split(","),m=["all",...STREAMS].filter(k=>w.includes(k));return m.includes("all")?["all"]:m.length?m:["plastic"]})(),
-  count:q.get("count")==="whole"?"whole":"plastic", imp:q.get("imp")==="0"?"0":"1",
+  count:q.get("count")==="plastic"?"plastic":"whole", imp:q.get("imp")==="0"?"0":"1",
   v:q.get("v")==="0"?0:q.get("v")==="1"?1:2, m:pick(q.get("m"),["t","usd"],"t"), sch:pick(q.get("sch"),Object.keys(SCHEMES),"wb"),
   xr:q.get("xr")==="1", xi:q.get("xi")==="1", xm:q.get("xm")==="1", xe:q.get("xe")==="1",
   ts:Math.max(0,TOPS.indexOf(+q.get("ts"))), tr:Math.max(0,TOPS.indexOf(+q.get("tr"))),
@@ -77,7 +77,7 @@ const tip=$("#tip");
 const showTip=(e,h)=>{tip.innerHTML=h;tip.hidden=false;let x=e.clientX+14,y=e.clientY+14;if(x>innerWidth-270)x=e.clientX-270;if(y>innerHeight-130)y=e.clientY-120;tip.style.left=x+"px";tip.style.top=y+"px"};
 const hideTip=()=>tip.hidden=true;
 const sent=()=>S.v===1?"received":S.v===2?"traded":"sent";
-// Explorer names count the plastic share; with "Whole material" the bracket is dropped.
+// Explorer names count the plastic share; with "Whole shipments" the bracket is dropped.
 const nm=k=>S.count==="whole"&&!S.mats.includes("all")?MATN[k].replace(/ \(plastic (fraction|contamination)\)$/,""):MATN[k];
 const nmShare=k=>SHARE[k]<1&&MATN[k].endsWith(")")&&(S.mats.includes("all")||S.count==="plastic")?MATN[k].replace(/\)$/,`, ${d3.format(".4~p")(SHARE[k])})`):nm(k);
 
@@ -528,7 +528,7 @@ function syncUI(){$("#impctl").hidden=S.v===2;$$(".seg[data-k]").forEach(s=>s.qu
   $$(".tabs button").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.tab===S.tab)));
   ["overview","glance","compare"].forEach(t=>$("#p-"+t).hidden=t!==S.tab)}
 function syncURL(){const u=new URL(location.href),p=u.searchParams;const set=(k,v,d)=>{if(v===d||v===""||v==null)p.delete(k);else p.set(k,v)};
-  set("imp",S.imp,"1");set("w",S.mats.join(","),"plastic");set("count",S.count,"plastic");set("v",String(S.v),"2");set("m",S.m,"t");set("sch",S.sch,"wb");for(const k of ["xr","xi","xm","xe"])set(k,S[k]?"1":"","");
+  set("imp",S.imp,"1");set("w",S.mats.join(","),"plastic");set("count",S.count,"whole");set("v",String(S.v),"2");set("m",S.m,"t");set("sch",S.sch,"wb");for(const k of ["xr","xi","xm","xe"])set(k,S[k]?"1":"","");
   set("ts",S.ts?TOPS[S.ts]:"","");set("tr",S.tr?TOPS[S.tr]:"","");set("from",S.from.join(","),"");set("to",S.to.join(","),"");
   set("y0",I0!==D.span[0]?Y[0]:"","");set("y1",I1!==D.span[1]?LAST:"","");set("tab",S.tab,"overview");
   set("split",S.split,"rg");set("cgrp",S.cgrp,"c");set("cdir",S.cdir,"in");set("gdir",S.gdir,"out");

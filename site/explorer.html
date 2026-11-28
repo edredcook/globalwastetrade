@@ -392,6 +392,18 @@ tbody tr:hover td{background:var(--raise)}
 .mparts input{accent-color:var(--res);margin:0}
 .mov{display:inline-flex;align-items:center;gap:8px}
 .mov .seg button{font-size:12.5px;padding:3px 10px}
+#mgroups button,#mcount button{display:inline-flex;align-items:center;gap:6px}
+#mgroups button::before{content:"";flex:none;width:12px;height:12px;border:1.5px solid currentColor;border-radius:3px;font-size:10px;line-height:11px;text-align:center;box-sizing:border-box}
+#mgroups button[aria-pressed="true"]::before{content:"✓"}
+.seg button.hint{text-decoration:none;cursor:pointer;align-self:auto}
+#mgplas{display:inline-flex;align-items:center;gap:6px}
+.mbox.mgbox{border-top:3px solid var(--gc)}
+.mgh{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin:0 0 2px}
+.mgh b{font-size:14px}
+.mgh span{font-size:13px;font-weight:600;font-variant-numeric:tabular-nums}
+.msub{display:block;font-size:11.5px;color:var(--muted);margin:8px 0 1px 6px}
+.mc.moved{opacity:.75}
+.mc.moved input{opacity:.5}
 #mgplas::after{content:"";width:7px;height:7px;border:solid currentColor;border-width:0 1.5px 1.5px 0;transform:translateY(1px) rotate(-135deg);margin-left:2px}
 #mgplas[aria-expanded="false"]::after{transform:translateY(-2px) rotate(45deg)}
 #hpsum{font-size:13px;color:var(--muted)}
@@ -486,9 +498,14 @@ footer b{color:var(--ink);font-weight:600}
 <main class="wrap wide">
   <section class="card mats" id="explore" aria-label="Material" style="scroll-margin-top:104px">
     <div class="mtabs">
+      <span class="lab hint" tabindex="0" data-tip="How each tonne is counted. Applies to the map, summary, charts and downloads.">Count</span>
+      <div class="seg" id="mcount">
+        <button data-count="whole" aria-pressed="true" class="hint" data-tip="Trade as reported by customs: each product code at its full weight, counted once in its own group.">Whole shipments</button>
+        <button data-count="content" aria-pressed="false" class="hint" data-tip="What the shipments contain: each material in its own total, including material found inside other shipments, such as plastic in paper bales. Shares are estimated.">Material content</button>
+      </div>
       <span class="lab">Material</span>
-      <div class="seg">
-        <button id="mgplas" data-mat="plastic" aria-pressed="true" aria-expanded="true" aria-controls="hpgrid">Plastics</button>
+      <div class="seg" id="mgroups">
+        <button data-mat="plastic" aria-pressed="true">Plastics</button>
         <button data-mat="paper" aria-pressed="false">Paper &amp; card</button>
         <button data-mat="metals" aria-pressed="false">Metals</button>
         <button data-mat="textiles" aria-pressed="false">Textiles</button>
@@ -500,8 +517,9 @@ footer b{color:var(--ink);font-weight:600}
         <button data-mat="organic" aria-pressed="false">Animal &amp; organic</button>
         <button data-mat="ships" aria-pressed="false">Ships for breaking</button>
       </div>
+      <button class="linkbtn" id="mgplas" aria-expanded="false" aria-controls="hpgrid">Details</button>
       <span id="hpsum"></span>
-      <span class="macts"><button class="linkbtn" id="hpshape">Select all</button><button class="linkbtn" id="hpclear">Clear all</button><button class="linkbtn" id="hpoff">Plastic scrap only</button><button class="linkbtn" id="hpreset">Reset values</button><button class="linkbtn" id="hpsave">Save assumptions</button><label class="linkbtn">Load assumptions<input type="file" id="hpload" accept=".json,application/json" hidden></label></span>
+      <span class="macts"><button class="linkbtn" id="hpshape">Select all</button><button class="linkbtn" id="hpclear">Clear all</button><button class="linkbtn" id="hpoff">Own shipments only</button><button class="linkbtn" id="hpreset">Reset shares</button><button class="linkbtn" id="hpsave">Save shares</button><label class="linkbtn">Load shares<input type="file" id="hpload" accept=".json,application/json" hidden></label></span>
     </div>
     <div class="mcomp" id="hpgrid"></div>
   </section>
@@ -680,7 +698,7 @@ footer b{color:var(--ink);font-weight:600}
             <label><input type="radio" name="dlc" id="dlc-map" value="map"> <span>Map filters: <b id="dlmapdesc"></b></span></label>
             <label><input type="radio" name="dlc" id="dlc-sel" value="sel"> One country</label>
             <select id="dlcountry" aria-label="Country to download"></select></div></div>
-          <div class="ctl dlmatbox"><span class="hint" tabindex="0" data-tip="The materials ticked under Plastics at the top of the page. Each row splits into plastic scrap and plastic in other materials.">Materials</span><div class="dlmat" id="dlmat"></div><button class="linkbtn" id="dlmatedit" type="button">Change materials</button></div>
+          <div class="ctl dlmatbox"><span class="hint" tabindex="0" data-tip="The count and the materials chosen at the top of the page. With Material content, each row splits into own shipments and material found in other shipments.">Materials</span><div class="dlmat" id="dlmat"></div><button class="linkbtn" id="dlmatedit" type="button">Change materials</button></div>
           <div class="ctl"><span>Format</span><div class="seg" id="dlfmt"><button data-f="csv" aria-pressed="true">CSV</button><button data-f="json" aria-pressed="false">JSON</button></div></div>
         </div>
         <div class="ctl dlcolbox"><span>Columns</span><div class="dlcols" id="dlcols"></div></div>
@@ -746,9 +764,9 @@ const MCFG={
   weee:{n:"Electronic waste (plastic fraction)",codes:"HS 8549.31, 8549.39",f:24.7,shape:true,src:"Source: OECD Global Plastics Outlook 2022 (e-waste plastics, 2022) ÷ Global E-waste Monitor 2024, Table A2.2 (e-waste, 2022)."},
   weeeo:{n:"Electrical waste (plastic fraction)",codes:"HS 8549.91, 8549.99",f:24.7,shape:false,src:"Assumption, using OECD Global Plastics Outlook 2022 (e-waste plastics, 2022) ÷ Global E-waste Monitor 2024, Table A2.2 (e-waste, 2022)."},
   rdf:{n:"Refuse-derived fuel (plastic fraction)",codes:"HS 3825.10",f:33.25,shape:true,src:"Source: Gerassimidou et al. 2020, Waste Management & Research 38(9), Table 1 (30% plastic, 5% textiles × 65% synthetic)."},
-  tyres:{n:"Used tyres",codes:"HS 4012.20",f:100,shape:false,src:"Assumption: the whole tyre (natural and synthetic rubber, fillers, additives and cords) is counted in the plastics family."},
-  rubber:{n:"Rubber waste and scrap",codes:"HS 4004",f:100,shape:false,src:"Assumption: all rubber, natural and synthetic, is counted in the plastics family."},
-  hardrubber:{n:"Hard rubber",codes:"HS 4017",f:100,shape:false,src:"Assumption: all rubber is counted in the plastics family, and the whole code is treated as waste."},
+  tyres:{n:"Used tyres",codes:"HS 4012.20",f:100,core:true,shape:false,src:"Assumption: the whole tyre (natural and synthetic rubber, fillers, additives and cords) is counted in the plastics family."},
+  rubber:{n:"Rubber waste and scrap",codes:"HS 4004",f:100,core:true,shape:false,src:"Assumption: all rubber, natural and synthetic, is counted in the plastics family."},
+  hardrubber:{n:"Hard rubber",codes:"HS 4017",f:100,core:true,shape:false,src:"Assumption: all rubber is counted in the plastics family, and the whole code is treated as waste."},
   paper:{n:"Paper and card (plastic contamination)",codes:"HS 4707",f:2,shape:false,src:"Assumption, for illustration."}},
     col:{scrap:"#0f7f86",fibre:"#b07aa1",clothing:"#e15759",rags:"#ff9da7",weee:"#4e79a7",weeeo:"#a0cbe8",rdf:"#9c755f",tyres:"#3d3d3d",rubber:"#8a8a8a",hardrubber:"#5f5f5f",paper:"#edc948"},
     grp:[["Textiles",["clothing","rags","fibre"]],["E-waste",["weee","weeeo"]],["Refuse-derived fuel",["rdf"]],["Rubber and tyres",["tyres","rubber","hardrubber"]],["Paper and card",["paper"]]],
@@ -838,23 +856,32 @@ const MCFG={
 const POLY={pe:{n:"Ethylene polymers (PE)",s:"PE",codes:"HS 3915.10",col:"#0f7f86"},ps:{n:"Styrene polymers (PS)",s:"PS",codes:"HS 3915.20",col:"#86bcb6"},
   pvc:{n:"Vinyl chloride polymers (PVC)",s:"PVC",codes:"HS 3915.30",col:"#b6992d"},pother:{n:"Other plastics (incl. PET and PP)",s:"other plastics",codes:"HS 3915.90",col:"#59a14f"}},PKEYS=Object.keys(POLY);
 const QS=new URLSearchParams(location.search);
-const GORD=["plastic","paper","metals","textiles","ewaste","glass","wood","slag","hazardous","organic","ships"],PARTOK={textiles:[["p","Synthetic"],["o","Natural and other"]],ewaste:[["p","Plastic"],["m","Metal"],["o","Other materials"]]},INCS=["HIC","UMC","LMC","LIC"];
+const GORD=["plastic","paper","metals","textiles","ewaste","glass","wood","slag","hazardous","organic","ships"],INCS=["HIC","UMC","LMC","LIC"];
+const GCOL={plastic:"#0f7f86",paper:"#c9a227",metals:"#4e79a7",textiles:"#b07aa1",ewaste:"#e15759",glass:"#76b7b2",wood:"#9c755f",slag:"#79706e",hazardous:"#6b4fb3",organic:"#59a14f",ships:"#3d5a73"};
 const GROUPS=GORD.filter(g=>(QS.get("mat")||"plastic").split(/[ ,+]/).includes(g));if(!GROUPS.length)GROUPS.push("plastic");
-// Each group's own make-up: textiles by fibre, e-waste by material. PARTS[g] holds the ticked letters; none means all.
-const PARTS={};for(const x of (QS.get("part")||"").split(",")){const [g,p]=x.split("-");if(!GROUPS.includes(g)||!PARTOK[g]||!p)continue;const L=PARTOK[g].map(q=>q[0]).filter(l=>p.includes(l));if(L.length&&L.length<PARTOK[g].length)PARTS[g]=L.join("")}
-const OVOUT=GROUPS.length>1&&QS.get("ov")==="0";
-// Several groups at once, or one group cut to its plastic or other parts.
-const COMBO=GROUPS.length>1||Object.keys(PARTS).length>0;
-// Every stream is split into parts (plastic, textile, paper, metal, other). A group is a set of parts:
-// the whole of the streams it is home to, plus its own material in the others. A part in two ticked
-// groups is counted once, or left out, never twice.
-const HOME={scrap:"plastic",tyres:"plastic",rubber:"plastic",hardrubber:"plastic",paper:"paper"};
-for(const g of GORD)if(g!=="plastic")for(const k in MCFG[g].hs)if(MCFG[g].hs[k].core)HOME[k]=g;
+// Count (Ed, 28 Nov 2026): whole shipments, each product code at its full weight in its own group (the default), or
+// material content, where every stream is split into parts and each part sits in exactly one material's total.
+const CONTENT=QS.get("count")==="content";
+const COMBO=true;
+const andList=a=>a.length<2?a.join(""):a.slice(0,-1).join(", ")+" and "+a[a.length-1];
+// Each stream's home group is the group whose shipments it is. Refuse-derived fuel has none.
+const HOME={scrap:"plastic",paper:"paper"};
+for(const g of GORD)for(const k in MCFG[g].hs)if(MCFG[g].hs[k].core)HOME[k]=g;
 const GSTORE=g=>g==="plastic"?"gwt-assumptions-v2":"gwt-assumptions-"+g;
 const GSH={};for(const g of GORD){const hs=MCFG[g].hs,o=GSH[g]={};let sv=null;try{sv=JSON.parse(localStorage.getItem(GSTORE(g))||"null")}catch(e){}
   const n=x=>x!=null&&isFinite(+x)?Math.max(0,Math.min(100,+x)):null;
   for(const k in hs){const s=sv&&sv.streams&&sv.streams[k],f=s&&n(s.f)!=null?n(s.f):hs[k].f;o[k]={f,byInc:!!(s&&s.byInc),inc:Object.fromEntries(INCS.map(i=>[i,s&&s.byInc&&s.inc&&n(s.inc[i])!=null?n(s.inc[i]):f]))}}}
-const gsh=(g,k,i)=>{if(k==="scrap")return g==="plastic"?1:0;const kk=g==="plastic"&&HOME[k]==="paper"?"paper":k,h=MCFG[g].hs[kk],s=GSH[g][kk];if(!h)return 0;if(h.core)return 1;return (s.byInc&&i&&s.inc[i]!=null?s.inc[i]:s.f)/100};
+// A group's claim on its own material inside another group's stream. Plastic in paper is one claim for every grade.
+const claimKey=(k,c)=>c==="plastic"&&HOME[k]==="paper"?"paper-plastic":k+"-"+c;
+// The streams on the page: each selected group's own shipments and, when counting material content, its claims.
+const HS={},HSCOL={},HON={};
+for(const g of GROUPS)for(const k in MCFG[g].hs){const h=MCFG[g].hs[k],vk=h.core?k:k+"-"+g;
+  if(h.core)HS[vk]={n:h.n,codes:h.codes,f:100,core:true,src:h.src||"",own:g,sk:k};
+  else if(CONTENT)HS[vk]={n:h.n,codes:h.codes,f:h.f,core:false,src:h.src,own:g,sk:k,claim:true};
+  else continue;
+  HSCOL[vk]=MCFG[g].col[k]||"#9aa7ad"}
+HSCOL.scrap=MCFG.plastic.col.scrap;
+const gsh=(g,k,i)=>{if(k==="scrap")return g==="plastic"?1:0;const kk=g==="plastic"&&HOME[k]==="paper"?"paper":k,h=MCFG[g].hs[kk];if(!h)return 0;if(h.core)return 1;const s=HON[kk+"-"+g]||GSH[g][kk];return (s.byInc&&i&&s.inc[i]!=null?s.inc[i]:s.f)/100};
 function atoms(k,i){const h=HOME[k]||null,P=gsh("plastic",k,i),T=gsh("textiles",k,i),W=gsh("wood",k,i);let Q=gsh("paper",k,i),M=gsh("metals",k,i);
   if(h==="paper")Q=Math.max(0,1-P);if(h==="metals")M=Math.max(0,1-P);
   const o=h==="textiles"?Math.min(P,1):k==="rdf"?Math.min(.65*T,P,T):0;
@@ -862,47 +889,40 @@ function atoms(k,i){const h=HOME[k]||null,P=gsh("plastic",k,i),T=gsh("textiles",
   const s=d3.sum(A,a=>a.f);if(s>1)A.forEach(a=>a.f/=s);A.push({n:"other",f:Math.max(0,1-s),p:0,g:[]});
   if(h)A.forEach(a=>{if(!a.g.includes(h))a.g=a.g.concat(h)});
   return A.filter(a=>a.f>1e-9)}
-const kindOf=a=>a.p?"p":a.n==="metal"?"m":"o";
-const inG=(a,g)=>a.g.includes(g)&&(PARTS[g]==null||PARTS[g].includes(kindOf(a)));
-const cntG=a=>GROUPS.reduce((n,g)=>n+inG(a,g),0);
-// mode: a group, "u" (each part once), "x" (parts in one group only) or "s" (groups added up).
-const comboSh=(k,i,mode)=>d3.sum(atoms(k,i),a=>{const n=cntG(a);return mode==="u"?(n?a.f:0):mode==="x"?(n===1?a.f:0):mode==="s"?a.f*n:inG(a,mode)?a.f:0});
-const CMODE=OVOUT?"x":"u";
-const partLab=g=>PARTS[g]?" ("+PARTOK[g].filter(q=>PARTS[g].includes(q[0])).map(q=>q[1].toLowerCase()).join(", ")+")":"";
-const gLab=g=>MCFG[g].n+partLab(g);
+// Contents of a group's own shipments that the reader has unticked ("group|part").
+const INOFF=new Set();
+// Which selected group's total a part of stream k sits in, or null when it is not counted. A part moves to the group
+// of its material when that group is selected and its claim is ticked; otherwise it stays with the stream's home group.
+function ownerOf(k,a){const h=HOME[k]||null;
+  if(!CONTENT)return h&&GROUPS.includes(h)?h:null;
+  for(const c of a.g){if(c===h||!GROUPS.includes(c))continue;const o=HON[claimKey(k,c)];if(o&&o.on)return c}
+  return h&&GROUPS.includes(h)&&!INOFF.has(h+"|"+a.n)?h:null}
+const ATC=new Map(),atomsC=(k,i)=>{const key=k+"|"+(i||"");let a=ATC.get(key);if(!a){a=atoms(k,i);ATC.set(key,a)}return a};
+const cntSh=(vk,i)=>{const s=HS[vk];if(!CONTENT)return HOME[s.sk]===s.own?1:0;return d3.sum(atomsC(s.sk,i),a=>ownerOf(s.sk,a)===s.own?a.f:0)};
+// Counted share of each stream on the page (per cent), overall and by exporter income group.
+const CNT={};
+function recount(){ATC.clear();for(const vk in HS){const u=i=>Math.round(cntSh(vk,i)*1e6)/1e4;CNT[vk]={f:u(null),inc:Object.fromEntries(INCS.map(i=>[i,u(i)]))}}}
 const pct=f=>d3.format(".3~r")(f*100)+"%";
-let MAT,MC,HS,HSCOL,HGRP;
-if(!COMBO){MAT=GROUPS[0];MC=MCFG[MAT];HS=MC.hs;HSCOL=MC.col;HGRP=MC.grp}
-else{MAT=GROUPS.join("-and-");HS={};HSCOL={};
-  const strip=n=>n.replace(/ \((plastic|paper|metal|textile|wood) (fraction|contamination)\)$/,"");
-  for(const g of GROUPS){Object.assign(HSCOL,Object.fromEntries(Object.entries(MCFG[g].col).filter(([k])=>!(k in HSCOL))));
-    for(const k in MCFG[g].hs){if(k==="paper"&&GROUPS.includes("paper"))continue;const home=GROUPS.includes(HOME[k])?MCFG[HOME[k]].hs[k]||MCFG[g].hs[k]:MCFG[g].hs[k];
-      if(!HS[k]){const u=comboSh(k,null,CMODE);HS[k]={n:strip(home.n)+(u>0&&u<.9995?` (${pct(u)} counted)`:""),codes:home.codes,f:100,core:true,
-        parts:atoms(k,null).map(a=>{const in_=GROUPS.filter(x=>inG(a,x));return `${a.n} ${pct(a.f)}`+(in_.length?` (${in_.map(x=>MCFG[x].n).join(", ")}${in_.length>1&&OVOUT?", left out":""})`:" (not counted)")}).join("; ")}}}}
-  const box=k=>GROUPS.includes(HOME[k])?HOME[k]:null;
-  HGRP=GROUPS.map(g=>[gLab(g),(g==="plastic"?["scrap"]:[]).concat(Object.keys(HS).filter(k=>box(k)===g)),1]);
-  const rest=Object.keys(HS).filter(k=>!box(k));if(rest.length)HGRP.push(["Other and embedded",rest,1]);
-  MC={n:GROUPS.map(gLab).join(" + "),noun:"material",word:GROUPS.map(g=>MCFG[g].word+partLab(g)).join(", ").replace(/, ([^,]*)$/," and $1"),core:"Selected materials",emb:"",embHead:"",only:"",embTip:"",hs:HS,col:HSCOL,grp:HGRP,
-    dlk:{plastic_scrap_t:"selected_t",hidden_plastic_t:"embedded_t",hidden_detail:"by_stream"}}}
-const PLAS=!COMBO&&MAT==="plastic";
+const MAT=GROUPS.join("-and-"),PLAS=false;
+const MC={n:GROUPS.map(g=>MCFG[g].n).join(" + "),noun:"material",word:andList(GROUPS.map(g=>MCFG[g].word)),core:"Own shipments",emb:"Found in other shipments",embHead:"Found in other shipments",only:"Own shipments only",embTip:"",hs:HS,col:HSCOL,
+  dlk:{plastic_scrap_t:"own_shipments_t",hidden_plastic_t:"found_in_other_shipments_t",hidden_detail:"by_stream"}};
 const EMB=Object.keys(HS).some(k=>!HS[k].core);
 const cap1=t=>t.charAt(0).toUpperCase()+t.slice(1);
-{const cur=document.querySelector(`.mtabs [data-mat="${GROUPS[0]}"]`);if(cur.id!=="mgplas"){const p=$("#mgplas");p.removeAttribute("id");p.removeAttribute("aria-expanded");p.removeAttribute("aria-controls");p.setAttribute("aria-pressed","false");cur.id="mgplas";cur.setAttribute("aria-pressed","true");cur.setAttribute("aria-expanded","true");cur.setAttribute("aria-controls","hpgrid")}
-  if(!PLAS)$(".dlmatbox .hint").dataset.tip=`The streams ticked under ${COMBO?"Material":MC.n} at the top of the page.`+(EMB?` Each row splits into ${MC.core.toLowerCase()} and ${MC.emb.toLowerCase()}.`:"");
-  $("#hpoff").textContent=MC.only;if(!EMB)["#hpoff","#hpreset","#hpsave"].forEach(q=>$(q).hidden=true),$("#hpload").parentElement.hidden=true}
-const ASSUME=COMBO?"gwt-assumptions-combo":GSTORE(MAT);
 const HDEF=k=>({on:true,f:HS[k].f,w:100,byInc:false,inc:{HIC:HS[k].f,UMC:HS[k].f,LMC:HS[k].f,LIC:HS[k].f},usrc:""});
 const isDef=k=>!HON[k].byInc&&+HON[k].f===+HS[k].f;
-const HON={};for(const k in HS)HON[k]=HDEF(k);
-// v2: every stream is on by default (Ed, 26 Nov 2026). Saved shares from v1 are kept, with the streams switched on.
-if(COMBO)for(const k in HS){const u=i=>Math.round(comboSh(k,i,CMODE)*1e6)/1e4;HON[k]={on:true,f:u(null),w:100,byInc:true,inc:Object.fromEntries(INCS.map(i=>[i,u(i)])),usrc:""}}
-else try{let sv=JSON.parse(localStorage.getItem(ASSUME)||"null"),old=false;if(!sv&&PLAS){sv=JSON.parse(localStorage.getItem("gwt-assumptions")||"null");old=!!sv}
-  if(sv&&sv.streams)for(const k in HS)if(sv.streams[k]){HON[k]=sanitiseH(k,sv.streams[k]);if(old)HON[k].on=true;if(HS[k].core){HON[k].f=100;HON[k].byInc=false}}}catch(e){}
+for(const k in HS)HON[k]=HDEF(k);
+// Claims keep each group's saved shares and ticks.
+for(const k in HS){const s=HS[k];if(!s.claim)continue;try{const sv=JSON.parse(localStorage.getItem(GSTORE(s.own))||"null");if(sv&&sv.streams&&sv.streams[s.sk])HON[k]=sanitiseH(k,sv.streams[s.sk])}catch(e){}}
 function sanitiseH(k,o){const c=v=>Math.max(0,Math.min(100,+v));const d=HDEF(k),n=x=>x!=null&&isFinite(+x);
-  return{on:!!o.on,usrc:typeof o.usrc==="string"?o.usrc.slice(0,300):typeof o.source==="string"&&o.source!==HS[k].src?o.source.slice(0,300):"",f:n(o.f)?c(o.f):d.f,w:100,byInc:!!o.byInc,inc:Object.fromEntries(["HIC","UMC","LMC","LIC"].map(g=>[g,o.inc&&n(o.inc[g])?c(o.inc[g]):d.inc[g]]))}}
-const shareOf=(k,e)=>{const h=HON[k],g=C[e]?C[e][2]:"NS";return (h.byInc&&h.inc[g]!=null?h.inc[g]:h.f)/100*h.w/100};
+  return{on:o.on!==false,usrc:typeof o.usrc==="string"?o.usrc.slice(0,300):typeof o.source==="string"&&o.source!==HS[k].src?o.source.slice(0,300):"",f:n(o.f)?c(o.f):d.f,w:100,byInc:!!o.byInc,inc:Object.fromEntries(["HIC","UMC","LMC","LIC"].map(g=>[g,o.inc&&n(o.inc[g])?c(o.inc[g]):d.inc[g]]))}}
+recount();
+// Each group's claims are saved in that group's store, so the shares carry over between selections.
+function saveShares(){for(const g of GROUPS){const ks=Object.keys(HS).filter(k=>HS[k].claim&&HS[k].own===g);if(!ks.length)continue;
+  let sv=null;try{sv=JSON.parse(localStorage.getItem(GSTORE(g))||"null")}catch(e){}sv=sv&&sv.streams?sv:{streams:{}};
+  for(const k of ks)sv.streams[HS[k].sk]=HON[k];try{localStorage.setItem(GSTORE(g),JSON.stringify(sv))}catch(e){}}}
+const shareOf=(k,e)=>{const c=CNT[k],g=C[e]?C[e][2]:"NS";return (INCS.includes(g)?c.inc[g]:c.f)/100};
 const S={imp:new URLSearchParams(location.search).get("imp")!=="0",hatch:true,scrap:true,fdir:"both",fgrp:"c",view:2,measure:"t",incf:"all",lo:(new URLSearchParams(location.search).get("lo")||"").split(",").filter(x=>x&&"rime".includes(x)),sel:null,region:null,rdir:"both",scheme:"wb",mapMode:"routes",hl:"none",resolve:"mean",rank:"exp",rankSort:null,fmt:"csv"};
-if(!PLAS)S.scrap=COMBO&&GROUPS.includes("plastic");
+S.scrap=GROUPS.includes("plastic");
 const B={type:"sankey",lv:["ex:c","rc:c"],side:"ex",group:"c",scheme:"wb",view:2,measure:"t",top:15,focus:false,split:"r",norm:"abs",tcol:"shade",nlab:15,labt:"c"};
 const HEADN=300,RSTEPS=[10,15,20,25,30,40,45,50,60,75,100,125,150,200,250,300,400,500,750,1000,1500,2000,3000,5000,1e9],ALLR=1e9;
 const rIdx=v=>{let b=0;for(let i=0;i<RSTEPS.length;i++)if(Math.abs(RSTEPS[i]-v)<Math.abs(RSTEPS[b]-v))b=i;return b},rLab=v=>v>=ALLR?"All":d3.format(",")(v);
@@ -922,11 +942,11 @@ try{const ok=r=>{if(!r.ok)throw new Error(r.status);return r.json()};MAN=await f
   MYEARS=yearsOf(GROUPS);
   const qy=+new URLSearchParams(location.search).get("year"),dy=MYEARS.includes(MAN.default)?MAN.default:MYEARS.filter(y=>!(MAN.modelled||[]).includes(y)).pop()||MYEARS[MYEARS.length-1];const yr=MYEARS.includes(qy)?qy:dy;
   getPD=GROUPS.includes("plastic")?fetch(`data/polymers_${yr}.json`,{cache:"no-cache"}).then(ok).catch(()=>null):Promise.resolve(null);
-  const cores=Object.keys(HS).filter(k=>HS[k].core),getTR=COMBO?Promise.all((S.scrap?[["",1]]:[]).concat(cores.map(k=>[k,HON[k].f/100])).filter(x=>x[1]>0).map(([k,w])=>fetch(k?`data/trends_${k}.json`:"data/trends.json",{cache:"no-cache"}).then(ok).then(T=>[T,w,k]).catch(()=>null))).then(a=>{a=a.filter(Boolean);const c=a.filter(x=>x[2]);TRCORE=c.length?mergeTR(c.map(x=>x[0]),c.map(x=>x[1])):null;return mergeTR(a.map(x=>x[0]),a.map(x=>x[1]))}):PLAS?fetch("data/trends.json",{cache:"no-cache"}).then(ok):Promise.all(cores.map(k=>fetch(`data/trends_${k}.json`,{cache:"no-cache"}).then(ok).catch(()=>null))).then(a=>mergeTR(a.filter(Boolean)));
+  const cores=Object.keys(HS).filter(k=>HS[k].core),getTR=COMBO?Promise.all((S.scrap?[["",1]]:[]).concat(Object.keys(HS).filter(k=>HON[k].on).map(k=>[HS[k].sk,CNT[k].f/100])).filter(x=>x[1]>0).map(([k,w])=>fetch(k?`data/trends_${k}.json`:"data/trends.json",{cache:"no-cache"}).then(ok).then(T=>[T,w,k]).catch(()=>null))).then(a=>{a=a.filter(Boolean);const c=a.filter(x=>x[2]);TRCORE=c.length?mergeTR(c.map(x=>x[0]),c.map(x=>x[1])):null;return mergeTR(a.map(x=>x[0]),a.map(x=>x[1]))}):PLAS?fetch("data/trends.json",{cache:"no-cache"}).then(ok):Promise.all(cores.map(k=>fetch(`data/trends_${k}.json`,{cache:"no-cache"}).then(ok).catch(()=>null))).then(a=>mergeTR(a.filter(Boolean)));
   if(COMBO){const get=f=>fetch(f,{cache:"no-cache"}).then(ok),ds=await Promise.all(GROUPS.map(g=>get(g==="plastic"?`data/plastic_${yr}.json`:`data/${g}_${yr}.json`))),
       ims=await Promise.all(GROUPS.map(g=>get(g==="plastic"?`data/imputed_${yr}.json`:`data/imputed_${g}_${yr}.json`).catch(()=>null)));
     const pi=GROUPS.indexOf("plastic"),d0=ds[Math.max(0,pi)];
-    data={...d0,meta:{...d0.meta,code:ds.map(d=>d.meta.code).join("; "),desc:GROUPS.map(gLab).join(" + "),source:ds.map(d=>d.meta.source||"").join("; ")},
+    data={...d0,meta:{...d0.meta,code:ds.map(d=>d.meta.code).join("; "),desc:GROUPS.map(g=>MCFG[g].n).join(" + ")+(CONTENT?", material content":", whole shipments"),source:ds.map(d=>d.meta.source||"").join("; ")},
       routes:pi>=0?ds[pi].routes:[],hidden:{},countries:Object.assign({},...ds.map(d=>d.countries)),aliases:Object.assign({},...ds.map(d=>d.aliases||{})),schemes:{}};
     for(const d of ds)for(const sc in d.schemes)Object.assign(data.schemes[sc]||(data.schemes[sc]={}),d.schemes[sc]);
     ds.forEach((d,j)=>{for(const k in d.hidden)if(!(k in data.hidden)||HOME[k]===GROUPS[j])data.hidden[k]=d.hidden[k]});
@@ -945,10 +965,12 @@ const NAT=["Eurostat","HMRC"].filter(k=>(data.meta.source||"").includes(k)), NAT
 VERSION=`UN Comtrade ${YL}${NATL}, ${CODE}`+(data.meta.built?` · built ${data.meta.built}`:"");
 $("#srcline").textContent=`UN Comtrade ${YL}${NATL} · ${CODE} · ${data.meta.desc}`;
 const BASE=data.routes.map(r=>({v:r[0],ex:String(r[1]),rc:String(r[2]),t:r[3],usd:r[4],est:r[5],basis:r[0]===0?"exporter report":"importer report"}));
-const HROWS={};for(const k in HS)HROWS[k]=(data.hidden[k]||[]).map(r=>({v:r[0],ex:String(r[1]),rc:String(r[2]),t:r[3],usd:r[4],est:r[5]})).filter(r=>C[r.ex]&&C[r.rc]);
+const HROWS={};for(const k in HS)HROWS[k]=(data.hidden[HS[k].sk]||[]).map(r=>({v:r[0],ex:String(r[1]),rc:String(r[2]),t:r[3],usd:r[4],est:r[5]})).filter(r=>C[r.ex]&&C[r.rc]);
 const IMPHOW={1:"from partner reports",2:"straight line between reported years",3:"trend from nearest reported year"};
 const impRows=k=>((IMP&&IMP[k])||[]).map(r=>({v:r[0],ex:String(r[1]),rc:String(r[2]),t:r[3],usd:r[4],est:0,imp:r[5],basis:"imputed, "+IMPHOW[r[5]]})).filter(r=>C[r.ex]&&C[r.rc]);
-const BASEI=impRows("plastic"),HIMP={};for(const k in HS)HIMP[k]=impRows(k);
+const BASEI=impRows("plastic"),HIMP={};for(const k in HS)HIMP[k]=impRows(HS[k].sk);
+// With Paper and card selected too, plastic in paper is taken grade by grade from the routes Paper counts.
+const VIEWK={};if(HS["paper-plastic"]&&GROUPS.includes("paper")){VIEWK["paper-plastic"]=Object.keys(MCFG.paper.hs).filter(k=>MCFG.paper.hs[k].core&&HROWS[k]);HROWS["paper-plastic"]=VIEWK["paper-plastic"].flatMap(k=>HROWS[k])}
 // Plastic scrap by polymer. Each HS 3915 route, reported or imputed, is split in the shares of its own six-digit
 // records, else the partner's report of it, the exporter's exports, the recipient's imports, then the world
 // (the same steps as pipeline/polymers.py). Unticking a polymer takes its share out of every route.
@@ -977,7 +999,7 @@ const polyNote=()=>polyAll()||!S.scrap?"":` Plastic scrap: ${polyOn().map(k=>POL
 const ALIAS=data.aliases||{};
 let R=[];
 const HAS_HID=Object.values(HROWS).some(x=>x.length);
-const hidOn=()=>!HAS_HID?[]:Object.keys(HS).filter(k=>{const h=HON[k];return h.on&&h.w>0&&(h.byInc?Object.values(h.inc).some(v=>v>0):h.f>0)});
+const hidOn=()=>!HAS_HID?[]:Object.keys(HS).filter(k=>HON[k].on&&(CNT[k].f>0||INCS.some(i=>CNT[k].inc[i]>0)));
 const embOn=()=>hidOn().filter(k=>!HS[k].core&&HROWS[k].length),coreOn=()=>hidOn().filter(k=>HS[k].core&&HROWS[k].length);
 function pairUp(RAW){
   const m=new Map();for(const r of RAW){const k=r.ex+">"+r.rc;if(!m.has(k))m.set(k,[null,null]);m.get(k)[r.v]=r}
@@ -993,7 +1015,7 @@ function pairUp(RAW){
   }
   return out;
 }
-const hViews=k=>{const rs=HROWS[k];return rs.concat(S.imp?HIMP[k]:[],pairUp(rs))};
+const hViews=k=>{if(VIEWK[k])return VIEWK[k].flatMap(hViews);const rs=HROWS[k];return rs.concat(S.imp?HIMP[k]:[],pairUp(rs))};
 const hTot=(k,v)=>d3.sum(hViews(k),r=>r.v===v?r.t:0);
 function resolve(){
   const nz=a=>polyAll()?a:a.filter(r=>r.t>0||r.usd>0);
@@ -1009,16 +1031,19 @@ function resolve(){
   }
   R=rows;
 }
-const PW=()=>{if(PLAS){const h=hidOn().length,w="plastic waste"+polyTag();return !h?w:S.scrap?w+" and hidden or embedded plastic":"hidden or embedded plastic"}
-  const e=embOn().length,c=coreOn().length,w=MC.word.replace("plastic waste","plastic waste"+polyTag());return !e?w:c?w+" and embedded "+MC.noun:"embedded "+MC.noun};
+const PW=()=>(GROUPS.length>3?GROUPS.length+" materials":CONTENT?andList(GROUPS.map(g=>MCFG[g].noun)):andList(GROUPS.map(g=>MCFG[g].word+(g==="plastic"?polyTag():""))))+(CONTENT?" (material content)":" (whole shipments)");
 const aggS=rs=>{let t=0,usd=0,est=0;for(const r of rs){const h=PLAS?r.hid||0:r.emb||0;t+=r.t-h;usd+=r.usd-(PLAS?r.hu||0:r.eu||0);if(r.est)est+=r.t-h}return{t,usd,est,n:rs.length}};
-const hDesc=k=>{const h=HON[k];if(HS[k].core)return HS[k].n;return HS[k].n+" "+(h.byInc?"HIC "+h.inc.HIC+"/UMC "+h.inc.UMC+"/LMC "+h.inc.LMC+"/LIC "+h.inc.LIC+"% "+MC.noun:h.f+"% "+MC.noun)+(isDef(k)?"":" (user value"+(h.usrc.trim()?"; source: "+h.usrc.trim():", no source given")+")")};
+const hDesc=k=>{const h=HON[k],s=HS[k],nn=MCFG[s.own].noun;if(s.core)return s.n;return s.n+" "+(h.byInc?"HIC "+h.inc.HIC+"/UMC "+h.inc.UMC+"/LMC "+h.inc.LMC+"/LIC "+h.inc.LIC+"% "+nn:h.f+"% "+nn)+(isDef(k)?"":" (user value"+(h.usrc.trim()?"; source: "+h.usrc.trim():", no source given")+")")};
 const coreAll=()=>Object.keys(HS).filter(k=>HS[k].core&&HROWS[k].length);
-function matNote(cap){if(PLAS)return "";const c=coreOn(),e=embOn(),a=cap?[" Streams: "," Includes "+MC.embHead.toLowerCase()+": ","."]:[" · streams: "," · "+MC.embHead.toLowerCase()+": ",""];
-  return (COMBO?(cap?" Material: "+MC.n+"."+(GROUPS.length>1?" Parts in more than one group are "+(OVOUT?"left out.":"counted once."):""):" · "+MC.n+(GROUPS.length>1?(OVOUT?", overlap left out":", overlap counted once"):"")):"")+(c.length<coreAll().length?a[0]+(c.length?c.map(hDesc).join(", "):"none")+a[2]:"")+(e.length?a[1]+e.map(hDesc).join(", ")+a[2]:"")}
+// What is counted, for captions and downloads: the count, the groups, anything unticked and every share used.
+function matNote(cap){const off=Object.keys(HS).filter(k=>HS[k].core&&HROWS[k].length&&!HON[k].on).map(k=>HS[k].n),cl=embOn(),io=[...INOFF].filter(x=>GROUPS.includes(x.split("|")[0])).map(x=>{const [g,n]=x.split("|");return MCFG[g].n+": "+n});
+  const a=[`Count: ${CONTENT?"material content":"whole shipments"}`,`Material: ${MC.n}`];
+  if(GROUPS.includes("plastic")&&!S.scrap)off.unshift("Plastic scrap");
+  if(off.length)a.push("Left out: "+off.join(", "));if(io.length)a.push("Contents left out: "+io.join(", "));if(cl.length)a.push("Found in other shipments: "+cl.map(hDesc).join(", "));
+  return cap?" "+a.join(". ")+".":" · "+a.join(" · ")}
 function mapCaption(){const on=hidOn(),v=VIEWS[S.view];
-  return `${v[0].toUpperCase()+v.slice(1)}${S.view===2?" ("+RMETH[S.resolve]+")":""}${S.imp?", with gaps imputed":", as reported"}.`+(PLAS?(on.length?` Includes other and embedded plastics: ${on.map(hDesc).join(", ")}.`:"")+(on.length&&!S.scrap?" Plastic scrap left out.":""):matNote(true))+polyNote()+(S.incf==="oe"?" Only trade from OECD to non-OECD countries.":S.incf==="hl"?" Only trade from high-income to middle- and low-income countries.":"")+(S.lo.length?" "+loNote():"")+` Source: ${VERSION}. Global Waste Trade Data Hub, globalwastetrade.org, CC BY\u00a04.0.`}
-function hpNote(){const p=polyAll()||!S.scrap?"":" · plastic scrap: "+listAnd(polyOn().map(k=>POLY[k].s))+" only";if(!PLAS)return matNote(false)+p;const on=hidOn();return (on.length?" · hidden or embedded plastic: "+on.map(hDesc).join(", ")+" (UN Comtrade "+YEAR+")"+(S.scrap?"":" · plastic scrap left out"):"")+p}
+  return `${v[0].toUpperCase()+v.slice(1)}${S.view===2?" ("+RMETH[S.resolve]+")":""}${S.imp?", with gaps imputed":", as reported"}.`+matNote(true)+polyNote()+(S.incf==="oe"?" Only trade from OECD to non-OECD countries.":S.incf==="hl"?" Only trade from high-income to middle- and low-income countries.":"")+(S.lo.length?" "+loNote():"")+` Source: ${VERSION}. Global Waste Trade Data Hub, globalwastetrade.org, CC BY\u00a04.0.`}
+function hpNote(){const p=polyAll()||!S.scrap?"":" · plastic scrap: "+listAnd(polyOn().map(k=>POLY[k].s))+" only";return matNote(false)+p}
 applyPoly();resolve();
 const name=c=>C[c]?C[c][1]:c, iso=c=>C[c]?C[c][0]:c, inc=c=>C[c]?C[c][2]:"NS";
 const regOf=(c,sch=S.scheme)=>(SCH[sch]&&SCH[sch][c])||null;
@@ -1450,8 +1475,11 @@ function topBy(rs,key,m,n){const g=d3.rollups(rs,v=>agg(v),r=>r[key]).map(([k,a]
 function ledger(){const v=S.view;if(v===2){const rs=routes(2);const b=d3.rollup(rs,x=>d3.sum(x,r=>r.t),r=>r.basis);const t=d3.sum(rs,r=>r.t)||1;
   return `Resolved by ${RMETH[S.resolve]}. ${d3.format(".0%")((b.get("both reported")||0)/t)} of the tonnage is reported by both sides, ${d3.format(".0%")((b.get("exporter only")||0)/t)} by the exporter only and ${d3.format(".0%")((b.get("importer only")||0)/t)} by the importer only.`}
   const o=agg(R.filter(r=>r.v===1-v&&pass(r))),r2=agg(routes(2));return `The other side of the ledger: ${v===0?"importers":"exporters"} report <b>${fT(o.t)}</b> and <b>${fU(o.usd)}</b> for the same trade. Resolved figure: <b style="color:var(--res)">${fT(r2.t)}</b>.`}
-function hidBars(rs,lab="Where the plastic is"){if(!hidOn().length&&!(HASP&&S.scrap&&polyOn().length>1))return "";const sums=[];if(S.scrap){const m=new Map();for(const r of rs)for(const [k,t] of scrapParts(r))m.set(k,(m.get(k)||0)+t);sums.push(...m)}for(const k of hidOn())sums.push([k,d3.sum(rs,r=>r.hs&&r.hs[k]||0)]);sums.sort((a,b)=>b[1]-a[1]);
-  return `<div><h4>${lab}</h4><div class="bars">${bars(sums,k=>HSCOL[k],"t",k=>klabel("s:"+k))}</div></div>`}
+// The summary's breakdown: one bar per selected material, then one per stream.
+function hidBars(rs,lab="By stream"){let out="";if(GROUPS.length>1){const A=new Map(GROUPS.map(g=>[g,0]));for(const r of rs){if(S.scrap&&A.has("plastic"))A.set("plastic",A.get("plastic")+d3.sum(scrapParts(r),x=>x[1]));if(r.hs)for(const k in r.hs)A.set(HS[k].own,A.get(HS[k].own)+r.hs[k])}
+    out=`<div><h4>By material</h4><div class="bars">${bars([...A].sort((a,b)=>b[1]-a[1]),g=>GCOL[g],"t",g=>MCFG[g].n)}</div></div>`}
+  if(!hidOn().length&&!(HASP&&S.scrap&&polyOn().length>1))return out;const sums=[];if(S.scrap){const m=new Map();for(const r of rs)for(const [k,t] of scrapParts(r))m.set(k,(m.get(k)||0)+t);sums.push(...m)}for(const k of hidOn())sums.push([k,d3.sum(rs,r=>r.hs&&r.hs[k]||0)]);sums.sort((a,b)=>b[1]-a[1]);
+  return out+`<div><h4>${lab}</h4><div class="bars">${bars(sums,k=>HSCOL[k],"t",k=>klabel("s:"+k))}</div></div>`}
 function side(){
   const el=$("#side"),m=S.measure;
   if(S.mapMode==="regions"){
@@ -1839,7 +1867,7 @@ const dlKeys=()=>DLCOLS.map(c=>c[0]).filter(k=>$("#col-"+k)?.checked);
 // until the reader picks one.
 let DLC=null,dlOwnC=false,dlOwnV=false;
 const mapDesc=()=>[S.incf==="hl"?"High → middle- and low-income":S.incf==="oe"?"OECD → non-OECD":"",S.region||"",S.lo.length?"leaving out trade "+S.lo.map(k=>LON[k]).join(", "):""].filter(Boolean).join(" · ")||"none";
-const dlFile=(n,f)=>`gwt-${PLAS?(hidOn().length?"plastic-incl-hidden":"plastic-waste"):MAT+(embOn().length?"-incl-embedded":"")}-${YL}-${n}-rows.${f}`;
+const dlFile=(n,f)=>`gwt-${MAT}-${CONTENT?"material-content":"whole-shipments"}-${YL}-${n}-rows.${f}`;
 function buildDL(){
   if(!dlOwnV)[[0,"#dlx"],[1,"#dlm"],[2,"#dlr"]].forEach(([v,id])=>$(id).checked=v===S.view);
   if(!dlOwnC&&S.sel)DLC=S.sel;
@@ -1847,7 +1875,7 @@ function buildDL(){
   pressed("#dlimp","i",S.imp?"1":"0");
   $("#dlmapdesc").textContent=mapDesc();
   const on=hidOn();
-  $("#dlmat").innerHTML=(S.scrap?HASP&&!polyAll()?polyOn().map(k=>`<span>${esc(POLY[k].n)} <i>${POLY[k].codes}</i></span>`).join(""):`<span>Plastic scrap <i>${CODE}</i></span>`:"")+on.map(k=>{const h=HON[k];return `<span>${esc(HS[k].n)} <i>${HS[k].core?esc(HS[k].codes):h.byInc?"by income":h.f+"%"}</i></span>`}).join("")||`<span>Nothing ticked</span>`;
+  $("#dlmat").innerHTML=`<span>${CONTENT?"Material content":"Whole shipments"} <i>count</i></span>`+(S.scrap?HASP&&!polyAll()?polyOn().map(k=>`<span>${esc(POLY[k].n)} <i>${POLY[k].codes}</i></span>`).join(""):`<span>Plastic scrap <i>HS 3915</i></span>`:"")+on.map(k=>{const h=HON[k];return `<span>${esc(HS[k].n)} <i>${HS[k].core?esc(HS[k].codes):h.byInc?"by income":h.f+"%"}</i></span>`}).join("")||`<span>Nothing ticked</span>`;
   const rows=dlRows(),keys=dlKeys(),views=[[0,"#dlx"],[1,"#dlm"],[2,"#dlr"]].filter(([v,id])=>$(id).checked).map(d=>d[0]),mode=document.querySelector("input[name=dlc]:checked").value;
   $("#dlcount").textContent=`${d3.format(",")(rows.length)} rows`;
   const per=views.map(v=>{const rs=rows.filter(r=>r.view===["exporter","importer","resolved"][v]);return `<div><dt${v===2?' data-def="res"':""}>${["Exporters' reports","Importers' reports","Resolved"][v]}</dt><dd>${fT(d3.sum(rs,r=>r.net_weight_t))}<small>${fU(d3.sum(rs,r=>r.value_usd))} · ${d3.format(",")(rs.length)} rows${v===2?" · "+RMETH[S.resolve]:""}</small></dd></div>`}).join("");
@@ -1954,7 +1982,7 @@ segment("#rcolmode","v",v=>{D.rcol=v;applyDesign();render()});
 segment("#lval","v",v=>{if(v==="none"){D.lab="none"}else{D.lval=v;if(D.lab==="none"||D.lab==="name")D.lab="both"}applyDesign();drawMap()});
 segment("#fdir","v",v=>{S.fdir=v;render()});
 segment("#fgrp","v",v=>{S.fgrp=v;render();fitFocus()});
-// ---------- materials: the Plastics group ----------
+// ---------- materials: the Material card ----------
 const SCRAPV=v=>v===2?d3.sum(pairUp(BASE),r=>r.t):d3.sum(S.imp?BASE.concat(BASEI):BASE,r=>r.v===v?r.t:0);
 const GEAR=`<svg viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M2 4h7M13 4h1M2 12h1M7 12h7M2 8h2M8 8h6"/><circle cx="11" cy="4" r="1.8"/><circle cx="5" cy="12" r="1.8"/><circle cx="6" cy="8" r="1.8"/></svg>`;
 const hpop=$("#hpop");document.body.appendChild(hpop);
@@ -1968,69 +1996,86 @@ const nm2=n=>{const m=n.match(/^(.*?) (\(.*\))$/);return m?`${esc(m[1])}<small>$
 function polyTot(v){const o=[0,0,0,0];for(const r of v===2?pairUp(BASE.map(r=>({...r,t:r.t0,usd:r.u0}))):S.imp?BASE.concat(BASEI):BASE)if(r.v===v&&r.pt)for(let j=0;j<4;j++)o[j]+=r.pt[j];return o}
 const pchip=k=>`<span class="mc ${PON[k]?"on":""}" data-k="poly-${k}"><label title="${esc(POLY[k].codes)}"><input type="checkbox" data-poly="${k}" ${PON[k]?"checked":""}><span class="nm">${nm2(POLY[k].n)}</span><span class="q" id="hq-poly-${k}"></span></label></span>`;
 function chip(k){
-  if(k==="scrap"&&HASP)return (PLAS?"":`<span class="msubh">Plastic scrap</span>`)+PKEYS.map(pchip).join("");
-  if(k==="scrap")return `<span class="mc ${S.scrap?"on":""}" data-k="scrap"><label title="${esc(COMBO?"HS 3915 · plastic 100% (Plastics)":CODE)}"><input type="checkbox" id="hp-scrap" ${S.scrap?"checked":""}><span class="nm">Plastic scrap</span><span class="q" id="hq-scrap"></span></label></span>`;
+  if(k==="scrap"&&HASP)return `<span class="msubh">Plastic scrap</span>`+PKEYS.map(pchip).join("");
+  if(k==="scrap")return `<span class="mc ${S.scrap?"on":""}" data-k="scrap"><label title="HS 3915"><input type="checkbox" id="hp-scrap" ${S.scrap?"checked":""}><span class="nm">Plastic scrap</span><span class="q" id="hq-scrap"></span></label></span>`;
   const h=HS[k],o=HON[k];
-  return `<span class="mc ${o.on?"on":""}" data-k="${k}"><label title="${esc(h.codes+(h.parts?" · "+h.parts:""))}"><input type="checkbox" data-k="${k}" ${o.on?"checked":""}><span class="nm">${nm2(h.n)}</span><span class="q" id="hq-${k}"></span></label>`+(h.core?"</span>":`<button type="button" class="gear" data-pop="${k}" aria-expanded="false" aria-haspopup="dialog" aria-label="Assumptions for ${esc(h.n)}" title="Assumptions">${GEAR}</button></span>`)}
+  return `<span class="mc ${o.on?"on":""}" data-k="${k}"><label title="${esc(h.codes)}"><input type="checkbox" data-k="${k}" ${o.on?"checked":""}><span class="nm">${nm2(h.n)}</span><span class="q" id="hq-${k}"></span></label>`+(h.core?"</span>":`<button type="button" class="gear" data-pop="${k}" aria-expanded="false" aria-haspopup="dialog" aria-label="Share for ${esc(h.n)}" title="Share and source">${GEAR}</button></span>`)}
+// A group's own shipments, its claims on other shipments, and the materials inside its own shipments.
+const homesOf=g=>Object.keys(HS).filter(k=>HS[k].core&&HS[k].own===g&&HROWS[k].length);
+const claimsOf=g=>Object.keys(HS).filter(k=>HS[k].claim&&HS[k].own===g&&HROWS[k].length);
+const kindsOf=g=>{const w=new Map();for(const k of homesOf(g))for(const a of atomsC(k,null))w.set(a.n,(w.get(a.n)||0)+a.f);return [...w].sort((a,b)=>b[1]-a[1]).map(d=>d[0])};
+const ALAB=(n,g)=>n==="other"?(g==="ewaste"?"Other materials":"Other"):cap1(n);
 function hpUI(){
-  const bx=core=>HGRP.filter(g=>!!g[2]===core).map(([g,ks])=>{const kk=ks.filter(k=>k==="scrap"||HROWS[k].length&&(!COMBO||HON[k].f>0||INCS.some(i=>HON[k].inc[i]>0)));return kk.length?`<div class="mbox"><b>${g}</b>${kk.map(chip).join("")}</div>`:""}).join("");
-  const boxes=bx(false),cores=bx(true);
-  const pg=GROUPS.filter(g=>PARTOK[g]),top=pg.map(g=>`<span class="mparts" data-g="${g}"><b>${esc(MCFG[g].n)}</b>${PARTOK[g].map(([l,n])=>`<label><input type="checkbox" data-part="${l}" ${!PARTS[g]||PARTS[g].includes(l)?"checked":""}>${n}</label>`).join("")}</span>`).join("")
-    +(GROUPS.length>1?`<span class="mov"><b class="hint" tabindex="0" data-tip="Parts that belong to more than one ticked group, such as the plastic in used clothing for Plastics and Textiles. Count once keeps them in the total a single time; Leave out drops them.">Overlap</b><span class="seg"><button type="button" data-ov="1" aria-pressed="${!OVOUT}">Count once</button><button type="button" data-ov="0" aria-pressed="${OVOUT}">Leave out</button></span></span>`:"");
-  $("#hpgrid").innerHTML=(top?`<div class="mtop">${top}</div>`:"")+(PLAS?(HASP?`<div class="mboxes"><div class="mbox"><b class="hint" tabindex="0" data-tip="${esc(CODE)} by polymer">Plastic scrap</b>${chip("scrap")}</div></div>`:`<div class="mscrap">${chip("scrap")}</div>`):cores?`<div class="mboxes">${cores}</div>`:"")+(boxes?`<div><span class="lab hint" tabindex="0" data-tip="${esc(MC.embTip)}">${esc(MC.embHead)}</span><div class="mboxes">${boxes}</div></div>`:"");
+  const box=g=>{const hs=homesOf(g),cl=CONTENT?claimsOf(g):[],kinds=CONTENT?kindsOf(g):[];
+    const ship=(g==="plastic"&&BASE.length?[chip("scrap")]:[]).concat(hs.map(chip)).join("");
+    return `<div class="mbox mgbox" data-g="${g}" style="--gc:${GCOL[g]}"><div class="mgh"><b>${esc(MCFG[g].n)}</b><span id="hg-${g}"></span></div>`
+      +(ship?`<span class="msub">Shipments</span>${ship}`:"")
+      +(kinds.length>1?`<span class="msub">Inside these shipments</span>${kinds.map(n=>`<span class="mc" data-in="${g}|${esc(n)}"><label><input type="checkbox" data-in="${g}|${esc(n)}" ${INOFF.has(g+"|"+n)?"":"checked"}><span class="nm">${esc(ALAB(n,g))}<small></small></span><span class="q"></span></label></span>`).join("")}`:"")
+      +(cl.length?`<span class="msub"><span class="hint" tabindex="0" data-tip="${esc(cap1(MCFG[g].noun))} inside other traded wastes, counted here and not with those wastes. Shares are estimated.">Found in other shipments</span></span>${cl.map(chip).join("")}`:"")+`</div>`};
+  $("#hpgrid").innerHTML=`<div class="mboxes">${GROUPS.map(box).join("")}</div>`;
   $(".macts").hidden=!HAS_HID||$("#mgplas").getAttribute("aria-expanded")==="false";
+  ["#hpoff","#hpreset","#hpsave"].forEach(q=>$(q).hidden=!EMB);$("#hpload").parentElement.hidden=!EMB;
   if(POP)popUI(POP);
   hpRefresh();
 }
-function popUI(k){const h=HS[k],o=HON[k],L=esc(h.n);
+function popUI(k){const h=HS[k],o=HON[k],L=esc(h.n),N=cap1(MCFG[h.own].noun);
   const num=(attr,v,lab)=>`<input type="number" min="0" max="100" step="0.25" value="${v}" ${attr}="${k}" aria-label="${lab}">`;
-  hpop.dataset.k=k;hpop.setAttribute("aria-label","Assumptions for "+h.n);
+  hpop.dataset.k=k;hpop.setAttribute("aria-label","Share for "+h.n);
   hpop.innerHTML=`<div class="ph"><b>${L}</b><button type="button" class="x" data-close aria-label="Close">×</button></div>
     <small>${esc(h.codes)} · <span id="hpt"></span></small>
     <label class="incl"><input type="checkbox" data-k="${k}" ${o.on?"checked":""}> Include</label>
-    <div class="f" ${o.byInc?"hidden":""}><span class="fl">${cap1(MC.noun)} share</span><input type="range" min="0" max="100" step="0.25" value="${o.f}" data-kf="${k}" list="hpd-${k}" aria-label="${cap1(MC.noun)} share of ${L}"><datalist id="hpd-${k}"><option value="${h.f}"></option></datalist>${num("data-kn",o.f,cap1(MC.noun)+" share of "+L+", per cent")}%</div>
-    <div class="incg" ${o.byInc?"":"hidden"}>${["HIC","UMC","LMC","LIC"].map(g=>`<label>${g}${num("data-ki-"+g.toLowerCase(),o.inc[g],cap1(MC.noun)+" share for "+INC[g]+" exporters")}</label>`).join("")}</div>
-    <label class="sm"><input type="checkbox" data-kb="${k}" ${o.byInc?"checked":""}> ${cap1(MC.noun)} share varies by exporter's income group</label>
+    <div class="f" ${o.byInc?"hidden":""}><span class="fl">${N} share</span><input type="range" min="0" max="100" step="0.25" value="${o.f}" data-kf="${k}" list="hpd-${k}" aria-label="${N} share of ${L}"><datalist id="hpd-${k}"><option value="${h.f}"></option></datalist>${num("data-kn",o.f,N+" share of "+L+", per cent")}%</div>
+    <div class="incg" ${o.byInc?"":"hidden"}>${["HIC","UMC","LMC","LIC"].map(g=>`<label>${g}${num("data-ki-"+g.toLowerCase(),o.inc[g],N+" share for "+INC[g]+" exporters")}</label>`).join("")}</div>
+    <label class="sm"><input type="checkbox" data-kb="${k}" ${o.byInc?"checked":""}> ${N} share varies by exporter's income group</label>
     <div class="srcbox" id="hps-${k}"></div>
     <div class="add"><span id="hpal"></span><b id="hpa"></b></div>`;
   hpSrc(k,true);popRefresh();
 }
-function popRefresh(){const k=POP;if(!k)return;hpSrc(k);$("#hpt").textContent=`${fT(hTot(k,S.view))} traded in ${YL}, ${VIEWS[S.view]}`;$("#hpal").textContent=(HON[k].on?"Adds to ":"Would add to ")+MC.n.toLowerCase();$("#hpa").textContent=fT(addOf(k))}
+function popRefresh(){const k=POP;if(!k)return;hpSrc(k);$("#hpt").textContent=`${fT(hTot(k,S.view))} traded in ${YL}, ${VIEWS[S.view]}`;$("#hpal").textContent=(HON[k].on?"Adds to ":"Would add to ")+MCFG[HS[k].own].n.toLowerCase();$("#hpa").textContent=fT(addOf(k))}
 function placePop(btn){if(matchMedia("(max-width:640px)").matches)return;const r=btn.getBoundingClientRect(),w=hpop.offsetWidth;
   hpop.style.left=Math.max(8,Math.min(r.right-w,document.documentElement.clientWidth-w-8)+scrollX)+"px";hpop.style.top=(r.bottom+scrollY+6)+"px"}
 function openPop(k,btn){if(POP===k){closePop();return}closePop();POP=k;popUI(k);hpop.hidden=false;placePop(btn);btn.setAttribute("aria-expanded","true");const f=hpop.querySelector("input[type=range],input[type=number]");if(f)f.focus({preventScroll:true})}
 function closePop(focus){if(!POP)return;const b=$(`.gear[data-pop="${POP}"]`);POP=null;hpop.hidden=true;if(b){b.setAttribute("aria-expanded","false");if(focus)b.focus()}}
 function hpSrc(k,force){const box=$("#hps-"+k);if(!box)return;const d=isDef(k);if(!force&&box.dataset.d===String(d))return;box.dataset.d=d;const h=HS[k],o=HON[k];
-  box.innerHTML=d?`<small class="src">${esc(h.src)}</small>`:`<label class="usl"><span>Source for your value</span><input type="text" maxlength="300" class="usrc ${o.usrc.trim()?"":"need"}" data-ks="${k}" value="${esc(o.usrc)}" placeholder="Add a source" aria-label="Source for your ${esc(h.n)} ${MC.noun} share"></label><small class="src def">Default ${h.f}%. ${esc(h.src)} <button type="button" class="relnk" data-kr="${k}">Use default</button></small>`}
+  box.innerHTML=d?`<small class="src">${esc(h.src)}</small>`:`<label class="usl"><span>Source for your value</span><input type="text" maxlength="300" class="usrc ${o.usrc.trim()?"":"need"}" data-ks="${k}" value="${esc(o.usrc)}" placeholder="Add a source" aria-label="Source for your ${esc(h.n)} ${MCFG[h.own].noun} share"></label><small class="src def">Default ${h.f}%. ${esc(h.src)} <button type="button" class="relnk" data-kr="${k}">Use default</button></small>`}
+// Tonnes of each material inside group g's own shipments, and which total each sits in.
+function insideOf(g){const T={},O={};let tot=0;
+  for(const k of homesOf(g)){if(!HON[k].on)continue;for(const a of atomsC(k,null))(O[a.n]||(O[a.n]=new Set())).add(ownerOf(k,a));
+    for(const h of hViews(k))if(h.v===S.view){const i=C[h.ex]?C[h.ex][2]:null;tot+=h.t;for(const a of atomsC(k,INCS.includes(i)?i:null))T[a.n]=(T[a.n]||0)+h.t*a.f}}
+  return {T,O,tot}}
+function groupTotals(SCRAPT,adds){const on=hidOn(),A={};for(const g of GROUPS)A[g]=(g==="plastic"&&S.scrap?SCRAPT:0)+d3.sum(on.filter(k=>HS[k].own===g),k=>adds[k]);return A}
 function hpRefresh(){
-  const on=hidOn(),adds={};for(const k in HS)adds[k]=HROWS[k].length?addOf(k):0;const add=d3.sum(on,k=>adds[k]);
+  const on=hidOn(),adds={};for(const k in HS)adds[k]=HROWS[k].length?addOf(k):0;
   const SCRAPT=SCRAPV(S.view);
   for(const k in HS){if(!HROWS[k].length)continue;const c=$(`.mc[data-k="${k}"]`);if(!c)continue;c.classList.toggle("on",HON[k].on);$("#hq-"+k).textContent=fT(adds[k]);c.querySelector(".gear")?.classList.toggle("chg",!isDef(k))}
   const sc=$(`.mc[data-k="scrap"]`);if(sc){sc.classList.toggle("on",S.scrap);$("#hq-scrap").textContent=fT(SCRAPT)}
   if(HASP){const pt=polyTot(S.view);PKEYS.forEach((k,j)=>{const c=$(`.mc[data-k="poly-${k}"]`);if(!c)return;c.classList.toggle("on",PON[k]);c.querySelector("input").checked=PON[k];$("#hq-poly-"+k).textContent=fT(pt[j])});try{localStorage.setItem("gwt-poly",JSON.stringify(PON))}catch(e){}}
-  const total=add+(S.scrap?SCRAPT:0);
-  $("#hpsum").innerHTML=!(on.length||S.scrap)?"Nothing selected":COMBO&&GROUPS.length>1?comboSum(total):`<b>${fT(total)}</b> of ${COMBO?gLab(GROUPS[0]).toLowerCase():MC.noun}, ${VIEWS[S.view]}`;
+  const A=groupTotals(SCRAPT,adds);for(const g of GROUPS){const el=$("#hg-"+g);if(el)el.textContent=fT(A[g])}
+  if(CONTENT)for(const g of GROUPS){const rows=document.querySelectorAll(`.mgbox[data-g="${g}"] .mc[data-in]`);if(!rows.length)continue;const {T,O,tot}=insideOf(g);
+    rows.forEach(el=>{const n=el.dataset.in.slice(g.length+1),t=T[n]||0,os=[...(O[n]||[])],away=os.filter(o=>o&&o!==g),mine=os.includes(g),inp=el.querySelector("input");
+      inp.disabled=away.length>0&&!mine;inp.checked=!INOFF.has(g+"|"+n);el.classList.toggle("on",mine);el.classList.toggle("moved",inp.disabled);
+      el.querySelector("small").textContent=(tot>0?pct(t/tot):"")+(away.length?` · in ${andList(away.map(o=>MCFG[o].n))}`:"");el.querySelector(".q").textContent=fT(t)})}
+  const total=d3.sum(GROUPS,g=>A[g]),any=on.length||S.scrap;
+  let h=!any?"Nothing selected":GROUPS.length>1?GROUPS.map(g=>`${esc(MCFG[g].n)} <b>${fT(A[g])}</b>`).join(" + ")+` = <b>${fT(total)}</b>`:`<b>${fT(total)}</b> of ${esc(MCFG[GROUPS[0]].n.toLowerCase())}`;
+  if(any&&CONTENT){const w=(S.scrap?SCRAPT:0)+d3.sum(Object.keys(HS).filter(k=>HS[k].core&&HON[k].on&&HROWS[k].length),k=>hTot(k,S.view));h+=` · whole shipments <b>${fT(w)}</b>`}
+  $("#hpsum").innerHTML=h+(any?`, ${VIEWS[S.view]}`:"");
   popRefresh();
-  try{localStorage.setItem(ASSUME,JSON.stringify({streams:HON}))}catch(e){}
+  saveShares();
 }
-// Each group's own total, and what the groups share, so the reader sees how the total is made.
-function comboSum(total){const A={};for(const g of GROUPS)A[g]=g==="plastic"&&S.scrap?SCRAPV(S.view):0;
-  for(const k of Object.keys(HS).filter(k=>HON[k].on&&HROWS[k].length))for(const h of hViews(k))if(h.v===S.view){const i=C[h.ex]?C[h.ex][2]:null;for(const g of GROUPS)A[g]+=h.t*comboSh(k,INCS.includes(i)?i:null,g)}
-  const sum=d3.sum(GROUPS,g=>A[g]),both=GROUPS.length>2?"in more than one group":"in both",ov=sum-total;
-  return GROUPS.map(g=>`${esc(gLab(g))} <b>${fT(A[g])}</b>`).join(" + ")+(ov>.5?` − ${both}${OVOUT&&GROUPS.length===2?` <b>${fT(ov/2)}</b> × 2`:OVOUT?`, left out <b>${fT(ov)}</b>`:` <b>${fT(ov)}</b>`}`:"")+` = <b>${fT(total)}</b>, ${VIEWS[S.view]}`}
 // After a polymer tick: rescale the HS 3915 routes, and the trend line to the ticked polymers.
 const TRP={};let TR0;
 async function polyTR(){if(!HASP)return;if(TR0===undefined)TR0=TR;let T=TR0;
   if(!polyAll()&&polyOn().length){const fs=await Promise.all(polyOn().map(k=>TRP[k]||(TRP[k]=fetch(`data/trends_${k}.json`,{cache:"no-cache"}).then(r=>r.ok?r.json():null).catch(()=>null))));
-    if(fs.every(Boolean)){const P=mergeTR(fs);T=COMBO&&TRCORE?mergeTR([P,TRCORE]):P}}
-  else if(!polyOn().length&&COMBO)T=TRCORE;
+    if(fs.every(Boolean)){const P=mergeTR(fs);T=TRCORE?mergeTR([P,TRCORE]):P}}
+  else if(!polyOn().length)T=TRCORE;
   if(T&&T!==TR){TR=T;drawTrend()}}
 function setPoly(){S.scrap=polyOn().length>0;applyPoly();hpApply();polyTR()}
-let hpT=0;const hpApply=()=>{cancelAnimationFrame(hpT);hpT=requestAnimationFrame(()=>{resolve();render();hpRefresh()})};
+let hpT=0;const hpApply=()=>{cancelAnimationFrame(hpT);hpT=requestAnimationFrame(()=>{recount();resolve();render();hpRefresh()})};
 const turnOn=k=>{if(!HON[k].on){HON[k].on=true;document.querySelectorAll(`input[data-k="${k}"]`).forEach(c=>c.checked=true)}};
 const onChange=e=>{const t=e.target;
   if(t.id==="hp-scrap"){S.scrap=t.checked;hpApply()}
   else if(t.dataset.poly){PON[t.dataset.poly]=t.checked;setPoly()}
+  else if(t.dataset.in){const x=t.dataset.in;if(t.checked)INOFF.delete(x);else INOFF.add(x);hpApply()}
   else if(t.dataset.k){HON[t.dataset.k].on=t.checked;document.querySelectorAll(`input[data-k="${t.dataset.k}"]`).forEach(c=>c.checked=t.checked);hpApply()}
   else if(t.dataset.kb){const k=t.dataset.kb;HON[k].byInc=t.checked;if(t.checked)for(const g in HON[k].inc)HON[k].inc[g]=HON[k].f;turnOn(k);popUI(k);hpApply()}};
 const onInput=e=>{const t=e.target,ds=t.dataset;if(ds.ks){HON[ds.ks].usrc=t.value.slice(0,300);t.classList.toggle("need",!t.value.trim());hpRefresh();return}const v=Math.max(0,Math.min(100,+t.value||0));let k=null;
@@ -2042,27 +2087,27 @@ $("#hpgrid").addEventListener("click",e=>{const b=e.target.closest("[data-pop]")
 hpop.addEventListener("click",e=>{if(e.target.closest("[data-close]")){closePop(true);return}const b=e.target.closest("[data-kr]");if(!b)return;const k=b.dataset.kr,on=HON[k].on;HON[k]=HDEF(k);HON[k].on=on;popUI(k);hpApply()});
 document.addEventListener("pointerdown",e=>{if(POP&&!hpop.contains(e.target)&&!e.target.closest("[data-pop]"))closePop()});
 addEventListener("resize",()=>{if(POP){const b=$(`.gear[data-pop="${POP}"]`);if(b)placePop(b)}});
-$("#hpshape").onclick=()=>{for(const k in HS){HON[k].on=HROWS[k].length>0}S.scrap=PLAS||COMBO&&GROUPS.includes("plastic");if(S.scrap)for(const k of PKEYS)PON[k]=true;applyPoly();polyTR();hpUI();hpApply()};
-$("#hpclear").onclick=()=>{for(const k in HS)HON[k].on=false;hpUI();hpApply()};
-$("#hpoff").onclick=()=>{for(const k in HS)HON[k].on=!!HS[k].core&&HROWS[k].length>0;S.scrap=PLAS;if(PLAS)for(const k of PKEYS)PON[k]=true;applyPoly();polyTR();hpUI();hpApply()};
-$("#hpreset").onclick=()=>{for(const k in HS){const on=HON[k].on;HON[k]=HDEF(k);HON[k].on=on}hpUI();hpApply()};
-const goMat=(gs,parts=PARTS,out=OVOUT)=>{const u=new URL(location.href),list=GORD.filter(g=>gs.includes(g));u.hash="";
+const polyAllOn=o=>{for(const k of PKEYS)PON[k]=o;applyPoly();polyTR()};
+$("#hpshape").onclick=()=>{for(const k in HS)HON[k].on=HROWS[k].length>0;INOFF.clear();S.scrap=GROUPS.includes("plastic");if(S.scrap)polyAllOn(true);hpUI();hpApply()};
+$("#hpclear").onclick=()=>{for(const k in HS)HON[k].on=false;S.scrap=false;if(HASP)polyAllOn(false);hpUI();hpApply()};
+$("#hpoff").onclick=()=>{for(const k in HS)if(HS[k].claim)HON[k].on=false;hpUI();hpApply()};
+$("#hpreset").onclick=()=>{for(const k in HS)if(HS[k].claim){const on=HON[k].on;HON[k]=HDEF(k);HON[k].on=on}hpUI();hpApply()};
+// The materials and the count live in the address, so a view can be shared; changing them reloads the data.
+const goMat=(gs,content=CONTENT)=>{const u=new URL(location.href),list=GORD.filter(g=>gs.includes(g));u.hash="";
   if(list.length===1&&list[0]==="plastic")u.searchParams.delete("mat");else u.searchParams.set("mat",list.join(","));
-  const pp=list.filter(g=>parts[g]).map(g=>g+"-"+parts[g]);if(pp.length)u.searchParams.set("part",pp.join(","));else u.searchParams.delete("part");
-  if(out&&list.length>1)u.searchParams.set("ov","0");else u.searchParams.delete("ov");
+  u.searchParams.delete("part");u.searchParams.delete("ov");
+  if(content)u.searchParams.set("count","content");else u.searchParams.delete("count");
+  if(S.sel)u.searchParams.set("c",S.sel);else u.searchParams.delete("c");
   if(!yearsOf(list).includes(YEAR))u.searchParams.delete("year");location.href=u.toString()};
-document.querySelectorAll(".mtabs [data-mat]").forEach(b=>{const g=b.dataset.mat,on=GROUPS.includes(g),ok=g==="plastic"||!!(MAN.materials||{})[g];
-  const w=document.createElement("span");w.className="mg";b.replaceWith(w);w.append(b);b.setAttribute("aria-pressed",on);
-  if(!ok){b.disabled=true;return}
-  if(!on)b.onclick=()=>goMat([g],{});else if(b.id!=="mgplas")b.onclick=()=>$("#mgplas").click();
-  if(on&&GROUPS.length===1)return;
-  const x=document.createElement("button");x.type="button";x.className="madd";x.textContent=on?"×":"+";x.title=on?`Take out ${MCFG[g].n}`:`Add ${MCFG[g].n}`;x.setAttribute("aria-label",x.title);
-  x.onclick=()=>{try{localStorage.setItem("gwt-mg2","1")}catch(e){}goMat(on?GROUPS.filter(q=>q!==g):GROUPS.concat(g))};w.append(x)});
-$("#hpgrid").addEventListener("change",e=>{const t=e.target;if(!t.dataset.part)return;const box=t.closest("[data-g]"),g=box.dataset.g,L=[...box.querySelectorAll("[data-part]")].filter(c=>c.checked).map(c=>c.dataset.part).join("");
-  if(!L){t.checked=true;return}goMat(GROUPS,{...PARTS,[g]:L.length===PARTOK[g].length?null:L})});
-$("#hpgrid").addEventListener("click",e=>{const b=e.target.closest("[data-ov]");if(b&&(b.dataset.ov==="0")!==OVOUT)goMat(GROUPS,PARTS,b.dataset.ov==="0")});
-$("#hpsave").onclick=()=>saveFile(PLAS?"gwt-hidden-plastic-assumptions.json":`gwt-embedded-${MAT}-assumptions.json`,JSON.stringify({about:`Global Waste Trade Data Hub ${PLAS?"hidden-plastic":"embedded "+MC.noun} assumptions. f = ${MC.noun} share %`+", source = source for the value used, inc = share % by exporter income group (used when byInc is true), ",version:VERSION,streams:Object.fromEntries(Object.entries(HON).map(([k,o])=>[k,{name:HS[k].n,codes:HS[k].codes,...o,default_f:HS[k].f,source:isDef(k)?HS[k].src:o.usrc.trim()||"No source given"}]))},null,1));
-$("#hpload").onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const j=JSON.parse(await f.text());if(!j||!j.streams)throw 0;let n=0;for(const k in HS)if(j.streams[k]){HON[k]=sanitiseH(k,j.streams[k]);n++}hpUI();hpApply();toast(`Loaded assumptions for ${n} stream${n===1?"":"s"}.`)}catch(err){toast("That file isn't a set of assumptions from this site.")}e.target.value=""};
+document.querySelectorAll("#mgroups [data-mat]").forEach(b=>{const g=b.dataset.mat,on=GROUPS.includes(g),ok=g==="plastic"||!!(MAN.materials||{})[g];
+  b.setAttribute("aria-pressed",on);if(!ok){b.disabled=true;return}
+  b.onclick=()=>{if(on&&GROUPS.length===1){toast("Tick another material first.");return}goMat(on?GROUPS.filter(q=>q!==g):GROUPS.concat(g))}});
+document.querySelectorAll("#mcount [data-count]").forEach(b=>{const c=b.dataset.count==="content";b.setAttribute("aria-pressed",c===CONTENT);b.onclick=()=>{if(c!==CONTENT)goMat(GROUPS,c)}});
+$("#hpsave").onclick=()=>saveFile(`gwt-${MAT}-shares.json`,JSON.stringify({about:"Global Waste Trade Data Hub: shares of material found in other shipments. f = share %, source = source for the value used, inc = share % by exporter income group (used when byInc is true).",version:VERSION,
+  streams:Object.fromEntries(Object.keys(HS).filter(k=>HS[k].claim).map(k=>[k,{name:HS[k].n,material:MCFG[HS[k].own].n,codes:HS[k].codes,...HON[k],default_f:HS[k].f,source:isDef(k)?HS[k].src:HON[k].usrc.trim()||"No source given"}]))},null,1));
+$("#hpload").onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const j=JSON.parse(await f.text());if(!j||!j.streams)throw 0;let n=0;
+  for(const k in HS){if(!HS[k].claim)continue;const o=j.streams[k]||(GROUPS.length===1&&j.streams[HS[k].sk]);if(o){HON[k]=sanitiseH(k,o);n++}}
+  hpUI();hpApply();toast(`Loaded shares for ${n} stream${n===1?"":"s"}.`)}catch(err){toast("That file isn't a set of shares from this site.")}e.target.value=""};
 hpUI();polyTR();
 function fillRegions(){const sel=$("#region");sel.innerHTML=`<option value="">Whole world</option>`+regionNames(S.scheme).map(r=>`<option>${esc(r)}</option>`).join("");sel.value=S.region||""}
 $("#scheme").onchange=e=>{S.scheme=e.target.value;B.scheme=S.scheme;$("#bscheme").value=B.scheme;S.region=null;rdirUI();fillRegions();render();svg.transition().duration(600).call(zoom.transform,d3.zoomIdentity)};
