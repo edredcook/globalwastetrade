@@ -31,11 +31,13 @@ jobs:
           ESTAT_APP_ID: ${{ secrets.ESTAT_APP_ID }}
           KCS_SERVICE_KEY: ${{ secrets.KCS_SERVICE_KEY }}
           MIXED: 550510,6309,6310,854931,854939,854991,854999,382510,4707,401220,4004,401700
-          MATERIALS: paper metals textiles ewaste batteries
+          MATERIALS: paper metals textiles ewaste batteries glass wood slag hazardous organic ships
           POLY: 391510,391520,391530,391590
         run: |
           # Codes of each other material group, from build_site_data.MATERIALS
-          codes() { python -c "import sys; sys.path.insert(0, 'pipeline'); import build_site_data as b; print(','.join(b.material_codes('$1')))"; }
+          # Downloads: one per group, or one shared by several (build_site_data.raw_names)
+          codes() { python -c "import sys; sys.path.insert(0, 'pipeline'); import build_site_data as b; print(','.join(b.raw_codes('$1')))"; }
+          RAWS=$(python -c "import sys; sys.path.insert(0, 'pipeline'); import build_site_data as b; print(' '.join(b.raw_names()))")
           if [ -z "$YEARS" ]; then Y=$(date -u +%Y); YEARS="$((Y-3)) $((Y-2)) $((Y-1))"; fi
           echo "YEARS=$YEARS" >> "$GITHUB_ENV"
           : > failed.txt
@@ -53,12 +55,11 @@ jobs:
             else
               echo "$y: no download of HS 3915 by polymer" >> failed.txt
             fi
+            for r in $RAWS; do
+              python pipeline/fetch_comtrade.py --year "$y" --name "$r" --cmd "$(codes $r)" || echo "$y: no download of $r" >> failed.txt
+            done
             for m in $MATERIALS; do
-              if python pipeline/fetch_comtrade.py --year "$y" --name "$m" --cmd "$(codes $m)"; then
-                python pipeline/build_site_data.py --year "$y" --material "$m" || echo "$y $m: build stopped, see the report" >> failed.txt
-              else
-                echo "$y: no download of $m" >> failed.txt
-              fi
+              python pipeline/build_site_data.py --year "$y" --material "$m" || echo "$y $m: build stopped, see the report" >> failed.txt
             done
           done
           # Last year and the current year: annual returns where filed, the rest modelled
@@ -68,9 +69,9 @@ jobs:
             python pipeline/fetch_comtrade.py --year "$y" --monthly || echo "$y: no monthly download" >> failed.txt
             python pipeline/fetch_comtrade.py --year "$y" --monthly --name mixed --cmd "$MIXED" \
               || echo "$y: no monthly download of the mixed streams" >> failed.txt
-            for m in $MATERIALS; do
-              python pipeline/fetch_comtrade.py --year "$y" --monthly --name "$m" --cmd "$(codes $m)" \
-                || echo "$y: no monthly download of $m" >> failed.txt
+            for r in $RAWS; do
+              python pipeline/fetch_comtrade.py --year "$y" --monthly --name "$r" --cmd "$(codes $r)" \
+                || echo "$y: no monthly download of $r" >> failed.txt
             done
           done
           # Months not yet in Comtrade, from national statistics offices (provisional)
@@ -92,12 +93,11 @@ jobs:
             else
               echo "$y (modelled): not modelled" >> failed.txt
             fi
+            for r in $RAWS; do
+              python pipeline/model_part_year.py --year "$y" --name "$r" || echo "$y $r (modelled): not modelled" >> failed.txt
+            done
             for m in $MATERIALS; do
-              if python pipeline/model_part_year.py --year "$y" --name "$m"; then
-                python pipeline/build_site_data.py --year "$y" --material "$m" || echo "$y $m (modelled): build stopped, see the report" >> failed.txt
-              else
-                echo "$y $m (modelled): not modelled" >> failed.txt
-              fi
+              python pipeline/build_site_data.py --year "$y" --material "$m" || echo "$y $m (modelled): build stopped, see the report" >> failed.txt
             done
           done
           # Electrical and electronic goods shipped as used goods: the year before the
